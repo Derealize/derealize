@@ -155,3 +155,18 @@ MIT © [Electron React Boilerplate](https://github.com/electron-react-boilerplat
 [david-dev-url]: https://david-dm.org/electron-react-boilerplate/electron-react-boilerplate?type=dev
 [good-first-issue-image]: https://img.shields.io/github/issues/electron-react-boilerplate/electron-react-boilerplate/good%20first%20issue.svg?label=good%20first%20issues
 [good-first-issue-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues?q=is%3Aopen+is%3Aissue+label%3A"good+first+issue"
+
+# TIPS
+
+用 yarn，不要挂代理
+<https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
+
+todo:
+
+```json
+"husky": {
+  "hooks": {
+    "pre-commit": "lint-staged"
+  }
+}
+```

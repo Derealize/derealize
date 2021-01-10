@@ -14,5 +14,10 @@
     "postinstall": "yarn electron-rebuild"
   },
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "nodegit": "^0.27.0"
+  },
+  "devDependencies": {
+    "@types/nodegit": "^0.26.12"
+  }
 }
