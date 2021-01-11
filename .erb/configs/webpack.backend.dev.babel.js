@@ -19,7 +19,7 @@ export default merge(baseConfig, {
 
   target: 'node',
 
-  entry: ['core-js', 'regenerator-runtime/runtime', require.resolve('../../src/backend/backend.ts')],
+  entry: require.resolve('../../src/backend/backend.ts'),
 
   output: {
     path: path.join(__dirname, '../../'),

@@ -109,7 +109,7 @@ const Test = (): JSX.Element => {
           setGitCloneOutput('')
         }}
       >
-        npmInstall
+        gitClone
       </button>
       <div>{gitCloneOutput}</div>
 
