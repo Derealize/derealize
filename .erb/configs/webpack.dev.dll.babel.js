@@ -2,16 +2,16 @@
  * Builds the DLL for development electron renderer process
  */
 
-import webpack from 'webpack';
-import path from 'path';
-import { merge } from 'webpack-merge';
-import baseConfig from './webpack.config.base';
-import { dependencies } from '../../package.json';
-import CheckNodeEnv from '../scripts/CheckNodeEnv';
+import webpack from 'webpack'
+import path from 'path'
+import { merge } from 'webpack-merge'
+import baseConfig from './webpack.base'
+import { dependencies } from '../../package.json'
+import CheckNodeEnv from '../scripts/CheckNodeEnv'
 
-CheckNodeEnv('development');
+CheckNodeEnv('development')
 
-const dist = path.join(__dirname, '../dll');
+const dist = path.join(__dirname, '../dll')
 
 export default merge(baseConfig, {
   context: path.join(__dirname, '../..'),
@@ -27,7 +27,7 @@ export default merge(baseConfig, {
   /**
    * Use `module` from `webpack.config.renderer.dev.js`
    */
-  module: require('./webpack.config.renderer.dev.babel').default.module,
+  module: require('./webpack.dev.babel').default.module,
 
   entry: {
     renderer: Object.keys(dependencies || {}),
@@ -69,4 +69,4 @@ export default merge(baseConfig, {
       },
     }),
   ],
-});
+})

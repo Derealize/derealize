@@ -36,7 +36,7 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={Hello} />
+        <Route path="/" component={Test} />
       </Switch>
     </Router>
   )

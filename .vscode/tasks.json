@@ -4,7 +4,7 @@
     {
       "type": "npm",
       "label": "Start Webpack Dev",
-      "script": "start:renderer",
+      "script": "start",
       "options": {
         "cwd": "${workspaceFolder}"
       },

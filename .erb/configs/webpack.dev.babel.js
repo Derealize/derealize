@@ -4,9 +4,13 @@ import webpack from 'webpack'
 import chalk from 'chalk'
 import { merge } from 'webpack-merge'
 import { spawn, execSync } from 'child_process'
-import baseConfig from './webpack.config.base'
+import baseConfig from './webpack.base'
 import CheckNodeEnv from '../scripts/CheckNodeEnv'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
+
+const sleep = (ms) => {
+  return new Promise((r) => setTimeout(r, ms))
+}
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -35,16 +39,15 @@ export default merge(baseConfig, {
 
   mode: 'development',
 
-  target: 'electron-renderer',
+  // https://webpack.js.org/configuration/target/
+  // target: 'electron-renderer',
+  target: 'web',
 
-  entry: {
-    renderer: ['core-js', 'regenerator-runtime/runtime', require.resolve('../../src/index.tsx')],
-    backend: require.resolve('../../src/backend/backend.ts'),
-  },
+  entry: ['core-js', 'regenerator-runtime/runtime', require.resolve('../../src/index.tsx')],
 
   output: {
-    publicPath: `http://localhost:${port}/dist/`,
-    filename: '[name].dev.js',
+    publicPath,
+    filename: 'renderer.dev.js',
   },
 
   module: {
@@ -251,7 +254,17 @@ export default merge(baseConfig, {
       verbose: true,
       disableDotRule: false,
     },
-    before() {
+    async before() {
+      console.log('Starting Backend Process...')
+      spawn('npm', ['run', 'start:backend'], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit',
+      })
+        .on('close', (code) => process.exit(code))
+        .on('error', (spawnError) => console.error(spawnError))
+
+      await sleep(1000)
       console.log('Starting Main Process...')
       spawn('npm', ['run', 'start:main'], {
         shell: true,

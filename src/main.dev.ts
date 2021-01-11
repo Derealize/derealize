@@ -144,7 +144,7 @@ const createBackendWindow = (socketId: string) => {
       enableRemoteModule: true,
     },
   })
-  backendWin.loadURL(`file://${__dirname}/backend/backend_dev.html`)
+  backendWin.loadURL(`file://${__dirname}/backend/backend.dev.html`)
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
