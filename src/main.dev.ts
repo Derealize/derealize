@@ -133,6 +133,10 @@ app.on('activate', async () => {
 })
 
 const createBackendWindow = (socketId: string) => {
+  // gitnode 还未支持non-context-aware, 希望未来支持
+  // https://github.com/electron/electron/issues/18397#issuecomment-583221969
+  app.allowRendererProcessReuse = false
+
   const backendWin = new BrowserWindow({
     x: 400,
     y: 400,
@@ -154,8 +158,9 @@ const createBackendWindow = (socketId: string) => {
 
 let backendProcess: ChildProcess
 const createBackendProcess = (socketId: string) => {
-  // todo: build backend.ts
-  backendProcess = fork(`${__dirname}/backend/backend.dev.js`, ['--subprocess', app.getVersion(), socketId])
+  backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
+    execArgv: ['-r', './.erb/scripts/BabelRegister'],
+  })
 
   backendProcess.on('message', (msg) => {
     log.info(`backendProcess: ${msg}`)
@@ -166,8 +171,8 @@ app
   .whenReady()
   .then(async () => {
     console.log('app ready!')
-    const socketId = await findOpenSocket()
 
+    const socketId = await findOpenSocket()
     createWindow(socketId)
 
     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {

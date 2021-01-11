@@ -1,29 +1,43 @@
 import path from 'path'
 import webpack from 'webpack'
-import { merge } from 'webpack-merge'
-import TerserPlugin from 'terser-webpack-plugin'
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
-import baseConfig from './webpack.base'
-import CheckNodeEnv from '../scripts/CheckNodeEnv'
-import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 
-if (process.env.NODE_ENV === 'production') {
-  CheckNodeEnv('development')
-}
-
-export default merge(baseConfig, {
+export default {
   devtool: 'inline-source-map',
   watch: true,
 
   mode: 'development',
 
-  target: 'node',
+  // 只要使用 new BrowserWindow 就是 electron-renderer 环境
+  target: 'electron-main',
 
-  entry: require.resolve('../../src/backend/backend.ts'),
+  entry: path.resolve(__dirname, '../../src/backend/backend.ts'),
 
   output: {
-    path: path.join(__dirname, '../../'),
-    filename: './src/backend/backend.dev.js',
+    path: path.resolve(__dirname, '../../src/backend'),
+    filename: 'backend.dev.js',
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+          },
+        },
+      },
+      {
+        test: /\.node$/,
+        use: 'node-loader',
+      },
+    ],
+  },
+
+  resolve: {
+    extensions: ['.js', '.json', '.ts', '.node'],
   },
 
   plugins: [
@@ -45,4 +59,4 @@ export default merge(baseConfig, {
     __dirname: false,
     __filename: false,
   },
-})
+}
