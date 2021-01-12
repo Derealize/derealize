@@ -49,7 +49,9 @@ npm-debug.log.*
 *.sass.d.ts
 *.scss.d.ts
 
-.yarn
+
+yarn.lock
+**/yarn
 
 src/backend/backend.dev.js
-src/backend/backend.prod.js
+*.node
