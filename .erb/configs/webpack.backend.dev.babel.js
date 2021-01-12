@@ -9,7 +9,7 @@ export default {
 
   // 如果使用'node'，则main进程ipcRenderer不可用。
   // 这是new BrowserWindow的特别之处，实际它没有spawn/fork进程，而是把当前进程attach到了browser
-  target: 'node',
+  target: 'electron-main',
 
   entry: path.resolve(__dirname, '../../src/backend/backend.ts'),
 

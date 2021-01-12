@@ -6,17 +6,17 @@ export const Clone = async (url: string, path: string) => {
   try {
     const repository = await Git.Clone.clone(url, path)
     const commit = await repository.getHeadCommit()
-    broadcast('git_clone', { result: commit.id().tostrS() })
+    broadcast('gitClone', { result: commit.id().tostrS() })
   } catch (err) {
     if (err.message === 'exist') {
       // todo condition
       // https://github.com/nodegit/nodegit/blob/master/guides/cloning/index.js
       const repository = await Git.Repository.open(path)
       const commit = await repository.getHeadCommit()
-      broadcast('git_clone', { result: commit.id().tostrS() })
+      broadcast('gitClone', { result: commit.id().tostrS() })
     } else {
       log.error(err)
-      broadcast('git_clone', { error: err.message })
+      broadcast('gitClone', { error: err.message })
     }
   }
 }
@@ -33,9 +33,9 @@ export const Commit = async (path: string) => {
     const commit = await repo.getCommit(head)
     const committer = Git.Signature.default(repo)
     const commitId = await repo.createCommit('HEAD', committer, committer, 'message', tree, [commit])
-    broadcast('git_commit', { result: commitId.tostrS() })
+    broadcast('gitCommit', { result: commitId.tostrS() })
   } catch (err) {
     log.error(err)
-    broadcast('git_commit', { error: err.message })
+    broadcast('gitCommit', { error: err.message })
   }
 }
