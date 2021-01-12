@@ -5,6 +5,7 @@
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:backend\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.main.prod.babel.js",
+    "build:backend": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.backend.prod.babel.js",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
@@ -12,7 +13,7 @@
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.dev.babel.js",
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
-    "start:backend": "cross-env NODE_ENV=development webpack --progress --config ./.erb/configs/webpack.backend.dev.babel.js",
+    "start:backend": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.backend.dev.babel.js",
     "test": "jest"
   },
   "lint-staged": {
@@ -38,6 +39,10 @@
       "index.html",
       "main.prod.js",
       "main.prod.js.map",
+      "backend/backend.prod.js",
+      "backend/backend.prod.js.map",
+      "backend/*.node",
+      "preload.js",
       "package.json"
     ],
     "afterSign": ".erb/scripts/Notarize.js",
@@ -198,6 +203,7 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "browserslist-config-erb": "^0.0.1",
     "chalk": "^4.1.0",
+    "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.3.0",
     "core-js": "^3.6.5",
     "cross-env": "^7.0.2",
@@ -258,7 +264,6 @@
     "electron-store": "^6.0.1",
     "electron-updater": "^4.3.4",
     "history": "^5.0.0",
-    "node-ipc": "^9.1.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",

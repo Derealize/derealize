@@ -1,22 +1,33 @@
 import path from 'path'
 import webpack from 'webpack'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import TerserPlugin from 'terser-webpack-plugin'
+import CheckNodeEnv from '../scripts/CheckNodeEnv'
+import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 
+CheckNodeEnv('production')
+DeleteSourceMaps()
+
+const devtoolsConfig =
+  process.env.DEBUG_PROD === 'true'
+    ? {
+        devtool: 'source-map',
+      }
+    : {}
+
 export default {
-  devtool: 'inline-source-map',
-  watch: true,
+  ...devtoolsConfig,
 
-  mode: 'development',
+  mode: 'production',
 
-  // 如果使用'node'，则main进程ipcRenderer不可用。
-  // 这是new BrowserWindow的特别之处，实际它没有spawn/fork进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: path.resolve(__dirname, '../../src/backend/backend.ts'),
 
   output: {
     path: path.resolve(__dirname, '../../src/backend'),
-    filename: 'backend.dev.js',
+    filename: 'backend.prod.js',
   },
 
   module: {
@@ -42,11 +53,26 @@ export default {
     extensions: ['.js', '.json', '.ts', '.node'],
   },
 
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+      }),
+    ],
+  },
+
   plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
+    new BundleAnalyzerPlugin({
+      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
-    // 即使是BeforeBuild，也需要编译成功才生效
+
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'production',
+      DEBUG_PROD: false,
+      START_MINIMIZED: false,
+    }),
+
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ['backend.dev.js', '**/*.node'],
     }),
