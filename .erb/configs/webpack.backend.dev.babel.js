@@ -7,8 +7,9 @@ export default {
 
   mode: 'development',
 
-  // 只要使用 new BrowserWindow 就是 electron-renderer 环境
-  target: 'electron-main',
+  // 如果使用'node'，则main进程ipcRenderer不可用。
+  // 这是new BrowserWindow的特别之处，实际它没有spawn/fork进程，而是把当前进程attach到了browser
+  target: 'node',
 
   entry: path.resolve(__dirname, '../../src/backend/backend.ts'),
 

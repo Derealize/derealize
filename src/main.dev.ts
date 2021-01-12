@@ -135,6 +135,7 @@ app.on('activate', async () => {
 const createBackendWindow = (socketId: string) => {
   // gitnode 还未支持non-context-aware, 希望未来支持
   // https://github.com/electron/electron/issues/18397#issuecomment-583221969
+  // 这种特殊的调试模式好像也和RendererProcessReuse不兼容
   app.allowRendererProcessReuse = false
 
   const backendWin = new BrowserWindow({
