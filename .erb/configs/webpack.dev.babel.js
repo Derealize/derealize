@@ -255,16 +255,19 @@ export default merge(baseConfig, {
       disableDotRule: false,
     },
     async before() {
-      console.log('Starting Backend Process...')
-      spawn('npm', ['run', 'start:backend'], {
-        shell: true,
-        env: process.env,
-        stdio: 'inherit',
-      })
-        .on('close', (code) => process.exit(code))
-        .on('error', (spawnError) => console.error(spawnError))
+      if (process.env.DEV_PROCESS !== 'true') {
+        console.log('Starting Backend Process...')
+        spawn('npm', ['run', 'start:backend'], {
+          shell: true,
+          env: process.env,
+          stdio: 'inherit',
+        })
+          .on('close', (code) => process.exit(code))
+          .on('error', (spawnError) => console.error(spawnError))
 
-      await sleep(1000)
+        await sleep(1000)
+      }
+
       console.log('Starting Main Process...')
       spawn('npm', ['run', 'start:main'], {
         shell: true,

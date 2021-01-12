@@ -31,8 +31,8 @@ export default merge(baseConfig, {
   entry: './src/main.dev.ts',
 
   output: {
-    path: path.join(__dirname, '../../'),
-    filename: './src/main.prod.js',
+    path: path.resolve(__dirname, '../../src'),
+    filename: 'main.prod.js',
   },
 
   optimization: {

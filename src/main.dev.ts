@@ -159,9 +159,13 @@ const createBackendWindow = (socketId: string) => {
 
 let backendProcess: ChildProcess
 const createBackendProcess = (socketId: string) => {
-  backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
-    execArgv: ['-r', './.erb/scripts/BabelRegister'],
-  })
+  if (process.env.DEV_PROCESS === 'true') {
+    backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
+      execArgv: ['-r', './.erb/scripts/BabelRegister'],
+    })
+  } else {
+    backendProcess = fork(`${__dirname}/backend/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
+  }
 
   backendProcess.on('message', (msg) => {
     log.info(`backendProcess: ${msg}`)
@@ -176,7 +180,7 @@ app
     const socketId = await findOpenSocket()
     createWindow(socketId)
 
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_PROCESS !== 'true') {
       createBackendWindow(socketId)
     } else {
       createBackendProcess(socketId)
@@ -194,4 +198,8 @@ ipcMain.on('getStore', (event, key: string) => {
 ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
   // event.sender.send('setStore-reply', true)
+})
+
+process.on('uncaughtException', (error) => {
+  log.error(error)
 })

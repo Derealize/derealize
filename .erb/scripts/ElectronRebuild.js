@@ -5,8 +5,9 @@ import { dependencies } from '../../src/package.json'
 
 const nodeModulesPath = path.join(__dirname, '../../src/node_modules')
 
-// backend process don't need electron-rebuild
-const depKeys = Object.keys(dependencies || {}).filter((k) => k !== 'nodegit')
+// nodegit looks don't need electron-rebuild
+const depKeys = Object.keys(dependencies || {})
+// .filter((k) => k !== 'nodegit')
 console.log('electron-rebuild depKeys:', depKeys)
 
 if (depKeys.length > 0 && fs.existsSync(nodeModulesPath)) {
