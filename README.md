@@ -4,7 +4,7 @@
 <https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
 
 npm install --global --production windows-build-tools
-最好用 node 安装包的 chocolatey 脚本，完整性更好
+最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
 
 # NodeGit
 
