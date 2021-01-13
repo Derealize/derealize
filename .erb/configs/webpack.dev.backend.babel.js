@@ -48,7 +48,7 @@ export default {
     }),
     new CleanWebpackPlugin({
       // 即使是BeforeBuild，也需要编译成功才生效
-      cleanOnceBeforeBuildPatterns: ['backend.dev.js', '**/*.node'],
+      cleanOnceBeforeBuildPatterns: ['backend.dev.js', '*.node'],
     }),
   ],
 

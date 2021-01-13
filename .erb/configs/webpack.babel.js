@@ -242,7 +242,7 @@ export default merge(baseConfig, {
       verbose: true,
       disableDotRule: false,
     },
-    async before() {
+    before() {
       if (process.env.DEV_PROCESS !== 'true') {
         console.log('Starting Backend Process...')
         spawn('yarn', ['run', 'start:backend'], {
@@ -253,7 +253,7 @@ export default merge(baseConfig, {
           .on('close', (code) => process.exit(code))
           .on('error', (spawnError) => console.error(spawnError))
 
-        await sleep(1000)
+        // await sleep(1000)
       }
 
       console.log('Starting Main Process...')
