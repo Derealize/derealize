@@ -1,36 +1,24 @@
-/**
- * Webpack config for production electron main process
- */
-
 import path from 'path'
 import webpack from 'webpack'
 import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import baseConfig from './webpack.base'
-import CheckNodeEnv from '../scripts/CheckNodeEnv'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 
-CheckNodeEnv('production')
 DeleteSourceMaps()
-
-const devtoolsConfig =
-  process.env.DEBUG_PROD === 'true'
-    ? {
-        devtool: 'source-map',
-      }
-    : {}
+const isDebug = process.env.DEBUG_PROD === 'true'
 
 export default merge(baseConfig, {
-  ...devtoolsConfig,
+  devtool: isDebug ? 'source-map' : false,
 
   mode: 'production',
 
   target: 'electron-main',
 
   entry: {
-    main: './src/main.dev.ts',
+    main: './src/main.ts',
     backend: './src/backend/backend.ts',
     preload: './src/preload.js',
   },
@@ -63,8 +51,12 @@ export default merge(baseConfig, {
      * NODE_ENV should be production so that modules do not perform certain
      * development checks
      */
+
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': 'production',
+    }),
+
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),

@@ -4,16 +4,16 @@
   "description": "Tailwind CSS for Designer",
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
-    "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.main.prod.babel.js",
-    "build:renderer": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.prod.babel.js",
+    "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
+    "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "package": "yarn build && electron-builder build --dir",
     "dist": "yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
-    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.dev.babel.js",
-    "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.dev.ts",
-    "start:backend": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.backend.dev.babel.js",
+    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
+    "start:main": "electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:backend": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
     "test": "jest"
   },
   "lint-staged": {
@@ -31,8 +31,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "Derealize",
+    "appId": "com.cooyi.derealize",
     "files": [
       "dist/",
       "node_modules/",
@@ -92,8 +92,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "zicjin",
+      "repo": "ddrealize"
     }
   },
   "repository": {
