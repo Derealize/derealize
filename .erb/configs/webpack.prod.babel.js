@@ -1,7 +1,3 @@
-/**
- * Build config for electron renderer process
- */
-
 import path from 'path'
 import webpack from 'webpack'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
@@ -10,21 +6,13 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
 import baseConfig from './webpack.base'
-import CheckNodeEnv from '../scripts/CheckNodeEnv'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 
-CheckNodeEnv('production')
 DeleteSourceMaps()
-
-const devtoolsConfig =
-  process.env.DEBUG_PROD === 'true'
-    ? {
-        devtool: 'source-map',
-      }
-    : {}
+const isDebug = process.env.DEBUG_PROD === 'true'
 
 export default merge(baseConfig, {
-  ...devtoolsConfig,
+  devtool: isDebug ? 'source-map' : false,
 
   mode: 'production',
 
@@ -50,7 +38,7 @@ export default merge(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true,
+              sourceMap: isDebug,
             },
           },
         ],
@@ -68,7 +56,7 @@ export default merge(baseConfig, {
               modules: {
                 localIdentName: '[name]__[local]__[hash:base64:5]',
               },
-              sourceMap: true,
+              sourceMap: isDebug,
             },
           },
         ],
@@ -83,14 +71,14 @@ export default merge(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true,
+              sourceMap: isDebug,
               importLoaders: 1,
             },
           },
           {
             loader: 'sass-loader',
             options: {
-              sourceMap: true,
+              sourceMap: isDebug,
             },
           },
         ],
@@ -109,13 +97,13 @@ export default merge(baseConfig, {
                 localIdentName: '[name]__[local]__[hash:base64:5]',
               },
               importLoaders: 1,
-              sourceMap: true,
+              sourceMap: isDebug,
             },
           },
           {
             loader: 'sass-loader',
             options: {
-              sourceMap: true,
+              sourceMap: isDebug,
             },
           },
         ],
@@ -203,8 +191,12 @@ export default merge(baseConfig, {
      * NODE_ENV should be production so that modules do not perform certain
      * development checks
      */
+
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': 'production',
+    }),
+
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
       DEBUG_PROD: false,
     }),
 
