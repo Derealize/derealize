@@ -16,14 +16,18 @@ export default merge(baseConfig, {
 
   mode: 'production',
 
+  // 兼容preload.js,不能用web
   target: 'electron-renderer',
 
-  entry: ['core-js', 'regenerator-runtime/runtime', path.resolve(__dirname, '../../src/index.tsx')],
+  entry: {
+    renderer: ['core-js', 'regenerator-runtime/runtime', path.resolve(__dirname, '../../src/index.tsx')],
+    preload: path.resolve(__dirname, '../../src/preload.js'),
+  },
 
   output: {
     path: path.resolve(__dirname, '../../src/dist'),
     publicPath: './dist/',
-    filename: 'renderer.prod.js',
+    filename: '[name].prod.js',
   },
 
   module: {
@@ -193,7 +197,8 @@ export default merge(baseConfig, {
      */
 
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': 'production',
+      // 字符串值会当作代码片段!
+      'process.env.NODE_ENV': JSON.stringify('production'),
     }),
 
     new webpack.EnvironmentPlugin({

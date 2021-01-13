@@ -7,6 +7,12 @@ import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
+const isProd = process.env.NODE_ENV === 'production'
+const babelPlugins = []
+if (!isProd) {
+  babelPlugins.push(require.resolve('react-refresh/babel'))
+}
+
 const sleep = (ms) => {
   return new Promise((r) => setTimeout(r, ms))
 }
@@ -51,7 +57,7 @@ export default merge(baseConfig, {
           {
             loader: require.resolve('babel-loader'),
             options: {
-              plugins: [require.resolve('react-refresh/babel')].filter(Boolean),
+              plugins: babelPlugins.filter(Boolean),
             },
           },
         ],

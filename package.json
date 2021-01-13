@@ -39,11 +39,8 @@
       "index.html",
       "main.prod.js",
       "main.prod.js.map",
-      "preload.prod.js",
-      "preload.prod.js.map",
       "backend.prod.js",
       "backend.prod.js.map",
-      "*.node",
       "package.json"
     ],
     "afterSign": ".erb/scripts/Notarize.js",
