@@ -1,23 +1,25 @@
 /* eslint global-require: off, no-console: off */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
- * `./src/main.prod.js` using webpack. This gives us some performance wins.
- */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
+
+process.on('uncaughtException', (err) => {
+  const messageBoxOptions = {
+    type: 'error',
+    title: 'Error in Main process',
+    message: 'Something failed',
+  }
+  dialog.showMessageBox(messageBoxOptions)
+  log.error(err)
+  throw err
+})
 
 export default class AppUpdater {
   constructor() {
@@ -180,10 +182,10 @@ app
     const socketId = await findOpenSocket()
     createWindow(socketId)
 
-    if (process.env.NODE_ENV === 'development' && process.env.DEV_PROCESS !== 'true') {
-      createBackendWindow(socketId)
-    } else {
+    if (process.env.NODE_ENV === 'production' || process.env.DEV_PROCESS === 'true') {
       createBackendProcess(socketId)
+    } else {
+      createBackendWindow(socketId)
     }
 
     return null
@@ -198,8 +200,4 @@ ipcMain.on('getStore', (event, key: string) => {
 ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
   // event.sender.send('setStore-reply', true)
-})
-
-process.on('uncaughtException', (error) => {
-  log.error(error)
 })
