@@ -61,7 +61,7 @@ export default merge(baseConfig, {
       START_MINIMIZED: false,
     }),
 
-    // 坑！会把 node_modules 里的 *.node 文件删除
+    // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ['*.node'],
     }),
