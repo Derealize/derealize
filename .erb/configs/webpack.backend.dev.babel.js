@@ -46,8 +46,8 @@ export default {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
     }),
-    // 即使是BeforeBuild，也需要编译成功才生效
     new CleanWebpackPlugin({
+      // 即使是BeforeBuild，也需要编译成功才生效
       cleanOnceBeforeBuildPatterns: ['backend.dev.js', '**/*.node'],
     }),
   ],

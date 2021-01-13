@@ -33,9 +33,7 @@ node_modules
 # App packaged
 release
 src/main.prod.js
-src/main.prod.js.map
 src/renderer.prod.js
-src/renderer.prod.js.map
 src/style.css
 src/style.css.map
 dist
@@ -55,6 +53,7 @@ yarn.lock
 
 src/backend/backend.dev.js
 src/backend/backend.prod.js
-*.node
 
+**/*.node
+**/*.map
 **/*.LICENSE.txt
