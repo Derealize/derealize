@@ -10,14 +10,16 @@ import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 process.on('uncaughtException', (err) => {
+  log.error('uncaughtException', err)
   const messageBoxOptions = {
     type: 'error',
     title: 'Error in Main process',
     message: 'Something failed',
   }
   dialog.showMessageBox(messageBoxOptions)
-  log.error(err)
   throw err
 })
 
@@ -31,12 +33,12 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null
 
-if (process.env.NODE_ENV === 'production') {
+if (!isDev) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 }
 
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+if (isDev || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')()
 }
 
@@ -54,7 +56,7 @@ const installExtensions = async () => {
 }
 
 const createWindow = async (socketId: string) => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  if (isDev || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
   }
 
@@ -73,7 +75,7 @@ const createWindow = async (socketId: string) => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: false,
-      preload: `${__dirname}/preload.js`,
+      preload: path.join(__dirname, isDev ? 'preload.js' : 'preload.prod.js'),
     },
   })
 
@@ -166,7 +168,7 @@ const createBackendProcess = (socketId: string) => {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
     })
   } else {
-    backendProcess = fork(`${__dirname}/backend/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
+    backendProcess = fork(`${__dirname}/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
   }
 
   backendProcess.on('message', (msg) => {
@@ -182,7 +184,7 @@ app
     const socketId = await findOpenSocket()
     createWindow(socketId)
 
-    if (process.env.NODE_ENV === 'production' || process.env.DEV_PROCESS === 'true') {
+    if (!isDev || process.env.DEV_PROCESS === 'true') {
       createBackendProcess(socketId)
     } else {
       createBackendWindow(socketId)
