@@ -114,10 +114,6 @@ const createWindow = async (socketId: string) => {
   // new AppUpdater()
 }
 
-/**
- * Add event listeners...
- */
-
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -174,6 +170,7 @@ const createBackendProcess = (socketId: string) => {
 
   if (backendProcess) {
     backendProcess.on('message', (msg) => {
+      console.log(`backendProcess: ${msg}`)
       log.info(`backendProcess: ${msg}`)
     })
   }
