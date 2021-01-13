@@ -10,6 +10,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import baseConfig from './webpack.base'
 import CheckNodeEnv from '../scripts/CheckNodeEnv'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 
 CheckNodeEnv('production')
 DeleteSourceMaps()
@@ -28,11 +29,15 @@ export default merge(baseConfig, {
 
   target: 'electron-main',
 
-  entry: './src/main.dev.ts',
+  entry: {
+    main: './src/main.dev.ts',
+    backend: './src/backend/backend.ts',
+    preload: './src/preload.js',
+  },
 
   output: {
     path: path.resolve(__dirname, '../../src'),
-    filename: 'main.prod.js',
+    filename: '[name].prod.js',
   },
 
   optimization: {
@@ -62,6 +67,10 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false,
+    }),
+
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: ['**/*.node'],
     }),
   ],
 

@@ -32,6 +32,13 @@ erb 文档有不少错误，./app 应该是 ./src
 以下方式调试 package 应该是扯蛋的
 yarn cross-env DEBUG_PROD=true yarn build
 yarn cross-env DEBUG_PROD=true yarn start
+可以用 electron-builder build --dir 仅编译，不打包安装程序
+
+查看依赖包是不是 native 包，直接看源码是不是纯 js 就行
+
+解压 app.asat
+npm install -g asar
+asar extract 压缩文件 文件夹
 
 # server-process
 

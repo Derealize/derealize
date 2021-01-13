@@ -32,14 +32,10 @@ node_modules
 
 # App packaged
 release
-src/main.prod.js
-src/renderer.prod.js
 src/style.css
-src/style.css.map
 dist
 dll
 main.js
-main.js.map
 
 .idea
 npm-debug.log.*
@@ -48,12 +44,12 @@ npm-debug.log.*
 *.scss.d.ts
 
 
+src/backend/backend.dev.js
+
 yarn.lock
 **/yarn
 
-src/backend/backend.dev.js
-src/backend/backend.prod.js
-
+**/*.prod.js
 **/*.node
 **/*.map
 **/*.LICENSE.txt
