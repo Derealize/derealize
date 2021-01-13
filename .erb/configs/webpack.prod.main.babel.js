@@ -20,7 +20,6 @@ export default merge(baseConfig, {
   entry: {
     main: './src/main.ts',
     backend: './src/backend/backend.ts',
-    preload: './src/preload.js',
   },
 
   output: {
@@ -53,17 +52,12 @@ export default merge(baseConfig, {
      */
 
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': 'production',
+      'process.env.NODE_ENV': JSON.stringify('production'),
     }),
 
     new webpack.EnvironmentPlugin({
       DEBUG_PROD: false,
       START_MINIMIZED: false,
-    }),
-
-    // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
-    new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: ['*.node'],
     }),
   ],
 

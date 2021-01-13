@@ -46,6 +46,7 @@ export default {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
     }),
+    // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
     new CleanWebpackPlugin({
       // 即使是BeforeBuild，也需要编译成功才生效
       cleanOnceBeforeBuildPatterns: ['backend.dev.js', '*.node'],

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Hello Electron React!</title>
     <script>
-      (() => {
+      ;(() => {
         const link = document.createElement('link')
         link.rel = 'stylesheet'
         link.href = './dist/style.css'
@@ -27,11 +27,7 @@
         scripts.push(`http://localhost:${window.port}/dist/renderer.dev.js`)
       }
 
-      document.write(
-        scripts
-          .map((script) => `<script defer src="${script}"><\/script>`)
-          .join('')
-      )
+      document.write(scripts.map((script) => `<script defer src="${script}"><\/script>`).join(''))
     </script>
   </body>
 </html>

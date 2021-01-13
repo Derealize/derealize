@@ -20,10 +20,10 @@ yarn cross-env PORT=8564 yarn start
 backend 稳定，不需要 debug 的话:
 yarn cross-env DEV_PROCESS=true yarn start
 
-OPEN_ANALYZER=true yarn build
-
-build 后可测试 [backend,preload].prod.js:
-yarn cross-env NODE_ENV=production yarn start
+yarn cross-env OPEN_ANALYZER=true yarn build
+yarn cross-env DEBUG_PROD=true yarn build
+build 后可测试 [backend,preload,renderer].prod.js:
+yarn cross-env NODE_ENV=production DEBUG_PROD=true yarn start
 
 yarn cross-env DEBUG_PROD=true yarn package
 yarn cross-env DEBUG_PROD=true yarn dist
