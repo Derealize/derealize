@@ -1,23 +1,26 @@
 /* eslint global-require: off, no-console: off */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
- * `./src/main.prod.js` using webpack. This gives us some performance wins.
- */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
+
+const isProd = process.env.NODE_ENV === 'production'
+
+process.on('uncaughtException', (err) => {
+  log.error('Main UncaughtException', err)
+  const messageBoxOptions = {
+    type: 'error',
+    title: 'Error in Main process',
+    message: 'Something failed',
+  }
+  dialog.showMessageBox(messageBoxOptions)
+})
 
 export default class AppUpdater {
   constructor() {
@@ -29,12 +32,12 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null
 
-if (process.env.NODE_ENV === 'production') {
+if (isProd) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 }
 
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+if (!isProd || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')()
 }
 
@@ -52,7 +55,7 @@ const installExtensions = async () => {
 }
 
 const createWindow = async (socketId: string) => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  if (!isProd || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
   }
 
@@ -71,7 +74,7 @@ const createWindow = async (socketId: string) => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: false,
-      preload: `${__dirname}/preload.js`,
+      preload: path.join(__dirname, isProd ? 'preload.prod.js' : 'preload.js'),
     },
   })
 
@@ -108,7 +111,7 @@ const createWindow = async (socketId: string) => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater()
+  // new AppUpdater()
 }
 
 /**
@@ -163,13 +166,17 @@ const createBackendProcess = (socketId: string) => {
     backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
     })
+  } else if (isProd) {
+    backendProcess = fork(`${__dirname}/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
   } else {
-    backendProcess = fork(`${__dirname}/backend/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
+    createBackendWindow(socketId)
   }
 
-  backendProcess.on('message', (msg) => {
-    log.info(`backendProcess: ${msg}`)
-  })
+  if (backendProcess) {
+    backendProcess.on('message', (msg) => {
+      log.info(`backendProcess: ${msg}`)
+    })
+  }
 }
 
 app
@@ -178,13 +185,8 @@ app
     console.log('app ready!')
 
     const socketId = await findOpenSocket()
+    createBackendProcess(socketId)
     createWindow(socketId)
-
-    if (process.env.NODE_ENV === 'development' && process.env.DEV_PROCESS !== 'true') {
-      createBackendWindow(socketId)
-    } else {
-      createBackendProcess(socketId)
-    }
 
     return null
   })
@@ -198,8 +200,4 @@ ipcMain.on('getStore', (event, key: string) => {
 ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
   // event.sender.send('setStore-reply', true)
-})
-
-process.on('uncaughtException', (error) => {
-  log.error(error)
 })

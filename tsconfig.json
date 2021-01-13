@@ -27,6 +27,7 @@
     "release",
     "src/main.prod.js",
     "src/renderer.prod.js",
+    "src/backend.prod.js",
     "src/dist",
     ".erb/dll"
   ]

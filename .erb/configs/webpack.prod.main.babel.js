@@ -1,56 +1,31 @@
 import path from 'path'
 import webpack from 'webpack'
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
-import CheckNodeEnv from '../scripts/CheckNodeEnv'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import baseConfig from './webpack.base'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 
-CheckNodeEnv('production')
 DeleteSourceMaps()
+const isDebug = process.env.DEBUG_PROD === 'true'
 
-const devtoolsConfig =
-  process.env.DEBUG_PROD === 'true'
-    ? {
-        devtool: 'source-map',
-      }
-    : {}
-
-export default {
-  ...devtoolsConfig,
+export default merge(baseConfig, {
+  devtool: isDebug ? 'source-map' : false,
 
   mode: 'production',
 
   target: 'electron-main',
 
-  entry: path.resolve(__dirname, '../../src/backend/backend.ts'),
+  entry: {
+    main: './src/main.ts',
+    backend: './src/backend/backend.ts',
+    preload: './src/preload.js',
+  },
 
   output: {
-    path: path.resolve(__dirname, '../../src/backend'),
-    filename: 'backend.prod.js',
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            cacheDirectory: true,
-          },
-        },
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader',
-      },
-    ],
-  },
-
-  resolve: {
-    extensions: ['.js', '.json', '.ts', '.node'],
+    path: path.resolve(__dirname, '../../src'),
+    filename: '[name].prod.js',
   },
 
   optimization: {
@@ -67,14 +42,28 @@ export default {
       openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
 
+    /**
+     * Create global constants which can be configured at compile time.
+     *
+     * Useful for allowing different behaviour between development builds and
+     * release builds
+     *
+     * NODE_ENV should be production so that modules do not perform certain
+     * development checks
+     */
+
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': 'production',
+    }),
+
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),
 
+    // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
     new CleanWebpackPlugin({
-      cleanOnceBeforeBuildPatterns: ['backend.dev.js', '**/*.node'],
+      cleanOnceBeforeBuildPatterns: ['*.node'],
     }),
   ],
 
@@ -87,4 +76,4 @@ export default {
     __dirname: false,
     __filename: false,
   },
-}
+})

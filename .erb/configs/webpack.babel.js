@@ -5,24 +5,17 @@ import chalk from 'chalk'
 import { merge } from 'webpack-merge'
 import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
-import CheckNodeEnv from '../scripts/CheckNodeEnv'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
 const sleep = (ms) => {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-// When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
-// at the dev webpack config is not accidentally run in a production environment
-if (process.env.NODE_ENV === 'production') {
-  CheckNodeEnv('development')
-}
-
 const port = process.env.PORT || 1212
 const publicPath = `http://localhost:${port}/dist`
 const dllDir = path.join(__dirname, '../dll')
 const manifest = path.resolve(dllDir, 'renderer.json')
-const requiredByDLLConfig = module.parent.filename.includes('webpack.config.renderer.dev.dll')
+const requiredByDLLConfig = module.parent.filename.includes('webpack.dev.dll')
 
 /**
  * Warn if the DLL is not built
@@ -37,9 +30,8 @@ if (!requiredByDLLConfig && !(fs.existsSync(dllDir) && fs.existsSync(manifest)))
 export default merge(baseConfig, {
   devtool: 'inline-source-map',
 
-  mode: 'development',
+  mode: process.env.NODE_ENV || 'development',
 
-  // https://webpack.js.org/configuration/target/
   // target: 'electron-renderer',
   target: 'web',
 
@@ -222,10 +214,6 @@ export default merge(baseConfig, {
       NODE_ENV: 'development',
     }),
 
-    new webpack.LoaderOptionsPlugin({
-      debug: true,
-    }),
-
     new ReactRefreshWebpackPlugin(),
   ],
 
@@ -254,10 +242,10 @@ export default merge(baseConfig, {
       verbose: true,
       disableDotRule: false,
     },
-    async before() {
+    before() {
       if (process.env.DEV_PROCESS !== 'true') {
         console.log('Starting Backend Process...')
-        spawn('npm', ['run', 'start:backend'], {
+        spawn('yarn', ['run', 'start:backend'], {
           shell: true,
           env: process.env,
           stdio: 'inherit',
@@ -265,11 +253,11 @@ export default merge(baseConfig, {
           .on('close', (code) => process.exit(code))
           .on('error', (spawnError) => console.error(spawnError))
 
-        await sleep(1000)
+        // await sleep(1000)
       }
 
       console.log('Starting Main Process...')
-      spawn('npm', ['run', 'start:main'], {
+      spawn('yarn', ['run', 'start:main'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

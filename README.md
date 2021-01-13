@@ -6,6 +6,28 @@
 npm install --global --production windows-build-tools
 最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
 
+webpack 配置文件原则关于 NODE_ENV 的原则：
+
+- .dev 文件必然是 'development'
+- .prod 文件必然是 'production'，但可以带 DEBUG_PROD 布尔值 (是否生成 sourcemap)
+- 其它默认为'development'，可配置为'production' (隐含 DEBUG_PROD)
+
+# Scripts
+
+yarn start
+yarn cross-env PORT=8564 yarn start
+
+backend 稳定，不需要 debug 的话:
+yarn cross-env DEV_PROCESS=true yarn start
+
+OPEN_ANALYZER=true yarn build
+
+build 后可测试 [backend,preload].prod.js:
+yarn cross-env NODE_ENV=production yarn start
+
+yarn cross-env DEBUG_PROD=true yarn package
+yarn cross-env DEBUG_PROD=true yarn dist
+
 # NodeGit
 
 fork/BrowserWindow main 进程时暂时无解决的问题：
@@ -17,21 +39,19 @@ todo:这个问题可能只存在于 win 平台
 实测 nodegit 执行 electron-rebuild 没有任何区别
 实测不使用 fork/BrowserWindow 直接 main 进程引用 nodegit 没有问题
 
-# Scripts
-
-yarn start
-yarn cross-env PORT=8564 yarn start
-yarn cross-env DEV_PROCESS=true yarn start
-
-OPEN_ANALYZER=true yarn build
-yarn cross-env DEBUG_PROD=true yarn package
-
-# Issus
+# Other Issus
 
 erb 文档有不少错误，./app 应该是 ./src
 以下方式调试 package 应该是扯蛋的
 yarn cross-env DEBUG_PROD=true yarn build
 yarn cross-env DEBUG_PROD=true yarn start
+
+可以用 electron-builder build --dir 仅编译，不打包安装程序
+查看依赖包是不是 native 包，直接看源码是不是纯 js 就行
+
+解压 app.asat
+npm install -g asar
+asar extract app.asar 文件夹
 
 # server-process
 
