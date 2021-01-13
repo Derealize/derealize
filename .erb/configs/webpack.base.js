@@ -1,7 +1,3 @@
-/**
- * Base webpack config used across other specific configs
- */
-
 import path from 'path'
 import webpack from 'webpack'
 import { dependencies as externals } from '../../src/package.json'
@@ -41,10 +37,4 @@ export default {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.node'],
     // modules: [path.join(__dirname, '../src'), 'node_modules'],
   },
-
-  plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
-    }),
-  ],
 }

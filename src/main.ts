@@ -10,10 +10,10 @@ import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
 
-const isDev = process.env.NODE_ENV === 'development'
+const isProd = process.env.NODE_ENV === 'production'
 
 process.on('uncaughtException', (err) => {
-  log.error('uncaughtException', err)
+  log.error('Main UncaughtException', err)
   const messageBoxOptions = {
     type: 'error',
     title: 'Error in Main process',
@@ -32,12 +32,12 @@ export default class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null
 
-if (!isDev) {
+if (isProd) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 }
 
-if (isDev || process.env.DEBUG_PROD === 'true') {
+if (!isProd || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')()
 }
 
@@ -55,7 +55,7 @@ const installExtensions = async () => {
 }
 
 const createWindow = async (socketId: string) => {
-  if (isDev || process.env.DEBUG_PROD === 'true') {
+  if (!isProd || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
   }
 
@@ -74,7 +74,7 @@ const createWindow = async (socketId: string) => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: false,
-      preload: path.join(__dirname, isDev ? 'preload.js' : 'preload.prod.js'),
+      preload: path.join(__dirname, isProd ? 'preload.prod.js' : 'preload.js'),
     },
   })
 
@@ -166,13 +166,17 @@ const createBackendProcess = (socketId: string) => {
     backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
     })
-  } else {
+  } else if (isProd) {
     backendProcess = fork(`${__dirname}/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
+  } else {
+    createBackendWindow(socketId)
   }
 
-  backendProcess.on('message', (msg) => {
-    log.info(`backendProcess: ${msg}`)
-  })
+  if (backendProcess) {
+    backendProcess.on('message', (msg) => {
+      log.info(`backendProcess: ${msg}`)
+    })
+  }
 }
 
 app
@@ -181,13 +185,8 @@ app
     console.log('app ready!')
 
     const socketId = await findOpenSocket()
+    createBackendProcess(socketId)
     createWindow(socketId)
-
-    if (!isDev || process.env.DEV_PROCESS === 'true') {
-      createBackendProcess(socketId)
-    } else {
-      createBackendWindow(socketId)
-    }
 
     return null
   })
