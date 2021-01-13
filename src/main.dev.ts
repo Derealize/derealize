@@ -20,7 +20,6 @@ process.on('uncaughtException', (err) => {
     message: 'Something failed',
   }
   dialog.showMessageBox(messageBoxOptions)
-  throw err
 })
 
 export default class AppUpdater {
@@ -112,7 +111,7 @@ const createWindow = async (socketId: string) => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater()
+  // new AppUpdater()
 }
 
 /**
