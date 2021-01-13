@@ -249,7 +249,7 @@ export default merge(baseConfig, {
       disableDotRule: false,
     },
     before() {
-      if (process.env.DEV_PROCESS !== 'true') {
+      if (!isProd && process.env.DEV_PROCESS !== 'true') {
         console.log('Starting Backend Process...')
         spawn('yarn', ['run', 'start:backend'], {
           shell: true,
