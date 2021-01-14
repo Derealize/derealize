@@ -6,15 +6,25 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import baseConfig from './webpack.base'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import { dependencies as externals } from '../../src/package.json'
 
 DeleteSourceMaps()
 const isDebug = process.env.DEBUG_PROD === 'true'
 
-export default merge(baseConfig, {
+export default {
+  // externals: isDebug ? [] : [...Object.keys(externals || {})],
+  externals: [...Object.keys(externals || {})],
+
   devtool: isDebug ? 'source-map' : false,
 
-  mode: 'production',
+  // https://www.webpackjs.com/concepts/mode/
+  // production 包含的 UglifyJsPlugin 有 bug，或其它配置引起的诡异问题。
+  // 不配置 node会 failback 'production'
+  // mode: 'production',
+  mode: 'none',
 
+  // 如果使用'node'，则main进程ipcRenderer不可用。
+  // 这是new BrowserWindow的特别之处，实际它没有spawn/fork进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: {
@@ -25,6 +35,29 @@ export default merge(baseConfig, {
   output: {
     path: path.resolve(__dirname, '../../src'),
     filename: '[name].prod.js',
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+          },
+        },
+      },
+      {
+        test: /\.node$/,
+        use: 'node-loader',
+      },
+    ],
+  },
+
+  resolve: {
+    extensions: ['.js', '.json', '.ts', '.node'],
   },
 
   optimization: {
@@ -41,19 +74,11 @@ export default merge(baseConfig, {
       openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
 
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     */
-
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
+    new webpack.NoEmitOnErrorsPlugin(),
+    new webpack.optimize.ModuleConcatenationPlugin(),
 
     new webpack.EnvironmentPlugin({
       DEBUG_PROD: false,
@@ -70,4 +95,4 @@ export default merge(baseConfig, {
     __dirname: false,
     __filename: false,
   },
-})
+}
