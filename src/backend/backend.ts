@@ -3,7 +3,9 @@ import log from 'electron-log'
 import ipc from './ipc'
 
 if (process.argv[2] === '--subprocess') {
-  const send = process.send || log.info
+  // todo: process.send 有问题
+  // const send = process.send || log.info
+  const send = log.info
   send('backend process begin!!')
 
   process.on('uncaughtException', (err) => {
