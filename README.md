@@ -12,6 +12,8 @@ webpack 配置文件原则关于 NODE_ENV 的原则：
 - .prod 文件必然是 'production'，但可以带 DEBUG_PROD 布尔值 (是否生成 sourcemap)
 - 其它默认为'development'，可配置为'production' (隐含 DEBUG_PROD)
 
+小坑：重新执行 'yarn start' 调试的时候 Backend Browser 刚启动不会执行新版 dev.js，需要 ctrl+r 刷新一下。CleanWebpackPlugin 解决不了这问题
+
 # Scripts
 
 yarn start
@@ -22,7 +24,7 @@ yarn cross-env DEV_PROCESS=true yarn start
 
 yarn cross-env OPEN_ANALYZER=true yarn build
 yarn cross-env DEBUG_PROD=true yarn build
-build 后可测试 [backend,preload,renderer].prod.js:
+build 后可快速调试 [backend,preload,renderer].prod.js:
 yarn cross-env NODE_ENV=production DEBUG_PROD=true yarn start
 
 yarn cross-env DEBUG_PROD=true yarn package
@@ -61,7 +63,5 @@ asar extract app.asar 文件夹
 
 # todo
 
-fork process 是否无法读取 node_modules
-用 erb-test 搞明白 配置 externals 的情况下开发模式是怎样加载 netive 依赖的
-搞明白 \*.node 文件和 node_modules 文件夹的的跨平台状况
 process.send 问题
+node_modules 文件夹的的跨平台状况

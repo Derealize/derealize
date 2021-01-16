@@ -8,10 +8,6 @@ import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
 const isProd = process.env.NODE_ENV === 'production'
-const babelPlugins = []
-if (!isProd) {
-  babelPlugins.push(require.resolve('react-refresh/babel'))
-}
 
 const sleep = (ms) => {
   return new Promise((r) => setTimeout(r, ms))
@@ -41,7 +37,7 @@ export default merge(baseConfig, {
   // target: 'electron-renderer',
   target: 'web',
 
-  entry: ['core-js', 'regenerator-runtime/runtime', require.resolve('../../src/index.tsx')],
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
 
   output: {
     publicPath,
@@ -55,9 +51,9 @@ export default merge(baseConfig, {
         exclude: /node_modules/,
         use: [
           {
-            loader: require.resolve('babel-loader'),
+            loader: 'babel-loader',
             options: {
-              plugins: babelPlugins.filter(Boolean),
+              plugins: isProd ? [] : [require.resolve('react-refresh/babel')].filter(Boolean),
             },
           },
         ],
@@ -203,19 +199,6 @@ export default merge(baseConfig, {
         }),
 
     new webpack.NoEmitOnErrorsPlugin(),
-
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     *
-     * By default, use 'development' as NODE_ENV. This can be overriden with
-     * 'staging', for example, by changing the ENV variables in the npm scripts
-     */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
     }),
