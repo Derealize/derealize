@@ -17,24 +17,18 @@ export default {
           },
         },
       },
-      {
-        test: /\.node$/,
-        use: 'node-loader',
-      },
     ],
   },
 
   output: {
     path: path.join(__dirname, '../../src'),
     // https://github.com/webpack/webpack/issues/1114
-    // libraryTarget: 'commonjs2', // bcs renderer use web target now
+    // renderer use web target now. but ref native module must use commonjs2
+    // libraryTarget: 'commonjs2',
   },
 
-  /**
-   * Determine the array of extensions that should be used to resolve modules.
-   */
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.node'],
-    // modules: [path.join(__dirname, '../src'), 'node_modules'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    modules: [path.join(__dirname, '../../src'), 'node_modules'],
   },
 }

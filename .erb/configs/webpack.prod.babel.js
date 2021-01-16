@@ -3,6 +3,7 @@ import webpack from 'webpack'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
 import baseConfig from './webpack.base'
@@ -16,16 +17,17 @@ export default merge(baseConfig, {
 
   mode: 'production',
 
-  // 兼容preload.js,不能用web
+  // 兼容preload.js，不能用web
+  // webpack.prod.main target 为 electron-main, 无法加载 ipcRenderer
   target: 'electron-renderer',
 
   entry: {
-    renderer: ['core-js', 'regenerator-runtime/runtime', path.resolve(__dirname, '../../src/index.tsx')],
-    preload: path.resolve(__dirname, '../../src/preload.js'),
+    renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
+    preload: path.join(__dirname, '../../src/preload.js'),
   },
 
   output: {
-    path: path.resolve(__dirname, '../../src/dist'),
+    path: path.join(__dirname, '../../src/dist'),
     publicPath: './dist/',
     filename: '[name].prod.js',
   },
@@ -186,16 +188,6 @@ export default merge(baseConfig, {
   },
 
   plugins: [
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     */
-
     new webpack.DefinePlugin({
       // 字符串值会当作代码片段!
       'process.env.NODE_ENV': JSON.stringify('production'),
@@ -212,6 +204,11 @@ export default merge(baseConfig, {
     new BundleAnalyzerPlugin({
       analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true',
+    }),
+
+    new CleanWebpackPlugin({
+      // 即使是BeforeBuild，也需要编译成功才生效
+      cleanOnceBeforeBuildPatterns: ['renderer.prod.js', 'preload.prod.js'],
     }),
   ],
 })

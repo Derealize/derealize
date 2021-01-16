@@ -10,10 +10,10 @@ export default merge(baseConfig, {
   context: path.join(__dirname, '../..'),
 
   devtool: 'eval',
-
   mode: 'development',
 
-  target: 'electron-renderer',
+  // target: 'electron-renderer',
+  target: 'web',
 
   externals: ['fsevents', 'crypto-browserify'],
 

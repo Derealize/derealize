@@ -11,10 +11,7 @@ import { dependencies as externals } from '../../src/package.json'
 DeleteSourceMaps()
 const isDebug = process.env.DEBUG_PROD === 'true'
 
-export default {
-  // externals: isDebug ? [] : [...Object.keys(externals || {})],
-  externals: [...Object.keys(externals || {})],
-
+export default merge(baseConfig, {
   devtool: isDebug ? 'source-map' : false,
 
   // https://www.webpackjs.com/concepts/mode/
@@ -23,41 +20,19 @@ export default {
   // mode: 'production',
   mode: 'none',
 
-  // 如果使用'node'，则main进程ipcRenderer不可用。
-  // 这是new BrowserWindow的特别之处，实际它没有spawn/fork进程，而是把当前进程attach到了browser
+  // 如果使用'node'，则main进程 ipcMain 不可用。
+  // new BrowserWindow实际没有spawn/fork 一个node进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: {
-    main: './src/main.ts',
-    backend: './src/backend/backend.ts',
+    main: path.join(__dirname, '../../src/main.ts'),
+    backend: path.join(__dirname, '../../src/backend/backend.ts'),
   },
 
   output: {
     path: path.resolve(__dirname, '../../src'),
     filename: '[name].prod.js',
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            cacheDirectory: true,
-          },
-        },
-      },
-      {
-        test: /\.node$/,
-        use: 'node-loader',
-      },
-    ],
-  },
-
-  resolve: {
-    extensions: ['.js', '.json', '.ts', '.node'],
+    libraryTarget: 'commonjs2',
   },
 
   optimization: {
@@ -77,12 +52,19 @@ export default {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
+
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.optimize.ModuleConcatenationPlugin(),
 
     new webpack.EnvironmentPlugin({
       DEBUG_PROD: false,
       START_MINIMIZED: false,
+    }),
+
+    new CleanWebpackPlugin({
+      // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
+      // 即使是BeforeBuild，也需要编译成功才生效
+      cleanOnceBeforeBuildPatterns: ['main.prod.js', 'backend.prod.js'],
     }),
   ],
 
@@ -95,4 +77,4 @@ export default {
     __dirname: false,
     __filename: false,
   },
-}
+})
