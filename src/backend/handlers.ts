@@ -1,4 +1,3 @@
-import log from 'electron-log'
 import { Install, Start } from './npm'
 import { Clone, Commit } from './git'
 
@@ -11,13 +10,11 @@ export const factorial = async ({ num }: Record<string, number>) => {
   }
 
   console.log('making factorial')
-  log.info('making factorial')
   return fact(num)
 }
 
 export const ring = async () => {
   console.log('picking up the phone')
-  log.info('picking up the phone')
   return 'hello!'
 }
 

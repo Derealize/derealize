@@ -1,5 +1,5 @@
 import ipc from 'node-ipc'
-import log from 'electron-log'
+import message from './message'
 import * as handlers from './handlers'
 
 export default (socketId: string) => {
@@ -22,12 +22,11 @@ export default (socketId: string) => {
           .catch((error: Error) => {
             // Up to you how to handle errors, if you want to forward them, etc
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'error', id }))
-            log.error(error)
+            message({ message: `handlers ${name}`, error: error.message })
             // throw error
           })
       } else {
-        console.warn(`Unknown method: ${name}`)
-        log.warn(`Unknown method: ${name}`)
+        message({ message: `Unknown method: ${name}` })
         ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result: null }))
       }
     })

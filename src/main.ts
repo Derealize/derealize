@@ -1,8 +1,9 @@
-/* eslint global-require: off, no-console: off */
+/* eslint-disable global-require */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
+import fs from 'fs'
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
@@ -14,12 +15,22 @@ const isProd = process.env.NODE_ENV === 'production'
 
 process.on('uncaughtException', (err) => {
   log.error('Main UncaughtException', err)
-  const messageBoxOptions = {
+  const messageOptions = {
     type: 'error',
     title: 'Error in Main process',
     message: 'Something failed',
   }
-  dialog.showMessageBox(messageBoxOptions)
+  dialog.showMessageBox(messageOptions)
+})
+
+process.on('unhandledRejection', (reason) => {
+  log.error('Main UnhandledRejection', reason)
+  const messageOptions = {
+    type: 'error',
+    title: 'Error in Main process',
+    message: 'Something failed',
+  }
+  dialog.showMessageBox(messageOptions)
 })
 
 export default class AppUpdater {
@@ -51,7 +62,7 @@ const installExtensions = async () => {
       extensions.map((name) => installer[name]),
       forceDownload,
     )
-    .catch(console.log)
+    .catch(log.error)
 }
 
 const createWindow = async (socketId: string) => {
@@ -159,19 +170,28 @@ const createBackendWindow = (socketId: string) => {
 let backendProcess: ChildProcess
 const createBackendProcess = (socketId: string) => {
   if (process.env.DEV_PROCESS === 'true') {
-    backendProcess = fork(`${__dirname}/backend/backend.ts`, ['--subprocess', app.getVersion(), socketId], {
+    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
     })
   } else if (isProd) {
-    backendProcess = fork(`${__dirname}/backend.prod.js`, ['--subprocess', app.getVersion(), socketId])
+    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
+      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'], // for temporary debug
+    })
   } else {
     createBackendWindow(socketId)
   }
 
   if (backendProcess) {
-    backendProcess.on('message', (msg) => {
-      console.log(`backendProcess: ${msg}`)
-      log.info(`backendProcess: ${msg}`)
+    backendProcess.on('message', (data: { message: string; error?: Error }) => {
+      if (data.error) {
+        // todo: replace by sentry
+        log.error(data.message, data.error)
+      } else {
+        log.info(`backend: ${data.message}`)
+      }
+    })
+    backendProcess.on('error', (err) => {
+      log.error('backend', err)
     })
   }
 }
@@ -179,7 +199,7 @@ const createBackendProcess = (socketId: string) => {
 app
   .whenReady()
   .then(async () => {
-    console.log('app ready!')
+    log.debug('app ready')
 
     const socketId = await findOpenSocket()
     createBackendProcess(socketId)
@@ -187,7 +207,7 @@ app
 
     return null
   })
-  .catch(console.log)
+  .catch(log.error)
 
 ipcMain.on('getStore', (event, key: string) => {
   const value = store.get(key)
