@@ -14,6 +14,8 @@ webpack 配置文件原则关于 NODE_ENV 的原则：
 
 小坑：重新执行 'yarn start' 调试的时候 Backend Browser 刚启动不会执行新版 dev.js，需要 ctrl+r 刷新一下。CleanWebpackPlugin 解决不了这问题
 
+electron-builder 第一次运行需要下载 nsis、winCodeSign，自动下载很可能失败，可以[手动下载](https://github.com/electron-userland/electron-builder/issues/1859)
+
 # Scripts
 
 yarn start
@@ -63,5 +65,4 @@ asar extract app.asar 文件夹
 
 # todo
 
-process.send 问题
 node_modules 文件夹的的跨平台状况
