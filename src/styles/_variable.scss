@@ -1,0 +1,140 @@
+$primary: #745fb5;
+$primary-light: lighten($primary, 15%);
+$primary-dark: darken($primary, 15%);
+$primary2: #9a6dbb;
+$primary3: #5f4aa1;
+
+$secondary: #26648e;
+$secondary2: adjust-color($secondary, $lightness: 16%, $hue: -20deg);
+$tertiary: #14af83;
+
+$black: hsl(0, 0%, 4%) !default;
+$black-bis: hsl(0, 0%, 7%) !default;
+$black-ter: hsl(0, 0%, 14%) !default;
+
+$grey-darker: hsl(0, 0%, 21%) !default;
+$grey-dark: hsl(0, 0%, 29%) !default;
+$grey: hsl(0, 0%, 48%) !default;
+$grey-light: hsl(0, 0%, 60%) !default;
+$grey-lighter: hsl(0, 0%, 71%) !default;
+$grey-lightest: hsl(0, 0%, 86%) !default;
+
+$white-terer: hsl(0, 0%, 95%) !default;
+$white-ter: hsl(0, 0%, 96%) !default;
+$white-duck: hsl(0, 0%, 97%) !default;
+$white-bis: hsl(0, 0%, 98%) !default;
+$white: hsl(0, 0%, 100%) !default;
+
+$body: #101f36;
+$head: #111;
+$text: #345;
+$mute: #678;
+
+$line: rgba($mute, 0.05);
+$line-dark: rgba($mute, 0.2);
+
+$naka: rgb(63, 63, 63);
+$red: rgb(221, 56, 35);
+$orange: rgb(204, 102, 0);
+$yellow: rgb(255, 246, 168);
+$green: rgb(41, 132, 90);
+$blue: rgb(24, 96, 192);
+$pink: #fa7c91;
+
+$primary-gradient: linear-gradient(5deg, $primary, adjust-color($primary, $lightness: 2%, $hue: 16deg));
+
+$fontsize: 14px;
+$font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+  'Droid Sans', 'Helvetica Neue', sans-serif;
+$font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+$shadow0: 0 0.5em 1em -0.125em rgba($black, 0.1), 0 0px 0 1px rgba($black, 0.02);
+
+$shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+$shadow_focus: 0 6px 12px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+
+$shadow_invert: 0 3px 6px 0 rgba(255, 255, 255, 0.1), 0 1px 3px 0 rgba(255, 255, 255, 0.08);
+$shadow_focus_invert: 0 6px 12px 0 rgba(255, 255, 255, 0.1), 0 1px 3px 0 rgba(255, 255, 255, 0.08);
+
+$shadow2: 0 1px 1px rgba($mute, 0.55);
+
+$shadow3: 0 6px 8px rgba($mute, 0.03), 0 1px 2px rgba($mute, 0.3);
+$shadow3_invert: 0 6px 8px rgba(invert($mute), 0.03), 0 1px 2px rgba(invert($mute), 0.3);
+
+$shadow6: 0 6px 8px rgba($mute, 0.03), 0 1px 2px rgba($mute, 0.3), 0 8px 12px rgba($secondary2, 0.1);
+
+// https://blog.teamtreehouse.com/a-better-clearfix-with-sass
+%clearfix {
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin title-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: $white;
+}
+
+@mixin title-text-b {
+  font-size: 24px;
+  font-weight: 700;
+  color: $white;
+  line-height: 74px;
+}
+
+@mixin text-hide {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+
+// Requires inline-block or block
+@mixin ellipsis() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// https://getbootstrap.com/docs/4.3/utilities/stretched-link/
+// https://github.com/twbs/bootstrap/blob/master/scss/utilities/_stretched-link.scss
+@mixin stretched-link() {
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: auto;
+    content: '';
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+
+@mixin split-line($prefix, $color) {
+  position: relative;
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    transform-origin: center;
+    box-sizing: border-box;
+    pointer-events: none;
+    left: $prefix;
+    right: 0;
+    bottom: 0;
+    transform: scaleY(0.5);
+    border-bottom: 1px solid $color;
+  }
+}
+
+@mixin active-color() {
+  transition: background-color 0.3s;
+  &:active {
+    background-color: #f0f0f0;
+  }
+}
