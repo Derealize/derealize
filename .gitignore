@@ -47,6 +47,7 @@ npm-debug.log.*
 src/backend/backend.dev.js
 
 yarn.lock
+src/yarn.lock
 **/yarn
 
 **/*.prod.js
