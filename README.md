@@ -1,10 +1,16 @@
 # TIPS
 
-用 yarn，不要挂代理
-<https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
-
 npm install --global --production windows-build-tools
 最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
+
+用 yarn，不要挂代理
+<https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
+rm -rf node_modules
+rm yarn.lock src/yarn.lock
+yarn cache clean
+yarn
+yarn electron-rebuild
+yarn start
 
 webpack 配置文件原则关于 NODE_ENV 的原则：
 
