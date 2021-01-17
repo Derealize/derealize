@@ -1,43 +1,34 @@
 import React from 'react'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import icon from '../assets/icon.svg'
+import { MemoryRouter as Router, Switch, Route } from 'react-router-dom'
+import 'focus-visible/dist/focus-visible'
+import { ChakraProvider } from '@chakra-ui/react'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import utc from 'dayjs/plugin/utc'
 import Test from './components/Test'
+import Login from './components/Login'
+import mytheme from './theme'
+import PrivateRoute from './utils/PrivateRoute'
 
-const Hello = () => {
+dayjs.extend(utc)
+dayjs.locale('zh-cn')
+dayjs.extend(relativeTime)
+
+const App = (): JSX.Element => {
   return (
-    <div>
-      <div className="Hello">
-        <img width="200px" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a href="https://electron-react-boilerplate.js.org/" target="_blank" rel="noreferrer">
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a href="https://github.com/sponsors/electron-react-boilerplate" target="_blank" rel="noreferrer">
-          <button type="button">
-            <span role="img" aria-label="books">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
+    <div className="app">
+      <ChakraProvider theme={mytheme}>
+        <Router>
+          <Switch>
+            {/* <PrivateRoute path="/" exact component={Home} /> */}
+            <Route path="/" exact component={Test} />
+            <Route path="/login" exact component={Login} />
+          </Switch>
+        </Router>
+      </ChakraProvider>
     </div>
   )
 }
 
-export default function App() {
-  return (
-    <Router>
-      <Switch>
-        <Route path="/" component={Test} />
-      </Switch>
-    </Router>
-  )
-}
+export default App

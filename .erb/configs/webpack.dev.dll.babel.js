@@ -12,8 +12,9 @@ export default merge(baseConfig, {
   devtool: 'eval',
   mode: 'development',
 
-  // target: 'electron-renderer',
-  target: 'web',
+  // ../../package.json 有native模块electron-*，不能用'web'，这个dll打包方法方法值得优化
+  // target: 'web',
+  target: 'electron-renderer',
 
   externals: ['fsevents', 'crypto-browserify'],
 

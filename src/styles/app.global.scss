@@ -1,0 +1,238 @@
+@import 'sanitize';
+@import 'variable';
+
+$positions: static, relative, absolute, fixed, sticky !default;
+@each $position in $positions {
+  .pos-#{$position} {
+    position: $position !important;
+  }
+}
+
+$preset-displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex !default;
+@each $value in $preset-displays {
+  .dis-#{$value} {
+    display: $value !important;
+  }
+}
+
+$preset-sizes: (
+  25: 25%,
+  50: 50%,
+  75: 75%,
+  100: 100%,
+  auto: auto,
+);
+@each $prop, $abbrev in (width: w, height: h) {
+  @each $size, $length in $preset-sizes {
+    .#{$abbrev}#{$size} {
+      #{$prop}: $length !important;
+    }
+  }
+}
+
+$spaces: (
+  5: 5px,
+  10: 10px,
+  20: 20px,
+  40: 40px,
+  5v: 5vw,
+  10v: 10vw,
+  20v: 20vw,
+  40v: 40vw,
+  1r: 1rem,
+  2r: 2rem,
+  3r: 3rem,
+  4r: 4rem,
+  5r: 5rem,
+);
+$space-props: (
+  margin: mg,
+  margin-top: mgt,
+  margin-bottom: mgb,
+  margin-left: mgl,
+  margin-right: mgr,
+  padding: pd,
+  padding-top: pdt,
+  padding-bottom: pdb,
+  padding-left: pdl,
+  padding-right: pdr,
+);
+@each $prop, $abbrev in $space-props {
+  @each $space, $value in $spaces {
+    .#{$abbrev}#{$space} {
+      #{$prop}: $value !important;
+    }
+  }
+}
+
+.tac {
+  text-align: center;
+}
+.hide {
+  visibility: hidden;
+}
+.hide-im {
+  visibility: hidden !important;
+}
+.curpnt {
+  cursor: pointer;
+}
+.curdef {
+  cursor: default;
+}
+.stretched-link {
+  @include stretched-link();
+}
+
+html,
+body {
+  font-family: $font-sans;
+  font-size: $fontsize;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  // background: $body;
+  line-height: 1.6;
+  color: $text;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Roboto Slab';
+}
+
+pre,
+code {
+  font-family: $font-mono;
+  letter-spacing: -0.03em;
+}
+
+// @media (prefers-color-scheme: dark) {
+//   html,body {
+//     background: #0e0c0a;
+//   }
+// }
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+a.link {
+  border-bottom: solid 1px transparent;
+  transition: color 0.4s ease-in-out, border 0.4s ease-in-out;
+
+  &:hover {
+    color: $primary;
+    border-bottom: solid 1px $primary;
+  }
+}
+
+html.WithJs {
+  & .pages-list,
+  & .post-content {
+    opacity: 0.4;
+  }
+  &.LoadDone {
+    & .pages-list,
+    & .post-content {
+      opacity: 1;
+      transition: opacity 100ms linear 100ms;
+    }
+  }
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+}
+
+html {
+  *::-webkit-scrollbar {
+    -webkit-appearance: none;
+  }
+  *::-webkit-scrollbar:vertical {
+    width: 16px;
+  }
+  *::-webkit-scrollbar:horizontal {
+    height: 16px;
+  }
+
+  *::-webkit-scrollbar-button,
+  *::-webkit-scrollbar-corner {
+    display: none;
+  }
+
+  *::-webkit-scrollbar-track {
+    // background: #27531b;
+    // border: 1px solid #27531b;
+    background: #100964;
+    border: 1px solid #100964;
+    &:hover {
+      // background: #27531b;
+      // border-color: #27531b;
+      background: #100964;
+      border-color: #100964;
+    }
+
+    &:vertical {
+      border-width: 0 0 0 1px;
+    }
+
+    &:vertical:corner-present {
+      border-width: 0 0 1px 1px;
+      border-radius: 0 0 0 2px;
+    }
+
+    &:horizontal {
+      border-width: 1px 1px 0 1px;
+      border-radius: 2px 2px 0 0;
+    }
+  }
+
+  *::-webkit-scrollbar-thumb {
+    min-height: 2rem;
+    // background: #00ff0f;
+    // background-clip: padding-box;
+    background: #00acff;
+    border: 5px solid #00acff;
+
+    // border: 5px solid #00ff0f;
+    // border-radius: 10px;
+    &:hover,
+    &:active {
+      // background-color: #00ff0f;
+      background-color: #00acff;
+      border-width: 4px;
+    }
+  }
+}

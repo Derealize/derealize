@@ -41,14 +41,10 @@ export default class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null
-
-if (isProd) {
+if (!isProd || process.env.DEBUG_PROD === 'true') {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
-}
 
-if (!isProd || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')()
 }
 
@@ -65,14 +61,13 @@ const installExtensions = async () => {
     .catch(log.error)
 }
 
+let mainWindow: BrowserWindow | null = null
 const createWindow = async (socketId: string) => {
   if (!isProd || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'resources')
-    : path.join(__dirname, '../resources')
+  const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../assets')
 
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths)
