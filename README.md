@@ -71,4 +71,6 @@ asar extract app.asar 文件夹
 
 # todo
 
-node_modules 文件夹的的跨平台状况
+等待这个pull request发布到0.28.0-alpha.1版本
+https://github.com/nodegit/nodegit/pull/1810
+https://github.com/nodegit/nodegit/blob/master/package.json
