@@ -71,6 +71,8 @@ asar extract app.asar 文件夹
 
 # todo
 
+cd src && yarn add nodegit
+no template named 'remove_cv_t' in namespace 'std'; did you mean 'remove_cv'?
 等待这个pull request发布到0.28.0-alpha.1版本
 https://github.com/nodegit/nodegit/pull/1810
 https://github.com/nodegit/nodegit/blob/master/package.json
