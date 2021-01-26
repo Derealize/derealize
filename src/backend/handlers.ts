@@ -1,5 +1,5 @@
 import { npmInstall, npmStart } from './npm'
-import { GitClone, GitCommit } from './git'
+import { gitClone, gitOpen, gitPull, gitSync } from './git'
 
 const factorial = async ({ num }: Record<string, number>) => {
   function fact(n: number): number {
@@ -18,4 +18,4 @@ export const ring = async () => {
   return 'hello!'
 }
 
-export { npmInstall, npmStart, GitClone, GitCommit, factorial }
+export { npmInstall, npmStart, gitClone, gitOpen, gitPull, gitSync, factorial }
