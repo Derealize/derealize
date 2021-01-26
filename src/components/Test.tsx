@@ -26,6 +26,9 @@ const Test = (): JSX.Element => {
   const [test, setTest] = useState('')
   const npmInstallOutput = useRef<Array<string>>([])
   const [gitCloneOutput, setGitCloneOutput] = useState<string>('')
+  const [gitOpenOutput, setGitOpenOutput] = useState<string>('')
+  const [gitSyncOutput, setGitSyncOutput] = useState<string>('')
+  const [gitPullOutput, setGitPullOutput] = useState<string>('')
 
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   const [, forceUpdate] = useReducer((x) => x + 1, 0)
@@ -103,8 +106,8 @@ const Test = (): JSX.Element => {
         type="button"
         onClick={async () => {
           send('gitClone', {
-            url: 'https://zicjin:***REMOVED***@github.com/zicjin/derealize-cra.git',
-            path: 'D:\\derealize-cra-test',
+            url: 'https://zicjin:***REMOVED***@github.com/zicjin/derealize-demo.git',
+            path: 'D:\\derealize-demo-temp',
           })
           setGitCloneOutput('')
         }}
@@ -114,10 +117,53 @@ const Test = (): JSX.Element => {
       <div>{gitCloneOutput}</div>
 
       <button
+        id="gitOpen"
+        type="button"
+        onClick={async () => {
+          send('gitOpen', {
+            path: 'D:\\derealize-demo-temp',
+          })
+          setGitOpenOutput('')
+        }}
+      >
+        gitOpen
+      </button>
+      <div>{gitOpenOutput}</div>
+
+      <button
+        id="gitSync"
+        type="button"
+        onClick={async () => {
+          send('gitSync', {
+            path: 'D:\\derealize-demo-temp',
+            msg: 'test.tsx',
+          })
+          setGitSyncOutput('')
+        }}
+      >
+        gitSync
+      </button>
+      <div>{gitSyncOutput}</div>
+
+      <button
+        id="gitPull"
+        type="button"
+        onClick={async () => {
+          send('gitPull', {
+            path: 'D:\\derealize-demo-temp',
+          })
+          setGitPullOutput('')
+        }}
+      >
+        gitPull
+      </button>
+      <div>{gitPullOutput}</div>
+
+      <button
         id="npmInstall"
         type="button"
         onClick={async () => {
-          send('npmInstall', { cwd: 'D:\\work\\derealize-cra-test' })
+          send('npmInstall', { cwd: 'D:\\work\\derealize-demo-temp' })
           npmInstallOutput.current = []
         }}
       >
@@ -129,7 +175,7 @@ const Test = (): JSX.Element => {
         id="npmStart"
         type="button"
         onClick={async () => {
-          send('npmStart', { cwd: 'D:\\work\\derealize-cra-test', script: 'start' })
+          send('npmStart', { cwd: 'D:\\work\\derealize-demo-temp', script: 'start' })
         }}
       >
         npmStart

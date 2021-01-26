@@ -167,10 +167,12 @@ const createBackendProcess = (socketId: string) => {
   if (process.env.DEV_PROCESS === 'true') {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
   } else if (isProd) {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
-      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'], // for temporary debug
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
+      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
   } else {
     createBackendWindow(socketId)
