@@ -17,7 +17,6 @@ const checkBranch = async (repo: Repository): Promise<string> => {
       )
     }
   }
-
   return ref.name()
 }
 
@@ -25,7 +24,7 @@ export const gitOpen = async ({ path }: Record<string, string>): Promise<void> =
   try {
     const repo = await Repository.open(path)
     const branchName = await checkBranch(repo)
-    broadcast('gitOpen', { result: branchName })
+    broadcast('gitOpen', { result: 'done' })
   } catch (error) {
     broadcast('gitOpen', { error: error.message })
     message({ message: 'gitOpen', error })
@@ -36,7 +35,7 @@ export const gitClone = async ({ url, path }: Record<string, string>): Promise<v
   try {
     const repo = await Clone.clone(url, path, { checkoutBranch: 'derealize' })
     const branchName = await checkBranch(repo)
-    broadcast('gitClone', { result: branchName })
+    broadcast('gitClone', { result: 'done' })
   } catch (error) {
     if (error.message.includes('exists and is not an empty directory')) {
       await gitOpen({ path })
@@ -47,21 +46,8 @@ export const gitClone = async ({ url, path }: Record<string, string>): Promise<v
   }
 }
 
-// https://github.com/nodegit/nodegit/blob/master/examples/add-and-commit.js
-export const gitSync = async ({ path, msg }: Record<string, string>) => {
+const pull = async (repo: Repository) => {
   try {
-    const repo = await Repository.open(path)
-    await checkBranch(repo)
-
-    const index = await repo.refreshIndex()
-    await index.addAll('.')
-    await index.write()
-    const tree = await index.writeTree()
-    const head = await Reference.nameToId(repo, 'HEAD')
-    const commit = await repo.getCommit(head)
-    const committer = Signature.default(repo)
-    await repo.createCommit('HEAD', committer, committer, msg, tree, [commit])
-
     await repo.fetch('origin', {
       callbacks: {
         credentials(_url: any, userName: string) {
@@ -71,8 +57,42 @@ export const gitSync = async ({ path, msg }: Record<string, string>) => {
     })
 
     // https://github.com/nodegit/nodegit/blob/master/examples/pull.js
-    await repo.mergeBranches('derealize', 'origin/derealize')
+    const oid = await repo.mergeBranches('derealize', 'origin/derealize')
+    broadcast('gitPull', { result: 'done' })
+  } catch (error) {
+    if (error.message.includes('is the current HEAD of the repository')) {
+      broadcast('gitPull', { result: 'wont' })
+      return
+    }
+    broadcast('gitPull', { error: error.message })
+    message({ message: 'gitPull', error })
+  }
+}
 
+export const gitPull = async ({ path }: Record<string, string>) => {
+  const repo = await Repository.open(path)
+  await checkBranch(repo)
+  await pull(repo)
+}
+
+export const gitSync = async ({ path, msg }: Record<string, string>) => {
+  try {
+    const repo = await Repository.open(path)
+    await checkBranch(repo)
+
+    // https://github.com/nodegit/nodegit/blob/master/examples/add-and-commit.js
+    const index = await repo.refreshIndex()
+    await index.addAll()
+    await index.write()
+    const oid = await index.writeTree()
+    const head = await Reference.nameToId(repo, 'HEAD')
+    const parent = await repo.getCommit(head)
+    const committer = await Signature.default(repo)
+    await repo.createCommit('HEAD', committer, committer, msg, oid, [parent])
+
+    await pull(repo)
+
+    // https://github.com/nodegit/nodegit/blob/master/examples/push.js
     const remote = await repo.getRemote('derealize')
     const pushId = await remote.push(['refs/heads/derealize:refs/heads/derealize'], {
       callbacks: {
@@ -82,34 +102,9 @@ export const gitSync = async ({ path, msg }: Record<string, string>) => {
       },
     })
 
-    broadcast('gitSync', { result: pushId })
+    broadcast('gitSync', { result: 'done' })
   } catch (error) {
     broadcast('gitSync', { error: error.message })
     message({ message: 'gitSync', error })
-  }
-}
-
-export const gitPull = async ({ path }: Record<string, string>) => {
-  try {
-    const repo = await Repository.open(path)
-    await checkBranch(repo)
-
-    await repo.fetch('origin', {
-      callbacks: {
-        credentials(_url: any, userName: string) {
-          return Cred.sshKeyFromAgent(userName)
-        },
-      },
-    })
-
-    const oid = await repo.mergeBranches('derealize', 'origin/derealize')
-    broadcast('gitPull', { result: oid })
-  } catch (error) {
-    if (error.message.includes('is the current HEAD of the repository')) {
-      broadcast('gitPull', { result: 'done' })
-      return
-    }
-    broadcast('gitPull', { error: error.message })
-    message({ message: 'gitPull', error })
   }
 }
