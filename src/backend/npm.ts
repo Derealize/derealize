@@ -9,7 +9,7 @@ if (!isProd) {
   nodeBin = os.platform() === 'darwin' ? '../../assets/node-mac/bin/npm' : '../../assets/node-win/npm.cmd'
 }
 
-export const Install = (cwd: string) => {
+export const npmInstall = ({ cwd }: Record<string, string>) => {
   const install = spawn(path.resolve(__dirname, nodeBin), ['install'], { cwd })
 
   install.stdout.on('data', (stdout) => {
@@ -33,7 +33,7 @@ export const Install = (cwd: string) => {
   })
 }
 
-export const Start = (cwd: string, script: string) => {
+export const npmStart = ({ cwd, script }: Record<string, string>) => {
   const install = spawn(path.resolve(__dirname, nodeBin), ['run', script], {
     cwd,
   })

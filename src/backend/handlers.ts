@@ -1,7 +1,7 @@
-import { Install, Start } from './npm'
-import { Clone, Commit } from './git'
+import { npmInstall, npmStart } from './npm'
+import { GitClone, GitCommit } from './git'
 
-export const factorial = async ({ num }: Record<string, number>) => {
+const factorial = async ({ num }: Record<string, number>) => {
   function fact(n: number): number {
     if (n === 1) {
       return 1
@@ -18,18 +18,4 @@ export const ring = async () => {
   return 'hello!'
 }
 
-export const gitClone = async ({ url, path }: Record<string, string>) => {
-  Clone(url, path)
-}
-
-export const gitCommit = async ({ path }: Record<string, string>) => {
-  Commit(path)
-}
-
-export const npmInstall = async ({ path }: Record<string, string>) => {
-  Install(path)
-}
-
-export const npmStart = async ({ path, script }: Record<string, string>) => {
-  Start(path, script)
-}
+export { npmInstall, npmStart, GitClone, GitCommit, factorial }
