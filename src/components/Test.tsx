@@ -32,7 +32,7 @@ const Test = (): JSX.Element => {
 
   useEffect(() => {
     const unlisten = listen('npmInstall', (payload: NpmInstallOutput) => {
-      console.log(payload)
+      // console.log(payload)
       if (payload.stdout) {
         npmInstallOutput.current.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
@@ -49,7 +49,7 @@ const Test = (): JSX.Element => {
 
   useEffect(() => {
     const unlisten = listen('gitClone', (payload: GitCloneOutput) => {
-      console.log(payload)
+      // console.log(payload)
       if (payload.result) {
         setGitCloneOutput(`gitClone fine:${payload.result}`)
       } else if (payload.error) {
@@ -117,23 +117,19 @@ const Test = (): JSX.Element => {
         id="npmInstall"
         type="button"
         onClick={async () => {
-          send('npmInstall', { path: 'D:\\work\\derealize-cra-test' })
+          send('npmInstall', { cwd: 'D:\\work\\derealize-cra-test' })
           npmInstallOutput.current = []
         }}
       >
         npmInstall
       </button>
-      <div>
-        {npmInstallOutput.current.map((l, i) => (
-          <p key={i}>{l}</p>
-        ))}
-      </div>
+      <div style={{ whiteSpace: 'pre' }}>{npmInstallOutput.current.join('\n')}</div>
 
       <button
         id="npmStart"
         type="button"
         onClick={async () => {
-          send('npmStart', { path: 'D:\\work\\derealize-cra-test', script: 'start' })
+          send('npmStart', { cwd: 'D:\\work\\derealize-cra-test', script: 'start' })
         }}
       >
         npmStart
