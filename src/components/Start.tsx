@@ -1,36 +1,113 @@
-import React, { useCallback, useEffect, useState, ChangeEvent } from 'react'
-import { useLocation, Redirect } from 'react-router-dom'
-import { useToast, FormControl, FormLabel, Input, FormHelperText, Container, Button } from '@chakra-ui/react'
+import React, { useCallback, useEffect, useState, ChangeEvent, useRef } from 'react'
+import {
+  useToast,
+  FormControl,
+  FormLabel,
+  Input,
+  FormHelperText,
+  Container,
+  Button,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
+} from '@chakra-ui/react'
+import { FocusableElement } from '@chakra-ui/utils'
 import { BeatLoader } from 'react-spinners'
-import { login } from '../services/api'
+import { useStoreActions, useStoreState } from '../reduxStore'
+import { Project } from '../models/project'
 import { send, listen } from '../ipc'
 import css from './Start.module.scss'
 
+interface GitCloneOutput {
+  result?: string
+  error?: string
+}
+
 const Start = (): JSX.Element => {
   const toast = useToast()
+  const existsAlertCancelRef = useRef<any>()
+  const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
 
-  const [giturl, setGiturl] = useState('')
+  const projects = useStoreState<Array<Project>>((state) => state.project.projects)
+  const setCurrentProject = useStoreActions((actions) => actions.project.setCurrentProject)
+
+  const [url, setUrl] = useState('')
+  const [path, setPath] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [gitCloneOutput, setGitCloneOutput] = useState<string>('')
 
   const submit = useCallback(async () => {
+    if (projects.map((p) => p.url).includes(url)) {
+      onOpenExistsAlert()
+      return
+    }
     setIsLoading(true)
-    await login(username, password, toast)
-    setAuthed(true)
-  }, [password, toast, username])
+    send('gitClone', { url, path })
+    setGitCloneOutput('')
+  }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
-    login('zicjin@gmail.com', 'Airwheel2020', toast)
-      .then(() => {
-        setAuthed(true)
-        return null
-      })
-      .catch(console.error)
-  }, [toast])
+    const unlisten = listen('gitClone', (payload: GitCloneOutput) => {
+      setIsLoading(false)
+      if (payload.result) {
+        setGitCloneOutput(`gitClone fine:${payload.result}`)
+      } else if (payload.error) {
+        setGitCloneOutput(`gitClone error:${payload.error}`)
+      }
+    })
+    return unlisten
+  }, [])
+
+  const openProject = useCallback(async () => {
+    const project = projects.find((p) => p.url === url)
+    if (project) {
+      setCurrentProject(project)
+      // todo...
+    }
+  }, [projects, url, setCurrentProject])
 
   return (
     <Container maxW="md" mt={20}>
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={existsAlertCancelRef}
+        onClose={onCloseExistsAlert}
+        isOpen={openExistsAlert}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader>Project already exists?</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
+              No
+            </Button>
+            <Button colorScheme="red" ml={3} onClick={openProject}>
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <FormControl id="username" mt={4}>
+        <FormLabel>Project Url</FormLabel>
+        <Input type="text" value={url} onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)} />
+      </FormControl>
+
+      <FormControl id="username" mt={4}>
+        <FormLabel>Project Path</FormLabel>
+        <Input type="text" value={path} onChange={(e: ChangeEvent<HTMLInputElement>) => setPath(e.target.value)} />
+      </FormControl>
+
       <FormControl id="username" mt={4}>
         <FormLabel>Username</FormLabel>
         <Input

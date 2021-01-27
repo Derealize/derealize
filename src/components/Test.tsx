@@ -6,7 +6,7 @@ import { login } from '../services/api'
 import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_window'
 
-declare let window: PreloadWindow
+declare const window: PreloadWindow
 
 interface NpmInstallOutput {
   stdout?: string
