@@ -5168,6 +5168,20 @@ duplexer@^0.1.2:
   resolved "https://registry.npm.taobao.org/duplexer/download/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"
   integrity sha1-Or5DrvODX4rgd9E23c4PJ2sEAOY=
 
+easy-peasy@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npm.taobao.org/easy-peasy/download/easy-peasy-4.0.1.tgz#8b3ab1ebb43509a62dc2c37b4269a9141e33d918"
+  integrity sha1-izqx67Q1CaYtwsN7QmmpFB4z2Rg=
+  dependencies:
+    immer "7.0.9"
+    is-plain-object "^5.0.0"
+    memoizerific "^1.11.3"
+    redux "^4.0.5"
+    redux-thunk "^2.3.0"
+    symbol-observable "^2.0.3"
+    ts-toolbelt "^8.0.7"
+    use-memo-one "^1.1.1"
+
 easy-stack@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npm.taobao.org/easy-stack/download/easy-stack-1.0.1.tgz#8afe4264626988cabb11f3c704ccd0c835411066"
@@ -7120,6 +7134,11 @@ immediate@~3.0.5:
   resolved "https://registry.npm.taobao.org/immediate/download/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
   integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
 
+immer@7.0.9:
+  version "7.0.9"
+  resolved "https://registry.npm.taobao.org/immer/download/immer-7.0.9.tgz?cache=0&sync_timestamp=1611143383267&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fimmer%2Fdownload%2Fimmer-7.0.9.tgz#28e7552c21d39dd76feccd2b800b7bc86ee4a62e"
+  integrity sha1-KOdVLCHTnddv7M0rgAt7yG7kpi4=
+
 import-fresh@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npm.taobao.org/import-fresh/download/import-fresh-2.0.0.tgz?cache=0&sync_timestamp=1608469485280&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fimport-fresh%2Fdownload%2Fimport-fresh-2.0.0.tgz#d81355c15612d386c61f9ddd3922d4304822a546"
@@ -7537,6 +7556,11 @@ is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   integrity sha1-LBY7P6+xtgbZ0Xko8FwqHDjgdnc=
   dependencies:
     isobject "^3.0.1"
+
+is-plain-object@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npm.taobao.org/is-plain-object/download/is-plain-object-5.0.0.tgz#4427f50ab3429e9025ea7d52e9043a9ef4159344"
+  integrity sha1-RCf1CrNCnpAl6n1S6QQ6nvQVk0Q=
 
 is-potential-custom-element-name@^1.0.0:
   version "1.0.0"
@@ -8669,6 +8693,11 @@ map-obj@^1.0.0, map-obj@^1.0.1:
   resolved "https://registry.npm.taobao.org/map-obj/download/map-obj-1.0.1.tgz#d933ceb9205d82bdcf4886f6742bdc2b4dea146d"
   integrity sha1-2TPOuSBdgr3PSIb2dCvcK03qFG0=
 
+map-or-similar@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.npm.taobao.org/map-or-similar/download/map-or-similar-1.5.0.tgz#6de2653174adfb5d9edc33c69d3e92a1b76faf08"
+  integrity sha1-beJlMXSt+12e3DPGnT6Sobdvrwg=
+
 map-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npm.taobao.org/map-visit/download/map-visit-1.0.0.tgz#ecdca8f13144e660f1b5bd41f12f3479d98dfb8f"
@@ -8706,6 +8735,13 @@ media-typer@0.3.0:
   version "0.3.0"
   resolved "https://registry.npm.taobao.org/media-typer/download/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=
+
+memoizerific@^1.11.3:
+  version "1.11.3"
+  resolved "https://registry.npm.taobao.org/memoizerific/download/memoizerific-1.11.3.tgz#7c87a4646444c32d75438570905f2dbd1b1a805a"
+  integrity sha1-fIekZGREwy11Q4VwkF8tvRsagFo=
+  dependencies:
+    map-or-similar "^1.5.0"
 
 memory-fs@^0.2.0:
   version "0.2.0"
@@ -10767,6 +10803,19 @@ redent@^3.0.0:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
 
+redux-thunk@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.npm.taobao.org/redux-thunk/download/redux-thunk-2.3.0.tgz#51c2c19a185ed5187aaa9a2d08b666d0d6467622"
+  integrity sha1-UcLBmhhe1Rh6qpotCLZm0NZGdiI=
+
+redux@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.npm.taobao.org/redux/download/redux-4.0.5.tgz#4db5de5816e17891de8a80c424232d06f051d93f"
+  integrity sha1-TbXeWBbheJHeioDEJCMtBvBR2T8=
+  dependencies:
+    loose-envify "^1.4.0"
+    symbol-observable "^1.2.0"
+
 reflect.ownkeys@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npm.taobao.org/reflect.ownkeys/download/reflect.ownkeys-0.2.0.tgz#749aceec7f3fdf8b63f927a04809e90c5c0b3460"
@@ -12014,6 +12063,16 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
+symbol-observable@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npm.taobao.org/symbol-observable/download/symbol-observable-1.2.0.tgz?cache=0&sync_timestamp=1604338077306&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsymbol-observable%2Fdownload%2Fsymbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
+  integrity sha1-wiaIrtTqs83C3+rLtWFmBWCgCAQ=
+
+symbol-observable@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.npm.taobao.org/symbol-observable/download/symbol-observable-2.0.3.tgz?cache=0&sync_timestamp=1604338077306&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsymbol-observable%2Fdownload%2Fsymbol-observable-2.0.3.tgz#5b521d3d07a43c351055fa43b8355b62d33fd16a"
+  integrity sha1-W1IdPQekPDUQVfpDuDVbYtM/0Wo=
+
 symbol-tree@^3.2.4:
   version "3.2.4"
   resolved "https://registry.npm.taobao.org/symbol-tree/download/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
@@ -12292,6 +12351,11 @@ ts-loader@^8.0.14:
     loader-utils "^2.0.0"
     micromatch "^4.0.0"
     semver "^7.3.4"
+
+ts-toolbelt@^8.0.7:
+  version "8.0.7"
+  resolved "https://registry.npm.taobao.org/ts-toolbelt/download/ts-toolbelt-8.0.7.tgz#4dad2928831a811ee17dbdab6eb1919fc0a295bf"
+  integrity sha1-Ta0pKIMagR7hfb2rbrGRn8Cilb8=
 
 tsconfig-paths@^3.9.0:
   version "3.9.0"
@@ -12575,6 +12639,11 @@ use-callback-ref@^1.2.1, use-callback-ref@^1.2.3:
   version "1.2.5"
   resolved "https://registry.npm.taobao.org/use-callback-ref/download/use-callback-ref-1.2.5.tgz?cache=0&sync_timestamp=1610846067534&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fuse-callback-ref%2Fdownload%2Fuse-callback-ref-1.2.5.tgz#6115ed242cfbaed5915499c0a9842ca2912f38a5"
   integrity sha1-YRXtJCz7rtWRVJnAqYQsopEvOKU=
+
+use-memo-one@^1.1.1:
+  version "1.1.2"
+  resolved "https://registry.npm.taobao.org/use-memo-one/download/use-memo-one-1.1.2.tgz?cache=0&sync_timestamp=1611534271655&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fuse-memo-one%2Fdownload%2Fuse-memo-one-1.1.2.tgz#0c8203a329f76e040047a35a1197defe342fab20"
+  integrity sha1-DIIDoyn3bgQAR6NaEZfe/jQvqyA=
 
 use-sidecar@^1.0.1:
   version "1.0.4"

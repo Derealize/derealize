@@ -208,10 +208,11 @@ app
 
 ipcMain.on('getStore', (event, key: string) => {
   const value = store.get(key)
-  event.returnValue = value
+  // event.returnValue = value
+  event.sender.send(`getStore-${key}`, value)
 })
 
 ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
-  // event.sender.send('setStore-reply', true)
+  // event.sender.send('setStore-reply', payload)
 })
