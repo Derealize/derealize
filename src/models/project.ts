@@ -2,8 +2,13 @@ import { Action, action, Thunk, thunk } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import PreloadWindow from '../preload_window'
 
-declare let window: PreloadWindow
-const toast = createStandaloneToast()
+declare const window: PreloadWindow
+
+const toast = createStandaloneToast({
+  defaultOptions: {
+    isClosable: true,
+  },
+})
 
 export interface Project {
   url: string
@@ -17,6 +22,9 @@ export interface ProjectModel {
   addProject: Action<ProjectModel, Project>
   removeProject: Action<ProjectModel, string>
   loadProject: Thunk<ProjectModel>
+
+  currentProject: Project | null
+  setCurrentProject: Action<ProjectModel, Project | null>
 }
 
 const projectModel: ProjectModel = {
@@ -32,7 +40,6 @@ const projectModel: ProjectModel = {
       toast({
         title: 'Project already exists',
         status: 'warning',
-        isClosable: true,
       })
       return
     }
@@ -46,14 +53,18 @@ const projectModel: ProjectModel = {
   loadProject: thunk(async (actions) => {
     try {
       const projects = await window.getStore('projects')
-      actions.setProjects({ projects })
+      if (projects) actions.setProjects({ projects })
     } catch (err) {
       toast({
         title: err.message,
         status: 'error',
-        isClosable: true,
       })
     }
+  }),
+
+  currentProject: null,
+  setCurrentProject: action((state, project) => {
+    state.currentProject = project
   }),
 }
 

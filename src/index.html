@@ -17,14 +17,14 @@
     <div id="root"></div>
     <script>
       const scripts = []
-      if (window.isProd) {
-        scripts.push('./dist/renderer.prod.js')
-      } else {
+      if (window.isDebug) {
         // Dynamically insert the DLL script in development env in the renderer process
         scripts.push('../.erb/dll/renderer.dev.dll.js')
 
         // Dynamically insert the bundled app script in the renderer process
         scripts.push(`http://localhost:${window.port}/dist/renderer.dev.js`)
+      } else {
+        scripts.push('./dist/renderer.prod.js')
       }
 
       document.write(scripts.map((script) => `<script defer src="${script}"><\/script>`).join(''))

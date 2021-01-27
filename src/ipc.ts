@@ -1,7 +1,7 @@
 import uuid from 'uuid'
 import PreloadWindow from './preload_window'
 
-declare let window: PreloadWindow
+declare const window: PreloadWindow
 const replyHandlers = new Map()
 const listeners = new Map()
 let messageQueue: Array<string> = []

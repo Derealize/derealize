@@ -3,7 +3,7 @@ import ky from 'ky'
 import Language, { navigatorLanguage } from '../utils/language'
 import PreloadWindow from '../preload_window'
 
-declare let window: PreloadWindow
+declare const window: PreloadWindow
 
 export enum UserRole {
   Admin = 'admin',
@@ -101,7 +101,7 @@ const profileModel: ProfileModel = {
       actions.setJwt({ jwt: localJwt, storage: false })
     }
 
-    const localProfiles = await window.getStore('profile') as Profile
+    const localProfiles = (await window.getStore('profile')) as Profile
     if (localProfiles) {
       actions.setProfile({ profile: localProfiles, storage: false })
     }
