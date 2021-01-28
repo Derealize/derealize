@@ -1,10 +1,5 @@
 import Store from 'electron-store'
 
-export enum InterfaceLanguage {
-  English = 'en',
-  中文 = 'zh_CN',
-}
-
 // https://json-schema.org/learn/getting-started-step-by-step.html
 // https://json-schema.org/understanding-json-schema/reference/string.html#id7
 const store = new Store({

@@ -1,17 +1,17 @@
-import storageModel, { StorageModel } from './storage'
+import profileModel, { ProfileModel } from './profile'
 import projectModel, { ProjectModel } from './project'
-// import profileModel, { ProfileModel } from './profile'
+import libraryModel, { LibraryModel } from './library'
 
 export interface StoreModel {
-  storage: StorageModel
+  profile: ProfileModel
   project: ProjectModel
-  // profile: ProfileModel
+  library: LibraryModel
 }
 
 const storeModel: StoreModel = {
-  storage: storageModel,
+  profile: profileModel,
   project: projectModel,
-  // profile: profileModel,
+  library: libraryModel,
 }
 
 export default storeModel

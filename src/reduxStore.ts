@@ -24,4 +24,4 @@ const debugStore = createStore(model, {
   injections: { apiService } as Injections,
 })
 
-export default window.isDebug ? debugStore : store
+export default window.isDev ? debugStore : store

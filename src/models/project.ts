@@ -6,6 +6,7 @@ declare const window: PreloadWindow
 
 const toast = createStandaloneToast({
   defaultOptions: {
+    duration: 6000,
     isClosable: true,
   },
 })
