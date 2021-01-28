@@ -4,13 +4,18 @@ import Store from 'electron-store'
 // https://json-schema.org/understanding-json-schema/reference/string.html#id7
 const store = new Store({
   schema: {
-    language: {
+    settings: {
+      type: 'object',
+      properties: {
+        language: {
+          type: 'string',
+        },
+      },
+    },
+    jwt: {
       type: 'string',
     },
-    token: {
-      type: 'string',
-    },
-    repositories: {
+    projects: {
       type: 'array',
       uniqueItems: true,
       items: {
