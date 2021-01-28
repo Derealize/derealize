@@ -74,36 +74,13 @@ const Start = (): JSX.Element => {
   }, [projects, url, setCurrentProject])
 
   return (
-    <Container maxW="md" mt={20}>
-      <AlertDialog
-        motionPreset="slideInBottom"
-        leastDestructiveRef={existsAlertCancelRef}
-        onClose={onCloseExistsAlert}
-        isOpen={openExistsAlert}
-        isCentered
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Project already exists?</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
-              No
-            </Button>
-            <Button colorScheme="red" ml={3} onClick={openProject}>
-              Yes
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <FormControl id="username" mt={4}>
+    <Container maxW="md">
+      <FormControl id="url" mt={4}>
         <FormLabel>Project Url</FormLabel>
         <Input type="text" value={url} onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)} />
       </FormControl>
 
-      <FormControl id="username" mt={4}>
+      <FormControl id="path" mt={4}>
         <FormLabel>Project Path</FormLabel>
         <Input type="text" value={path} onChange={(e: ChangeEvent<HTMLInputElement>) => setPath(e.target.value)} />
       </FormControl>
@@ -134,8 +111,31 @@ const Start = (): JSX.Element => {
         spinner={<BeatLoader size={8} color="gray" />}
         onClick={submit}
       >
-        提交
+        Submit
       </Button>
+
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={existsAlertCancelRef}
+        onClose={onCloseExistsAlert}
+        isOpen={openExistsAlert}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader>Project already exists</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
+              No
+            </Button>
+            <Button colorScheme="red" ml={3} onClick={openProject}>
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Container>
   )
 }

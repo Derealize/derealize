@@ -17,7 +17,7 @@
     <div id="root"></div>
     <script>
       const scripts = []
-      if (window.isDebug) {
+      if (window.isDev) {
         // Dynamically insert the DLL script in development env in the renderer process
         scripts.push('../.erb/dll/renderer.dev.dll.js')
 

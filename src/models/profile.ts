@@ -6,68 +6,50 @@ import PreloadWindow from '../preload_window'
 declare const window: PreloadWindow
 
 export enum UserRole {
-  Admin = 'admin',
-  Collaborator = 'collaborator',
-  User = 'user',
+  Ultimate = 3,
+  Premium = 2,
+  Free = 1,
+  Unverified = 0,
 }
 
 export interface Profile {
-  id: number
+  id: string
   username: string
   email?: string
-  displayName?: string
-  githubToken?: string
-  googleToken?: string
-  avatar?: string
   role: UserRole
-  invitationCode: string
-  invitationCount: number
-  settings?: Settings // In order to transfer data, not to be state
+  settings?: Settings
+  avatar?: string
 }
 
 export interface Settings {
-  language?: Language
-  useOriginUrl?: boolean
-  openNewPage?: boolean
-  displayTrending?: boolean
+  language: Language
+  notification: boolean
 }
 
 export interface ProfileModel {
+  settings: Settings | null
+  setSettings: Action<ProfileModel, { settings: Settings | null; storage?: boolean; post?: boolean }>
+
   jwt: string | null
   setJwt: Action<ProfileModel, { jwt: string | null; storage?: boolean }>
 
-  settings: Settings
-  setSettings: Action<ProfileModel, { settings: Settings; storage?: boolean; post?: boolean }>
-
   profile: Profile | null
-  setProfile: Action<ProfileModel, { profile: Profile | null; storage?: boolean }>
+  setProfile: Action<ProfileModel, { profile: Profile | null }>
 
   load: Thunk<ProfileModel>
   logout: Thunk<ProfileModel>
 }
 
 const profileModel: ProfileModel = {
-  jwt: null,
-  setJwt: action((state, { jwt, storage = true }) => {
-    state.jwt = jwt
-    if (storage) {
-      window.setStore({ jwt })
-    }
-  }),
-
   settings: {
     language: navigatorLanguage(navigator.language),
-    useOriginUrl: false,
-    openNewPage: true,
-    displayTrending: true,
+    notification: true,
   },
-  setSettings: action((state, { settings, storage = true, post = true }) => {
-    state.settings = { ...state.settings, ...settings }
-
+  setSettings: action((state, { settings, storage = false, post = false }) => {
+    state.settings = settings
     if (storage) {
-      window.setStore({ settings: state.settings })
+      window.setStore({ settings })
     }
-
     if (post && state.jwt) {
       ky.post(`${process.env.REACT_APP_NEST}/users/settings`, {
         headers: {
@@ -78,42 +60,36 @@ const profileModel: ProfileModel = {
     }
   }),
 
-  profile: null,
-  setProfile: action((state, { profile, storage = true }) => {
-    state.profile = profile
+  jwt: null,
+  setJwt: action((state, { jwt, storage = false }) => {
+    state.jwt = jwt
+    localStorage.setItem('jwt', jwt || '') // support PrivateRoute
     if (storage) {
-      window.setStore({ profile })
+      window.setStore({ jwt })
     }
   }),
 
+  profile: null,
+  setProfile: action((state, { profile }) => {
+    state.profile = profile
+  }),
+
   load: thunk(async (actions, payload, { getState }) => {
-    const localSettings = window.getStore('settings') as Settings
-    if (localSettings) {
-      actions.setSettings({
-        settings: localSettings,
-        storage: false,
-        post: false,
-      })
+    const settings = (await window.getStore('settings')) as Settings
+    if (settings) {
+      actions.setSettings({ settings })
     }
 
-    const localJwt = window.getStore('jwt') as string
-    if (localJwt) {
-      actions.setJwt({ jwt: localJwt, storage: false })
+    const jwt = (await window.getStore('jwt')) as string
+    if (!jwt) {
+      actions.logout()
+      return
     }
 
-    const localProfiles = (await window.getStore('profile')) as Profile
-    if (localProfiles) {
-      actions.setProfile({ profile: localProfiles, storage: false })
-    }
+    actions.setJwt({ jwt, storage: false })
 
     try {
-      const { jwt } = getState()
-      if (!jwt) {
-        actions.logout()
-        return
-      }
-
-      const data = await ky
+      const profile = await ky
         .get(`${process.env.REACT_APP_NEST}/users/profile`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
@@ -121,14 +97,12 @@ const profileModel: ProfileModel = {
         })
         .json<Profile>()
 
-      const { settings, ...profile } = data
       actions.setProfile({ profile })
 
-      if (settings) {
-        actions.setSettings({ settings, post: false })
-      } else if (localSettings) {
-        // post to nest
-        actions.setSettings({ settings: localSettings, storage: false })
+      if (profile.settings) {
+        actions.setSettings({ settings: profile.settings, storage: true })
+      } else if (settings) {
+        actions.setSettings({ settings, post: true })
       }
     } catch (err) {
       console.error(err.message)

@@ -1,7 +1,7 @@
 const { ipcRenderer } = require('electron')
 const ipc = require('node-ipc')
 
-window.isDebug = process.env.NODE_ENV === 'development'
+window.isDev = process.env.NODE_ENV === 'development'
 window.port = process.env.PORT || 1212
 
 let resolveSocketPromise

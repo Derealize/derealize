@@ -12,8 +12,8 @@
     "dist": "yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
-    "start:main": "electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
-    "start:backend": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
+    "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
     "test": "jest"
   },
   "lint-staged": {
