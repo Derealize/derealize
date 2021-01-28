@@ -78,6 +78,7 @@ const createWindow = async (socketId: string) => {
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
+    frame: false,
     webPreferences: {
       nodeIntegration: false,
       preload: path.join(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),

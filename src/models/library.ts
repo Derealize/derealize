@@ -30,6 +30,7 @@ const libraryModel: LibraryModel = {
   setLibrarys: action((state, { librarys, storage }) => {
     state.librarys = librarys
     if (storage) {
+      // todo: RxDB store
       window.setStore({ librarys })
     }
   }),

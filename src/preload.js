@@ -27,15 +27,6 @@ window.ipcConnect = (id, func) => {
 // https://www.electronjs.org/docs/api/ipc-renderer#ipcrenderersendsyncchannel-args
 window.getStore = async (key) => {
   ipcRenderer.send('getStore', key)
-  return new Promise((resolve, reject) => {
-    ipcRenderer.once(`getStore-${key}`, (event, data) => {
-      resolve(data)
-    })
-  })
-}
-
-window.getStore = async (key) => {
-  ipcRenderer.send('getStore', key)
   return Promise.race([
     new Promise((resolve) => {
       ipcRenderer.once(`getStore-${key}`, (event, data) => {

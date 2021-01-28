@@ -1,4 +1,4 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy'
+import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import PreloadWindow from '../preload_window'
 
@@ -15,21 +15,27 @@ export interface Project {
   url: string
   username: string
   password: string
+  name?: string
+  isOpened?: boolean
 }
 
 export interface ProjectModel {
   projects: Array<Project>
+  openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, { projects: Array<Project>; storage?: boolean }>
   addProject: Action<ProjectModel, Project>
   removeProject: Action<ProjectModel, string>
   loadProject: Thunk<ProjectModel>
 
-  currentProject: Project | null
-  setCurrentProject: Action<ProjectModel, Project | null>
+  frontProject: Project | null
+  setFrontProject: Action<ProjectModel, Project | null>
 }
 
 const projectModel: ProjectModel = {
   projects: [],
+  openedProjects: computed((state) => {
+    return state.projects.filter((p) => p.isOpened)
+  }),
   setProjects: action((state, { projects, storage }) => {
     state.projects = projects
     if (storage) {
@@ -63,9 +69,9 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  currentProject: null,
-  setCurrentProject: action((state, project) => {
-    state.currentProject = project
+  frontProject: null,
+  setFrontProject: action((state, project) => {
+    state.frontProject = project
   }),
 }
 
