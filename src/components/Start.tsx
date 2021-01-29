@@ -34,7 +34,7 @@ const Start = (): JSX.Element => {
   const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
-  const setCurrentProject = useStoreActions((actions) => actions.project.setCurrentProject)
+  const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
 
   const [url, setUrl] = useState('')
   const [path, setPath] = useState('')
@@ -68,10 +68,10 @@ const Start = (): JSX.Element => {
   const openProject = useCallback(async () => {
     const project = projects.find((p) => p.url === url)
     if (project) {
-      setCurrentProject(project)
+      setFrontProject(project)
       // todo...
     }
-  }, [projects, url, setCurrentProject])
+  }, [projects, url, setFrontProject])
 
   return (
     <Container maxW="md">
