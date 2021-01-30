@@ -15,7 +15,7 @@ export interface Project {
   url: string
   username: string
   password: string
-  name?: string
+  name: string
   isOpened?: boolean
 }
 
