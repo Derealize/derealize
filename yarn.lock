@@ -2245,6 +2245,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/classnames@^2.2.11":
+  version "2.2.11"
+  resolved "https://registry.npm.taobao.org/@types/classnames/download/@types/classnames-2.2.11.tgz#2521cc86f69d15c5b90664e4829d84566052c1cf"
+  integrity sha1-JSHMhvadFcW5BmTkgp2EVmBSwc8=
+
 "@types/debug@^4.1.5":
   version "4.1.5"
   resolved "https://registry.npm.taobao.org/@types/debug/download/@types/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
@@ -4059,6 +4064,11 @@ class-utils@^0.3.5:
     define-property "^0.2.5"
     isobject "^3.0.0"
     static-extend "^0.1.1"
+
+classnames@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.npm.taobao.org/classnames/download/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
+  integrity sha1-Q5Nb/90pHzJtrQogUwmzjQD2UM4=
 
 clean-stack@^2.0.0:
   version "2.2.0"

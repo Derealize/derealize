@@ -1,0 +1,22 @@
+.tabs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  background-color: #cecece; // #F7F7F7
+  width: 100%;
+}
+
+.tab {
+  width: 200px;
+  .front {
+    background-color: #f7f7f7;
+  }
+}
+
+.maintab {
+}
+
+.plus {
+  width: 30px;
+}
