@@ -32,7 +32,15 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
-  projects: [],
+  projects: [
+    {
+      name: 'Test1',
+      username: 'asdasd',
+      password: 'adzxczxc',
+      url: 'czxcasd',
+      isOpened: true,
+    },
+  ],
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
   }),
