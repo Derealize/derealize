@@ -1,10 +1,18 @@
-.tabs {
-  position: absolute;
+.tabbar {
+  position: fixed;
   top: 0;
   left: 0;
+  width: calc(100% - 0px); /*Compensate for body 1px border*/
+  height: 32px;
   display: flex;
   background-color: #cecece; // #F7F7F7
+  padding: 4px 4px 0;
+}
+
+.dragRegion {
   width: 100%;
+  height: 100%;
+  -webkit-app-region: drag;
 }
 
 .tab {
@@ -19,4 +27,82 @@
 
 .plus {
   width: 30px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  -webkit-app-region: no-drag;
+  .button {
+    grid-row: 1 / span 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    user-select: none;
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    &:active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+  .minButton {
+    grid-column: 1;
+  }
+  .maxButton {
+    grid-column: 2;
+  }
+  .closeButton {
+    grid-column: 3;
+    &:hover {
+      background: #e81123 !important;
+    }
+    &:active {
+      background: #f1707a !important;
+    }
+    &:active img {
+      filter: invert(1);
+    }
+  }
+  .restoreButton {
+    grid-column: 2;
+    display: none !important;
+  }
+}
+
+@media (-webkit-device-pixel-ratio: 1.5),
+  (device-pixel-ratio: 1.5),
+  (-webkit-device-pixel-ratio: 2),
+  (device-pixel-ratio: 2),
+  (-webkit-device-pixel-ratio: 3),
+  (device-pixel-ratio: 3) {
+  .controls .button > img {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+:global(.maximized) {
+  .tabbar {
+    width: 100%;
+    padding: 0;
+  }
+
+  .windowTitle {
+    margin-left: 12px;
+  }
+
+  .restoreButton {
+    display: flex !important;
+  }
+
+  .maxButton {
+    display: none;
+  }
 }

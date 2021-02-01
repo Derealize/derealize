@@ -217,3 +217,25 @@ ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
   // event.sender.send('setStore-reply', payload)
 })
+
+ipcMain.on('controls', (event, payload: string) => {
+  if (!mainWindow) return
+  switch (payload) {
+    case 'minimize':
+      mainWindow.minimize()
+      break
+    case 'maximize':
+      mainWindow.maximize()
+      mainWindow.webContents.send('isMaximized', mainWindow.isMaximized())
+      break
+    case 'unmaximize':
+      mainWindow.unmaximize()
+      mainWindow.webContents.send('isMaximized', mainWindow.isMaximized())
+      break
+    case 'close':
+      mainWindow.close()
+      break
+    default:
+      break
+  }
+})

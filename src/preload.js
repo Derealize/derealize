@@ -44,3 +44,15 @@ window.getStore = async (key) => {
 window.setStore = (payload) => {
   return ipcRenderer.send('setStore', payload)
 }
+
+window.controls = (payload) => {
+  return ipcRenderer.send('controls', payload)
+}
+
+ipcRenderer.on('isMaximized', (event, isMaximized) => {
+  if (isMaximized) {
+    document.body.classList.add('maximized')
+  } else {
+    document.body.classList.remove('maximized')
+  }
+})
