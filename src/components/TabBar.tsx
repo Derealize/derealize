@@ -31,21 +31,6 @@ const TabBar = (): JSX.Element => {
         >
           <FontAwesomeIcon icon={faDailymotion} />
           <span>Derealize</span>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label="Options"
-              icon={<FontAwesomeIcon icon={faCaretSquareDown} className={css.menu} />}
-              size="xs"
-              variant="outline"
-            />
-            <MenuList>
-              <MenuItem command="⌘T">New Tab</MenuItem>
-              <MenuItem command="⌘N">New Window</MenuItem>
-              <MenuItem command="⌘⇧N">Open Closed Tab</MenuItem>
-              <MenuItem command="⌘O">Open File...</MenuItem>
-            </MenuList>
-          </Menu>
         </div>
         {openedProjects.map((p, i) => (
           <div
