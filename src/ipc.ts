@@ -56,7 +56,7 @@ const connectSocket = (socketId: string) => {
   })
 }
 
-export function send(name: string, payload: any) {
+export function send(name: string, payload: any = {}) {
   return new Promise((resolve, reject) => {
     const id = uuid.v4()
     replyHandlers.set(id, { resolve, reject })

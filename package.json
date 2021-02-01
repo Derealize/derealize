@@ -35,6 +35,7 @@
     "appId": "com.cooyi.derealize",
     "files": [
       "dist/",
+      "styles/icons/",
       "node_modules/",
       "index.html",
       "main.prod.js",
