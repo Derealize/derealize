@@ -4,8 +4,8 @@
   left: 0;
   width: calc(100% - 0px); /*Compensate for body 1px border*/
   height: 32px;
-  background-color: #cecece; // #F7F7F7
-  padding: 4px 4px 0;
+  background-color: #e7eaed; // #F7F7F7
+  padding: 4px 0 0;
 }
 
 .dragRegion {
@@ -21,10 +21,12 @@
   padding: 0 10px;
   display: flex;
   align-items: center;
+  cursor: default;
+  user-select: none;
   &.front {
-    background-color: #f7f7f7;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    background-color: #fff;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
   }
 }
 
