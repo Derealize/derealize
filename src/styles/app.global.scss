@@ -1,5 +1,7 @@
 @import 'sanitize';
 @import 'variable';
+@import 'chrome-tabs/chrome-tabs';
+@import 'chrome-tabs/chrome-tabs-dark-theme';
 
 $positions: static, relative, absolute, fixed, sticky !default;
 @each $position in $positions {

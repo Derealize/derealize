@@ -2,17 +2,10 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: calc(100% - 0px); /*Compensate for body 1px border*/
-  height: 32px;
-  background-color: #cecece; // #F7F7F7
-  padding: 4px 4px 0;
-}
-
-.dragRegion {
   width: 100%;
-  height: 100%;
-  -webkit-app-region: drag;
-  display: flex;
+  height: 46px;
+  background-color: #dee1e6; // #F7F7F7
+  padding: 4px 4px 0;
 }
 
 .tab {
@@ -29,6 +22,9 @@
 }
 
 .maintab {
+  :global(.chrome-tab-favicon) {
+    background-image: url(../styles/images/dailymotion-brands.svg);
+  }
 }
 
 .plus {
@@ -96,8 +92,8 @@
 
 :global(.maximized) {
   .tabbar {
-    width: 100%;
     padding: 0;
+    height: 35px;
   }
 
   .windowTitle {

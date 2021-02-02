@@ -1,8 +1,8 @@
 /* eslint global-require: off, import/no-extraneous-dependencies: off */
 
-const developmentEnvironments = ['development', 'test'];
+const developmentEnvironments = ['development', 'test']
 
-const developmentPlugins = [require('@babel/plugin-transform-runtime')];
+const developmentPlugins = [require('@babel/plugin-transform-runtime')]
 
 const productionPlugins = [
   require('babel-plugin-dev-expression'),
@@ -11,12 +11,12 @@ const productionPlugins = [
   require('@babel/plugin-transform-react-constant-elements'),
   require('@babel/plugin-transform-react-inline-elements'),
   require('babel-plugin-transform-react-remove-prop-types'),
-];
+]
 
 module.exports = (api) => {
   // See docs about api at https://babeljs.io/docs/en/config-files#apicache
 
-  const development = api.env(developmentEnvironments);
+  const development = api.env(developmentEnvironments)
 
   return {
     presets: [
@@ -26,6 +26,18 @@ module.exports = (api) => {
       [require('@babel/preset-react'), { development }],
     ],
     plugins: [
+      // learn https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/webpack.config.js#L439
+      [
+        require.resolve('babel-plugin-named-asset-import'),
+        {
+          loaderMap: {
+            svg: {
+              ReactComponent: '@svgr/webpack?-svgo,+titleProp,+ref![path]',
+            },
+          },
+        },
+      ],
+
       // Stage 0
       require('@babel/plugin-proposal-function-bind'),
 
@@ -33,14 +45,8 @@ module.exports = (api) => {
       require('@babel/plugin-proposal-export-default-from'),
       require('@babel/plugin-proposal-logical-assignment-operators'),
       [require('@babel/plugin-proposal-optional-chaining'), { loose: false }],
-      [
-        require('@babel/plugin-proposal-pipeline-operator'),
-        { proposal: 'minimal' },
-      ],
-      [
-        require('@babel/plugin-proposal-nullish-coalescing-operator'),
-        { loose: false },
-      ],
+      [require('@babel/plugin-proposal-pipeline-operator'), { proposal: 'minimal' }],
+      [require('@babel/plugin-proposal-nullish-coalescing-operator'), { loose: false }],
       require('@babel/plugin-proposal-do-expressions'),
 
       // Stage 2
@@ -58,5 +64,5 @@ module.exports = (api) => {
 
       ...(development ? developmentPlugins : productionPlugins),
     ],
-  };
-};
+  }
+}
