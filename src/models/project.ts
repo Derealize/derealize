@@ -40,6 +40,13 @@ const projectModel: ProjectModel = {
       url: 'czxcasd',
       isOpened: true,
     },
+    {
+      name: 'Test2',
+      username: 'asdasd',
+      password: 'adzxczxc',
+      url: 'czxcasd2',
+      isOpened: true,
+    },
   ],
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
