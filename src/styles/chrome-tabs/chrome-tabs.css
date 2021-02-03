@@ -3,7 +3,7 @@
   position: relative;
   font-size: 12px;
   height: 42px;
-  padding: 7px 0 0px;
+  padding: 8px 0 0px;
   background: #dee1e6;
   overflow: hidden;
   -webkit-app-region: drag;
@@ -12,7 +12,7 @@
 
 .maximized .chrome-tabs {
   padding: 0;
-  height: 35px;
+  height: 34px;
 }
 
 .chrome-tabs * {
@@ -185,13 +185,14 @@
   flex-grow: 0;
   flex-shrink: 0;
   position: relative;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path stroke='rgba(0, 0, 0, .65)' stroke-linecap='square' stroke-width='1.5' d='M0 0 L8 8 M8 0 L0 8'></path></svg>");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 8px 8px;
+  padding: 4px;
 }
 @media (hover: hover) {
   .chrome-tabs .chrome-tab .chrome-tab-close:hover {
