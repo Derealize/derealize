@@ -110,9 +110,9 @@ class ChromeTabs {
       this.layoutTabs()
     })
 
-    this.el.addEventListener('dblclick', (event) => {
-      if ([this.el, this.tabContentEl].includes(event.target)) this.addTab()
-    })
+    // this.el.addEventListener('dblclick', (event) => {
+    //   if ([this.el, this.tabContentEl].includes(event.target)) this.addTab()
+    // })
 
     this.tabEls.forEach((tabEl) => this.setTabCloseEventListener(tabEl))
   }
@@ -277,6 +277,13 @@ class ChromeTabs {
     this.draggabillies.forEach((d) => d.destroy())
 
     tabEls.forEach((tabEl, originalIndex) => {
+      if (tabEl.getAttribute('fixed') === 'true') {
+        tabEl.addEventListener('click', () => {
+          this.setCurrentTab(tabEl)
+        })
+        return
+      }
+
       const originalTabPositionX = tabPositions[originalIndex]
       const draggabilly = new Draggabilly(tabEl, {
         axis: 'x',
@@ -330,6 +337,8 @@ class ChromeTabs {
         const currentTabPositionX = originalTabPositionX + moveVector.x
         const destinationIndexTarget = closest(currentTabPositionX, tabPositions)
         const destinationIndex = Math.max(0, Math.min(this.tabEls.length, destinationIndexTarget))
+
+        if (this.tabEls[destinationIndex].getAttribute('fixed') === 'true') return
 
         if (currentIndex !== destinationIndex) {
           this.animateTabMove(tabEl, currentIndex, destinationIndex)
