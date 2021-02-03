@@ -42,6 +42,7 @@
   height: 100%;
   -webkit-app-region: no-drag;
   .button {
+    color: #5f6368;
     grid-row: 1 / span 1;
     display: flex;
     justify-content: center;
@@ -50,10 +51,10 @@
     height: 100%;
     user-select: none;
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: #c7cacf;
     }
     &:active {
-      background: rgba(255, 255, 255, 0.2);
+      background: #b2b4b8;
     }
   }
   .minButton {
@@ -95,7 +96,7 @@
 :global(.maximized) {
   .tabbar {
     padding: 0;
-    height: 35px;
+    height: 34px;
   }
 
   .windowTitle {

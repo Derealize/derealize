@@ -62,6 +62,11 @@ const installExtensions = async () => {
 }
 
 let mainWindow: BrowserWindow | null = null
+
+const sendIsMaximized = () => {
+  mainWindow?.webContents.send('isMaximized', mainWindow.isMaximized())
+}
+
 const createWindow = async (socketId: string) => {
   if (!isProd || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
@@ -119,6 +124,9 @@ const createWindow = async (socketId: string) => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   // new AppUpdater()
+
+  mainWindow.on('maximize', sendIsMaximized)
+  mainWindow.on('unmaximize', sendIsMaximized)
 }
 
 app.on('window-all-closed', () => {
@@ -226,11 +234,9 @@ ipcMain.on('controls', (event, payload: string) => {
       break
     case 'maximize':
       mainWindow.maximize()
-      mainWindow.webContents.send('isMaximized', mainWindow.isMaximized())
       break
     case 'unmaximize':
       mainWindow.unmaximize()
-      mainWindow.webContents.send('isMaximized', mainWindow.isMaximized())
       break
     case 'close':
       mainWindow.close()
