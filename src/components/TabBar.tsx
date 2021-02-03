@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
 import { IconButton, Container, Button } from '@chakra-ui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faBars } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import useHotkeys from '../utils/useHotkeys'
@@ -54,7 +54,7 @@ const TabBar = (): JSX.Element => {
               <div className="chrome-tab-favicon" />
               <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
-              <div className="chrome-tab-close" />
+              <FontAwesomeIcon icon={faBars} className={css.menu} />
             </div>
           </div>
 
@@ -82,20 +82,6 @@ const TabBar = (): JSX.Element => {
           ))}
         </div>
       </div>
-
-      {/* <div
-        className={css.plus}
-        onClick={() => {
-          chromeTabs.current.addTab({
-            title: 'New Tab',
-            favicon: false,
-          })
-        }}
-        role="button"
-        tabIndex={openedProjects.length + 2}
-      >
-        <FontAwesomeIcon icon={faPlus} />
-      </div> */}
 
       <div className={css.controls}>
         <div

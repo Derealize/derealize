@@ -111,3 +111,42 @@
     display: none;
   }
 }
+
+.menu {
+  flex-grow: 0;
+  flex-shrink: 0;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  padding: 4px;
+  color: #515253;
+}
+@media (hover: hover) {
+  .menu:hover {
+    background-color: #e8eaed;
+  }
+  .menu:hover:active {
+    background-color: #dadce0;
+  }
+}
+@media not all and (hover: hover) {
+  .menu:active {
+    background-color: #dadce0;
+  }
+}
+@media (hover: hover) {
+  :global(.chrome-tab:not([active])) .menu:not(:hover):not(:active) {
+    opacity: 0.8;
+  }
+}
+:global(.chrome-tab[is-smaller]) .menu {
+  margin-left: auto;
+}
+:global(.chrome-tab[is-mini]:not([active])) .menu {
+  display: none;
+}
+:global(.chrome-tab[is-mini][active]) .menu {
+  margin-left: auto;
+  margin-right: auto;
+}
