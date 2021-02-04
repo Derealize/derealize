@@ -1,7 +1,7 @@
 import React, { useEffect, Suspense } from 'react'
 import { Tabs, TabList, Tab, TabPanels, TabPanel, Container, Button } from '@chakra-ui/react'
 import cs from 'classnames'
-import { BounceLoader } from 'react-spinners'
+import { PuffLoader } from 'react-spinners'
 import { css } from '@emotion/react'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
@@ -27,7 +27,7 @@ const App = (): JSX.Element => {
       <div className={style.main}>
         {!frontProject && <Home />}
         {frontProject && (
-          <Suspense fallback={<BounceLoader />}>
+          <Suspense fallback={<PuffLoader />}>
             <ProjectPage />
           </Suspense>
         )}

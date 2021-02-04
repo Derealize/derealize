@@ -4,7 +4,7 @@ import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
 import fs from 'fs'
-import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
@@ -62,6 +62,7 @@ const installExtensions = async () => {
 }
 
 let mainWindow: BrowserWindow | null = null
+let menu: Menu | null = null
 
 const sendIsMaximized = () => {
   mainWindow?.webContents.send('isMaximized', mainWindow.isMaximized())
@@ -113,7 +114,7 @@ const createWindow = async (socketId: string) => {
   })
 
   const menuBuilder = new MenuBuilder(mainWindow)
-  menuBuilder.buildMenu()
+  menu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
@@ -243,5 +244,11 @@ ipcMain.on('controls', (event, payload: string) => {
       break
     default:
       break
+  }
+})
+
+ipcMain.on('popupMenu', (event) => {
+  if (mainWindow && menu) {
+    menu.popup({ window: mainWindow })
   }
 })
