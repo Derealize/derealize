@@ -247,7 +247,8 @@ class ChromeTabs {
         this.setCurrentTab(tabEl.previousElementSibling)
       }
     }
-    tabEl.parentNode.removeChild(tabEl)
+
+    // tabEl.parentNode.removeChild(tabEl) // react hand it
     this.emit('tabRemove', { tabEl })
     this.cleanUpPreviouslyDraggedTabs()
     this.layoutTabs()
@@ -277,7 +278,7 @@ class ChromeTabs {
     this.draggabillies.forEach((d) => d.destroy())
 
     tabEls.forEach((tabEl, originalIndex) => {
-      if (tabEl.getAttribute('fixed') === 'true') {
+      if (tabEl.getAttribute('draggable') === 'false') {
         tabEl.addEventListener('click', () => {
           this.setCurrentTab(tabEl)
         })
@@ -338,7 +339,7 @@ class ChromeTabs {
         const destinationIndexTarget = closest(currentTabPositionX, tabPositions)
         const destinationIndex = Math.max(0, Math.min(this.tabEls.length, destinationIndexTarget))
 
-        if (this.tabEls[destinationIndex].getAttribute('fixed') === 'true') return
+        if (this.tabEls[destinationIndex].getAttribute('draggable') === 'false') return
 
         if (currentIndex !== destinationIndex) {
           this.animateTabMove(tabEl, currentIndex, destinationIndex)
