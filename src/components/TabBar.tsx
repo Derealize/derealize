@@ -16,7 +16,6 @@ declare const window: PreloadWindow
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
   const openedProjects = useStoreState<Array<Project>>((state) => state.project.openedProjects)
-  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
   const closeProject = useStoreActions((actions) => actions.project.closeProject)
 
@@ -59,9 +58,18 @@ const TabBar = (): JSX.Element => {
             </div>
             <div className="chrome-tab-content">
               <div className="chrome-tab-favicon" />
-              <div className="chrome-tab-title">{frontProject?.name}</div>
+              <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
-              <FontAwesomeIcon icon={faBars} className={css.menu} />
+              {!window.isMac && (
+                <FontAwesomeIcon
+                  icon={faBars}
+                  className={css.menu}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.popupMenu()
+                  }}
+                />
+              )}
             </div>
           </div>
 

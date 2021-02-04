@@ -1,6 +1,7 @@
 const { ipcRenderer } = require('electron')
 const ipc = require('node-ipc')
 
+window.isMac = process.platform === 'darwin'
 window.isDev = process.env.NODE_ENV === 'development'
 window.port = process.env.PORT || 1212
 
@@ -42,11 +43,11 @@ window.getStore = async (key) => {
 }
 
 window.setStore = (payload) => {
-  return ipcRenderer.send('setStore', payload)
+  ipcRenderer.send('setStore', payload)
 }
 
 window.controls = (payload) => {
-  return ipcRenderer.send('controls', payload)
+  ipcRenderer.send('controls', payload)
 }
 
 ipcRenderer.on('isMaximized', (event, isMaximized) => {
@@ -56,3 +57,7 @@ ipcRenderer.on('isMaximized', (event, isMaximized) => {
     document.body.classList.remove('maximized')
   }
 })
+
+window.popupMenu = () => {
+  ipcRenderer.send('popupMenu')
+}
