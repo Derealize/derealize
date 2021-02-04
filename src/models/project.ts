@@ -25,7 +25,9 @@ export interface ProjectModel {
   setProjects: Action<ProjectModel, { projects: Array<Project>; storage?: boolean }>
   addProject: Action<ProjectModel, Project>
   removeProject: Action<ProjectModel, string>
-  loadProject: Thunk<ProjectModel>
+  openProject: Action<ProjectModel, string>
+  closeProject: Action<ProjectModel, string>
+  load: Thunk<ProjectModel>
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
@@ -72,7 +74,34 @@ const projectModel: ProjectModel = {
     state.projects = state.projects.filter((p) => p.url !== projectId)
     window.setStore({ projects: state.projects })
   }),
-  loadProject: thunk(async (actions) => {
+  openProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.url === projectId)
+    if (project) {
+      project.isOpened = true
+      state.frontProject = project
+    }
+  }),
+  closeProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.url === projectId)
+    if (!project) throw new Error('closeProject null')
+
+    if (project.url === state.frontProject?.url) {
+      // match chrome-tabs.js:243
+      const oindex = state.openedProjects.findIndex((p) => p.url === project.url)
+      if (oindex >= 0) {
+        if (oindex + 1 < state.openedProjects.length) {
+          state.frontProject = state.openedProjects[oindex + 1]
+        } else if (oindex - 1 >= 0) {
+          state.frontProject = state.openedProjects[oindex - 1]
+        } else {
+          state.frontProject = null
+        }
+      }
+    }
+
+    project.isOpened = false
+  }),
+  load: thunk(async (actions) => {
     try {
       const projects = await window.getStore('projects')
       if (projects) actions.setProjects({ projects })

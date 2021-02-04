@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
-import { IconButton, Container, Button } from '@chakra-ui/react'
+import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faBars } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -18,7 +16,9 @@ declare const window: PreloadWindow
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
   const openedProjects = useStoreState<Array<Project>>((state) => state.project.openedProjects)
+  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
+  const closeProject = useStoreActions((actions) => actions.project.closeProject)
 
   useEffect(() => {
     const el = document.querySelector('.chrome-tabs')
@@ -26,6 +26,7 @@ const TabBar = (): JSX.Element => {
 
     chromeTabs.current = new ChromeTabs()
     chromeTabs.current.init(el)
+    chromeTabs.current.setCurrentTab(document.querySelector(`.${css.maintab}`))
   }, [])
 
   useHotkeys(
@@ -43,16 +44,22 @@ const TabBar = (): JSX.Element => {
     <header className={css.tabbar}>
       <div className="chrome-tabs">
         <div className="chrome-tabs-content">
-          {/*
-            // @ts-ignore */}
-          <div className={cs('chrome-tab', css.maintab)} active="true" fixed="true">
+          <div
+            draggable={false}
+            className={cs('chrome-tab', css.maintab)}
+            onClick={() => {
+              setFrontProject(null)
+            }}
+            role="button"
+            aria-hidden="true"
+          >
             <div className="chrome-tab-dividers" />
             <div className="chrome-tab-background">
               <BackgroundSvg />
             </div>
             <div className="chrome-tab-content">
               <div className="chrome-tab-favicon" />
-              <div className="chrome-tab-title">Derealize</div>
+              <div className="chrome-tab-title">{frontProject?.name}</div>
               <div className="chrome-tab-drag-handle" />
               <FontAwesomeIcon icon={faBars} className={css.menu} />
             </div>
@@ -65,8 +72,8 @@ const TabBar = (): JSX.Element => {
               onClick={() => {
                 setFrontProject(p)
               }}
-              tabIndex={i + 1}
               role="button"
+              aria-hidden="true"
             >
               <div className="chrome-tab-dividers" />
               <div className="chrome-tab-background">
@@ -76,7 +83,15 @@ const TabBar = (): JSX.Element => {
                 <div className="chrome-tab-favicon" />
                 <div className="chrome-tab-title">{p.name}</div>
                 <div className="chrome-tab-drag-handle" />
-                <div className="chrome-tab-close" />
+                <div
+                  className="chrome-tab-close"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    closeProject(p.url)
+                  }}
+                  role="button"
+                  aria-hidden="true"
+                />
               </div>
             </div>
           ))}
@@ -90,7 +105,7 @@ const TabBar = (): JSX.Element => {
             window.controls('minimize')
           }}
           role="button"
-          tabIndex={0}
+          aria-hidden="true"
         >
           <img
             srcSet="styles/icons/min-k-10.png 1x, styles/icons/min-k-12.png 1.25x, styles/icons/min-k-15.png 1.5x, styles/icons/min-k-15.png 1.75x, styles/icons/min-k-20.png 2x, styles/icons/min-k-20.png 2.25x, styles/icons/min-k-24.png 2.5x, styles/icons/min-k-30.png 3x, styles/icons/min-k-30.png 3.5x"
@@ -105,7 +120,7 @@ const TabBar = (): JSX.Element => {
             window.controls('maximize')
           }}
           role="button"
-          tabIndex={0}
+          aria-hidden="true"
         >
           <img
             srcSet="styles/icons/max-k-10.png 1x, styles/icons/max-k-12.png 1.25x, styles/icons/max-k-15.png 1.5x, styles/icons/max-k-15.png 1.75x, styles/icons/max-k-20.png 2x, styles/icons/max-k-20.png 2.25x, styles/icons/max-k-24.png 2.5x, styles/icons/max-k-30.png 3x, styles/icons/max-k-30.png 3.5x"
@@ -120,7 +135,7 @@ const TabBar = (): JSX.Element => {
             window.controls('unmaximize')
           }}
           role="button"
-          tabIndex={0}
+          aria-hidden="true"
         >
           <img
             srcSet="styles/icons/restore-k-10.png 1x, styles/icons/restore-k-12.png 1.25x, styles/icons/restore-k-15.png 1.5x, styles/icons/restore-k-15.png 1.75x, styles/icons/restore-k-20.png 2x, styles/icons/restore-k-20.png 2.25x, styles/icons/restore-k-24.png 2.5x, styles/icons/restore-k-30.png 3x, styles/icons/restore-k-30.png 3.5x"
@@ -135,7 +150,7 @@ const TabBar = (): JSX.Element => {
             window.controls('close')
           }}
           role="button"
-          tabIndex={0}
+          aria-hidden="true"
         >
           <img
             srcSet="styles/icons/close-k-10.png 1x, styles/icons/close-k-12.png 1.25x, styles/icons/close-k-15.png 1.5x, styles/icons/close-k-15.png 1.75x, styles/icons/close-k-20.png 2x, styles/icons/close-k-20.png 2.25x, styles/icons/close-k-24.png 2.5x, styles/icons/close-k-30.png 3x, styles/icons/close-k-30.png 3.5x"

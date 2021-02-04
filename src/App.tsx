@@ -1,37 +1,36 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { Tabs, TabList, Tab, TabPanels, TabPanel, Container, Button } from '@chakra-ui/react'
 import cs from 'classnames'
+import { BounceLoader } from 'react-spinners'
 import { css } from '@emotion/react'
 import { useStoreActions, useStoreState } from './reduxStore'
+import { Project } from './models/project'
 import Start from './components/Start'
+import Home from './Home'
+import ProjectPage from './Project'
 import TabBar from './components/TabBar'
 import style from './App.module.scss'
 
 const App = (): JSX.Element => {
-  const load = useStoreActions((actions) => actions.profile.load)
+  const profileLoad = useStoreActions((actions) => actions.profile.load)
+  const projectLoad = useStoreActions((actions) => actions.project.load)
+  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
 
   useEffect(() => {
-    // load()
-  }, [load])
+    // profileLoad()
+    // projectLoad()
+  }, [profileLoad, projectLoad])
 
   return (
     <div className="app">
       <TabBar />
       <div className={style.main}>
-        <Tabs variant="soft-rounded" colorScheme="green">
-          <TabList>
-            <Tab>Tab 1</Tab>
-            <Tab>Tab 2</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <p>one!</p>
-            </TabPanel>
-            <TabPanel>
-              <p>two!</p>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        {!frontProject && <Home />}
+        {frontProject && (
+          <Suspense fallback={<BounceLoader />}>
+            <ProjectPage />
+          </Suspense>
+        )}
       </div>
     </div>
   )

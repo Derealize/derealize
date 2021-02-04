@@ -4,6 +4,8 @@ module.exports = {
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
     'prettier/prettier': ['warn', { singleQuote: true, semi: false, printWidth: 120, trailingComma: 'all' }],
+    'jsx-a11y/interactive-supports-focus': 'off',
+    'jsx-a11y/control-has-associated-label': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
