@@ -94,7 +94,7 @@
   z-index: 5;
 }
 .chrome-tabs .chrome-tab[active] .chrome-tab-background > svg .chrome-tab-geometry {
-  fill: #fff;
+  fill: rgb(247, 250, 252);
 }
 .chrome-tabs .chrome-tab:not([active]) .chrome-tab-background {
   transition: opacity 0.2s ease;
@@ -252,7 +252,7 @@
   height: 4px;
   left: 0;
   width: 100%;
-  background: #fff;
+  background: rgb(247, 250, 252);
   z-index: 10;
 }
 .chrome-tabs-optional-shadow-below-bottom-bar {

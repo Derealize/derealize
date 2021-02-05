@@ -1,3 +1,42 @@
+@import './styles/variable';
+
 .home {
-  background-color: white;
+  background-color: $white;
+}
+
+.projects {
+  display: flex;
+  flex-wrap: wrap;
+  .project {
+    margin: 0 1rem 1rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease-in-out;
+    .content {
+      padding: 6px 10px;
+      h4 {
+        line-height: 28px;
+      }
+      .infos {
+        color: $grey;
+      }
+    }
+    .pattern {
+      height: 10rem;
+      // https://www.magicpattern.design/tools/css-backgrounds
+      background-color: #e5e5f7;
+      opacity: 0.4;
+      background-image: radial-gradient(#444cf7 1px, transparent 1px), radial-gradient(#444cf7 1px, #e5e5f7 1px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+    &:hover {
+      box-shadow: 0 8px 10px -2px rgba(0, 0, 0, 0.1), 0 4px 8px -2px rgba(0, 0, 0, 0.06); // chakra Shadow md*2
+    }
+    &:active {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); // chakra Shadow md
+    }
+  }
 }

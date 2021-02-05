@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { MemoryRouter as Router, Switch, Route } from 'react-router-dom'
+import { MemoryRouter, Switch, Route } from 'react-router-dom'
 import 'focus-visible/dist/focus-visible'
 import { StoreProvider } from 'easy-peasy'
 import { ChakraProvider } from '@chakra-ui/react'
@@ -25,14 +25,14 @@ ReactDOM.render(
   <React.StrictMode>
     <StoreProvider store={store}>
       <ChakraProvider theme={mytheme}>
-        <Router>
+        <MemoryRouter>
           <Switch>
             <Route path="/" exact component={App} />
             {/* <Route path="/" exact component={Test} /> */}
             <PrivateRoute path="/test" exact component={Test} />
             <Route path="/login" exact component={Login} />
           </Switch>
-        </Router>
+        </MemoryRouter>
       </ChakraProvider>
     </StoreProvider>
   </React.StrictMode>,
