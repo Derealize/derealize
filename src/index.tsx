@@ -18,7 +18,7 @@ import PrivateRoute from './utils/PrivateRoute'
 import './ipc'
 
 dayjs.extend(utc)
-dayjs.locale('zh-cn')
+// dayjs.locale('zh-cn')
 dayjs.extend(relativeTime)
 
 ReactDOM.render(

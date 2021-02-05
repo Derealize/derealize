@@ -1,5 +1,6 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import PreloadWindow from '../preload_window'
 
 declare const window: PreloadWindow
@@ -42,6 +43,7 @@ const projectModel: ProjectModel = {
       password: 'adzxczxc',
       url: 'czxcasd',
       isOpened: true,
+      editedTime: dayjs().add(-2, 'hours').toDate(),
     },
     {
       name: 'Test2',
@@ -49,6 +51,7 @@ const projectModel: ProjectModel = {
       password: 'adzxczxc',
       url: 'czxcasd2',
       isOpened: true,
+      editedTime: dayjs().add(-1, 'days').toDate(),
     },
   ],
   openedProjects: computed((state) => {
