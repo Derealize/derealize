@@ -12,6 +12,7 @@ import style from './Home.module.scss'
 const Home = (): JSX.Element => {
   const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
+  const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
 
   return (
     <div className={style.home}>
@@ -27,7 +28,12 @@ const Home = (): JSX.Element => {
         <TabPanels>
           <TabPanel className={style.projects}>
             <Stack direction="row" spacing={4}>
-              <Button leftIcon={<FontAwesomeIcon icon={faPlusCircle} />} colorScheme="pink" variant="solid">
+              <Button
+                onClick={setModalOpen}
+                leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
+                colorScheme="pink"
+                variant="solid"
+              >
                 Add
               </Button>
               <Button leftIcon={<FontAwesomeIcon icon={faFolderOpen} />} colorScheme="teal" variant="outline">
