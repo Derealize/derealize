@@ -33,6 +33,10 @@ export interface ProjectModel {
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
+
+  modalDisclosure: boolean
+  setModalOpen: Action<ProjectModel, any>
+  setModalClose: Action<ProjectModel, any>
 }
 
 const projectModel: ProjectModel = {
@@ -120,6 +124,14 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
+  }),
+
+  modalDisclosure: false,
+  setModalOpen: action((state) => {
+    state.modalDisclosure = true
+  }),
+  setModalClose: action((state) => {
+    state.modalDisclosure = false
   }),
 }
 
