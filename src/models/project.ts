@@ -17,6 +17,7 @@ export interface Project {
   password: string
   name: string
   isOpened?: boolean
+  editedTime?: Date
 }
 
 export interface ProjectModel {

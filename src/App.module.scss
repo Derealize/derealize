@@ -1,6 +1,15 @@
+@import './styles/variable';
+
 .main {
-  height: calc(100% - 32px);
-  margin-top: 32px;
+  height: calc(100% - 46px);
+  margin-top: 46px;
   padding: 20px;
   overflow-y: auto;
+  background-color: $white;
+}
+
+:global(.maximized) {
+  .main {
+    height: calc(100% - 34px);
+  }
 }
