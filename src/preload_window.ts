@@ -6,6 +6,7 @@ export default interface PreloadWindow extends Window {
   setStore: (payload: Record<string, unknown>) => void
   controls: (payload: string) => void
   popupMenu: () => void
+  selectDirs: () => string
   isDebug: boolean
   isMac: boolean
 }

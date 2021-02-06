@@ -87,6 +87,9 @@ const createWindow = async (socketId: string) => {
     frame: false,
     webPreferences: {
       nodeIntegration: false,
+      enableRemoteModule: false,
+      // contextIsolation: true,
+      // sandbox: true,
       preload: path.join(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
     },
   })
@@ -251,4 +254,14 @@ ipcMain.on('popupMenu', (event) => {
   if (mainWindow && menu) {
     menu.popup({ window: mainWindow })
   }
+})
+
+// https://jaketrent.com/post/select-directory-in-electron
+ipcMain.on('selectDirs', async (event, arg) => {
+  if (!mainWindow) return
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory'],
+  })
+  console.log(`selectDirs: ${result.filePaths}`)
+  event.returnValue = result.filePaths
 })
