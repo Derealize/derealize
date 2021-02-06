@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Tabs, TabList, Tab, TabPanels, TabPanel, Grid, Box, Stack, Button } from '@chakra-ui/react'
+import { Tabs, TabList, Tab, TabPanels, TabPanel, Grid, Box, HStack, Flex, Button } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import cs from 'classnames'
 import { css } from '@emotion/react'
@@ -26,8 +26,8 @@ const Home = (): JSX.Element => {
           <Tab mx={1}>Settings</Tab>
         </TabList>
         <TabPanels>
-          <TabPanel className={style.projects}>
-            <Stack direction="row" spacing={4}>
+          <TabPanel className={style.projects} flexDirection="column">
+            <HStack spacing={4} mt={6}>
               <Button
                 onClick={setModalOpen}
                 leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
@@ -39,8 +39,8 @@ const Home = (): JSX.Element => {
               <Button leftIcon={<FontAwesomeIcon icon={faFolderOpen} />} colorScheme="teal" variant="outline">
                 Open
               </Button>
-            </Stack>
-            <Grid templateColumns="repeat(5, 1fr)" gap={6} mt={4}>
+            </HStack>
+            <Flex mt={6} wrap="wrap">
               {projects.map((p) => (
                 <Box className={style.project} key={p.url} w="xs" boxShadow="md">
                   <div className={style.pattern} />
@@ -50,7 +50,7 @@ const Home = (): JSX.Element => {
                   </div>
                 </Box>
               ))}
-            </Grid>
+            </Flex>
           </TabPanel>
           <TabPanel>
             <p>Library!</p>

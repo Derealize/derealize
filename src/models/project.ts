@@ -57,6 +57,14 @@ const projectModel: ProjectModel = {
       isOpened: true,
       editedTime: dayjs().add(-1, 'days').toDate(),
     },
+    {
+      name: 'Test3',
+      username: 'fsdf',
+      password: 'xcvsdfs',
+      url: 'tryrty',
+      isOpened: true,
+      editedTime: dayjs().add(-2, 'days').toDate(),
+    },
   ],
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
