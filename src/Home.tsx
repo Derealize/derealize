@@ -29,7 +29,7 @@ const Home = (): JSX.Element => {
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} mt={6}>
               <Button
-                onClick={setModalOpen}
+                onClick={() => setModalOpen()}
                 leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
                 colorScheme="pink"
                 variant="solid"

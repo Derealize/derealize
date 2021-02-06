@@ -35,8 +35,8 @@ export interface ProjectModel {
   setFrontProject: Action<ProjectModel, Project | null>
 
   modalDisclosure: boolean
-  setModalOpen: Action<ProjectModel, any>
-  setModalClose: Action<ProjectModel, any>
+  setModalOpen: Action<ProjectModel>
+  setModalClose: Action<ProjectModel>
 }
 
 const projectModel: ProjectModel = {

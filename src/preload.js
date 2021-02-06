@@ -61,3 +61,8 @@ ipcRenderer.on('isMaximized', (event, isMaximized) => {
 window.popupMenu = () => {
   ipcRenderer.send('popupMenu')
 }
+
+window.selectDirs = () => {
+  const filePaths = ipcRenderer.sendSync('selectDirs')
+  return filePaths
+}

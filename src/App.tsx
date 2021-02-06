@@ -31,6 +31,9 @@ import ProjectPage from './Project'
 import TabBar from './components/TabBar'
 import { send, listen } from './ipc'
 import style from './App.module.scss'
+import PreloadWindow from './preload_window'
+
+declare const window: PreloadWindow
 
 interface GitCloneOutput {
   result?: string
@@ -90,6 +93,7 @@ const App = (): JSX.Element => {
     return unlisten
   }, [])
 
+  console.log(path)
   return (
     <div className="app">
       <TabBar />
@@ -105,20 +109,28 @@ const App = (): JSX.Element => {
       <Modal isOpen={modalDisclosure} onClose={setModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>Add Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl id="url" mt={4}>
-              <FormLabel>Project Url</FormLabel>
+              <FormLabel>Url</FormLabel>
               <Input type="text" value={url} onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)} />
+              <FormHelperText>
+                If you don‘t know what this is, you can read our documentation or ask the front-end engineer of the team
+                for help
+              </FormHelperText>
             </FormControl>
 
             <FormControl id="path" mt={4}>
-              <FormLabel>Project Path</FormLabel>
+              <FormLabel>Local Path</FormLabel>
               <Input
-                type="text"
-                value={path}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPath(e.target.value)}
+                type="file"
+                webkitdirectory="true"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const filePaths = window.selectDirs()
+                  setPath(filePaths[0])
+                }}
               />
             </FormControl>
 
@@ -138,12 +150,11 @@ const App = (): JSX.Element => {
                 value={password}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               />
-              {/* <FormHelperText>至少6个字符，包含数字与字母</FormHelperText> */}
             </FormControl>
           </ModalBody>
 
           <ModalFooter>
-            <Button colorScheme="gray" mr={3} onClick={setModalClose}>
+            <Button colorScheme="gray" mr={3} onClick={() => setModalClose()}>
               Close
             </Button>
             <Button
