@@ -1,7 +1,7 @@
 @import './styles/variable';
 
 .main {
-  height: calc(100% - 46px);
+  height: calc(100vh - 46px);
   margin-top: 46px;
   padding: 20px;
   overflow-y: auto;
@@ -10,6 +10,7 @@
 
 :global(.maximized) {
   .main {
-    height: calc(100% - 34px);
+    height: calc(100vh - 34px);
+    margin-top: 34px;
   }
 }

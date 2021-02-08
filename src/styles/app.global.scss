@@ -121,26 +121,6 @@ code {
 //   }
 // }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 a.link {
   border-bottom: solid 1px transparent;
   transition: color 0.4s ease-in-out, border 0.4s ease-in-out;
@@ -149,35 +129,6 @@ a.link {
     color: $primary;
     border-bottom: solid 1px $primary;
   }
-}
-
-html.WithJs {
-  & .pages-list,
-  & .post-content {
-    opacity: 0.4;
-  }
-  &.LoadDone {
-    & .pages-list,
-    & .post-content {
-      opacity: 1;
-      transition: opacity 100ms linear 100ms;
-    }
-  }
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-}
-
-.mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
 }
 
 html {

@@ -27,14 +27,14 @@ const Home = (): JSX.Element => {
         </TabList>
         <TabPanels>
           <TabPanel className={style.projects} flexDirection="column">
-            <HStack spacing={4} mt={6}>
+            <HStack spacing={4} my={6} justifyContent="center">
               <Button
                 onClick={() => setModalOpen()}
                 leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
                 colorScheme="pink"
                 variant="solid"
               >
-                Add
+                Create
               </Button>
               <Button leftIcon={<FontAwesomeIcon icon={faFolderOpen} />} colorScheme="teal" variant="outline">
                 Open

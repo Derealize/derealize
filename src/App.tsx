@@ -20,10 +20,13 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   AlertDialogCloseButton,
+  Text,
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { PuffLoader, BeatLoader } from 'react-spinners'
 import { css } from '@emotion/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
 import Home from './Home'
@@ -93,7 +96,6 @@ const App = (): JSX.Element => {
     return unlisten
   }, [])
 
-  console.log(path)
   return (
     <div className="app">
       <TabBar />
@@ -109,29 +111,38 @@ const App = (): JSX.Element => {
       <Modal isOpen={modalDisclosure} onClose={setModalClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Add Project</ModalHeader>
+          <ModalHeader>Create Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl id="url" mt={4}>
               <FormLabel>Url</FormLabel>
               <Input type="text" value={url} onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)} />
               <FormHelperText>
-                If you don‘t know what this is, you can read our documentation or ask the front-end engineer of the team
-                for help
+                If you don‘t know what this is, you can read{' '}
+                <a className="link" href="http://baidu.com">
+                  our documentation
+                </a>{' '}
+                or ask the front-end engineer of the team for help
               </FormHelperText>
             </FormControl>
 
             <FormControl id="path" mt={4}>
               <FormLabel>Local Path</FormLabel>
-              <Input
-                type="file"
-                webkitdirectory="true"
+              <Button
+                leftIcon={<FontAwesomeIcon icon={faFolderOpen} />}
+                colorScheme="teal"
+                variant="outline"
                 onClick={(e) => {
                   e.stopPropagation()
                   const filePaths = window.selectDirs()
                   setPath(filePaths[0])
                 }}
-              />
+              >
+                Select Folder
+              </Button>
+              <Text color="gray.500" isTruncated>
+                {path}
+              </Text>
             </FormControl>
 
             <FormControl id="username" mt={4}>
