@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent, Suspense } from 'react'
+import React, { useEffect, useState, useCallback, useRef, ChangeEvent, Suspense, useReducer } from 'react'
 import {
   Modal,
   ModalOverlay,
@@ -21,9 +21,12 @@ import {
   AlertDialogOverlay,
   AlertDialogCloseButton,
   Text,
+  Grid,
+  Box,
+  Tooltip,
 } from '@chakra-ui/react'
 import cs from 'classnames'
-import { PuffLoader, BeatLoader } from 'react-spinners'
+import { PuffLoader, BeatLoader, BarLoader } from 'react-spinners'
 import { css } from '@emotion/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
@@ -38,14 +41,24 @@ import PreloadWindow from './preload_window'
 
 declare const window: PreloadWindow
 
-interface GitCloneOutput {
+interface GitPayload {
   result?: string
   error?: string
+}
+
+interface CreateOutput {
+  stdout?: string
+  stderr?: string
+  error?: string
+  exited?: number
 }
 
 const App = (): JSX.Element => {
   const existsAlertCancelRef = useRef<any>()
   const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
+
+  // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
+  const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
   const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projectLoad = useStoreActions((actions) => actions.project.load)
@@ -61,8 +74,9 @@ const App = (): JSX.Element => {
   const [path, setPath] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
   const [isLoading, setIsLoading] = useState(false)
-  const [gitCloneOutput, setGitCloneOutput] = useState<string>('')
+  const output = useRef<Array<string>>([])
 
   useEffect(() => {
     // profileLoad()
@@ -81,17 +95,35 @@ const App = (): JSX.Element => {
     }
     setIsLoading(true)
     send('gitClone', { url, path })
-    setGitCloneOutput('')
+    output.current = []
   }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
-    const unlisten = listen('gitClone', (payload: GitCloneOutput) => {
-      setIsLoading(false)
+    const unlisten = listen('gitClone', (payload: GitPayload) => {
       if (payload.result) {
-        setGitCloneOutput(`gitClone fine:${payload.result}`)
+        output.current.push(`gitClone:${payload.result}`)
+        send('npmInstall', { cwd: path })
       } else if (payload.error) {
-        setGitCloneOutput(`gitClone error:${payload.error}`)
+        output.current.push(`gitClone error:${payload.error}`)
       }
+      forceUpdate()
+    })
+    return unlisten
+  }, [path])
+
+  useEffect(() => {
+    const unlisten = listen('npmInstall', (payload: CreateOutput) => {
+      if (payload.stdout) {
+        output.current.push(`stdout:${payload.stdout}`)
+      } else if (payload.stderr) {
+        output.current.push(`stderr:${payload.stderr}`)
+      } else if (payload.error) {
+        output.current.push(`error:${payload.error}`)
+      } else if (payload.exited !== undefined) {
+        output.current.push('exited.')
+        setIsLoading(false)
+      }
+      forceUpdate()
     })
     return unlisten
   }, [])
@@ -108,73 +140,89 @@ const App = (): JSX.Element => {
         )}
       </div>
 
-      <Modal isOpen={modalDisclosure} onClose={setModalClose}>
+      <Modal isOpen={modalDisclosure} onClose={setModalClose} scrollBehavior="inside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Create Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl id="url" mt={4}>
-              <FormLabel>Url</FormLabel>
-              <Input type="text" value={url} onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)} />
-              <FormHelperText>
-                If you don‘t know what this is, you can read{' '}
-                <a className="link" href="http://baidu.com">
-                  our documentation
-                </a>{' '}
-                or ask the front-end engineer of the team for help
-              </FormHelperText>
-            </FormControl>
+            <Grid templateColumns="30% 70%" gap={6}>
+              <Box>
+                <FormControl id="url" mt={4}>
+                  <FormLabel>Url</FormLabel>
+                  <Input
+                    type="text"
+                    value={url}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
+                  />
+                  <FormHelperText>
+                    If you don‘t know what this is, you can read{' '}
+                    <a className="link" href="http://baidu.com">
+                      our documentation
+                    </a>{' '}
+                    or ask the front-end engineer of the team for help
+                  </FormHelperText>
+                </FormControl>
 
-            <FormControl id="path" mt={4}>
-              <FormLabel>Local Path</FormLabel>
-              <Button
-                leftIcon={<FontAwesomeIcon icon={faFolderOpen} />}
-                colorScheme="teal"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  const filePaths = window.selectDirs()
-                  setPath(filePaths[0])
-                }}
-              >
-                Select Folder
-              </Button>
-              <Text color="gray.500" isTruncated>
-                {path}
-              </Text>
-            </FormControl>
+                <FormControl id="path" mt={4}>
+                  <FormLabel>Local Path</FormLabel>
+                  <Button
+                    leftIcon={<FontAwesomeIcon icon={faFolderOpen} />}
+                    colorScheme="gray"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      const filePaths = window.selectDirs()
+                      setPath(filePaths[0])
+                    }}
+                  >
+                    Select Folder
+                  </Button>
+                  <Tooltip label={path} aria-label="path">
+                    <Text color="gray.500" isTruncated>
+                      {path}
+                    </Text>
+                  </Tooltip>
+                </FormControl>
 
-            <FormControl id="username" mt={4}>
-              <FormLabel>Username</FormLabel>
-              <Input
-                type="text"
-                value={username}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
-              />
-            </FormControl>
+                <FormControl id="username" mt={4}>
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    type="text"
+                    value={username}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+                  />
+                </FormControl>
 
-            <FormControl id="password" mt={4}>
-              <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-              />
-            </FormControl>
+                <FormControl id="password" mt={4}>
+                  <FormLabel>Password</FormLabel>
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  />
+                </FormControl>
+              </Box>
+              <Box>
+                <p style={{ whiteSpace: 'pre', overflowX: 'auto' }}>{output.current.join('\n')}</p>
+                {isLoading && (
+                  <p className={style.spinner}>
+                    <BarLoader height={4} width={100} color="gray" />
+                  </p>
+                )}
+              </Box>
+            </Grid>
           </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="gray" mr={3} onClick={() => setModalClose()}>
-              Close
+          <ModalFooter justifyContent="center">
+            <Button variant="outline" mr={3} onClick={() => setModalClose()}>
+              Cancel
             </Button>
             <Button
               colorScheme="teal"
               isLoading={isLoading}
-              spinner={<BeatLoader size={8} color="gray" />}
+              spinner={<BeatLoader size={8} color="teal" />}
               onClick={submit}
             >
-              Submit
+              Create
             </Button>
           </ModalFooter>
         </ModalContent>

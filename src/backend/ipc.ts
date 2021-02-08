@@ -2,6 +2,8 @@ import ipc from 'node-ipc'
 import message from './message'
 import * as handlers from './handlers'
 
+const handlersObj = handlers as any
+
 export default (socketId: string) => {
   ipc.config.id = socketId
   ipc.config.silent = true
@@ -12,9 +14,8 @@ export default (socketId: string) => {
       const msg = JSON.parse(data)
       const { id, name, payload } = msg
 
-      if ((handlers as any)[name]) {
-        ;(handlers as any)
-          [name](payload)
+      if (handlersObj[name]) {
+        handlersObj[name](payload)
           .then((result: any) => {
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result }))
             return null
