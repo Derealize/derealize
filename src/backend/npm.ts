@@ -9,52 +9,56 @@ if (!isProd) {
   nodeBin = os.platform() === 'darwin' ? '../../assets/node-mac/bin/npm' : '../../assets/node-win/npm.cmd'
 }
 
-export const npmInstall = ({ cwd }: Record<string, string>) => {
+export const npmInstall = ({ cwd }: Record<string, string>): Promise<void> => {
   const install = spawn(path.resolve(__dirname, nodeBin), ['install'], { cwd })
 
   install.stdout.on('data', (stdout) => {
-    broadcast('npm_install', { stdout: stdout.toString() })
-    console.log(`npm_install stdout: ${stdout}`)
+    broadcast('npmInstall', { stdout: stdout.toString() })
+    console.log(`npmInstall stdout: ${stdout}`)
   })
 
   install.stderr.on('data', (stderr) => {
-    broadcast('npm_install', { stderr: stderr.toString() })
-    console.log(`npm_install stderr: ${stderr}`)
+    broadcast('npmInstall', { stderr: stderr.toString() })
+    console.log(`npmInstall stderr: ${stderr}`)
   })
 
   install.on('error', (error) => {
-    broadcast('npm_install', { error: error.message })
-    console.error('npm_install error', error)
+    broadcast('npmInstall', { error: error.message })
+    console.error('npmInstall error', error)
   })
 
   install.on('close', (code) => {
-    broadcast('npm_install', { exited: code })
-    console.log(`npm_install process exited. ${code}`)
+    broadcast('npmInstall', { exited: code })
+    console.log(`npmInstall process exited. ${code}`)
   })
+
+  return Promise.resolve()
 }
 
-export const npmStart = ({ cwd, script }: Record<string, string>) => {
+export const npmStart = ({ cwd, script }: Record<string, string>): Promise<void> => {
   const install = spawn(path.resolve(__dirname, nodeBin), ['run', script], {
     cwd,
   })
 
   install.stdout.on('data', (stdout) => {
-    broadcast('npm_start', { stdout: stdout.toString() })
-    console.log(`npm_start stdout: ${stdout}`)
+    broadcast('npmStart', { stdout: stdout.toString() })
+    console.log(`npmInstall stdout: ${stdout}`)
   })
 
   install.stderr.on('data', (stderr) => {
-    broadcast('npm_start', { stderr: stderr.toString() })
-    console.log(`npm_start stderr: ${stderr}`)
+    broadcast('npmStart', { stderr: stderr.toString() })
+    console.log(`npmInstall stderr: ${stderr}`)
   })
 
   install.on('error', (error) => {
-    broadcast('npm_start', { error: error.message })
-    console.error('npm_start error', error)
+    broadcast('npmStart', { error: error.message })
+    console.error('npmInstall error', error)
   })
 
   install.on('close', (code) => {
-    broadcast('npm_start', { exited: code })
-    console.log(`npm_start process exited. ${code}`)
+    broadcast('npmStart', { exited: code })
+    console.log(`npmInstall process exited. ${code}`)
   })
+
+  return Promise.resolve()
 }

@@ -54,3 +54,5 @@ src/yarn.lock
 **/*.node
 **/*.map
 **/*.LICENSE.txt
+
+assets/node-win

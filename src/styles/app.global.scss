@@ -148,15 +148,12 @@ html {
   }
 
   *::-webkit-scrollbar-track {
-    // background: #27531b;
-    // border: 1px solid #27531b;
-    background: #100964;
-    border: 1px solid #100964;
+    background: $mute;
+    border: 1px solid $mute;
+
     &:hover {
-      // background: #27531b;
-      // border-color: #27531b;
-      background: #100964;
-      border-color: #100964;
+      background: $mute; //#f9f9f9;
+      border-color: $mute; //#e1e1e1;
     }
 
     &:vertical {
@@ -176,17 +173,14 @@ html {
 
   *::-webkit-scrollbar-thumb {
     min-height: 2rem;
-    // background: #00ff0f;
-    // background-clip: padding-box;
-    background: #00acff;
-    border: 5px solid #00acff;
+    background: #ccc;
+    background-clip: padding-box;
+    border: 5px solid rgba(black, 0);
+    border-radius: 10px;
 
-    // border: 5px solid #00ff0f;
-    // border-radius: 10px;
     &:hover,
     &:active {
-      // background-color: #00ff0f;
-      background-color: #00acff;
+      background-color: #999;
       border-width: 4px;
     }
   }
