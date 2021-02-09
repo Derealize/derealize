@@ -1,0 +1,10 @@
+@import '../styles/variable';
+
+.spinner {
+  text-align: center;
+  height: 50px;
+  & > span {
+    display: block;
+    margin: 0 auto;
+  }
+}
