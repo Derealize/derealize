@@ -34,7 +34,7 @@ const Home = (): JSX.Element => {
                 colorScheme="pink"
                 variant="solid"
               >
-                Create
+                Import
               </Button>
               <Button leftIcon={<FontAwesomeIcon icon={faFolderOpen} />} colorScheme="teal" variant="outline">
                 Open
