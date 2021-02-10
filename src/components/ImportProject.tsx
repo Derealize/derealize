@@ -8,9 +8,12 @@ import {
   ModalBody,
   ModalFooter,
   FormControl,
+  FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
-  FormHelperText,
+  InputGroup,
+  InputRightElement,
   Button,
   useDisclosure,
   AlertDialog,
@@ -25,10 +28,11 @@ import {
   Box,
   Tooltip,
 } from '@chakra-ui/react'
-import cs from 'classnames'
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons'
+import { css } from '@emotion/react'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import { send, listen } from '../ipc'
@@ -61,12 +65,43 @@ const ImportProject = (): JSX.Element => {
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
 
   const [url, setUrl] = useState('')
+  const [urlError, setUrlError] = useState('')
   const [path, setPath] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   const [isLoading, setIsLoading] = useState(false)
   const output = useRef<Array<string>>([])
+
+  useEffect(() => {
+    if (url) {
+      try {
+        const parseURL = new URL(url)
+        setUsername(parseURL.username)
+        setPassword(parseURL.password)
+        setUrlError('')
+      } catch (err) {
+        setUrlError(err.message)
+      }
+    }
+  }, [url])
+
+  const updateUrl = useCallback(
+    ({ _username, _password }) => {
+      if (!url) return
+      try {
+        const parseURL = new URL(url)
+        if (_username) parseURL.username = _username
+        if (_password) parseURL.password = _password
+        setUrl(parseURL.href)
+        setUrlError('')
+      } catch (err) {
+        setUrlError(err.message)
+      }
+    },
+    [url],
+  )
 
   const submit = useCallback(async () => {
     if (projects.map((p) => p.url).includes(url)) {
@@ -123,20 +158,22 @@ const ImportProject = (): JSX.Element => {
           <ModalBody>
             <Grid templateColumns="30% 70%" gap={6}>
               <Box>
-                <FormControl id="url" mt={4}>
-                  <FormLabel>Url</FormLabel>
+                <FormControl id="url" mt={4} isInvalid={!!urlError}>
+                  <FormLabel htmlFor="url">URL</FormLabel>
                   <Input
+                    id="url"
                     type="text"
                     value={url}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
                   <FormHelperText>
                     If you don‘t know what this is, you can read{' '}
-                    <a className="link" href="http://baidu.com">
+                    <a className="link" href="http://baidu.com" target="_blank" rel="noreferrer">
                       our documentation
                     </a>{' '}
-                    or ask the front-end engineer of the team for help
+                    or ask the front-end engineer of the team for help.
                   </FormHelperText>
+                  <FormErrorMessage>{urlError}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl id="path" mt={4}>
@@ -157,6 +194,11 @@ const ImportProject = (): JSX.Element => {
                       {path}
                     </Text>
                   </Tooltip>
+                  {!url && (
+                    <FormHelperText>
+                      If the derealize project already exists on the local disk, you can import it directly.
+                    </FormHelperText>
+                  )}
                 </FormControl>
 
                 <FormControl id="username" mt={4}>
@@ -164,17 +206,30 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     type="text"
                     value={username}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      setUsername(e.target.value)
+                      updateUrl({ _username: e.target.value })
+                    }}
                   />
                 </FormControl>
 
                 <FormControl id="password" mt={4}>
                   <FormLabel>Password</FormLabel>
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  />
+
+                  <InputGroup size="md">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        setPassword(e.target.value)
+                        updateUrl({ _password: e.target.value })
+                      }}
+                    />
+                    <InputRightElement width={12} className={style.pwdright}>
+                      {!showPassword && <FontAwesomeIcon icon={faEye} onClick={() => setShowPassword(true)} />}
+                      {showPassword && <FontAwesomeIcon icon={faEyeSlash} onClick={() => setShowPassword(false)} />}
+                    </InputRightElement>
+                  </InputGroup>
                 </FormControl>
               </Box>
               <Box>
