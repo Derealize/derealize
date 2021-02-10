@@ -15,6 +15,7 @@ import {
   InputGroup,
   InputRightElement,
   Button,
+  ButtonGroup,
   useDisclosure,
   AlertDialog,
   AlertDialogBody,
@@ -72,6 +73,7 @@ const ImportProject = (): JSX.Element => {
   const [showPassword, setShowPassword] = useState(false)
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isReady, setIsReady] = useState(false)
   const output = useRef<Array<string>>([])
 
   useEffect(() => {
@@ -90,6 +92,7 @@ const ImportProject = (): JSX.Element => {
   const updateUrl = useCallback(
     ({ _username, _password }) => {
       if (!url) return
+      console.log('updateUrl')
       try {
         const parseURL = new URL(url)
         if (_username) parseURL.username = _username
@@ -109,17 +112,20 @@ const ImportProject = (): JSX.Element => {
       return
     }
     setIsLoading(true)
-    send('gitClone', { url, path })
+    setIsReady(false)
     output.current = []
+    console.log(url, path)
+    send('gitClone', { url, path })
   }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
     const unlisten = listen('gitClone', (payload: GitPayload) => {
       if (payload.result) {
-        output.current.push(`gitClone:${payload.result}`)
+        output.current.push(`git:${payload.result}`)
         send('npmInstall', { cwd: path })
       } else if (payload.error) {
-        output.current.push(`gitClone error:${payload.error}`)
+        output.current.push(`git error:${payload.error}`)
+        setIsLoading(false)
       }
       forceUpdate()
     })
@@ -135,8 +141,8 @@ const ImportProject = (): JSX.Element => {
       } else if (payload.error) {
         output.current.push(`error:${payload.error}`)
       } else if (payload.exited !== undefined) {
-        output.current.push('exited.')
         setIsLoading(false)
+        setIsReady(true)
       }
       forceUpdate()
     })
@@ -150,7 +156,7 @@ const ImportProject = (): JSX.Element => {
 
   return (
     <>
-      <Modal isOpen={modalDisclosure} onClose={setModalClose} scrollBehavior="inside" size="5xl">
+      <Modal isOpen={modalDisclosure} onClose={setModalClose} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign="center">Import Project</ModalHeader>
@@ -233,7 +239,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p style={{ whiteSpace: 'pre', overflowX: 'auto' }}>{output.current.join('\n')}</p>
+                <p style={{ whiteSpace: 'pre', overflow: 'auto', height: '100%' }}>{output.current.join('\n')}</p>
                 {isLoading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
@@ -241,16 +247,33 @@ const ImportProject = (): JSX.Element => {
                 )}
               </Box>
             </Grid>
+            {isReady && (
+              <Text color="red.500" align="center">
+                Congratulations, it looks like the project is ready to work.
+              </Text>
+            )}
           </ModalBody>
           <ModalFooter justifyContent="center">
+            {isReady && (
+              <ButtonGroup variant="outline" size="lg" spacing={6}>
+                <Button colorScheme="gray" onClick={() => setModalClose()}>
+                  Close Dialog
+                </Button>
+                <Button colorScheme="teal" onClick={openProject}>
+                  Open Project
+                </Button>
+              </ButtonGroup>
+            )}
             <Button
               colorScheme="teal"
               size="lg"
+              variant={isReady ? 'outline' : 'solid'}
               isLoading={isLoading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={submit}
+              ml={6}
             >
-              Import
+              Import {isReady && 'Again'}
             </Button>
           </ModalFooter>
         </ModalContent>
