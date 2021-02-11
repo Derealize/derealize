@@ -66,3 +66,7 @@ window.selectDirs = () => {
   const filePaths = ipcRenderer.sendSync('selectDirs')
   return filePaths
 }
+
+window.frontProjectView = (url) => {
+  ipcRenderer.send('frontProjectView', url)
+}

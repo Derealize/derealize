@@ -132,6 +132,7 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
+    window.frontProjectView(project?.url || '')
   }),
 
   modalDisclosure: false,

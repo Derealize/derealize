@@ -4,7 +4,7 @@ import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
 import fs from 'fs'
-import { app, BrowserWindow, shell, ipcMain, dialog, Menu } from 'electron'
+import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
@@ -64,8 +64,19 @@ const installExtensions = async () => {
 let mainWindow: BrowserWindow | null = null
 let menu: Menu | null = null
 
+const setBrowserViewBounds = () => {
+  if (!mainWindow) return
+  const browserView = mainWindow.getBrowserView()
+  if (browserView) {
+    const rectangle = mainWindow.getBounds()
+    const yaxis = mainWindow.isMaximized() ? 34 : 46
+    browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height })
+  }
+}
+
 const sendIsMaximized = () => {
   mainWindow?.webContents.send('isMaximized', mainWindow.isMaximized())
+  setBrowserViewBounds()
 }
 
 const createWindow = async (socketId: string) => {
@@ -81,8 +92,8 @@ const createWindow = async (socketId: string) => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1280,
+    height: 800,
     icon: getAssetPath('icon.png'),
     frame: false,
     webPreferences: {
@@ -131,6 +142,9 @@ const createWindow = async (socketId: string) => {
 
   mainWindow.on('maximize', sendIsMaximized)
   mainWindow.on('unmaximize', sendIsMaximized)
+  mainWindow.on('resize', () => {
+    setBrowserViewBounds()
+  })
 }
 
 app.on('window-all-closed', () => {
@@ -264,4 +278,27 @@ ipcMain.on('selectDirs', async (event, arg) => {
   })
   console.log(`selectDirs: ${result.filePaths}`)
   event.returnValue = result.filePaths
+})
+
+const projectBrowserViews = new Map<string, BrowserView>()
+ipcMain.on('frontProjectView', (event, frontProjects: string) => {
+  if (!mainWindow) return
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [url, view] of projectBrowserViews) {
+    if (url === frontProjects) {
+      mainWindow.setBrowserView(view)
+    } else {
+      mainWindow.removeBrowserView(view)
+    }
+  }
+
+  if (frontProjects && !projectBrowserViews.has(frontProjects)) {
+    console.log('create BrowserView', frontProjects)
+    const view = new BrowserView()
+    mainWindow.setBrowserView(view)
+    projectBrowserViews.set(frontProjects, view)
+    setBrowserViewBounds()
+    view.webContents.loadURL(`https://www.baidu.com/s?wd=${frontProjects}`)
+  }
 })
