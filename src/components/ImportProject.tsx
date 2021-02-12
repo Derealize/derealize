@@ -42,12 +42,12 @@ import PreloadWindow from '../preload_window'
 
 declare const window: PreloadWindow
 
-interface GitPayload {
+interface Payload {
   result?: string
   error?: string
 }
 
-interface NpmPayload {
+interface ProcessPayload {
   stdout?: string
   stderr?: string
   error?: string
@@ -114,26 +114,21 @@ const ImportProject = (): JSX.Element => {
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    console.log(url, path)
-    send('gitClone', { url, path })
+    send('importProject', { url, path, branch: 'derealize', npmScript: 'dev' })
   }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
-    const unlisten = listen('gitClone', (payload: GitPayload) => {
+    const unlisten = listen('importProject', (payload: Payload) => {
       if (payload.result) {
         output.current.push(`git:${payload.result}`)
-        send('npmInstall', { cwd: path })
       } else if (payload.error) {
         output.current.push(`git error:${payload.error}`)
         setIsLoading(false)
       }
       forceUpdate()
     })
-    return unlisten
-  }, [path])
 
-  useEffect(() => {
-    const unlisten = listen('npmInstall', (payload: NpmPayload) => {
+    const npmUnlisten = listen('npmInstall', (payload: ProcessPayload) => {
       if (payload.stdout) {
         output.current.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
@@ -146,8 +141,12 @@ const ImportProject = (): JSX.Element => {
       }
       forceUpdate()
     })
-    return unlisten
-  }, [])
+
+    return () => {
+      unlisten()
+      npmUnlisten()
+    }
+  }, [path])
 
   const openProject = useCallback(async () => {
     // setFrontProject()

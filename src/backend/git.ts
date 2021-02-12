@@ -1,110 +1,64 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch } from 'nodegit'
-import broadcast from './broadcast'
-import message from './message'
+import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile } from 'nodegit'
 
-const checkBranch = async (repo: Repository): Promise<string> => {
+export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
-  if (ref.name() !== 'refs/heads/derealize') {
-    try {
-      // https://github.com/nodegit/nodegit/issues/1261#issuecomment-431831338
-      const commit = await repo.getBranchCommit('origin/derealize')
-      ref = await repo.createBranch('derealize', commit, true)
-      await repo.checkoutBranch(ref)
-      await Branch.setUpstream(ref, 'origin/derealize')
-    } catch (error) {
-      throw new Error(
-        'current branch is not "derealize". Please contact the engineer for help, or delete and re-import the project files',
-      )
-    }
-  }
-  return ref.name()
-}
-
-export const gitOpen = async ({ path }: Record<string, string>): Promise<void> => {
-  try {
-    const repo = await Repository.open(path)
-    const branchName = await checkBranch(repo)
-    broadcast('gitOpen', { result: 'done' })
-  } catch (error) {
-    broadcast('gitOpen', { error: error.message })
-    message({ message: 'gitOpen', error })
+  if (ref.name() !== `refs/heads/${branch}`) {
+    // https://github.com/nodegit/nodegit/issues/1261#issuecomment-431831338
+    const commit = await repo.getBranchCommit(`origin/${branch}`)
+    ref = await repo.createBranch(branch, commit, true)
+    await repo.checkoutBranch(ref)
+    await Branch.setUpstream(ref, `origin/${branch}`)
   }
 }
 
-export const gitClone = async ({ url, path }: Record<string, string>): Promise<void> => {
-  try {
-    const repo = await Clone.clone(url, path, { checkoutBranch: 'derealize' })
-    const branchName = await checkBranch(repo)
-    broadcast('gitClone', { result: 'done' })
-  } catch (error) {
-    if (error.message.includes('exists and is not an empty directory')) {
-      await gitOpen({ path })
-      return
-    }
-    broadcast('gitClone', { error: error.message })
-    message({ message: 'gitClone', error })
-  }
-}
-
-const pull = async (repo: Repository) => {
-  try {
-    await repo.fetch('origin', {
-      callbacks: {
-        credentials(_url: any, userName: string) {
-          return Cred.sshKeyFromAgent(userName)
-        },
-      },
-    })
-
-    // https://github.com/nodegit/nodegit/blob/master/examples/pull.js
-    const oid = await repo.mergeBranches('derealize', 'origin/derealize')
-    broadcast('gitPull', { result: 'done' })
-  } catch (error) {
-    if (error.message.includes('is the current HEAD of the repository')) {
-      broadcast('gitPull', { result: 'wont' })
-      return
-    }
-    broadcast('gitPull', { error: error.message })
-    message({ message: 'gitPull', error })
-  }
-}
-
-export const gitPull = async ({ path }: Record<string, string>) => {
+export const gitOpen = async (path: string): Promise<Repository> => {
   const repo = await Repository.open(path)
-  await checkBranch(repo)
-  await pull(repo)
+  return repo
 }
 
-export const gitSync = async ({ path, msg }: Record<string, string>) => {
-  try {
-    const repo = await Repository.open(path)
-    await checkBranch(repo)
+export const gitClone = async (url: string, path: string, branch: string): Promise<Repository> => {
+  const repo = await Clone.clone(url, path, { checkoutBranch: branch })
+  return repo
+}
 
-    // https://github.com/nodegit/nodegit/blob/master/examples/add-and-commit.js
-    const index = await repo.refreshIndex()
-    await index.addAll()
-    await index.write()
-    const oid = await index.writeTree()
-    const head = await Reference.nameToId(repo, 'HEAD')
-    const parent = await repo.getCommit(head)
-    const committer = await Signature.default(repo)
-    await repo.createCommit('HEAD', committer, committer, msg, oid, [parent])
+export const gitCommit = async (repo: Repository, msg: string) => {
+  // https://github.com/nodegit/nodegit/blob/master/examples/add-and-commit.js
+  const index = await repo.refreshIndex()
+  await index.addAll()
+  await index.write()
+  const oid = await index.writeTree()
+  const head = await Reference.nameToId(repo, 'HEAD')
+  const parent = await repo.getCommit(head)
+  const committer = await Signature.default(repo)
+  await repo.createCommit('HEAD', committer, committer, msg, oid, [parent])
+}
 
-    await pull(repo)
-
-    // https://github.com/nodegit/nodegit/blob/master/examples/push.js
-    const remote = await repo.getRemote('derealize')
-    const pushId = await remote.push(['refs/heads/derealize:refs/heads/derealize'], {
-      callbacks: {
-        credentials(_url: any, userName: string) {
-          return Cred.sshKeyFromAgent(userName)
-        },
+export const gitPull = async (repo: Repository) => {
+  await repo.fetch('origin', {
+    callbacks: {
+      credentials(_url: any, userName: string) {
+        return Cred.sshKeyFromAgent(userName)
       },
-    })
+    },
+  })
 
-    broadcast('gitSync', { result: 'done' })
-  } catch (error) {
-    broadcast('gitSync', { error: error.message })
-    message({ message: 'gitSync', error })
-  }
+  // https://github.com/nodegit/nodegit/blob/master/examples/pull.js
+  await repo.mergeBranches('derealize', 'origin/derealize')
+}
+
+export const gitStatus = async (repo: Repository): Promise<Array<StatusFile>> => {
+  const statuses = await repo.getStatus()
+  return statuses
+}
+
+export const gitPush = async (repo: Repository) => {
+  // https://github.com/nodegit/nodegit/blob/master/examples/push.js
+  const remote = await repo.getRemote('derealize')
+  const pushId = await remote.push(['refs/heads/derealize:refs/heads/derealize'], {
+    callbacks: {
+      credentials(_url: any, userName: string) {
+        return Cred.sshKeyFromAgent(userName)
+      },
+    },
+  })
 }
