@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-const send = (data: { message: string; error?: string }) => {
+const send = (message: string, error?: string | Error) => {
   if (process.send) {
     // fork option stdio: ['pipe', 'pipe', 'pipe', 'ipc']
-    process.send(data)
-  } else if (data.error) {
-    console.error(data.message, data.error)
+    process.send({ message, error })
+  } else if (error) {
+    console.error(message, error)
   } else {
-    console.log(data.message)
+    console.log(message)
   }
 }
 
