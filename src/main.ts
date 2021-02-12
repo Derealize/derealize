@@ -276,29 +276,41 @@ ipcMain.on('selectDirs', async (event, arg) => {
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
   })
-  console.log(`selectDirs: ${result.filePaths}`)
   event.returnValue = result.filePaths
 })
 
 const projectBrowserViews = new Map<string, BrowserView>()
-ipcMain.on('frontProjectView', (event, frontProjects: string) => {
+
+ipcMain.on('frontProjectView', (event, frontProject: string) => {
   if (!mainWindow) return
 
   // eslint-disable-next-line no-restricted-syntax
   for (const [url, view] of projectBrowserViews) {
-    if (url === frontProjects) {
+    if (url === frontProject) {
       mainWindow.setBrowserView(view)
     } else {
       mainWindow.removeBrowserView(view)
     }
   }
 
-  if (frontProjects && !projectBrowserViews.has(frontProjects)) {
-    console.log('create BrowserView', frontProjects)
+  if (frontProject && !projectBrowserViews.has(frontProject)) {
     const view = new BrowserView()
     mainWindow.setBrowserView(view)
-    projectBrowserViews.set(frontProjects, view)
+    projectBrowserViews.set(frontProject, view)
     setBrowserViewBounds()
-    view.webContents.loadURL(`https://www.baidu.com/s?wd=${frontProjects}`)
+    view.webContents.loadURL(`https://www.baidu.com/s?wd=${frontProject}`)
+  }
+})
+
+ipcMain.on('closeProjectView', (event, closeProject: string) => {
+  if (!mainWindow) return
+
+  // https://github.com/electron/electron/pull/23578
+  // eslint-disable-next-line no-restricted-syntax
+  for (const [url, view] of projectBrowserViews) {
+    if (url === closeProject) {
+      mainWindow.removeBrowserView(view)
+      projectBrowserViews.delete(closeProject)
+    }
   }
 })

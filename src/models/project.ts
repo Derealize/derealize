@@ -14,11 +14,12 @@ const toast = createStandaloneToast({
 
 export interface Project {
   url: string
+  path: string
   username: string
   password: string
   name: string
   isOpened?: boolean
-  editedTime?: Date
+  editedTime?: string
 }
 
 export interface ProjectModel {
@@ -26,9 +27,9 @@ export interface ProjectModel {
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, { projects: Array<Project>; storage?: boolean }>
   addProject: Action<ProjectModel, Project>
-  removeProject: Action<ProjectModel, string>
-  openProject: Action<ProjectModel, string>
-  closeProject: Action<ProjectModel, string>
+  removeProject: Thunk<ProjectModel, string>
+  openProject: Thunk<ProjectModel, string>
+  closeProject: Thunk<ProjectModel, string>
   load: Thunk<ProjectModel>
 
   frontProject: Project | null
@@ -42,28 +43,31 @@ export interface ProjectModel {
 const projectModel: ProjectModel = {
   projects: [
     {
+      url: 'czxcasd',
+      path: 'D:\\derealize-demo-temp',
       name: 'Test1',
       username: 'asdasd',
       password: 'adzxczxc',
-      url: 'czxcasd',
       isOpened: true,
-      editedTime: dayjs().add(-2, 'hours').toDate(),
+      editedTime: dayjs().add(-2, 'hours').toString(),
     },
     {
+      url: 'czxcasd2',
+      path: 'D:\\derealize-demo-temp',
       name: 'Test2',
       username: 'asdasd',
       password: 'adzxczxc',
-      url: 'czxcasd2',
       isOpened: true,
-      editedTime: dayjs().add(-1, 'days').toDate(),
+      editedTime: dayjs().add(-1, 'days').toString(),
     },
     {
+      url: 'tryrty',
+      path: 'D:\\derealize-demo-temp',
       name: 'Test3',
       username: 'fsdf',
       password: 'xcvsdfs',
-      url: 'tryrty',
       isOpened: true,
-      editedTime: dayjs().add(-2, 'days').toDate(),
+      editedTime: dayjs().add(-2, 'days').toString(),
     },
   ],
   openedProjects: computed((state) => {
@@ -86,36 +90,40 @@ const projectModel: ProjectModel = {
     state.projects.push(project)
     window.setStore({ projects: state.projects })
   }),
-  removeProject: action((state, projectId) => {
-    state.projects = state.projects.filter((p) => p.url !== projectId)
-    window.setStore({ projects: state.projects })
+  removeProject: thunk((actions, projectId, { getState }) => {
+    actions.closeProject(projectId)
+    const projects = getState().projects.filter((p) => p.url !== projectId)
+    actions.setProjects({ projects, storage: true })
   }),
-  openProject: action((state, projectId) => {
-    const project = state.projects.find((p) => p.url === projectId)
+  openProject: thunk((actions, projectId, { getState }) => {
+    const project = getState().projects.find((p) => p.url === projectId)
     if (project) {
       project.isOpened = true
-      state.frontProject = project
+      actions.setFrontProject(project)
     }
   }),
-  closeProject: action((state, projectId) => {
-    const project = state.projects.find((p) => p.url === projectId)
+  closeProject: thunk((actions, projectId, { getState }) => {
+    const { projects, frontProject, openedProjects } = getState()
+    const project = projects.find((p) => p.url === projectId)
     if (!project) throw new Error('closeProject null')
+    project.isOpened = false
 
-    if (project.url === state.frontProject?.url) {
+    if (project.url === frontProject?.url) {
       // match chrome-tabs.js:243
-      const oindex = state.openedProjects.findIndex((p) => p.url === project.url)
+      const oindex = openedProjects.findIndex((p) => p.url === project.url)
       if (oindex >= 0) {
-        if (oindex + 1 < state.openedProjects.length) {
-          state.frontProject = state.openedProjects[oindex + 1]
+        if (oindex + 1 < openedProjects.length) {
+          actions.setFrontProject(openedProjects[oindex + 1])
         } else if (oindex - 1 >= 0) {
-          state.frontProject = state.openedProjects[oindex - 1]
+          actions.setFrontProject(openedProjects[oindex - 1])
         } else {
-          state.frontProject = null
+          actions.setFrontProject(null)
         }
       }
     }
 
-    project.isOpened = false
+    window.closeProjectView(project.url)
+    actions.setProjects({ projects, storage: true })
   }),
   load: thunk(async (actions) => {
     try {
