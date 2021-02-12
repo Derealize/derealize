@@ -7,7 +7,8 @@ export default interface PreloadWindow extends Window {
   controls: (payload: string) => void
   popupMenu: () => void
   selectDirs: () => string
-  frontProjectView: (url: string) => void
+  frontProjectView: (id: string) => void
+  closeProjectView: (id: string) => void
   isDebug: boolean
   isMac: boolean
 }

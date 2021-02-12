@@ -70,3 +70,7 @@ window.selectDirs = () => {
 window.frontProjectView = (url) => {
   ipcRenderer.send('frontProjectView', url)
 }
+
+window.closeProjectView = (url) => {
+  ipcRenderer.send('closeProjectView', url)
+}

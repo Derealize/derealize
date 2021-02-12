@@ -20,9 +20,12 @@ const store = new Store({
       uniqueItems: true,
       items: {
         type: 'object',
-        required: ['giturl', 'path'],
+        required: ['url', 'path'],
         properties: {
-          giturl: {
+          url: {
+            type: 'string',
+          },
+          path: {
             type: 'string',
           },
           username: {
@@ -31,7 +34,10 @@ const store = new Store({
           password: {
             type: 'string',
           },
-          path: {
+          isOpened: {
+            type: 'boolean',
+          },
+          editedTime: {
             type: 'string',
           },
         },
