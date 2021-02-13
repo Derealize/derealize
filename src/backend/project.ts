@@ -20,8 +20,6 @@ interface GitFileChanges {
 class Project {
   stage: ProjectStage
 
-  error = ''
-
   repo: Repository | null
 
   changes: Array<GitFileChanges>

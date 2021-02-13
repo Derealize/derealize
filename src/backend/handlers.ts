@@ -1,7 +1,7 @@
 import Project from './project'
 import message from './message'
 
-const projects: Array<Project> = []
+const projectsMap = new Map<string, Project>()
 
 export const factorial = async ({ num }: Record<string, number>) => {
   function fact(n: number): number {
@@ -16,7 +16,7 @@ export const factorial = async ({ num }: Record<string, number>) => {
 }
 
 export const importProject = async ({ url, path, branch, npmScript }: Record<string, string>) => {
-  let project = projects.find((p) => p.url === url)
+  let project = projectsMap.get(url)
   if (!project) {
     project = new Project(url, path, branch, npmScript)
   }
@@ -25,7 +25,7 @@ export const importProject = async ({ url, path, branch, npmScript }: Record<str
 }
 
 export const fileChanges = async ({ url }: Record<string, string>) => {
-  const project = projects.find((p) => p.url === url)
+  const project = projectsMap.get(url)
   if (!project) {
     message('fileChanges project unexist')
     return
@@ -35,7 +35,7 @@ export const fileChanges = async ({ url }: Record<string, string>) => {
 }
 
 export const run = async ({ url }: Record<string, string>) => {
-  const project = projects.find((p) => p.url === url)
+  const project = projectsMap.get(url)
   if (!project) {
     message('run project unexist')
     return
@@ -45,11 +45,22 @@ export const run = async ({ url }: Record<string, string>) => {
 }
 
 export const push = async ({ url, msg }: Record<string, string>) => {
-  const project = projects.find((p) => p.url === url)
+  const project = projectsMap.get(url)
   if (!project) {
     message('push project unexist')
     return
   }
 
   await project.Push(msg)
+}
+
+export const dispose = async ({ url }: Record<string, string>) => {
+  const project = projectsMap.get(url)
+  if (!project) {
+    message('dispose project unexist')
+    return
+  }
+
+  project.dispose()
+  projectsMap.delete(url)
 }
