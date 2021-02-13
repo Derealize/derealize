@@ -92,7 +92,6 @@ const ImportProject = (): JSX.Element => {
   const updateUrl = useCallback(
     ({ _username, _password }) => {
       if (!url) return
-      console.log('updateUrl')
       try {
         const parseURL = new URL(url)
         if (_username) parseURL.username = _username

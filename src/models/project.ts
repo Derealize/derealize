@@ -1,6 +1,7 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import dayjs from 'dayjs'
+import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_window'
 
 declare const window: PreloadWindow
@@ -122,6 +123,7 @@ const projectModel: ProjectModel = {
       }
     }
 
+    send('dispose', { url: project.url })
     window.closeProjectView(project.url)
     actions.setProjects({ projects, storage: true })
   }),
