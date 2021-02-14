@@ -1,5 +1,5 @@
 import ipc from 'node-ipc'
-import message from './message'
+import log from './log'
 
 const handlers: any = require('./handlers')
 
@@ -22,11 +22,11 @@ export default (socketId: string) => {
           .catch((error: Error) => {
             // Up to you how to handle errors, if you want to forward them, etc
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'error', id }))
-            message(`handlers ${name}`, error)
+            log(`handlers ${name}`, error)
             // throw error
           })
       } else {
-        message(`Unknown method: ${name}`)
+        log(`Unknown method: ${name}`)
         ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result: null }))
       }
     })

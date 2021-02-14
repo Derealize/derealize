@@ -1,19 +1,19 @@
 /* eslint-disable no-console */
 import ipc from './ipc'
-import message from './message'
+import log from './log'
 
 if (process.argv[2] === '--subprocess') {
   process
     .on('uncaughtException', (error) => {
-      message({ message: 'Backend UncaughtException', error: error.message })
+      log('Backend UncaughtException', error)
     })
     .on('unhandledRejection', (reason) => {
-      message({ message: 'Backend UnhandledRejection', error: JSON.stringify(reason) })
+      log('Backend UnhandledRejection', JSON.stringify(reason))
     })
 
   const socketId = process.argv[4]
   ipc(socketId)
-  message({ message: `backend subprocess version:${process.argv[3]} socket:${socketId}` })
+  log(`backend subprocess version:${process.argv[3]} socket:${socketId}`)
 } else {
   import('electron')
     .then(({ ipcRenderer }) => {

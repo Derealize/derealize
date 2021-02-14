@@ -6,7 +6,7 @@ import { Project } from './models/project'
 import Home from './Home'
 import ProjectPage from './Project'
 import TabBar from './components/TabBar'
-import ImportProject from './components/ImportProject'
+import ImportProject from './components/Import'
 import style from './App.module.scss'
 
 const App = (): JSX.Element => {

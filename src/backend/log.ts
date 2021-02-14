@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const send = (message: string, error?: string | Error) => {
+const log = (message: string, error?: string | Error) => {
   if (process.send) {
     // fork option stdio: ['pipe', 'pipe', 'pipe', 'ipc']
     process.send({ message, error })
@@ -10,4 +10,4 @@ const send = (message: string, error?: string | Error) => {
   }
 }
 
-export default send
+export default log
