@@ -3,12 +3,11 @@ import { Repository, StatusFile } from 'nodegit'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitStatus, gitPull, gitPush, gitCommit } from './git'
 import broadcast from './broadcast'
-import message from './message'
+import message from './log'
 
 enum ProjectStage {
   Initialized,
-  GitImported,
-  NpmInstalled,
+  Ready,
   Running,
 }
 
@@ -41,31 +40,22 @@ class Project {
     this.runningProcess = null
   }
 
-  async ImportProject() {
+  async Import() {
     try {
       this.repo = await gitClone(this.url, this.path, this.branch)
       await checkBranch(this.repo, this.branch)
-      broadcast('importProject', { result: 'done' })
+      broadcast('import', { result: 'done' })
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
         this.repo = await gitOpen(this.path)
       } else {
-        broadcast('importProject', { error: error.message })
-        message('gitImport error', error)
+        broadcast('import', { error: error.message })
+        message('import error', error)
       }
     }
 
     if (this.repo) {
-      try {
-        await checkBranch(this.repo, this.branch)
-        this.stage = ProjectStage.GitImported
-        await this.Install()
-      } catch (error) {
-        broadcast('importProject', {
-          error: `current branch is not "${this.branch}". Please contact the engineer for help.`,
-        })
-        message('importProject checkBranch error', error)
-      }
+      await this.Install()
     }
   }
 
@@ -156,7 +146,7 @@ class Project {
     this.installProcess.on('close', (code) => {
       broadcast('install', { exited: code })
       if (!hasError) {
-        this.stage = ProjectStage.NpmInstalled
+        this.stage = ProjectStage.Ready
       }
     })
   }
@@ -180,7 +170,7 @@ class Project {
 
     this.runningProcess.on('close', (code) => {
       broadcast('npmStart', { exited: code })
-      this.stage = ProjectStage.NpmInstalled
+      this.stage = ProjectStage.Installed
     })
   }
 

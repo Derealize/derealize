@@ -1,33 +1,31 @@
 import Project from './project'
-import message from './message'
+import log from './log'
 
 const projectsMap = new Map<string, Project>()
 
-export const factorial = async ({ num }: Record<string, number>) => {
-  function fact(n: number): number {
-    if (n === 1) {
-      return 1
-    }
-    return n * fact(n - 1)
-  }
-
-  message('making factorial')
-  return fact(num)
-}
-
-export const importProject = async ({ url, path, branch, npmScript }: Record<string, string>) => {
+export const Import = async ({ url, path, branch, npmScript }: Record<string, string>) => {
   let project = projectsMap.get(url)
   if (!project) {
     project = new Project(url, path, branch, npmScript)
   }
 
-  await project.ImportProject()
+  await project.Import()
+}
+
+export const install = async ({ url }: Record<string, string>) => {
+  const project = projectsMap.get(url)
+  if (!project) {
+    log('install project unexist')
+    return
+  }
+
+  await project.Install()
 }
 
 export const fileChanges = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
-    message('fileChanges project unexist')
+    log('fileChanges project unexist')
     return
   }
 
@@ -37,7 +35,7 @@ export const fileChanges = async ({ url }: Record<string, string>) => {
 export const run = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
-    message('run project unexist')
+    log('run project unexist')
     return
   }
 
@@ -47,17 +45,27 @@ export const run = async ({ url }: Record<string, string>) => {
 export const push = async ({ url, msg }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
-    message('push project unexist')
+    log('push project unexist')
     return
   }
 
   await project.Push(msg)
 }
 
+export const pull = async ({ url, msg }: Record<string, string>) => {
+  const project = projectsMap.get(url)
+  if (!project) {
+    log('pull project unexist')
+    return
+  }
+
+  await project.Pull()
+}
+
 export const dispose = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
-    message('dispose project unexist')
+    log('dispose project unexist')
     return
   }
 

@@ -1,8 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef, useReducer } from 'react'
-import { useLocation, Redirect } from 'react-router-dom'
-import { useToast, FormControl, FormLabel, Input, FormHelperText, Container, Button } from '@chakra-ui/react'
-import { BeatLoader } from 'react-spinners'
-import { login } from '../services/api'
+import React, { useEffect, useState, useRef, useReducer } from 'react'
 import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_window'
 
@@ -21,8 +17,6 @@ interface GitCloneOutput {
 }
 
 const Test = (): JSX.Element => {
-  const [factorial, setFactorial] = useState(0)
-  const [ring, setRing] = useState('')
   const [test, setTest] = useState('')
   const npmInstallOutput = useRef<Array<string>>([])
   const [gitCloneOutput, setGitCloneOutput] = useState<string>('')
@@ -64,30 +58,6 @@ const Test = (): JSX.Element => {
 
   return (
     <div>
-      <button
-        id="factorial"
-        type="button"
-        onClick={async () => {
-          const result = (await send('factorial', { num: 5 })) as number
-          setFactorial(result)
-        }}
-      >
-        Compute factorial
-      </button>
-      <p>factorial: {factorial}</p>
-
-      <button
-        id="call"
-        type="button"
-        onClick={async () => {
-          const result = (await send('ring', { message: 'this is james' })) as string
-          setRing(result)
-        }}
-      >
-        Make phone call
-      </button>
-      <p>ring: {ring}</p>
-
       <button
         id="store"
         type="button"

@@ -113,27 +113,27 @@ const ImportProject = (): JSX.Element => {
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    send('importProject', { url, path, branch: 'derealize', npmScript: 'dev' })
+    send('Import', { url, path, branch: 'derealize', npmScript: 'dev' })
   }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
-    const unlisten = listen('importProject', (payload: Payload) => {
+    const unlisten = listen('import', (payload: Payload) => {
       if (payload.result) {
-        output.current.push(`git:${payload.result}`)
+        output.current.push(`import:${payload.result}`)
       } else if (payload.error) {
-        output.current.push(`git error:${payload.error}`)
+        output.current.push(`import error:${payload.error}`)
         setIsLoading(false)
       }
       forceUpdate()
     })
 
-    const npmUnlisten = listen('npmInstall', (payload: ProcessPayload) => {
+    const npmUnlisten = listen('install', (payload: ProcessPayload) => {
       if (payload.stdout) {
-        output.current.push(`stdout:${payload.stdout}`)
+        output.current.push(`install stdout:${payload.stdout}`)
       } else if (payload.stderr) {
-        output.current.push(`stderr:${payload.stderr}`)
+        output.current.push(`install stderr:${payload.stderr}`)
       } else if (payload.error) {
-        output.current.push(`error:${payload.error}`)
+        output.current.push(`install error:${payload.error}`)
       } else if (payload.exited !== undefined) {
         setIsLoading(false)
         setIsReady(true)
