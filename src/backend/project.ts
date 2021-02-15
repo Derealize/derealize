@@ -1,11 +1,15 @@
+import fs from 'fs'
+import _path from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository, StatusFile } from 'nodegit'
+import ProjectConfig from './project.config'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit } from './git'
 import broadcast from './broadcast'
 import log from './log'
 
 enum ProjectStage {
+  None,
   Initialized,
   Ready,
   Running,
@@ -17,33 +21,50 @@ interface GitFileChanges {
 }
 
 class Project {
-  stage: ProjectStage
+  stage: ProjectStage = ProjectStage.None
 
-  repo: Repository | null
+  repo: Repository | undefined
 
-  changes: Array<GitFileChanges>
+  changes: Array<GitFileChanges> = []
 
-  installProcess: ChildProcessWithoutNullStreams | null
+  config: ProjectConfig = {
+    name: '',
+    branch: 'derealize',
+    npmScript: 'dev',
+    port: 3000,
+    assets: '',
+  }
 
-  runningProcess: ChildProcessWithoutNullStreams | null
+  tailwindcssVersion: string | undefined
 
-  constructor(
-    readonly url: string,
-    private path: string,
-    private branch: string = 'derealize',
-    private npmScript: string = 'dev',
-  ) {
-    this.stage = ProjectStage.Initialized
-    this.repo = null
-    this.changes = []
-    this.installProcess = null
-    this.runningProcess = null
+  installProcess: ChildProcessWithoutNullStreams | undefined
+
+  runningProcess: ChildProcessWithoutNullStreams | undefined
+
+  constructor(readonly url: string, private path: string) {
+    try {
+      const jsonraw = fs.readFileSync(_path.join(path, './package.json'), 'utf8')
+      const pacakge = JSON.parse(jsonraw)
+
+      Object.assign(this.config, pacakge.derealize)
+
+      this.tailwindcssVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
+      if (!this.tailwindcssVersion) {
+        broadcast('initialization error', { error: 'project not imported tailwindcss' })
+        return
+      }
+
+      this.stage = ProjectStage.Initialized
+    } catch (error) {
+      broadcast('initialization', { error: error.message })
+      log('initialization error', error)
+    }
   }
 
   async Import() {
     try {
-      this.repo = await gitClone(this.url, this.path, this.branch)
-      await checkBranch(this.repo, this.branch)
+      this.repo = await gitClone(this.url, this.path, this.config.branch)
+      await checkBranch(this.repo, this.config.branch)
       broadcast('import', { result: 'done' })
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
@@ -152,7 +173,7 @@ class Project {
   }
 
   async Run() {
-    this.runningProcess = npmStart(this.path, this.npmScript)
+    this.runningProcess = npmStart(this.path, this.config.npmScript)
 
     this.runningProcess.stdout.on('data', (stdout) => {
       this.stage = ProjectStage.Running
