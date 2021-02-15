@@ -113,7 +113,7 @@ const ImportProject = (): JSX.Element => {
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    send('Import', { url, path, branch: 'derealize', npmScript: 'dev' })
+    send('Import', { url, path })
   }, [projects, url, path, onOpenExistsAlert])
 
   useEffect(() => {
