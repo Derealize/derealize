@@ -37,7 +37,7 @@ import { css } from '@emotion/react'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import { send, listen } from '../ipc'
-import style from './ImportProject.module.scss'
+import style from './Import.module.scss'
 import PreloadWindow from '../preload_window'
 
 declare const window: PreloadWindow
