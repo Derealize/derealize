@@ -123,7 +123,7 @@ const projectModel: ProjectModel = {
       }
     }
 
-    send('dispose', { url: project.url })
+    send('Dispose', { url: project.url })
     window.closeProjectView(project.url)
     actions.setProjects({ projects, storage: true })
   }),

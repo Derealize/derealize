@@ -1,9 +1,9 @@
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository, StatusFile } from 'nodegit'
 import { npmInstall, npmStart } from './npm'
-import { gitClone, checkBranch, gitOpen, gitStatus, gitPull, gitPush, gitCommit } from './git'
+import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit } from './git'
 import broadcast from './broadcast'
-import message from './log'
+import log from './log'
 
 enum ProjectStage {
   Initialized,
@@ -50,7 +50,7 @@ class Project {
         this.repo = await gitOpen(this.path)
       } else {
         broadcast('import', { error: error.message })
-        message('import error', error)
+        log('import error', error)
       }
     }
 
@@ -59,27 +59,27 @@ class Project {
     }
   }
 
-  async FileChanges() {
+  async FileStatus() {
     if (!this.repo) return
     try {
-      const statuses = await gitStatus(this.repo)
+      const statuses = await this.repo.getStatus()
       this.changes = statuses.map((item) => {
         return {
           file: item.path(),
-          status: Project.statusToText(item),
+          status: Project.fileStatusToText(item),
         }
       })
-      broadcast('fileChanges', { result: this.changes })
+      broadcast('fileStatus', { result: this.changes })
     } catch (error) {
-      broadcast('fileChanges', { error: error.message })
-      message('fileChanges error', error)
+      broadcast('fileStatus', { error: error.message })
+      log('fileStatus error', error)
     }
   }
 
   async Pull() {
     if (!this.repo) return
 
-    await this.FileChanges()
+    await this.FileStatus()
     if (this.changes.length) {
       broadcast('pull', { error: 'has changes' })
       return
@@ -93,7 +93,7 @@ class Project {
         broadcast('pull', { result: 'done' })
       } else {
         broadcast('pull', { error: error.message })
-        message('gitPull error', error)
+        log('gitPull error', error)
       }
     }
   }
@@ -101,7 +101,7 @@ class Project {
   async Push(msg: string) {
     if (!this.repo) return
 
-    await this.FileChanges()
+    await this.FileStatus()
 
     try {
       if (this.changes.length) {
@@ -110,7 +110,7 @@ class Project {
 
       await gitPull(this.repo)
 
-      await this.FileChanges()
+      await this.FileStatus()
       if (this.changes.length) {
         broadcast('push', { error: 'has conflicted. Please contact the engineer for help.' })
         return
@@ -121,7 +121,7 @@ class Project {
       broadcast('push', { result: 'done' })
     } catch (error) {
       broadcast('push', { error: error.message })
-      message('gitPush', error)
+      log('gitPush', error)
     }
   }
 
@@ -140,7 +140,7 @@ class Project {
     this.installProcess.on('error', (error) => {
       hasError = true
       broadcast('install', { error: error.message })
-      message('npmInstall error', error)
+      log('npmInstall error', error)
     })
 
     this.installProcess.on('close', (code) => {
@@ -165,12 +165,12 @@ class Project {
 
     this.runningProcess.on('error', (error) => {
       broadcast('npmStart', { error: error.message })
-      message('npmStart error', error)
+      log('npmStart error', error)
     })
 
     this.runningProcess.on('close', (code) => {
       broadcast('npmStart', { exited: code })
-      this.stage = ProjectStage.Installed
+      this.stage = ProjectStage.Ready
     })
   }
 
@@ -180,7 +180,7 @@ class Project {
   }
 
   // https://github.com/nodegit/nodegit/blob/master/examples/status.js
-  static statusToText = (status: StatusFile): string => {
+  static fileStatusToText = (status: StatusFile): string => {
     const words = []
     if (status.isNew()) {
       words.push('NEW')

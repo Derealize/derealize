@@ -46,11 +46,6 @@ export const gitPull = async (repo: Repository) => {
   await repo.mergeBranches('derealize', 'origin/derealize')
 }
 
-export const gitStatus = async (repo: Repository): Promise<Array<StatusFile>> => {
-  const statuses = await repo.getStatus()
-  return statuses
-}
-
 export const gitPush = async (repo: Repository) => {
   // https://github.com/nodegit/nodegit/blob/master/examples/push.js
   const remote = await repo.getRemote('derealize')
