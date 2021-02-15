@@ -12,7 +12,7 @@ export const Import = async ({ url, path, branch, npmScript }: Record<string, st
   await project.Import()
 }
 
-export const install = async ({ url }: Record<string, string>) => {
+export const Install = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('install project unexist')
@@ -22,17 +22,17 @@ export const install = async ({ url }: Record<string, string>) => {
   await project.Install()
 }
 
-export const fileChanges = async ({ url }: Record<string, string>) => {
+export const FileStatus = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('fileChanges project unexist')
     return
   }
 
-  await project.FileChanges()
+  await project.FileStatus()
 }
 
-export const run = async ({ url }: Record<string, string>) => {
+export const Run = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('run project unexist')
@@ -42,7 +42,7 @@ export const run = async ({ url }: Record<string, string>) => {
   await project.Run()
 }
 
-export const push = async ({ url, msg }: Record<string, string>) => {
+export const Push = async ({ url, msg }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('push project unexist')
@@ -52,7 +52,7 @@ export const push = async ({ url, msg }: Record<string, string>) => {
   await project.Push(msg)
 }
 
-export const pull = async ({ url, msg }: Record<string, string>) => {
+export const pull = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('pull project unexist')
@@ -62,7 +62,7 @@ export const pull = async ({ url, msg }: Record<string, string>) => {
   await project.Pull()
 }
 
-export const dispose = async ({ url }: Record<string, string>) => {
+export const Dispose = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('dispose project unexist')

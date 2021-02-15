@@ -170,9 +170,9 @@ const ImportProject = (): JSX.Element => {
                     value={url}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
-                  <FormHelperText>
+                  <FormHelperText className="prose">
                     If you don‘t know what this is, you can read{' '}
-                    <a className="link" href="http://baidu.com" target="_blank" rel="noreferrer">
+                    <a href="http://baidu.com" target="_blank" rel="noreferrer">
                       our documentation
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
