@@ -10,7 +10,6 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
 import './styles/app.global.scss'
 import store from './reduxStore'
-import Test from './components/Test'
 import Login from './components/Login'
 import App from './App'
 import mytheme from './theme'
@@ -28,8 +27,6 @@ ReactDOM.render(
         <MemoryRouter>
           <Switch>
             <Route path="/" exact component={App} />
-            {/* <Route path="/" exact component={Test} /> */}
-            <PrivateRoute path="/test" exact component={Test} />
             <Route path="/login" exact component={Login} />
           </Switch>
         </MemoryRouter>

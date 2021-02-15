@@ -36,9 +36,6 @@ const Home = (): JSX.Element => {
               >
                 Import
               </Button>
-              <Button leftIcon={<FontAwesomeIcon icon={faFolderOpen} />} colorScheme="teal" variant="outline">
-                Open
-              </Button>
             </HStack>
             <Flex mt={6} wrap="wrap">
               {projects.map((p) => (
