@@ -145,12 +145,12 @@ html {
   }
 
   *::-webkit-scrollbar-track {
-    background: $bar;
-    border: 1px solid $bar;
+    background: #fff;
+    border: 1px solid #fff;
 
     &:hover {
-      background: $bar; //#f9f9f9;
-      border-color: $bar; //#e1e1e1;
+      background: #fff; //#f9f9f9;
+      border-color: #fff; //#e1e1e1;
     }
 
     &:vertical {

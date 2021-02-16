@@ -18,7 +18,7 @@ export interface Project {
   path: string
   username: string
   password: string
-  name: string
+  displayName: string
   isOpened?: boolean
   editedTime?: string
 }
@@ -42,35 +42,7 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
-  projects: [
-    {
-      url: 'czxcasd',
-      path: 'D:\\derealize-demo-temp',
-      name: 'Test1',
-      username: 'asdasd',
-      password: 'adzxczxc',
-      isOpened: true,
-      editedTime: dayjs().add(-2, 'hours').toString(),
-    },
-    {
-      url: 'czxcasd2',
-      path: 'D:\\derealize-demo-temp',
-      name: 'Test2',
-      username: 'asdasd',
-      password: 'adzxczxc',
-      isOpened: true,
-      editedTime: dayjs().add(-1, 'days').toString(),
-    },
-    {
-      url: 'tryrty',
-      path: 'D:\\derealize-demo-temp',
-      name: 'Test3',
-      username: 'fsdf',
-      password: 'xcvsdfs',
-      isOpened: true,
-      editedTime: dayjs().add(-2, 'days').toString(),
-    },
-  ],
+  projects: [],
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
   }),
@@ -89,7 +61,9 @@ const projectModel: ProjectModel = {
       return
     }
     state.projects.push(project)
-    window.setStore({ projects: state.projects })
+    // proxy object can't serialize
+    // https://stackoverflow.com/q/53102700/346701
+    window.setStore({ projects: state.projects.map((p) => p) })
   }),
   removeProject: thunk((actions, projectId, { getState }) => {
     actions.closeProject(projectId)

@@ -3,10 +3,10 @@ import log from './log'
 
 const projectsMap = new Map<string, Project>()
 
-export const Import = async ({ url, path }: Record<string, string>) => {
+export const Import = async ({ url, path, branch }: Record<string, string>) => {
   let project = projectsMap.get(url)
   if (!project) {
-    project = new Project(url, path)
+    project = new Project(url, path, branch)
   }
 
   await project.Import()

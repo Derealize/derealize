@@ -41,24 +41,8 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly url: string, private path: string) {
-    try {
-      const jsonraw = fs.readFileSync(_path.join(path, './package.json'), 'utf8')
-      const pacakge = JSON.parse(jsonraw)
-
-      Object.assign(this.config, pacakge.derealize)
-
-      this.tailwindcssVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (!this.tailwindcssVersion) {
-        broadcast('initialization error', { error: 'project not imported tailwindcss' })
-        return
-      }
-
-      this.stage = ProjectStage.Initialized
-    } catch (error) {
-      broadcast('initialization', { error: error.message })
-      log('initialization error', error)
-    }
+  constructor(readonly url: string, private path: string, branch = 'derealize') {
+    this.config.branch = branch
   }
 
   async Import() {
@@ -68,11 +52,34 @@ class Project {
       broadcast('import', { result: 'done' })
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
-        this.repo = await gitOpen(this.path)
+        try {
+          this.repo = await gitOpen(this.path)
+        } catch (err) {
+          broadcast('import', { error: error.message })
+          log('git open error', error)
+        }
       } else {
         broadcast('import', { error: error.message })
-        log('import error', error)
+        log('git clone error', error)
       }
+    }
+
+    try {
+      const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
+      const pacakge = JSON.parse(jsonraw)
+
+      Object.assign(this.config, pacakge.derealize)
+
+      this.tailwindcssVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
+      if (!this.tailwindcssVersion) {
+        broadcast('import', { error: 'project not imported tailwindcss' })
+        return
+      }
+
+      this.stage = ProjectStage.Initialized
+    } catch (error) {
+      broadcast('import', { error: error.message })
+      log('package error', error)
     }
 
     if (this.repo) {
