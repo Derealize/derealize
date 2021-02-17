@@ -22,14 +22,14 @@ export const Install = async ({ url }: Record<string, string>) => {
   await project.Install()
 }
 
-export const FileStatus = async ({ url }: Record<string, string>) => {
+export const CheckStatus = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
-    log('fileChanges project unexist')
+    log('checkStatus project unexist')
     return
   }
 
-  await project.FileStatus()
+  await project.CheckStatus()
 }
 
 export const Run = async ({ url }: Record<string, string>) => {
@@ -52,7 +52,7 @@ export const Push = async ({ url, msg }: Record<string, string>) => {
   await project.Push(msg)
 }
 
-export const pull = async ({ url }: Record<string, string>) => {
+export const Pull = async ({ url }: Record<string, string>) => {
   const project = projectsMap.get(url)
   if (!project) {
     log('pull project unexist')

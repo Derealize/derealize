@@ -37,6 +37,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons'
 import { css } from '@emotion/react'
+import { ProjectStage, Payload, ProcessPayload } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import { send, listen } from '../ipc'
@@ -46,18 +47,6 @@ import PreloadWindow from '../preload_window'
 declare const window: PreloadWindow
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
-
-interface Payload {
-  result?: string
-  error?: string
-}
-
-interface ProcessPayload {
-  stdout?: string
-  stderr?: string
-  error?: string
-  exited?: number
-}
 
 const ImportProject = (): JSX.Element => {
   const toast = useToast()
@@ -71,7 +60,7 @@ const ImportProject = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
-  const addProject = useStoreActions((actions) => actions.project.addProject)
+  const setProject = useStoreActions((actions) => actions.project.setProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
   const [displayName, setDisplayName] = useState('')
@@ -112,12 +101,14 @@ const ImportProject = (): JSX.Element => {
         if (_username) parseURL.username = _username
         if (_password) parseURL.password = _password
         setUrl(parseURL.href)
-        setUrlParseError('')
       } catch (err) {
-        setUrlParseError(err.message)
+        toast({
+          title: err.message,
+          status: 'error',
+        })
       }
     },
-    [url],
+    [toast, url],
   )
 
   const submit = useCallback(async () => {
@@ -164,16 +155,12 @@ const ImportProject = (): JSX.Element => {
 
   useEffect(() => {
     if (isReady) {
-      addProject({
-        url,
-        path,
-        username,
-        password,
-        displayName,
-        editedTime: dayjs().toString(),
+      setProject({
+        project: { url, displayName, editedTime: dayjs().toString() },
+        storage: true,
       })
     }
-  }, [addProject, displayName, isReady, password, path, url, username])
+  }, [setProject, displayName, isReady, url])
 
   const open = useCallback(async () => {
     if (isReady) {

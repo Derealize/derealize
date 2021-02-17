@@ -12,14 +12,16 @@ import style from './App.module.scss'
 const App = (): JSX.Element => {
   const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projectLoad = useStoreActions((actions) => actions.project.load)
+  const projectListen = useStoreActions((actions) => actions.project.listen)
 
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
 
   useEffect(() => {
-    // profileLoad()
-    // projectLoad()
-  }, [profileLoad, projectLoad])
+    profileLoad()
+    projectLoad()
+    projectListen()
+  }, [profileLoad, projectListen, projectLoad])
 
   return (
     <div className="app">
