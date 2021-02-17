@@ -156,11 +156,10 @@ const ImportProject = (): JSX.Element => {
   useEffect(() => {
     if (isReady) {
       setProject({
-        project: { url, displayName, editedTime: dayjs().toString() },
-        storage: true,
+        project: { url, path, displayName, editedTime: dayjs().toString() },
       })
     }
-  }, [setProject, displayName, isReady, url])
+  }, [setProject, displayName, isReady, url, path])
 
   const open = useCallback(async () => {
     if (isReady) {

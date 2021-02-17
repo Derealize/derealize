@@ -5,8 +5,8 @@
   "version": "2.0.1",
   "main": "./main.prod.js",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
+    "name": "Elliotreborn",
+    "email": "elliotreborn@gmail.com",
     "url": "https://derealize.com"
   },
   "scripts": {
