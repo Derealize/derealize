@@ -16,6 +16,7 @@ const toast = createStandaloneToast({
 
 export interface Project {
   url: string
+  path: string
   displayName: string
   isOpened?: boolean
   editedTime?: string
@@ -27,16 +28,16 @@ export interface Project {
 export interface ProjectModel {
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
-  setProjects: Action<ProjectModel, { projects: Array<Project>; storage?: boolean }>
+  setProjects: Action<ProjectModel, { projects: Array<Project>; notStore?: boolean }>
 
-  setProject: Action<ProjectModel, { project: Project; storage?: boolean }>
+  setProject: Action<ProjectModel, { project: Project; notStore?: boolean }>
   removeProject: Thunk<ProjectModel, string>
-
-  openProject: Thunk<ProjectModel, string>
-  closeProject: Thunk<ProjectModel, string>
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
+
+  openProject: Thunk<ProjectModel, string>
+  closeProject: Thunk<ProjectModel, string>
 
   load: Thunk<ProjectModel>
   listen: Thunk<ProjectModel>
@@ -51,21 +52,21 @@ const projectModel: ProjectModel = {
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
   }),
-  setProjects: action((state, { projects, storage }) => {
+  setProjects: action((state, { projects, notStore }) => {
     state.projects = projects
-    if (storage) {
+    if (!notStore) {
       window.setStore({ projects })
     }
   }),
 
-  setProject: action((state, { project, storage }) => {
+  setProject: action((state, { project, notStore }) => {
     const fproject = state.projects.find((p) => p.url === project.url)
     if (!fproject) {
       state.projects.push(project)
     } else {
       Object.assign(fproject, project)
     }
-    if (storage) {
+    if (!notStore) {
       // proxy object can't serialize
       // https://stackoverflow.com/q/53102700/346701
       window.setStore({ projects: state.projects.map((p) => p) })
@@ -74,7 +75,16 @@ const projectModel: ProjectModel = {
   removeProject: thunk((actions, id, { getState }) => {
     actions.closeProject(id)
     const projects = getState().projects.filter((p) => p.url !== id)
-    actions.setProjects({ projects, storage: true })
+    actions.setProjects({ projects })
+  }),
+
+  frontProject: null,
+  setFrontProject: action((state, project) => {
+    state.frontProject = project
+    window.frontProjectView(project?.url || '')
+    if (project) {
+      send('CheckStatus', { url: project.url })
+    }
   }),
 
   openProject: thunk((actions, id, { getState }) => {
@@ -106,22 +116,13 @@ const projectModel: ProjectModel = {
 
     send('Dispose', { url: project.url })
     window.closeProjectView(project.url)
-    actions.setProjects({ projects, storage: true })
-  }),
-
-  frontProject: null,
-  setFrontProject: action((state, project) => {
-    state.frontProject = project
-    window.frontProjectView(project?.url || '')
-    if (project) {
-      send('CheckStatus', { url: project.url })
-    }
+    actions.setProjects({ projects })
   }),
 
   load: thunk(async (actions) => {
     try {
       const projects = await window.getStore('projects')
-      if (projects) actions.setProjects({ projects })
+      if (projects) actions.setProjects({ projects, notStore: true })
     } catch (err) {
       toast({
         title: err.message,
@@ -146,7 +147,7 @@ const projectModel: ProjectModel = {
       project.changes = payload.changes
       project.stage = payload.stage
       project.tailwindVersion = payload.tailwindVersion
-      actions.setProject({ project, storage: true })
+      actions.setProject({ project })
     })
   }),
 

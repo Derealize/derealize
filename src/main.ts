@@ -223,7 +223,7 @@ const createBackendProcess = (socketId: string) => {
 app
   .whenReady()
   .then(async () => {
-    log.debug('app ready')
+    console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
 
     const socketId = await findOpenSocket()
     createBackendProcess(socketId)
