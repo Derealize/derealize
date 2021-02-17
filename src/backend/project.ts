@@ -2,23 +2,18 @@ import fs from 'fs'
 import _path from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository, StatusFile } from 'nodegit'
-import ProjectConfig from './project.config'
+import {
+  ProjectConfig,
+  ProjectStage,
+  GitFileChanges,
+  Payload,
+  StatusPayload,
+  ProcessPayload,
+} from './project.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit } from './git'
 import broadcast from './broadcast'
 import log from './log'
-
-enum ProjectStage {
-  None,
-  Initialized,
-  Ready,
-  Running,
-}
-
-interface GitFileChanges {
-  file: string
-  status: string
-}
 
 class Project {
   stage: ProjectStage = ProjectStage.None
@@ -35,7 +30,7 @@ class Project {
     assets: '',
   }
 
-  tailwindcssVersion: string | undefined
+  tailwindVersion: string | undefined
 
   installProcess: ChildProcessWithoutNullStreams | undefined
 
@@ -49,17 +44,17 @@ class Project {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
       await checkBranch(this.repo, this.config.branch)
-      broadcast('import', { result: 'done' })
+      broadcast('import', { result: 'done' } as Payload)
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
         try {
           this.repo = await gitOpen(this.path)
         } catch (err) {
-          broadcast('import', { error: error.message })
+          broadcast('import', { error: error.message } as Payload)
           log('git open error', error)
         }
       } else {
-        broadcast('import', { error: error.message })
+        broadcast('import', { error: error.message } as Payload)
         log('git clone error', error)
       }
     }
@@ -70,15 +65,15 @@ class Project {
 
       Object.assign(this.config, pacakge.derealize)
 
-      this.tailwindcssVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (!this.tailwindcssVersion) {
-        broadcast('import', { error: 'project not imported tailwindcss' })
+      this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
+      if (!this.tailwindVersion) {
+        broadcast('import', { error: 'project not imported tailwindcss' } as Payload)
         return
       }
 
       this.stage = ProjectStage.Initialized
     } catch (error) {
-      broadcast('import', { error: error.message })
+      broadcast('import', { error: error.message } as Payload)
       log('package error', error)
     }
 
@@ -87,7 +82,7 @@ class Project {
     }
   }
 
-  async FileStatus() {
+  async CheckStatus() {
     if (!this.repo) return
     try {
       const statuses = await this.repo.getStatus()
@@ -97,30 +92,35 @@ class Project {
           status: Project.fileStatusToText(item),
         }
       })
-      broadcast('fileStatus', { result: this.changes })
+      broadcast('checkStatus', {
+        id: this.url,
+        changes: this.changes,
+        stage: this.stage,
+        tailwindVersion: this.tailwindVersion,
+      } as StatusPayload)
     } catch (error) {
-      broadcast('fileStatus', { error: error.message })
-      log('fileStatus error', error)
+      broadcast('checkStatus', { id: this.url, error: error.message })
+      log('checkStatus error', error)
     }
   }
 
   async Pull() {
     if (!this.repo) return
 
-    await this.FileStatus()
+    await this.CheckStatus()
     if (this.changes.length) {
-      broadcast('pull', { error: 'has changes' })
+      broadcast('pull', { error: 'has changes' } as Payload)
       return
     }
 
     try {
       await gitPull(this.repo)
-      broadcast('pull', { result: 'done' })
+      broadcast('pull', { result: 'done' } as Payload)
     } catch (error) {
       if (error.message.includes('is the current HEAD of the repository')) {
         broadcast('pull', { result: 'done' })
       } else {
-        broadcast('pull', { error: error.message })
+        broadcast('pull', { error: error.message } as Payload)
         log('gitPull error', error)
       }
     }
@@ -129,7 +129,7 @@ class Project {
   async Push(msg: string) {
     if (!this.repo) return
 
-    await this.FileStatus()
+    await this.CheckStatus()
 
     try {
       if (this.changes.length) {
@@ -138,17 +138,17 @@ class Project {
 
       await gitPull(this.repo)
 
-      await this.FileStatus()
+      await this.CheckStatus()
       if (this.changes.length) {
-        broadcast('push', { error: 'has conflicted. Please contact the engineer for help.' })
+        broadcast('push', { error: 'has conflicted. Please contact the engineer for help.' } as Payload)
         return
       }
 
       await gitPush(this.repo)
 
-      broadcast('push', { result: 'done' })
+      broadcast('push', { result: 'done' } as Payload)
     } catch (error) {
-      broadcast('push', { error: error.message })
+      broadcast('push', { error: error.message } as Payload)
       log('gitPush', error)
     }
   }
@@ -158,21 +158,21 @@ class Project {
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
-      broadcast('install', { stdout: stdout.toString() })
+      broadcast('install', { stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.installProcess.stderr.on('data', (stderr) => {
-      broadcast('install', { stderr: stderr.toString() })
+      broadcast('install', { stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.installProcess.on('error', (error) => {
       hasError = true
-      broadcast('install', { error: error.message })
+      broadcast('install', { error: error.message } as ProcessPayload)
       log('npmInstall error', error)
     })
 
     this.installProcess.on('close', (code) => {
-      broadcast('install', { exited: code })
+      broadcast('install', { exited: code } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
       }
@@ -184,20 +184,20 @@ class Project {
 
     this.runningProcess.stdout.on('data', (stdout) => {
       this.stage = ProjectStage.Running
-      broadcast('npmStart', { stdout: stdout.toString() })
+      broadcast('npmStart', { stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      broadcast('npmStart', { stderr: stderr.toString() })
+      broadcast('npmStart', { stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.runningProcess.on('error', (error) => {
-      broadcast('npmStart', { error: error.message })
+      broadcast('npmStart', { error: error.message } as ProcessPayload)
       log('npmStart error', error)
     })
 
     this.runningProcess.on('close', (code) => {
-      broadcast('npmStart', { exited: code })
+      broadcast('npmStart', { exited: code } as ProcessPayload)
       this.stage = ProjectStage.Ready
     })
   }

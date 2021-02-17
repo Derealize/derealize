@@ -1,4 +1,4 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile } from 'nodegit'
+import { Clone, Repository, Reference, Signature, Cred, Branch } from 'nodegit'
 
 export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
