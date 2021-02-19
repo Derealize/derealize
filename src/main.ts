@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+const RESOURCES_PATH = app.isPackaged/* eslint-disable global-require */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'

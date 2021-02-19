@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Derealize</title>
-    <script>
-      ;(() => {
+
+<head>
+  <meta charset="utf-8" />
+  <title>Derealize</title>
+  <script>
+    (() => {
+      if (!window.isDev) {
         const link = document.createElement('link')
         link.rel = 'stylesheet'
         link.href = './dist/style.css'
         // HACK: Writing the script path should be done with webpack
         document.getElementsByTagName('head')[0].appendChild(link)
-      })()
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script>
-      const scripts = []
-      if (window.isDev) {
-        // Dynamically insert the DLL script in development env in the renderer process
-        scripts.push('../.erb/dll/renderer.dev.dll.js')
-
-        // Dynamically insert the bundled app script in the renderer process
-        scripts.push(`http://localhost:${window.port}/dist/renderer.dev.js`)
-      } else {
-        scripts.push('./dist/renderer.prod.js')
       }
+    })();
+  </script>
+</head>
 
-      document.write(scripts.map((script) => `<script defer src="${script}"><\/script>`).join(''))
-    </script>
-  </body>
+<body>
+  <div id="root"></div>
+  <script>
+    const scripts = []
+    if (window.isDev) {
+      // Dynamically insert the DLL script in development env in the renderer process
+      scripts.push('../.erb/dll/renderer.dev.dll.js')
+
+      // Dynamically insert the bundled app script in the renderer process
+      scripts.push(`http://localhost:${window.port}/dist/renderer.dev.js`)
+    } else {
+      scripts.push('./dist/renderer.prod.js')
+    }
+
+    document.write(scripts.map((script) => `<script defer src="${script}"><\/script>`).join(''))
+  </script>
+</body>
+
 </html>
