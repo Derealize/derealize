@@ -4,6 +4,7 @@ export interface ProjectConfig {
   npmScript: string
   port: number
   assets: string
+  applyCssFile: string
 }
 
 export enum ProjectStage {
@@ -13,14 +14,15 @@ export enum ProjectStage {
   Running,
 }
 
+export interface Payload {
+  id: string
+  result?: string
+  error?: string
+}
+
 export interface GitFileChanges {
   file: string
   status: string
-}
-
-export interface Payload {
-  result?: string
-  error?: string
 }
 
 export interface StatusPayload {
@@ -32,8 +34,10 @@ export interface StatusPayload {
 }
 
 export interface ProcessPayload {
+  id: string
+  reset?: boolean
   stdout?: string
   stderr?: string
   error?: string
-  exited?: number
+  exit?: number
 }

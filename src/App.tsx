@@ -13,6 +13,7 @@ const App = (): JSX.Element => {
   const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projectLoad = useStoreActions((actions) => actions.project.load)
   const projectListen = useStoreActions((actions) => actions.project.listen)
+  const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
@@ -21,7 +22,9 @@ const App = (): JSX.Element => {
     profileLoad()
     projectLoad()
     projectListen()
-  }, [profileLoad, projectListen, projectLoad])
+
+    return projectUnListen
+  }, [profileLoad, projectListen, projectLoad, projectUnListen])
 
   return (
     <div className="app">
