@@ -1,11 +1,14 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { ProjectStage, GitFileChanges, Payload, StatusPayload } from '../backend/project.interface'
+import { ProjectStage, GitFileChanges, ProcessPayload, StatusPayload } from '../backend/project.interface'
 import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_window'
 
 declare const window: PreloadWindow
+
+let statusUnlisten: any
+let runningUnlisten: any
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -18,11 +21,12 @@ export interface Project {
   url: string
   path: string
   displayName: string
+  editedTime: string
   isOpened?: boolean
-  editedTime?: string
-  changes?: Array<GitFileChanges>
   stage?: ProjectStage
   tailwindVersion?: string
+  changes?: Array<GitFileChanges>
+  runningOutput: Array<string>
 }
 
 export interface ProjectModel {
@@ -41,6 +45,7 @@ export interface ProjectModel {
 
   load: Thunk<ProjectModel>
   listen: Thunk<ProjectModel>
+  unlisten: Action<ProjectModel>
 
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
@@ -132,10 +137,11 @@ const projectModel: ProjectModel = {
   }),
 
   listen: thunk(async (actions, none, { getState }) => {
-    const unlisten = listen('checkStatus', (payload: StatusPayload) => {
+    actions.unlisten()
+    statusUnlisten = listen('status', (payload: StatusPayload) => {
       if (payload.error) {
         toast({
-          title: `fileStatus error:${payload.error}`,
+          title: `Status error:${payload.error}`,
           status: 'error',
         })
         return
@@ -149,6 +155,40 @@ const projectModel: ProjectModel = {
       project.tailwindVersion = payload.tailwindVersion
       actions.setProject({ project })
     })
+
+    runningUnlisten = listen('running', (payload: ProcessPayload) => {
+      if (payload.error) {
+        toast({
+          title: `Running error:${payload.error}`,
+          status: 'error',
+        })
+        return
+      }
+
+      const { projects } = getState()
+      const project = projects.find((p) => p.url === payload.id)
+      if (!project) return
+
+      if (payload.reset) {
+        project.runningOutput = []
+        return
+      }
+
+      if (payload.stdout) {
+        project.runningOutput.push(`running stdout:${payload.stdout}`)
+      } else if (payload.stderr) {
+        project.runningOutput.push(`running stderr:${payload.stderr}`)
+      } else if (payload.error) {
+        project.runningOutput.push(`running error:${payload.error}`)
+      } else if (payload.exit !== undefined) {
+        project.runningOutput.push(`exit:${payload.error}`)
+      }
+    })
+  }),
+
+  unlisten: action((state) => {
+    if (statusUnlisten) statusUnlisten()
+    if (runningUnlisten) runningUnlisten()
   }),
 
   modalDisclosure: false,

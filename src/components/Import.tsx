@@ -124,6 +124,7 @@ const ImportProject = (): JSX.Element => {
 
   useEffect(() => {
     const unlisten = listen('import', (payload: Payload) => {
+      if (payload.id !== url) return
       if (payload.result) {
         output.current.push(`import: ${payload.result}`)
       } else if (payload.error) {
@@ -134,13 +135,14 @@ const ImportProject = (): JSX.Element => {
     })
 
     const npmUnlisten = listen('install', (payload: ProcessPayload) => {
+      if (payload.id !== url) return
       if (payload.stdout) {
         output.current.push(`install stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         output.current.push(`install stderr:${payload.stderr}`)
       } else if (payload.error) {
         output.current.push(`install error:${payload.error}`)
-      } else if (payload.exited !== undefined) {
+      } else if (payload.exit !== undefined) {
         setIsLoading(false)
         setIsReady(true)
       }
@@ -151,12 +153,12 @@ const ImportProject = (): JSX.Element => {
       unlisten()
       npmUnlisten()
     }
-  }, [path])
+  }, [path, url])
 
   useEffect(() => {
     if (isReady) {
       setProject({
-        project: { url, path, displayName, editedTime: dayjs().toString() },
+        project: { url, path, displayName, editedTime: dayjs().toString(), runningOutput: [] },
       })
     }
   }, [setProject, displayName, isReady, url, path])

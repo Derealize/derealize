@@ -28,6 +28,7 @@ class Project {
     npmScript: 'dev',
     port: 3000,
     assets: '',
+    applyCssFile: '',
   }
 
   tailwindVersion: string | undefined
@@ -48,7 +49,7 @@ class Project {
       Object.assign(this.config, pacakge.derealize)
 
       this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (this.tailwindVersion) return true
+      if (this.tailwindVersion) return true // todo:parse and check min supported version
 
       broadcast(channel, { id: this.url, error: 'project not imported tailwindcss' } as Payload)
     } catch (error) {
@@ -65,27 +66,26 @@ class Project {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
       await checkBranch(this.repo, this.config.branch)
-      broadcast('import', { result: 'done' } as Payload)
+      broadcast('import', { id: this.url, result: 'done' } as Payload)
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
         try {
           this.repo = await gitOpen(this.path)
         } catch (err) {
-          broadcast('import', { error: error.message } as Payload)
+          broadcast('import', { id: this.url, error: error.message } as Payload)
           log('git open error', error)
         }
       } else {
-        broadcast('import', { error: error.message } as Payload)
+        broadcast('import', { id: this.url, error: error.message } as Payload)
         log('git clone error', error)
       }
     }
 
-    if (this.AssignConfig('import')) {
-      this.stage = ProjectStage.Initialized
-      if (this.repo) {
-        await this.Install()
-      }
-    }
+    if (!this.repo) return
+    if (!this.AssignConfig('import')) return
+    this.stage = ProjectStage.Initialized
+
+    await this.Install()
   }
 
   async Status() {
@@ -118,18 +118,18 @@ class Project {
 
     await this.Status()
     if (this.changes.length) {
-      broadcast('pull', { error: 'has changes' } as Payload)
+      broadcast('pull', { id: this.url, error: 'has changes' } as Payload)
       return
     }
 
     try {
       await gitPull(this.repo)
-      broadcast('pull', { result: 'done' } as Payload)
+      broadcast('pull', { id: this.url, result: 'done' } as Payload)
     } catch (error) {
       if (error.message.includes('is the current HEAD of the repository')) {
-        broadcast('pull', { result: 'done' })
+        broadcast('pull', { id: this.url, result: 'done' })
       } else {
-        broadcast('pull', { error: error.message } as Payload)
+        broadcast('pull', { id: this.url, error: error.message } as Payload)
         log('gitPull error', error)
       }
     }
@@ -149,39 +149,40 @@ class Project {
 
       await this.Status()
       if (this.changes.length) {
-        broadcast('push', { error: 'has conflicted. Please contact the engineer for help.' } as Payload)
+        broadcast('push', { id: this.url, error: 'has conflicted. Please contact the engineer for help.' } as Payload)
         return
       }
 
       await gitPush(this.repo)
 
-      broadcast('push', { result: 'done' } as Payload)
+      broadcast('push', { id: this.url, result: 'done' } as Payload)
     } catch (error) {
-      broadcast('push', { error: error.message } as Payload)
+      broadcast('push', { id: this.url, error: error.message } as Payload)
       log('gitPush', error)
     }
   }
 
   async Install() {
     this.installProcess = npmInstall(this.path)
+    broadcast('install', { id: this.url, reset: true } as ProcessPayload)
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
-      broadcast('install', { stdout: stdout.toString() } as ProcessPayload)
+      broadcast('install', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.installProcess.stderr.on('data', (stderr) => {
-      broadcast('install', { stderr: stderr.toString() } as ProcessPayload)
+      broadcast('install', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.installProcess.on('error', (error) => {
       hasError = true
-      broadcast('install', { error: error.message } as ProcessPayload)
+      broadcast('install', { id: this.url, error: error.message } as ProcessPayload)
       log('npmInstall error', error)
     })
 
-    this.installProcess.on('exit', (code) => {
-      broadcast('install', { exited: code } as ProcessPayload)
+    this.installProcess.on('exit', (exit) => {
+      broadcast('install', { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
       }
@@ -190,23 +191,24 @@ class Project {
 
   async Start() {
     this.runningProcess = npmStart(this.path, this.config.npmScript)
+    broadcast('running', { id: this.url, reset: true } as ProcessPayload)
 
     this.runningProcess.stdout.on('data', (stdout) => {
       this.stage = ProjectStage.Running
-      broadcast('npmStart', { stdout: stdout.toString() } as ProcessPayload)
+      broadcast('running', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      broadcast('npmStart', { stderr: stderr.toString() } as ProcessPayload)
+      broadcast('running', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.runningProcess.on('error', (error) => {
-      broadcast('npmStart', { error: error.message } as ProcessPayload)
-      log('npmStart error', error)
+      broadcast('running', { id: this.url, error: error.message } as ProcessPayload)
+      log('start error', error)
     })
 
-    this.runningProcess.on('exit', (code) => {
-      broadcast('npmStart', { exited: code } as ProcessPayload)
+    this.runningProcess.on('exit', (exit) => {
+      broadcast('running', { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
     })
   }
