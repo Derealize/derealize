@@ -40,6 +40,27 @@ class Project {
     this.config.branch = branch
   }
 
+  private AssignConfig(channel: string): boolean {
+    try {
+      const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
+      const pacakge = JSON.parse(jsonraw)
+
+      Object.assign(this.config, pacakge.derealize)
+
+      this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
+      if (this.tailwindVersion) return true
+
+      broadcast(channel, { id: this.url, error: 'project not imported tailwindcss' } as Payload)
+    } catch (error) {
+      broadcast(channel, { id: this.url, error: error.message } as Payload)
+      log('config error', error)
+    }
+
+    this.Stop()
+    this.stage = ProjectStage.None
+    return false
+  }
+
   async Import() {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
@@ -59,31 +80,19 @@ class Project {
       }
     }
 
-    try {
-      const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
-      const pacakge = JSON.parse(jsonraw)
-
-      Object.assign(this.config, pacakge.derealize)
-
-      this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (!this.tailwindVersion) {
-        broadcast('import', { error: 'project not imported tailwindcss' } as Payload)
-        return
-      }
-
+    if (this.AssignConfig('import')) {
       this.stage = ProjectStage.Initialized
-    } catch (error) {
-      broadcast('import', { error: error.message } as Payload)
-      log('package error', error)
-    }
-
-    if (this.repo) {
-      await this.Install()
+      if (this.repo) {
+        await this.Install()
+      }
     }
   }
 
-  async CheckStatus() {
+  async Status() {
     if (!this.repo) return
+
+    this.AssignConfig('status')
+
     try {
       const statuses = await this.repo.getStatus()
       this.changes = statuses.map((item) => {
@@ -92,22 +101,22 @@ class Project {
           status: Project.fileStatusToText(item),
         }
       })
-      broadcast('checkStatus', {
+      broadcast('status', {
         id: this.url,
         changes: this.changes,
         stage: this.stage,
         tailwindVersion: this.tailwindVersion,
       } as StatusPayload)
     } catch (error) {
-      broadcast('checkStatus', { id: this.url, error: error.message })
-      log('checkStatus error', error)
+      broadcast('status', { id: this.url, error: error.message })
+      log('status error', error)
     }
   }
 
   async Pull() {
     if (!this.repo) return
 
-    await this.CheckStatus()
+    await this.Status()
     if (this.changes.length) {
       broadcast('pull', { error: 'has changes' } as Payload)
       return
@@ -129,7 +138,7 @@ class Project {
   async Push(msg: string) {
     if (!this.repo) return
 
-    await this.CheckStatus()
+    await this.Status()
 
     try {
       if (this.changes.length) {
@@ -138,7 +147,7 @@ class Project {
 
       await gitPull(this.repo)
 
-      await this.CheckStatus()
+      await this.Status()
       if (this.changes.length) {
         broadcast('push', { error: 'has conflicted. Please contact the engineer for help.' } as Payload)
         return
@@ -171,7 +180,7 @@ class Project {
       log('npmInstall error', error)
     })
 
-    this.installProcess.on('close', (code) => {
+    this.installProcess.on('exit', (code) => {
       broadcast('install', { exited: code } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
@@ -179,7 +188,7 @@ class Project {
     })
   }
 
-  async Run() {
+  async Start() {
     this.runningProcess = npmStart(this.path, this.config.npmScript)
 
     this.runningProcess.stdout.on('data', (stdout) => {
@@ -196,10 +205,15 @@ class Project {
       log('npmStart error', error)
     })
 
-    this.runningProcess.on('close', (code) => {
+    this.runningProcess.on('exit', (code) => {
       broadcast('npmStart', { exited: code } as ProcessPayload)
       this.stage = ProjectStage.Ready
     })
+  }
+
+  Stop() {
+    this.runningProcess?.kill()
+    this.stage = ProjectStage.Ready
   }
 
   dispose() {

@@ -9,7 +9,7 @@ export interface ProjectConfig {
 export enum ProjectStage {
   None,
   Initialized,
-  Ready,
+  Ready, // npm standby
   Running,
 }
 
