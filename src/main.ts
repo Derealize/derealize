@@ -64,13 +64,14 @@ const installExtensions = async () => {
 let mainWindow: BrowserWindow | null = null
 let menu: Menu | null = null
 
+const topbarHeight = 34
 const setBrowserViewBounds = () => {
   if (!mainWindow) return
   const browserView = mainWindow.getBrowserView()
   if (browserView) {
     const rectangle = mainWindow.getBounds()
-    const yaxis = mainWindow.isMaximized() ? 34 : 46
-    browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height })
+    const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight
+    browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
   }
 }
 
