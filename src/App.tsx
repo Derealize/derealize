@@ -4,7 +4,7 @@ import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
 import Home from './Home'
-import ProjectPage from './Project'
+import TopBar from './components/TopBar'
 import TabBar from './components/TabBar'
 import ImportProject from './components/Import'
 import style from './App.module.scss'
@@ -31,11 +31,7 @@ const App = (): JSX.Element => {
       <TabBar />
       <div className={style.main}>
         {!frontProject && <Home />}
-        {frontProject && (
-          <Suspense fallback={<PuffLoader />}>
-            <ProjectPage />
-          </Suspense>
-        )}
+        {frontProject && <TopBar />}
       </div>
       <ImportProject />
     </div>
