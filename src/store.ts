@@ -20,12 +20,24 @@ const store = new Store({
       uniqueItems: true,
       items: {
         type: 'object',
-        required: ['url', 'path'],
+        required: ['url', 'path'], // , 'name', 'editedTime'
         properties: {
           url: {
             type: 'string',
           },
           path: {
+            type: 'string',
+          },
+          editedTime: {
+            type: 'string',
+          },
+          name: {
+            type: 'string',
+          },
+          productName: {
+            type: 'string',
+          },
+          lunchUrl: {
             type: 'string',
           },
           username: {
@@ -37,7 +49,7 @@ const store = new Store({
           isOpened: {
             type: 'boolean',
           },
-          editedTime: {
+          tailwindVersion: {
             type: 'string',
           },
         },

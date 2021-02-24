@@ -23,13 +23,15 @@ class Project {
   changes: Array<GitFileChanges> = []
 
   config: ProjectConfig = {
-    name: '',
     branch: 'derealize',
     npmScript: 'dev',
-    port: 3000,
+    lunchUrl: 'http://localhost:3000',
+    page: [],
     assets: '',
     applyCssFile: '',
   }
+
+  productName: string | undefined
 
   tailwindVersion: string | undefined
 
@@ -41,13 +43,14 @@ class Project {
     this.config.branch = branch
   }
 
-  private AssignConfig(channel: string): boolean {
+  private assignConfig(channel: string): boolean {
     try {
       const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
       const pacakge = JSON.parse(jsonraw)
 
       Object.assign(this.config, pacakge.derealize)
 
+      this.productName = pacakge.productName || pacakge.name
       this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
       if (this.tailwindVersion) return true // todo:parse and check min supported version
 
@@ -82,7 +85,7 @@ class Project {
     }
 
     if (!this.repo) return
-    if (!this.AssignConfig('import')) return
+    if (!this.assignConfig('import')) return
     this.stage = ProjectStage.Initialized
 
     await this.Install()
@@ -91,7 +94,7 @@ class Project {
   async Status() {
     if (!this.repo) return
 
-    this.AssignConfig('status')
+    this.assignConfig('status')
 
     try {
       const statuses = await this.repo.getStatus()
@@ -105,7 +108,9 @@ class Project {
         id: this.url,
         changes: this.changes,
         stage: this.stage,
+        productName: this.productName,
         tailwindVersion: this.tailwindVersion,
+        config: this.config,
       } as StatusPayload)
     } catch (error) {
       broadcast('status', { id: this.url, error: error.message })
@@ -218,7 +223,7 @@ class Project {
     this.stage = ProjectStage.Ready
   }
 
-  dispose() {
+  Dispose() {
     this.installProcess?.kill()
     this.runningProcess?.kill()
   }

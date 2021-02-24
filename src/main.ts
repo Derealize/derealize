@@ -1,4 +1,4 @@
-const RESOURCES_PATH = app.isPackaged/* eslint-disable global-require */
+/* eslint-disable global-require */
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
@@ -281,24 +281,24 @@ ipcMain.on('selectDirs', async (event, arg) => {
 
 const projectBrowserViews = new Map<string, BrowserView>()
 
-ipcMain.on('frontProjectView', (event, frontProject: string) => {
+ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
   if (!mainWindow) return
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const [url, view] of projectBrowserViews) {
-    if (url === frontProject) {
+  for (const [id, view] of projectBrowserViews) {
+    if (id === url) {
       mainWindow.setBrowserView(view)
     } else {
       mainWindow.removeBrowserView(view)
     }
   }
 
-  if (frontProject && !projectBrowserViews.has(frontProject)) {
+  if (url && !projectBrowserViews.has(url)) {
     const view = new BrowserView()
     mainWindow.setBrowserView(view)
-    projectBrowserViews.set(frontProject, view)
+    projectBrowserViews.set(url, view)
     setBrowserViewBounds()
-    view.webContents.loadURL(`https://www.baidu.com/s?wd=${frontProject}`)
+    if (lunchUrl) view.webContents.loadURL(lunchUrl)
   }
 })
 

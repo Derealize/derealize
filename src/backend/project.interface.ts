@@ -1,8 +1,8 @@
 export interface ProjectConfig {
-  name: string
   branch: string
   npmScript: string
-  port: number
+  lunchUrl: string
+  page: Array<string>
   assets: string
   applyCssFile: string
 }
@@ -27,9 +27,11 @@ export interface GitFileChanges {
 
 export interface StatusPayload {
   id: string
+  productName?: string
   changes?: Array<GitFileChanges>
   stage?: ProjectStage
   tailwindVersion?: string
+  config?: ProjectConfig
   error?: string
 }
 

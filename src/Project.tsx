@@ -11,7 +11,7 @@ const ProjectPage = (): JSX.Element => {
 
   return (
     <div className={style.project}>
-      <p>{project?.displayName}</p>
+      <p>{project?.name}</p>
       <p>{project?.url}</p>
     </div>
   )

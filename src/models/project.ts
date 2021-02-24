@@ -20,8 +20,10 @@ const toast = createStandaloneToast({
 export interface Project {
   url: string
   path: string
-  displayName: string
   editedTime: string
+  name: string
+  productName?: string
+  lunchUrl?: string
   isOpened?: boolean
   stage?: ProjectStage
   tailwindVersion?: string
@@ -86,9 +88,9 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    window.frontProjectView(project?.url || '')
+    window.frontProjectView(project?.url, project?.lunchUrl)
     if (project) {
-      send('CheckStatus', { url: project.url })
+      send('Status', { url: project.url })
     }
   }),
 
@@ -96,6 +98,7 @@ const projectModel: ProjectModel = {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
+    send('Start', { url: project.url })
     project.isOpened = true
     actions.setFrontProject(project)
   }),
@@ -152,6 +155,7 @@ const projectModel: ProjectModel = {
       if (!project) return
       project.changes = payload.changes
       project.stage = payload.stage
+      project.productName = payload.productName
       project.tailwindVersion = payload.tailwindVersion
       actions.setProject({ project })
     })

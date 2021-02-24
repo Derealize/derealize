@@ -63,7 +63,7 @@ const ImportProject = (): JSX.Element => {
   const setProject = useStoreActions((actions) => actions.project.setProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
-  const [displayName, setDisplayName] = useState('')
+  const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [branch, setBranch] = useState('derealize')
   const [path, setPath] = useState('')
@@ -83,8 +83,8 @@ const ImportProject = (): JSX.Element => {
       setUsername(parseURL.username)
       setPassword(parseURL.password)
 
-      const name = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
-      setDisplayName(name)
+      const projectName = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
+      setName(projectName)
     } catch (err) {
       toast({
         title: err.message,
@@ -111,7 +111,7 @@ const ImportProject = (): JSX.Element => {
     [toast, url],
   )
 
-  const submit = useCallback(async () => {
+  const submit = useCallback(() => {
     if (projects.map((p) => p.url).includes(url)) {
       onOpenExistsAlert()
       return
@@ -123,7 +123,7 @@ const ImportProject = (): JSX.Element => {
   }, [projects, url, path, branch, onOpenExistsAlert])
 
   useEffect(() => {
-    const unlisten = listen('import', (payload: Payload) => {
+    const importUnlisten = listen('import', (payload: Payload) => {
       if (payload.id !== url) return
       if (payload.result) {
         output.current.push(`import: ${payload.result}`)
@@ -150,7 +150,7 @@ const ImportProject = (): JSX.Element => {
     })
 
     return () => {
-      unlisten()
+      importUnlisten()
       npmUnlisten()
     }
   }, [path, url])
@@ -158,16 +158,17 @@ const ImportProject = (): JSX.Element => {
   useEffect(() => {
     if (isReady) {
       setProject({
-        project: { url, path, displayName, editedTime: dayjs().toString(), runningOutput: [] },
+        project: { url, path, name, editedTime: dayjs().toString(), runningOutput: [] },
       })
     }
-  }, [setProject, displayName, isReady, url, path])
+  }, [setProject, name, isReady, url, path])
 
-  const open = useCallback(async () => {
+  const open = useCallback(() => {
     if (isReady) {
+      setModalClose()
       openProject(url)
     }
-  }, [isReady, openProject, url])
+  }, [isReady, openProject, setModalClose, url])
 
   return (
     <>
@@ -270,9 +271,9 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel>Display Name</FormLabel>
                   <Input
                     type="text"
-                    value={displayName}
+                    value={name}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setDisplayName(e.target.value)
+                      setName(e.target.value)
                     }}
                   />
                 </FormControl>
