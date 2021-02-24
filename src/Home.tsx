@@ -1,10 +1,35 @@
-import React, { useEffect } from 'react'
-import { Tabs, TabList, Tab, TabPanels, TabPanel, Grid, Box, HStack, Flex, Button } from '@chakra-ui/react'
+import React, { useState } from 'react'
+import {
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  Wrap,
+  WrapItem,
+  Box,
+  Text,
+  Spacer,
+  HStack,
+  Flex,
+  Button,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuIcon,
+  MenuCommand,
+  MenuDivider,
+} from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlusCircle, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faPlusCircle, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
 import style from './Home.module.scss'
@@ -13,6 +38,8 @@ const Home = (): JSX.Element => {
   const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
+  const openProject = useStoreActions((actions) => actions.project.openProject)
+  const removeProject = useStoreActions((actions) => actions.project.removeProject)
 
   return (
     <div className={style.home}>
@@ -37,17 +64,67 @@ const Home = (): JSX.Element => {
                 Import
               </Button>
             </HStack>
-            <Flex mt={6} wrap="wrap">
+            <Wrap mt={6} spacing={4}>
               {projects.map((p) => (
-                <Box className={style.project} key={p.url} w="xs" boxShadow="md">
-                  <div className={style.pattern} />
-                  <div className={style.content}>
-                    <h4>{p.name}</h4>
-                    <div className={style.infos}>{dayjs(p.editedTime).fromNow()} edited</div>
-                  </div>
-                </Box>
+                <WrapItem key={p.url}>
+                  <Box
+                    w="xs"
+                    boxShadow="md"
+                    borderRadius="md"
+                    className={style.project}
+                    onClick={() => openProject(p.url)}
+                  >
+                    <div className={style.pattern} />
+                    <Flex align="center">
+                      <Box className={style.content}>
+                        <Text className={style.name} as="kbd" isTruncated>
+                          {p.name}
+                        </Text>
+                        <Text color="gray.500" isTruncated>
+                          {p.productName}
+                        </Text>
+                        <Text color="gray.400" fontSize="xs">
+                          {dayjs(p.editedTime).fromNow()} edited
+                        </Text>
+                      </Box>
+                      <Spacer />
+                      <Menu>
+                        <MenuButton
+                          mr={2}
+                          as={IconButton}
+                          aria-label="Options"
+                          icon={<FontAwesomeIcon icon={faBars} />}
+                          size="xs"
+                          variant="outline"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <MenuList>
+                          <MenuItem
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openProject(p.url)
+                            }}
+                          >
+                            Open
+                          </MenuItem>
+                          <MenuItem>Share</MenuItem>
+                          <MenuItem>Rename</MenuItem>
+                          <MenuDivider />
+                          <MenuItem
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removeProject(p.url)
+                            }}
+                          >
+                            Remove
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </Flex>
+                  </Box>
+                </WrapItem>
               ))}
-            </Flex>
+            </Wrap>
           </TabPanel>
           <TabPanel>
             <p>Library!</p>

@@ -67,8 +67,8 @@ window.selectDirs = () => {
   return filePaths
 }
 
-window.frontProjectView = (url) => {
-  ipcRenderer.send('frontProjectView', url)
+window.frontProjectView = (url, lunchUrl) => {
+  ipcRenderer.send('frontProjectView', url, lunchUrl)
 }
 
 window.closeProjectView = (url) => {

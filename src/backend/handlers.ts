@@ -53,6 +53,6 @@ export const Pull = async ({ url }: Record<string, string>) => {
 
 export const Dispose = async ({ url }: Record<string, string>) => {
   const project = getProject(url)
-  project?.dispose()
+  project?.Dispose()
   projectsMap.delete(url)
 }
