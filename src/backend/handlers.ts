@@ -51,6 +51,11 @@ export const Pull = async ({ url }: Record<string, string>) => {
   await project?.Pull()
 }
 
+export const History = async ({ url }: Record<string, string>) => {
+  const project = getProject(url)
+  await project?.History()
+}
+
 export const Dispose = async ({ url }: Record<string, string>) => {
   const project = getProject(url)
   project?.Dispose()

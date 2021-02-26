@@ -237,15 +237,9 @@
     "yarn-deduplicate": "^3.1.0"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.0.5",
     "@chakra-ui/react": "^1.1.4",
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
-    "@fortawesome/fontawesome-svg-core": "^1.2.34",
-    "@fortawesome/free-brands-svg-icons": "^5.15.2",
-    "@fortawesome/free-regular-svg-icons": "^5.15.2",
-    "@fortawesome/free-solid-svg-icons": "^5.15.2",
-    "@fortawesome/react-fontawesome": "^0.1.14",
     "classnames": "^2.2.6",
     "dayjs": "^1.10.3",
     "draggabilly": "^2.3.0",
@@ -264,6 +258,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-hook-form": "^6.15.1",
+    "react-icons": "^4.2.0",
     "react-router-dom": "^5.2.0",
     "react-spinners": "^0.10.4",
     "regenerator-runtime": "^0.13.5",

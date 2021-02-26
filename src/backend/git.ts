@@ -1,4 +1,5 @@
 import { Clone, Repository, Reference, Signature, Cred, Branch } from 'nodegit'
+import { CommitHistory } from './project.interface'
 
 export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
@@ -55,5 +56,47 @@ export const gitPush = async (repo: Repository) => {
         return Cred.sshKeyFromAgent(userName)
       },
     },
+  })
+}
+
+// const historys: Array<CommitHistory> = []
+// .on('commit', (commit) => {
+//   historys.push({
+//     sha: commit.sha(),
+//     author: commit.author().name(),
+//     date: commit.date(),
+//     message: commit.message(),
+//   })
+// })
+
+// recommend engineers use 'rebase' instead 'merge' when merging code into the derealize branch
+export const gitHistory = (repo: Repository): Promise<Array<CommitHistory>> => {
+  // https://github.com/nodegit/nodegit/blob/master/examples/walk-history.js
+  return new Promise((resolve, reject) => {
+    repo
+      .getHeadCommit()
+      .then((head) => {
+        head
+          .history()
+          .on('end', (commits) => {
+            const historys = commits.map((commit: any) => {
+              return {
+                sha: commit.sha(),
+                author: commit.author().name(),
+                date: commit.date(),
+                message: commit.message(),
+              }
+            })
+            resolve(historys)
+          })
+          .on('error', (err) => {
+            reject(err)
+          })
+          .start()
+        return undefined
+      })
+      .catch((err) => {
+        reject(err)
+      })
   })
 }

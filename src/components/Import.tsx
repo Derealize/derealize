@@ -33,9 +33,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { BeatLoader, BarLoader } from 'react-spinners'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFolderOpen } from '@fortawesome/free-solid-svg-icons'
-import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons'
+import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
 import { ProjectStage, Payload, ProcessPayload } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -191,7 +189,7 @@ const ImportProject = (): JSX.Element => {
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
                   <FormHelperText className="prose">
-                    If you don‘t know what this is, you can read{' '}
+                    If you don&apos;t know what this is, you can read{' '}
                     <a href="http://baidu.com" target="_blank" rel="noreferrer">
                       our documentation
                     </a>{' '}
@@ -203,7 +201,7 @@ const ImportProject = (): JSX.Element => {
                 <FormControl id="path" mt={4} isInvalid={!!errors.path}>
                   <FormLabel>Local Path</FormLabel>
                   <Button
-                    leftIcon={<FontAwesomeIcon icon={faFolderOpen} />}
+                    leftIcon={<FaRegFolderOpen />}
                     colorScheme="gray"
                     disabled={isLoading}
                     onClick={(e) => {
@@ -260,8 +258,8 @@ const ImportProject = (): JSX.Element => {
                       }}
                     />
                     <InputRightElement width={12} className={style.pwdright}>
-                      {!showPassword && <FontAwesomeIcon icon={faEye} onClick={() => setShowPassword(true)} />}
-                      {showPassword && <FontAwesomeIcon icon={faEyeSlash} onClick={() => setShowPassword(false)} />}
+                      {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
+                      {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
                     </InputRightElement>
                   </InputGroup>
                   {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
@@ -289,7 +287,7 @@ const ImportProject = (): JSX.Element => {
                       setBranch(e.target.value)
                     }}
                   />
-                  <FormHelperText>If you don&apos;t know what this means please don&apos;t edit it</FormHelperText>
+                  <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
                   {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
               </Box>

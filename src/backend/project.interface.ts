@@ -43,3 +43,16 @@ export interface ProcessPayload {
   error?: string
   exit?: number
 }
+
+export interface CommitLog {
+  sha: string
+  author: string
+  date: Date
+  message: string
+}
+
+export interface HistoryPayload {
+  id: string
+  commits?: Array<CommitLog>
+  error?: string
+}
