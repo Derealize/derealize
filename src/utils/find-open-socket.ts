@@ -22,10 +22,10 @@ export default async () => {
   let currentSocket = 1
   // console.log('checking', currentSocket)
   // eslint-disable-next-line no-await-in-loop
-  while (await isSocketTaken(`myapp${currentSocket}`)) {
+  while (await isSocketTaken(`derealize-${currentSocket}`)) {
     currentSocket += 1
     // console.log('checking', currentSocket)
   }
   // console.log('found socket', currentSocket)
-  return `myapp${currentSocket}`
+  return `derealize-${currentSocket}`
 }

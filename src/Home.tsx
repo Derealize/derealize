@@ -28,6 +28,8 @@ import {
 import dayjs from 'dayjs'
 import cs from 'classnames'
 import { css } from '@emotion/react'
+import { FiPlusCircle } from 'react-icons/fi'
+import { FaBars } from 'react-icons/fa'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faPlusCircle, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from './reduxStore'
@@ -55,12 +57,7 @@ const Home = (): JSX.Element => {
         <TabPanels>
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} my={6} justifyContent="center">
-              <Button
-                onClick={() => setModalOpen()}
-                leftIcon={<FontAwesomeIcon icon={faPlusCircle} />}
-                colorScheme="pink"
-                variant="solid"
-              >
+              <Button onClick={() => setModalOpen()} leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
                 Import
               </Button>
             </HStack>
@@ -93,7 +90,7 @@ const Home = (): JSX.Element => {
                           mr={2}
                           as={IconButton}
                           aria-label="Options"
-                          icon={<FontAwesomeIcon icon={faBars} />}
+                          icon={<FaBars />}
                           size="xs"
                           variant="outline"
                           onClick={(e) => e.stopPropagation()}

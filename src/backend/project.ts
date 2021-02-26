@@ -9,9 +9,10 @@ import {
   Payload,
   StatusPayload,
   ProcessPayload,
+  HistoryPayload,
 } from './project.interface'
 import { npmInstall, npmStart } from './npm'
-import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit } from './git'
+import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory } from './git'
 import broadcast from './broadcast'
 import log from './log'
 
@@ -226,6 +227,17 @@ class Project {
   Dispose() {
     this.installProcess?.kill()
     this.runningProcess?.kill()
+  }
+
+  async History() {
+    if (!this.repo) return
+
+    try {
+      const commits = await gitHistory(this.repo)
+      broadcast('history', { id: this.url, commits } as HistoryPayload)
+    } catch (error) {
+      broadcast('history', { id: this.url, error: error.message } as ProcessPayload)
+    }
   }
 
   // https://github.com/nodegit/nodegit/blob/master/examples/status.js

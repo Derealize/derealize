@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
 import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faBars } from '@fortawesome/free-solid-svg-icons'
+import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import useHotkeys from '../utils/useHotkeys'
@@ -61,8 +60,7 @@ const TabBar = (): JSX.Element => {
               <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
               {!window.isMac && (
-                <FontAwesomeIcon
-                  icon={faBars}
+                <FaBars
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
