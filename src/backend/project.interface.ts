@@ -2,7 +2,7 @@ export interface ProjectConfig {
   branch: string
   npmScript: string
   lunchUrl: string
-  page: Array<string>
+  pages: Array<string>
   assets: string
   applyCssFile: string
 }
@@ -14,10 +14,14 @@ export enum ProjectStage {
   Running,
 }
 
+export interface PayloadError {
+  id: string
+  error: string
+}
+
 export interface Payload {
   id: string
-  result?: string
-  error?: string
+  result: string
 }
 
 export interface GitFileChanges {
@@ -27,12 +31,11 @@ export interface GitFileChanges {
 
 export interface StatusPayload {
   id: string
-  productName?: string
-  changes?: Array<GitFileChanges>
-  stage?: ProjectStage
-  tailwindVersion?: string
-  config?: ProjectConfig
-  error?: string
+  productName: string
+  changes: Array<GitFileChanges>
+  stage: ProjectStage
+  tailwindVersion: string
+  config: ProjectConfig
 }
 
 export interface ProcessPayload {
@@ -40,8 +43,8 @@ export interface ProcessPayload {
   reset?: boolean
   stdout?: string
   stderr?: string
-  error?: string
   exit?: number
+  error: string
 }
 
 export interface CommitLog {
@@ -53,6 +56,5 @@ export interface CommitLog {
 
 export interface HistoryPayload {
   id: string
-  commits?: Array<CommitLog>
-  error?: string
+  commits: Array<CommitLog>
 }

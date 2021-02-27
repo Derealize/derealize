@@ -35,7 +35,7 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
-import { ProjectStage, Payload, ProcessPayload } from '../backend/project.interface'
+import { Payload, ProcessPayload, PayloadError } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import { send, listen } from '../ipc'
@@ -121,12 +121,12 @@ const ImportProject = (): JSX.Element => {
   }, [projects, url, path, branch, onOpenExistsAlert])
 
   useEffect(() => {
-    const importUnlisten = listen('import', (payload: Payload) => {
+    const importUnlisten = listen('import', (payload: Payload | PayloadError) => {
       if (payload.id !== url) return
-      if (payload.result) {
-        output.current.push(`import: ${payload.result}`)
-      } else if (payload.error) {
-        output.current.push(`import error:${payload.error}`)
+      if ((payload as Payload).result) {
+        output.current.push(`import: ${(payload as Payload).result}`)
+      } else if ((payload as PayloadError).error) {
+        output.current.push(`import error:${(payload as PayloadError).error}`)
         setIsLoading(false)
       }
       forceUpdate()
@@ -270,6 +270,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     type="text"
                     value={name}
+                    disabled={isLoading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setName(e.target.value)
                     }}
@@ -281,6 +282,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     name="branch"
                     type="text"
+                    disabled={isLoading}
                     value={branch}
                     colorScheme="gray"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -292,7 +294,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p style={{ whiteSpace: 'pre', overflow: 'auto' }}>{output.current.join('\n')}</p>
+                <p className={style.output}>{output.current.join('\n')}</p>
                 {isLoading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
