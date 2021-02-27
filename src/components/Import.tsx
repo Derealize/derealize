@@ -206,7 +206,7 @@ const ImportProject = (): JSX.Element => {
                     disabled={isLoading}
                     onClick={(e) => {
                       e.stopPropagation()
-                      const filePaths = window.selectDirs()
+                      const filePaths = window.electron.selectDirs()
                       setPath(filePaths[0])
                     }}
                   >

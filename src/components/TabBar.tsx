@@ -59,12 +59,12 @@ const TabBar = (): JSX.Element => {
               <div className="chrome-tab-favicon" />
               <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
-              {!window.isMac && (
+              {!window.process.isMac && (
                 <FaBars
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.popupMenu()
+                    window.electron.popupMenu()
                   }}
                 />
               )}
@@ -108,7 +108,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.minButton)}
           onClick={() => {
-            window.controls('minimize')
+            window.electron.controls('minimize')
           }}
           role="button"
           aria-hidden="true"
@@ -123,7 +123,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.maxButton)}
           onClick={() => {
-            window.controls('maximize')
+            window.electron.controls('maximize')
           }}
           role="button"
           aria-hidden="true"
@@ -138,7 +138,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.restoreButton)}
           onClick={() => {
-            window.controls('unmaximize')
+            window.electron.controls('unmaximize')
           }}
           role="button"
           aria-hidden="true"
@@ -153,7 +153,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.closeButton)}
           onClick={() => {
-            window.controls('close')
+            window.electron.controls('close')
           }}
           role="button"
           aria-hidden="true"

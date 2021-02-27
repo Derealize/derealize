@@ -72,7 +72,7 @@ const projectModel: ProjectModel = {
   setProjects: action((state, { projects, notStore }) => {
     state.projects = projects
     if (!notStore) {
-      window.setStore({ projects })
+      window.electron.setStore({ projects })
     }
   }),
 
@@ -86,7 +86,7 @@ const projectModel: ProjectModel = {
     if (!notStore) {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
-      window.setStore({ projects: clone(state.projects) })
+      window.electron.setStore({ projects: clone(state.projects) })
     }
   }),
   removeProject: thunk((actions, id, { getState }) => {
@@ -98,7 +98,7 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    window.frontProjectView(project?.url, project?.config?.lunchUrl)
+    window.electron.frontProjectView(project?.url, project?.config?.lunchUrl)
     if (project) {
       send('Status', { url: project.url })
     }
@@ -149,13 +149,13 @@ const projectModel: ProjectModel = {
     }
 
     send('Dispose', { url: project.url })
-    window.closeProjectView(project.url)
+    window.electron.closeProjectView(project.url)
     actions.setProjects({ projects })
   }),
 
   load: thunk(async (actions) => {
     try {
-      const projects = await window.getStore('projects')
+      const projects = await window.electron.getStore('projects')
       if (projects) {
         actions.setProjects({ projects, notStore: true })
         projects.forEach((p: Project) => {

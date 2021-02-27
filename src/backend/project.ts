@@ -204,8 +204,13 @@ class Project {
   }
 
   async Start() {
+    log(`Start:${this.path}:${this.config.npmScript}`)
+    if (this.stage === ProjectStage.Running) return
+
+    this.runningProcess?.kill()
     this.runningProcess = npmStart(this.path, this.config.npmScript)
     broadcast('running', { id: this.url, reset: true } as ProcessPayload)
+
     this.runningProcess.stdout.on('data', (stdout) => {
       this.stage = ProjectStage.Running
       this.Status(false)

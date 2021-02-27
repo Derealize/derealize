@@ -28,7 +28,7 @@ yarn start
 yarn cross-env PORT=8564 yarn start
 
 backend 稳定，不需要 debug 的话:
-yarn cross-env DEV_PROCESS=true yarn start
+yarn cross-env DEV_SUB_PROCESS=true yarn start
 
 yarn cross-env OPEN_ANALYZER=true yarn build
 yarn cross-env DEBUG_PROD=true yarn build
@@ -73,6 +73,6 @@ asar extract app.asar 文件夹
 
 cd src && yarn add nodegit
 no template named 'remove_cv_t' in namespace 'std'; did you mean 'remove_cv'?
-等待这个pull request发布到0.28.0-alpha.1版本
+等待这个 pull request 发布到 0.28.0-alpha.1 版本
 https://github.com/nodegit/nodegit/pull/1810
 https://github.com/nodegit/nodegit/blob/master/package.json
