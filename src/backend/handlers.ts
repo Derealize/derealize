@@ -16,6 +16,7 @@ export const Import = async ({ url, path, branch }: Record<string, string>) => {
   let project = projectsMap.get(url)
   if (!project) {
     project = new Project(url, path, branch)
+    projectsMap.set(url, project)
   }
 
   await project.Import()
@@ -26,9 +27,9 @@ export const Install = async ({ url }: Record<string, string>) => {
   await project?.Install()
 }
 
-export const Status = async ({ url }: Record<string, string>) => {
+export const Status = async ({ url, checkGit }: { url: string; checkGit?: boolean }) => {
   const project = getProject(url)
-  await project?.Status()
+  await project?.Status(checkGit || true)
 }
 
 export const Start = async ({ url }: Record<string, string>) => {

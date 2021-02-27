@@ -1,7 +1,15 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
+import clone from 'lodash.clonedeep'
 import dayjs from 'dayjs'
-import { ProjectStage, GitFileChanges, ProcessPayload, StatusPayload } from '../backend/project.interface'
+import {
+  ProjectConfig,
+  ProjectStage,
+  GitFileChanges,
+  ProcessPayload,
+  StatusPayload,
+  PayloadError,
+} from '../backend/project.interface'
 import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_window'
 
@@ -23,12 +31,12 @@ export interface Project {
   editedTime: string
   name: string
   productName?: string
-  lunchUrl?: string
   isOpened?: boolean
   stage?: ProjectStage
   tailwindVersion?: string
   changes?: Array<GitFileChanges>
   runningOutput: Array<string>
+  config?: ProjectConfig
 }
 
 export interface ProjectModel {
@@ -43,6 +51,8 @@ export interface ProjectModel {
   setFrontProject: Action<ProjectModel, Project | null>
 
   openProject: Thunk<ProjectModel, string>
+  startProject: Action<ProjectModel, string | undefined>
+  stopProject: Action<ProjectModel, string | undefined>
   closeProject: Thunk<ProjectModel, string>
 
   load: Thunk<ProjectModel>
@@ -75,8 +85,8 @@ const projectModel: ProjectModel = {
     }
     if (!notStore) {
       // proxy object can't serialize
-      // https://stackoverflow.com/q/53102700/346701
-      window.setStore({ projects: state.projects.map((p) => p) })
+      // https://stackoverflow.com/a/60344844
+      window.setStore({ projects: clone(state.projects) })
     }
   }),
   removeProject: thunk((actions, id, { getState }) => {
@@ -88,7 +98,7 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    window.frontProjectView(project?.url, project?.lunchUrl)
+    window.frontProjectView(project?.url, project?.config?.lunchUrl)
     if (project) {
       send('Status', { url: project.url })
     }
@@ -101,6 +111,22 @@ const projectModel: ProjectModel = {
     send('Start', { url: project.url })
     project.isOpened = true
     actions.setFrontProject(project)
+  }),
+  startProject: action((state, id) => {
+    const project = state.projects.find((p) => p.url === id)
+    if (project) {
+      send('Start', { url: project.url })
+    } else if (state.frontProject) {
+      send('Start', { url: state.frontProject.url })
+    }
+  }),
+  stopProject: action((state, id) => {
+    const project = state.projects.find((p) => p.url === id)
+    if (project) {
+      send('Stop', { url: project.url })
+    } else if (state.frontProject) {
+      send('Stop', { url: state.frontProject.url })
+    }
   }),
   closeProject: thunk((actions, id, { getState }) => {
     const { projects, frontProject, openedProjects } = getState()
@@ -130,7 +156,12 @@ const projectModel: ProjectModel = {
   load: thunk(async (actions) => {
     try {
       const projects = await window.getStore('projects')
-      if (projects) actions.setProjects({ projects, notStore: true })
+      if (projects) {
+        actions.setProjects({ projects, notStore: true })
+        projects.forEach((p: Project) => {
+          send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
+        })
+      }
     } catch (err) {
       toast({
         title: err.message,
@@ -141,10 +172,10 @@ const projectModel: ProjectModel = {
 
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
-    statusUnlisten = listen('status', (payload: StatusPayload) => {
-      if (payload.error) {
+    statusUnlisten = listen('status', (payload: StatusPayload | PayloadError) => {
+      if ((payload as PayloadError).error) {
         toast({
-          title: `Status error:${payload.error}`,
+          title: `Status error:${(payload as PayloadError).error}`,
           status: 'error',
         })
         return
@@ -153,14 +184,18 @@ const projectModel: ProjectModel = {
       const { projects } = getState()
       const project = projects.find((p) => p.url === payload.id)
       if (!project) return
-      project.changes = payload.changes
-      project.stage = payload.stage
-      project.productName = payload.productName
-      project.tailwindVersion = payload.tailwindVersion
+
+      const status = payload as StatusPayload
+      project.changes = status.changes
+      project.stage = status.stage
+      project.productName = status.productName
+      project.tailwindVersion = status.tailwindVersion
+      project.config = status.config
       actions.setProject({ project })
     })
 
     runningUnlisten = listen('running', (payload: ProcessPayload) => {
+      console.log('running', payload)
       if (payload.error) {
         toast({
           title: `Running error:${payload.error}`,

@@ -71,6 +71,7 @@ const setBrowserViewBounds = () => {
   if (browserView) {
     const rectangle = mainWindow.getBounds()
     const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight
+    console.log('setBounds', { x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
     browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
   }
 }
@@ -299,6 +300,7 @@ ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
     mainWindow.setBrowserView(view)
     projectBrowserViews.set(url, view)
     setBrowserViewBounds()
+    console.log(`lunchUrl:${lunchUrl}`)
     if (lunchUrl) view.webContents.loadURL(lunchUrl)
   }
 })

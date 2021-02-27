@@ -10,6 +10,7 @@ import {
   StatusPayload,
   ProcessPayload,
   HistoryPayload,
+  PayloadError,
 } from './project.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory } from './git'
@@ -27,7 +28,7 @@ class Project {
     branch: 'derealize',
     npmScript: 'dev',
     lunchUrl: 'http://localhost:3000',
-    page: [],
+    pages: [],
     assets: '',
     applyCssFile: '',
   }
@@ -55,9 +56,9 @@ class Project {
       this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
       if (this.tailwindVersion) return true // todo:parse and check min supported version
 
-      broadcast(channel, { id: this.url, error: 'project not imported tailwindcss' } as Payload)
+      broadcast(channel, { id: this.url, error: 'project not imported tailwindcss' } as PayloadError)
     } catch (error) {
-      broadcast(channel, { id: this.url, error: error.message } as Payload)
+      broadcast(channel, { id: this.url, error: error.message } as PayloadError)
       log('config error', error)
     }
 
@@ -76,11 +77,11 @@ class Project {
         try {
           this.repo = await gitOpen(this.path)
         } catch (err) {
-          broadcast('import', { id: this.url, error: error.message } as Payload)
+          broadcast('import', { id: this.url, error: error.message } as PayloadError)
           log('git open error', error)
         }
       } else {
-        broadcast('import', { id: this.url, error: error.message } as Payload)
+        broadcast('import', { id: this.url, error: error.message } as PayloadError)
         log('git clone error', error)
       }
     }
@@ -92,31 +93,34 @@ class Project {
     await this.Install()
   }
 
-  async Status() {
+  async Status(chackGit = true) {
     if (!this.repo) return
 
     this.assignConfig('status')
 
     try {
-      const statuses = await this.repo.getStatus()
-      this.changes = statuses.map((item) => {
-        return {
-          file: item.path(),
-          status: Project.fileStatusToText(item),
-        }
-      })
-      broadcast('status', {
-        id: this.url,
-        changes: this.changes,
-        stage: this.stage,
-        productName: this.productName,
-        tailwindVersion: this.tailwindVersion,
-        config: this.config,
-      } as StatusPayload)
+      if (chackGit) {
+        const statuses = await this.repo.getStatus()
+        this.changes = statuses.map((item) => {
+          return {
+            file: item.path(),
+            status: Project.fileStatusToText(item),
+          }
+        })
+      }
     } catch (error) {
       broadcast('status', { id: this.url, error: error.message })
-      log('status error', error)
+      log('git status error', error)
     }
+
+    broadcast('status', {
+      id: this.url,
+      changes: this.changes,
+      stage: this.stage,
+      productName: this.productName,
+      tailwindVersion: this.tailwindVersion,
+      config: this.config,
+    } as StatusPayload)
   }
 
   async Pull() {
@@ -124,7 +128,7 @@ class Project {
 
     await this.Status()
     if (this.changes.length) {
-      broadcast('pull', { id: this.url, error: 'has changes' } as Payload)
+      broadcast('pull', { id: this.url, error: 'has changes' } as PayloadError)
       return
     }
 
@@ -135,7 +139,7 @@ class Project {
       if (error.message.includes('is the current HEAD of the repository')) {
         broadcast('pull', { id: this.url, result: 'done' })
       } else {
-        broadcast('pull', { id: this.url, error: error.message } as Payload)
+        broadcast('pull', { id: this.url, error: error.message } as PayloadError)
         log('gitPull error', error)
       }
     }
@@ -155,7 +159,10 @@ class Project {
 
       await this.Status()
       if (this.changes.length) {
-        broadcast('push', { id: this.url, error: 'has conflicted. Please contact the engineer for help.' } as Payload)
+        broadcast('push', {
+          id: this.url,
+          error: 'has conflicted. Please contact the engineer for help.',
+        } as PayloadError)
         return
       }
 
@@ -163,7 +170,7 @@ class Project {
 
       broadcast('push', { id: this.url, result: 'done' } as Payload)
     } catch (error) {
-      broadcast('push', { id: this.url, error: error.message } as Payload)
+      broadcast('push', { id: this.url, error: error.message } as PayloadError)
       log('gitPush', error)
     }
   }
@@ -191,6 +198,7 @@ class Project {
       broadcast('install', { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
+        this.Status(false)
       }
     })
   }
@@ -198,9 +206,9 @@ class Project {
   async Start() {
     this.runningProcess = npmStart(this.path, this.config.npmScript)
     broadcast('running', { id: this.url, reset: true } as ProcessPayload)
-
     this.runningProcess.stdout.on('data', (stdout) => {
       this.stage = ProjectStage.Running
+      this.Status(false)
       broadcast('running', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })
 
@@ -216,12 +224,14 @@ class Project {
     this.runningProcess.on('exit', (exit) => {
       broadcast('running', { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
+      this.Status(false)
     })
   }
 
   Stop() {
     this.runningProcess?.kill()
     this.stage = ProjectStage.Ready
+    this.Status(false)
   }
 
   Dispose() {
