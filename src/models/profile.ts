@@ -48,7 +48,7 @@ const profileModel: ProfileModel = {
   setSettings: action((state, { settings, storage = false, post = false }) => {
     state.settings = settings
     if (storage) {
-      window.setStore({ settings })
+      window.electron.setStore({ settings })
     }
     if (post && state.jwt) {
       ky.post(`${process.env.REACT_APP_NEST}/users/settings`, {
@@ -65,7 +65,7 @@ const profileModel: ProfileModel = {
     state.jwt = jwt
     localStorage.setItem('jwt', jwt || '') // support PrivateRoute
     if (storage) {
-      window.setStore({ jwt })
+      window.electron.setStore({ jwt })
     }
   }),
 
@@ -75,12 +75,12 @@ const profileModel: ProfileModel = {
   }),
 
   load: thunk(async (actions, payload, { getState }) => {
-    const settings = (await window.getStore('settings')) as Settings
+    const settings = (await window.electron.getStore('settings')) as Settings
     if (settings) {
       actions.setSettings({ settings })
     }
 
-    const jwt = (await window.getStore('jwt')) as string
+    const jwt = (await window.electron.getStore('jwt')) as string
     if (!jwt) {
       actions.logout()
       return

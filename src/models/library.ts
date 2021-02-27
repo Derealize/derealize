@@ -31,7 +31,7 @@ const libraryModel: LibraryModel = {
     state.librarys = librarys
     if (storage) {
       // todo: RxDB store
-      window.setStore({ librarys })
+      window.electron.setStore({ librarys })
     }
   }),
   addLibrary: action((state, library) => {
@@ -43,15 +43,15 @@ const libraryModel: LibraryModel = {
       return
     }
     state.librarys.push(library)
-    window.setStore({ librarys: state.librarys })
+    window.electron.setStore({ librarys: state.librarys })
   }),
   removeLibrary: action((state, libraryName) => {
     state.librarys = state.librarys.filter((p) => p.name !== libraryName)
-    window.setStore({ librarys: state.librarys })
+    window.electron.setStore({ librarys: state.librarys })
   }),
   loadLibrary: thunk(async (actions) => {
     try {
-      const librarys = await window.getStore('librarys')
+      const librarys = await window.electron.getStore('librarys')
       if (librarys) actions.setLibrarys({ librarys })
     } catch (err) {
       toast({

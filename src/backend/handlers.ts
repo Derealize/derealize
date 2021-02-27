@@ -62,3 +62,7 @@ export const Dispose = async ({ url }: Record<string, string>) => {
   project?.Dispose()
   projectsMap.delete(url)
 }
+
+export const DisposeAll = async () => {
+  projectsMap.forEach((p) => p.Dispose())
+}

@@ -8,7 +8,7 @@ let messageQueue: Array<string> = []
 let socketClient: any = null
 
 const connectSocket = (socketId: string) => {
-  window.ipcConnect(socketId, (client) => {
+  window.electron.ipcConnect(socketId, (client) => {
     client.on('message', (data: string) => {
       const msg = JSON.parse(data)
 
@@ -47,7 +47,7 @@ const connectSocket = (socketId: string) => {
         messageQueue = []
       }
 
-      console.log(`Connected!${socketId}`)
+      console.log(`Connected! ${socketId}`)
     })
 
     client.on('disconnect', () => {
@@ -88,6 +88,6 @@ export function unlisten(name: string) {
 }
 
 ;(async () => {
-  const socketId = await window.getSocketId()
+  const socketId = await window.electron.getSocketId()
   connectSocket(socketId)
 })()
