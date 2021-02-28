@@ -1,4 +1,6 @@
 /* eslint-disable global-require */
+/* eslint-disable no-restricted-syntax */
+
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
@@ -285,27 +287,23 @@ ipcMain.on('selectDirs', async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-const projectBrowserViews = new Map<string, BrowserView>()
+const projectViews = new Map<string, BrowserView>()
 
 ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
   if (!mainWindow) return
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [id, view] of projectBrowserViews) {
-    if (id === url) {
-      mainWindow.setBrowserView(view)
-    } else {
-      mainWindow.removeBrowserView(view)
-    }
-  }
-
-  if (url && !projectBrowserViews.has(url)) {
+  if (!url) {
+    projectViews.forEach((view) => mainWindow?.removeBrowserView(view))
+  } else if (projectViews.has(url)) {
+    mainWindow.setBrowserView(projectViews.get(url) || null)
+  } else {
     const view = new BrowserView()
+    projectViews.set(url, view)
     mainWindow.setBrowserView(view)
-    projectBrowserViews.set(url, view)
     setBrowserViewBounds()
+
     console.log(`lunchUrl:${lunchUrl}`)
-    if (lunchUrl) view.webContents.loadURL(lunchUrl)
+    view.webContents.loadURL(lunchUrl)
   }
 })
 
@@ -313,11 +311,10 @@ ipcMain.on('closeProjectView', (event, closeProject: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [url, view] of projectBrowserViews) {
+  for (const [url, view] of projectViews) {
     if (url === closeProject) {
       mainWindow.removeBrowserView(view)
-      projectBrowserViews.delete(closeProject)
+      projectViews.delete(closeProject)
     }
   }
 })

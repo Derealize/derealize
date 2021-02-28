@@ -224,7 +224,7 @@ class ChromeTabs {
   }
 
   get activeTabEl() {
-    return this.el.querySelector('.chrome-tab[data-active]')
+    return this.el.querySelector('.chrome-tab[active]')
   }
 
   hasActiveTab() {
@@ -234,8 +234,8 @@ class ChromeTabs {
   setCurrentTab(tabEl) {
     const { activeTabEl } = this
     if (activeTabEl === tabEl) return
-    if (activeTabEl) activeTabEl.removeAttribute('data-active')
-    tabEl.setAttribute('data-active', '')
+    if (activeTabEl) activeTabEl.removeAttribute('active')
+    tabEl.setAttribute('active', '')
     this.emit('activeTabChange', { tabEl })
   }
 

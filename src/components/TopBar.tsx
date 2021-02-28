@@ -31,14 +31,16 @@ import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
 import { send, listen } from '../ipc'
-import { CommitLog, ProjectStage, HistoryPayload } from '../backend/project.interface'
+import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
 import { Project } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
+import Loader from './loader'
 import style from './TopBar.module.scss'
 
 const TopBar = (): JSX.Element => {
   const toast = useToast()
 
+  const loading = useStoreState<boolean>((state) => state.project.loading)
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
@@ -46,24 +48,28 @@ const TopBar = (): JSX.Element => {
   const [commits, setCommits] = useState<Array<CommitLog>>([])
 
   useEffect(() => {
-    const unlisten = listen('history', (payload: HistoryPayload) => {
-      if (payload.error) {
+    const unlisten = listen('history', (payload: HistoryPayload | PayloadError) => {
+      if ((payload as PayloadError).error) {
         toast({
-          title: `History error:${payload.error}`,
+          title: `History error:${(payload as PayloadError).error}`,
           status: 'error',
         })
         return
       }
 
-      if (payload.commits) {
-        setCommits(payload.commits)
+      if ((payload as HistoryPayload).commits) {
+        setCommits((payload as HistoryPayload).commits)
       }
     })
     return unlisten
   }, [toast])
 
   if (!project) {
-    return <div className={style.topbar} />
+    return <></>
+  }
+
+  if (loading) {
+    return <Loader type={2} />
   }
 
   return (
@@ -145,12 +151,12 @@ const TopBar = (): JSX.Element => {
         />
         <IconButton
           variant="unstyled"
-          disabled={project.stage !== ProjectStage.Running}
+          disabled={project.stage !== ProjectStage.Running && project.stage !== ProjectStage.Starting}
           aria-label="Stop Project"
           icon={<CgPlayStopR />}
           onClick={() => stopProject(project.url)}
         />
-        <Popover>
+        <Popover isOpen={loading}>
           <PopoverTrigger>
             <IconButton aria-label="Output" icon={<VscOutput />} />
           </PopoverTrigger>
