@@ -156,7 +156,7 @@ const ImportProject = (): JSX.Element => {
   useEffect(() => {
     if (isReady) {
       setProject({
-        project: { url, path, name, editedTime: dayjs().toString(), runningOutput: [] },
+        project: { url, path, name, editedTime: dayjs().toString() },
       })
     }
   }, [setProject, name, isReady, url, path])
