@@ -17,6 +17,7 @@ import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory
 import broadcast from './broadcast'
 import log from './log'
 
+const stdoutCompiledMessage = ['compiled', 'successfully']
 class Project {
   stage: ProjectStage = ProjectStage.None
 
@@ -204,15 +205,20 @@ class Project {
   }
 
   async Start() {
-    log(`Start:${this.path}:${this.config.npmScript}`)
-    if (this.stage === ProjectStage.Running) return
+    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) return
 
     this.runningProcess?.kill()
     this.runningProcess = npmStart(this.path, this.config.npmScript)
     broadcast('running', { id: this.url, reset: true } as ProcessPayload)
 
     this.runningProcess.stdout.on('data', (stdout) => {
-      this.stage = ProjectStage.Running
+      const message = stdout.toString()
+      if (stdoutCompiledMessage.some((m) => message.includes(m))) {
+        this.stage = ProjectStage.Running
+      } else {
+        this.stage = ProjectStage.Starting
+      }
+
       this.Status(false)
       broadcast('running', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })

@@ -16,7 +16,6 @@ const App = (): JSX.Element => {
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
-  const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
 
   useEffect(() => {
     profileLoad()

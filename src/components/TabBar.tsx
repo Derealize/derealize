@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
 import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
@@ -51,7 +52,7 @@ const TabBar = (): JSX.Element => {
             }}
             role="button"
             aria-hidden="true"
-            data-active={frontProject === null}
+            {...(frontProject === null ? { active: 'true' } : {})}
           >
             <div className="chrome-tab-dividers" />
             <div className="chrome-tab-background">
@@ -82,7 +83,7 @@ const TabBar = (): JSX.Element => {
               }}
               role="button"
               aria-hidden="true"
-              data-active={frontProject?.url === p.url}
+              {...(frontProject?.url === p.url ? { active: 'true' } : {})}
             >
               <div className="chrome-tab-dividers" />
               <div className="chrome-tab-background">

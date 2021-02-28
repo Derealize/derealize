@@ -10,7 +10,8 @@ export interface ProjectConfig {
 export enum ProjectStage {
   None,
   Initialized,
-  Ready, // npm standby
+  Ready, // npm installed
+  Starting,
   Running,
 }
 

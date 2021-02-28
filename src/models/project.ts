@@ -1,6 +1,7 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
+import omit from 'lodash.omit'
 import dayjs from 'dayjs'
 import {
   ProjectConfig,
@@ -40,6 +41,8 @@ export interface Project {
 }
 
 export interface ProjectModel {
+  loading: boolean
+  setLoading: Action<ProjectModel, boolean>
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, { projects: Array<Project>; notStore?: boolean }>
@@ -65,6 +68,11 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
+  loading: false,
+  setLoading: action((state, payload) => {
+    state.loading = payload
+  }),
+
   projects: [],
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
@@ -86,7 +94,8 @@ const projectModel: ProjectModel = {
     if (!notStore) {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
-      window.electron.setStore({ projects: clone(state.projects) })
+      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'config', 'changes']))
+      window.electron.setStore({ projects: clone(projects) })
     }
   }),
   removeProject: thunk((actions, id, { getState }) => {
@@ -98,9 +107,15 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    window.electron.frontProjectView(project?.url, project?.config?.lunchUrl)
     if (project) {
-      send('Status', { url: project.url })
+      state.loading = true
+      send('Status', { url: project.url, checkGit: false })
+      if (project.stage === ProjectStage.Running && project.config) {
+        window.electron.frontProjectView(project.url, project.config.lunchUrl)
+        state.loading = false
+      }
+    } else {
+      window.electron.frontProjectView()
     }
   }),
 
@@ -186,11 +201,17 @@ const projectModel: ProjectModel = {
       if (!project) return
 
       const status = payload as StatusPayload
-      project.changes = status.changes
+      project.config = status.config
+
       project.stage = status.stage
+      if (project.stage === ProjectStage.Running && project.config) {
+        window.electron.frontProjectView(project.url, project.config.lunchUrl)
+        actions.setLoading(false)
+      }
+
+      project.changes = status.changes
       project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
-      project.config = status.config
       actions.setProject({ project })
     })
 
