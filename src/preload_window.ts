@@ -1,6 +1,6 @@
 // https://stackoverflow.com/a/45352250
 export default interface PreloadWindow extends Window {
-  process: {
+  env: {
     isDev: boolean
     isMac: boolean
     port: boolean

@@ -35,7 +35,7 @@ export interface Project {
   stage?: ProjectStage
   tailwindVersion?: string
   changes?: Array<GitFileChanges>
-  runningOutput: Array<string>
+  runningOutput?: Array<string>
   config?: ProjectConfig
 }
 
@@ -208,7 +208,7 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.url === payload.id)
       if (!project) return
 
-      if (payload.reset) {
+      if (payload.reset || !project.runningOutput) {
         project.runningOutput = []
         return
       }

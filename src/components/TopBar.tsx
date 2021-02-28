@@ -159,7 +159,7 @@ const TopBar = (): JSX.Element => {
             <PopoverCloseButton />
             <PopoverHeader>History</PopoverHeader>
             <PopoverBody>
-              <p className={style.output}>{project?.runningOutput.join('\n')}</p>
+              <p className={style.output}>{project?.runningOutput?.join('\n')}</p>
             </PopoverBody>
           </PopoverContent>
         </Popover>

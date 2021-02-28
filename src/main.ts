@@ -12,6 +12,7 @@ import MenuBuilder from './menu'
 import store from './store'
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
+app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -102,7 +103,8 @@ const createWindow = async (socketId: string) => {
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
-      contextIsolation: true,
+      // contextIsolation: true,
+      contextIsolation: false,
       // sandbox: true,
       preload: path.join(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
     },
@@ -303,9 +305,7 @@ ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
     projectBrowserViews.set(url, view)
     setBrowserViewBounds()
     console.log(`lunchUrl:${lunchUrl}`)
-    // if (lunchUrl) view.webContents.loadURL(lunchUrl)
-    // view.webContents.loadURL('https://baidu.com')
-    view.webContents.loadURL('https://localhost:3000/')
+    if (lunchUrl) view.webContents.loadURL(lunchUrl)
   }
 })
 

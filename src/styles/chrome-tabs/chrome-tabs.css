@@ -90,21 +90,21 @@
 .chrome-tabs .chrome-tab .chrome-tab-background > svg .chrome-tab-geometry {
   fill: #f4f5f6;
 }
-.chrome-tabs .chrome-tab[active] {
+.chrome-tabs .chrome-tab[data-active] {
   z-index: 5;
 }
-.chrome-tabs .chrome-tab[active] .chrome-tab-background > svg .chrome-tab-geometry {
+.chrome-tabs .chrome-tab[data-active] .chrome-tab-background > svg .chrome-tab-geometry {
   fill: rgb(247, 250, 252);
 }
-.chrome-tabs .chrome-tab:not([active]) .chrome-tab-background {
+.chrome-tabs .chrome-tab:not([data-active]) .chrome-tab-background {
   transition: opacity 0.2s ease;
   opacity: 0;
 }
 @media (hover: hover) {
-  .chrome-tabs .chrome-tab:not([active]):hover {
+  .chrome-tabs .chrome-tab:not([data-active]):hover {
     z-index: 2;
   }
-  .chrome-tabs .chrome-tab:not([active]):hover .chrome-tab-background {
+  .chrome-tabs .chrome-tab:not([data-active]):hover .chrome-tab-background {
     opacity: 1;
   }
 }
@@ -141,11 +141,11 @@
 .chrome-tabs .chrome-tab[is-small] .chrome-tab-favicon {
   margin-left: 0;
 }
-.chrome-tabs .chrome-tab[is-mini]:not([active]) .chrome-tab-favicon {
+.chrome-tabs .chrome-tab[is-mini]:not([data-active]) .chrome-tab-favicon {
   margin-left: auto;
   margin-right: auto;
 }
-.chrome-tabs .chrome-tab[is-mini][active] .chrome-tab-favicon {
+.chrome-tabs .chrome-tab[is-mini][data-active] .chrome-tab-favicon {
   display: none;
 }
 .chrome-tabs .chrome-tab .chrome-tab-title {
@@ -169,7 +169,7 @@
 .chrome-tabs .chrome-tab[is-mini] .chrome-tab-title {
   display: none;
 }
-.chrome-tabs .chrome-tab[active] .chrome-tab-title {
+.chrome-tabs .chrome-tab[data-active] .chrome-tab-title {
   color: #45474a;
 }
 .chrome-tabs .chrome-tab .chrome-tab-drag-handle {
@@ -208,17 +208,17 @@
   }
 }
 @media (hover: hover) {
-  .chrome-tabs .chrome-tab:not([active]) .chrome-tab-close:not(:hover):not(:active) {
+  .chrome-tabs .chrome-tab:not([data-active]) .chrome-tab-close:not(:hover):not(:active) {
     opacity: 0.8;
   }
 }
 .chrome-tabs .chrome-tab[is-smaller] .chrome-tab-close {
   margin-left: auto;
 }
-.chrome-tabs .chrome-tab[is-mini]:not([active]) .chrome-tab-close {
+.chrome-tabs .chrome-tab[is-mini]:not([data-active]) .chrome-tab-close {
   display: none;
 }
-.chrome-tabs .chrome-tab[is-mini][active] .chrome-tab-close {
+.chrome-tabs .chrome-tab[is-mini][data-active] .chrome-tab-close {
   margin-left: auto;
   margin-right: auto;
 }

@@ -15,6 +15,7 @@ declare const window: PreloadWindow
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
   const openedProjects = useStoreState<Array<Project>>((state) => state.project.openedProjects)
+  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
   const closeProject = useStoreActions((actions) => actions.project.closeProject)
 
@@ -50,6 +51,7 @@ const TabBar = (): JSX.Element => {
             }}
             role="button"
             aria-hidden="true"
+            data-active={frontProject === null}
           >
             <div className="chrome-tab-dividers" />
             <div className="chrome-tab-background">
@@ -59,7 +61,7 @@ const TabBar = (): JSX.Element => {
               <div className="chrome-tab-favicon" />
               <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
-              {!window.process.isMac && (
+              {!window.env.isMac && (
                 <FaBars
                   className={css.menu}
                   onClick={(e) => {
@@ -71,7 +73,7 @@ const TabBar = (): JSX.Element => {
             </div>
           </div>
 
-          {openedProjects.map((p, i) => (
+          {openedProjects.map((p) => (
             <div
               key={p.url}
               className="chrome-tab"
@@ -80,6 +82,7 @@ const TabBar = (): JSX.Element => {
               }}
               role="button"
               aria-hidden="true"
+              data-active={frontProject?.url === p.url}
             >
               <div className="chrome-tab-dividers" />
               <div className="chrome-tab-background">
