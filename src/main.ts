@@ -5,7 +5,6 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import fs from 'fs'
 import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
@@ -76,6 +75,7 @@ const setBrowserViewBounds = () => {
   if (browserView) {
     const rectangle = mainWindow.getBounds()
     const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight
+    console.log({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
     browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
   }
 }
@@ -105,9 +105,7 @@ const createWindow = async (socketId: string) => {
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
-      // contextIsolation: true,
       contextIsolation: false,
-      // sandbox: true,
       preload: path.join(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
     },
   })
@@ -291,6 +289,7 @@ const projectViews = new Map<string, BrowserView>()
 
 ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
   if (!mainWindow) return
+  console.log('frontProjectView', url)
 
   if (!url) {
     projectViews.forEach((view) => mainWindow?.removeBrowserView(view))
@@ -299,11 +298,13 @@ ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
   } else {
     const view = new BrowserView()
     projectViews.set(url, view)
+    view.setBackgroundColor('white')
     mainWindow.setBrowserView(view)
     setBrowserViewBounds()
 
     console.log(`lunchUrl:${lunchUrl}`)
     view.webContents.loadURL(lunchUrl)
+    // view.webContents.loadURL('http://baidu.com')
   }
 })
 

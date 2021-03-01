@@ -1,7 +1,7 @@
 import fs from 'fs'
 import _path from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { Repository, StatusFile } from 'nodegit'
+import { Repository } from 'nodegit'
 import {
   ProjectConfig,
   ProjectStage,
@@ -13,11 +13,12 @@ import {
   PayloadError,
 } from './project.interface'
 import { npmInstall, npmStart } from './npm'
-import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory } from './git'
+import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
 import broadcast from './broadcast'
 import log from './log'
 
-const stdoutCompiledMessage = ['compiled', 'successfully']
+const compiledMessage = ['compiled', 'successfully']
+
 class Project {
   stage: ProjectStage = ProjectStage.None
 
@@ -105,7 +106,7 @@ class Project {
         this.changes = statuses.map((item) => {
           return {
             file: item.path(),
-            status: Project.fileStatusToText(item),
+            status: fileStatusToText(item),
           }
         })
       }
@@ -176,6 +177,17 @@ class Project {
     }
   }
 
+  async History() {
+    if (!this.repo) return
+
+    try {
+      const commits = await gitHistory(this.repo)
+      broadcast('history', { id: this.url, commits } as HistoryPayload)
+    } catch (error) {
+      broadcast('history', { id: this.url, error: error.message } as ProcessPayload)
+    }
+  }
+
   async Install() {
     this.installProcess = npmInstall(this.path)
     broadcast('install', { id: this.url, reset: true } as ProcessPayload)
@@ -209,31 +221,27 @@ class Project {
 
     this.runningProcess?.kill()
     this.runningProcess = npmStart(this.path, this.config.npmScript)
-    broadcast('running', { id: this.url, reset: true } as ProcessPayload)
+    broadcast('starting', { id: this.url, reset: true } as ProcessPayload)
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
-      if (stdoutCompiledMessage.some((m) => message.includes(m))) {
-        this.stage = ProjectStage.Running
-      } else {
-        this.stage = ProjectStage.Starting
-      }
+      broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
 
+      this.stage = compiledMessage.some(message.includes) ? ProjectStage.Running : ProjectStage.Starting
       this.Status(false)
-      broadcast('running', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      broadcast('running', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+      broadcast('starting', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.runningProcess.on('error', (error) => {
-      broadcast('running', { id: this.url, error: error.message } as ProcessPayload)
-      log('start error', error)
+      broadcast('starting', { id: this.url, error: error.message } as ProcessPayload)
+      log('starting error', error)
     })
 
     this.runningProcess.on('exit', (exit) => {
-      broadcast('running', { id: this.url, exit } as ProcessPayload)
+      broadcast('starting', { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
       this.Status(false)
     })
@@ -248,41 +256,6 @@ class Project {
   Dispose() {
     this.installProcess?.kill()
     this.runningProcess?.kill()
-  }
-
-  async History() {
-    if (!this.repo) return
-
-    try {
-      const commits = await gitHistory(this.repo)
-      broadcast('history', { id: this.url, commits } as HistoryPayload)
-    } catch (error) {
-      broadcast('history', { id: this.url, error: error.message } as ProcessPayload)
-    }
-  }
-
-  // https://github.com/nodegit/nodegit/blob/master/examples/status.js
-  static fileStatusToText = (status: StatusFile): string => {
-    const words = []
-    if (status.isNew()) {
-      words.push('NEW')
-    }
-    if (status.isModified()) {
-      words.push('MODIFIED')
-    }
-    if (status.isTypechange()) {
-      words.push('TYPECHANGE')
-    }
-    if (status.isRenamed()) {
-      words.push('RENAMED')
-    }
-    if (status.isIgnored()) {
-      words.push('IGNORED')
-    }
-    if (status.isConflicted()) {
-      words.push('CONFLICTED')
-    }
-    return words.join(' ')
   }
 }
 

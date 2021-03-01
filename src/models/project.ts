@@ -17,7 +17,7 @@ import PreloadWindow from '../preload_window'
 declare const window: PreloadWindow
 
 let statusUnlisten: any
-let runningUnlisten: any
+let startingUnlisten: any
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -94,7 +94,7 @@ const projectModel: ProjectModel = {
     if (!notStore) {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
-      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'config', 'changes']))
+      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes']))
       window.electron.setStore({ projects: clone(projects) })
     }
   }),
@@ -107,16 +107,13 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    if (project) {
-      state.loading = true
-      send('Status', { url: project.url, checkGit: false })
-      if (project.stage === ProjectStage.Running && project.config) {
-        window.electron.frontProjectView(project.url, project.config.lunchUrl)
-        state.loading = false
-      }
-    } else {
+    if (!project) {
       window.electron.frontProjectView()
+      return
     }
+
+    state.loading = true
+    send('Status', { url: project.url, checkGit: false })
   }),
 
   openProject: thunk((actions, id, { getState }) => {
@@ -196,7 +193,7 @@ const projectModel: ProjectModel = {
         return
       }
 
-      const { projects } = getState()
+      const { projects, frontProject } = getState()
       const project = projects.find((p) => p.url === payload.id)
       if (!project) return
 
@@ -204,8 +201,12 @@ const projectModel: ProjectModel = {
       project.config = status.config
 
       project.stage = status.stage
-      if (project.stage === ProjectStage.Running && project.config) {
-        window.electron.frontProjectView(project.url, project.config.lunchUrl)
+      if (
+        frontProject === project &&
+        (project.stage === ProjectStage.Running || project.stage === ProjectStage.Ready)
+      ) {
+        console.log('frontProjectView', project.url)
+        window.electron.frontProjectView(project.url, project.config?.lunchUrl)
         actions.setLoading(false)
       }
 
@@ -215,11 +216,10 @@ const projectModel: ProjectModel = {
       actions.setProject({ project })
     })
 
-    runningUnlisten = listen('running', (payload: ProcessPayload) => {
-      console.log('running', payload)
+    startingUnlisten = listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
         toast({
-          title: `Running error:${payload.error}`,
+          title: `Starting error:${payload.error}`,
           status: 'error',
         })
         return
@@ -235,20 +235,21 @@ const projectModel: ProjectModel = {
       }
 
       if (payload.stdout) {
-        project.runningOutput.push(`running stdout:${payload.stdout}`)
+        project.runningOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
-        project.runningOutput.push(`running stderr:${payload.stderr}`)
+        project.runningOutput.push(`stderr:${payload.stderr}`)
       } else if (payload.error) {
-        project.runningOutput.push(`running error:${payload.error}`)
+        project.runningOutput.push(`error:${payload.error}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
+        actions.setLoading(false)
       }
     })
   }),
 
   unlisten: action((state) => {
     if (statusUnlisten) statusUnlisten()
-    if (runningUnlisten) runningUnlisten()
+    if (startingUnlisten) startingUnlisten()
   }),
 
   modalDisclosure: false,
