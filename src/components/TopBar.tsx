@@ -68,8 +68,18 @@ const TopBar = (): JSX.Element => {
     return <></>
   }
 
-  if (loading) {
+  if (project && loading) {
     return <Loader type={2} />
+    // return (
+    //   <div className={style.output}>
+    //     {project.runningOutput?.map((o, i) => (
+    //       // eslint-disable-next-line react/no-array-index-key
+    //       <Text color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'} key={i}>
+    //         {o}
+    //       </Text>
+    //     ))}
+    //   </div>
+    // )
   }
 
   return (
@@ -165,7 +175,14 @@ const TopBar = (): JSX.Element => {
             <PopoverCloseButton />
             <PopoverHeader>History</PopoverHeader>
             <PopoverBody>
-              <p className={style.output}>{project?.runningOutput?.join('\n')}</p>
+              <div className={style.output}>
+                {project.runningOutput?.map((o, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Text color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'} key={i}>
+                    {o}
+                  </Text>
+                ))}
+              </div>
             </PopoverBody>
           </PopoverContent>
         </Popover>

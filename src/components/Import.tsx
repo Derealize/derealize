@@ -303,7 +303,7 @@ const ImportProject = (): JSX.Element => {
               </Box>
             </Grid>
             {isReady && (
-              <Text color="red.500" align="center">
+              <Text color="teal.500" align="center">
                 Congratulations, it looks like the project is ready to work.
               </Text>
             )}

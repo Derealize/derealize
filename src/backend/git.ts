@@ -1,5 +1,4 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch } from 'nodegit'
-import { CommitHistory } from './project.interface'
+import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile } from 'nodegit'
 
 export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
@@ -59,16 +58,6 @@ export const gitPush = async (repo: Repository) => {
   })
 }
 
-// const historys: Array<CommitHistory> = []
-// .on('commit', (commit) => {
-//   historys.push({
-//     sha: commit.sha(),
-//     author: commit.author().name(),
-//     date: commit.date(),
-//     message: commit.message(),
-//   })
-// })
-
 // recommend engineers use 'rebase' instead 'merge' when merging code into the derealize branch
 export const gitHistory = (repo: Repository): Promise<Array<CommitHistory>> => {
   // https://github.com/nodegit/nodegit/blob/master/examples/walk-history.js
@@ -99,4 +88,28 @@ export const gitHistory = (repo: Repository): Promise<Array<CommitHistory>> => {
         reject(err)
       })
   })
+}
+
+// https://github.com/nodegit/nodegit/blob/master/examples/status.js
+export const fileStatusToText = (status: StatusFile): string => {
+  const words = []
+  if (status.isNew()) {
+    words.push('NEW')
+  }
+  if (status.isModified()) {
+    words.push('MODIFIED')
+  }
+  if (status.isTypechange()) {
+    words.push('TYPECHANGE')
+  }
+  if (status.isRenamed()) {
+    words.push('RENAMED')
+  }
+  if (status.isIgnored()) {
+    words.push('IGNORED')
+  }
+  if (status.isConflicted()) {
+    words.push('CONFLICTED')
+  }
+  return words.join(' ')
 }
