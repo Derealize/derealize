@@ -208,6 +208,12 @@ export default class MenuBuilder {
           process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
             ? [
                 {
+                  label: 'Close All BrowserView',
+                  click: () => {
+                    this.frontMainView()
+                  },
+                },
+                {
                   label: '&Reload',
                   accelerator: 'Ctrl+R',
                   click: () => {

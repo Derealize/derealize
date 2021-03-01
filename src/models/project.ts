@@ -111,8 +111,6 @@ const projectModel: ProjectModel = {
       window.electron.frontProjectView()
       return
     }
-
-    state.loading = true
     send('Status', { url: project.url, checkGit: false })
   }),
 
@@ -199,14 +197,13 @@ const projectModel: ProjectModel = {
 
       const status = payload as StatusPayload
       project.config = status.config
-
       project.stage = status.stage
-      if (
-        frontProject === project &&
-        (project.stage === ProjectStage.Running || project.stage === ProjectStage.Ready)
-      ) {
-        window.electron.frontProjectView(project.url, project.config?.lunchUrl)
-        actions.setLoading(false)
+
+      if (frontProject === project) {
+        actions.setLoading(project.stage === ProjectStage.Starting)
+        if (project.stage === ProjectStage.Running) {
+          window.electron.frontProjectView(project.url, project.config?.lunchUrl)
+        }
       }
 
       project.changes = status.changes
@@ -217,7 +214,6 @@ const projectModel: ProjectModel = {
 
     startingUnlisten = listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
-        actions.setLoading(false)
         toast({
           title: `Starting error:${payload.error}`,
           status: 'error',
@@ -241,7 +237,6 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`stderr:${payload.stderr}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
-        actions.setLoading(false)
       }
     })
   }),

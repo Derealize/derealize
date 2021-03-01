@@ -225,9 +225,10 @@ class Project {
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
+      if (!message) return
       broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
 
-      this.stage = compiledMessage.some(message.includes) ? ProjectStage.Running : ProjectStage.Starting
+      this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
       this.Status(false)
     })
 
