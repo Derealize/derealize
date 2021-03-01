@@ -80,6 +80,56 @@ const setBrowserViewBounds = () => {
   }
 }
 
+const projectViews = new Map<string, BrowserView>()
+
+const frontMainView = () => {
+  if (!mainWindow) return
+  projectViews.forEach(mainWindow.removeBrowserView)
+}
+
+ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string) => {
+  if (!mainWindow) return
+  console.log('frontProjectView', url)
+
+  if (!url) {
+    frontMainView()
+  } else if (projectViews.has(url)) {
+    mainWindow.setBrowserView(projectViews.get(url) || null)
+  } else {
+    const view = new BrowserView({
+      webPreferences: {
+        contextIsolation: true,
+        sandbox: true,
+        devTools: !isProd || process.env.DEBUG_PROD === 'true', // todo: invalid
+        allowRunningInsecureContent: true,
+        scrollBounce: true,
+      },
+    })
+    view.setBackgroundColor('#fff') // todo: invalid
+
+    projectViews.set(url, view)
+    mainWindow.setBrowserView(view)
+    setBrowserViewBounds()
+
+    console.log(`lunchUrl:${lunchUrl}`)
+    view.webContents.loadURL(lunchUrl)
+    // view.webContents.loadURL('http://baidu.com')
+  }
+})
+
+ipcMain.on('closeProjectView', (event, closeProject: string) => {
+  if (!mainWindow) return
+
+  // https://github.com/electron/electron/pull/23578
+  for (const [url, view] of projectViews) {
+    if (url === closeProject) {
+      mainWindow.removeBrowserView(view)
+      ;(view.webContents as any).destroy()
+      projectViews.delete(closeProject)
+    }
+  }
+})
+
 const sendIsMaximized = () => {
   mainWindow?.webContents.send('isMaximized', mainWindow.isMaximized())
   setBrowserViewBounds()
@@ -132,7 +182,7 @@ const createWindow = async (socketId: string) => {
     mainWindow = null
   })
 
-  const menuBuilder = new MenuBuilder(mainWindow)
+  const menuBuilder = new MenuBuilder(mainWindow, frontMainView)
   menu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
@@ -283,39 +333,4 @@ ipcMain.on('selectDirs', async (event, arg) => {
     properties: ['openDirectory'],
   })
   event.returnValue = result.filePaths
-})
-
-const projectViews = new Map<string, BrowserView>()
-
-ipcMain.on('frontProjectView', (event, url: string, lunchUrl: string) => {
-  if (!mainWindow) return
-  console.log('frontProjectView', url)
-
-  if (!url) {
-    projectViews.forEach((view) => mainWindow?.removeBrowserView(view))
-  } else if (projectViews.has(url)) {
-    mainWindow.setBrowserView(projectViews.get(url) || null)
-  } else {
-    const view = new BrowserView()
-    projectViews.set(url, view)
-    view.setBackgroundColor('white')
-    mainWindow.setBrowserView(view)
-    setBrowserViewBounds()
-
-    console.log(`lunchUrl:${lunchUrl}`)
-    view.webContents.loadURL(lunchUrl)
-    // view.webContents.loadURL('http://baidu.com')
-  }
-})
-
-ipcMain.on('closeProjectView', (event, closeProject: string) => {
-  if (!mainWindow) return
-
-  // https://github.com/electron/electron/pull/23578
-  for (const [url, view] of projectViews) {
-    if (url === closeProject) {
-      mainWindow.removeBrowserView(view)
-      projectViews.delete(closeProject)
-    }
-  }
 })
