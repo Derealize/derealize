@@ -8,8 +8,11 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 export default class MenuBuilder {
   mainWindow: BrowserWindow
 
-  constructor(mainWindow: BrowserWindow) {
+  frontMainView: () => void
+
+  constructor(mainWindow: BrowserWindow, frontMainView: () => void) {
     this.mainWindow = mainWindow
+    this.frontMainView = frontMainView
   }
 
   buildMenu(): Menu {
@@ -91,6 +94,12 @@ export default class MenuBuilder {
     const subMenuViewDev: MenuItemConstructorOptions = {
       label: 'View',
       submenu: [
+        {
+          label: 'Close All BrowserView',
+          click: () => {
+            this.frontMainView()
+          },
+        },
         {
           label: 'Reload',
           accelerator: 'Command+R',

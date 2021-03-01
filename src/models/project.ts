@@ -94,7 +94,7 @@ const projectModel: ProjectModel = {
     if (!notStore) {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
-      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes']))
+      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes', 'isOpened']))
       window.electron.setStore({ projects: clone(projects) })
     }
   }),
@@ -205,7 +205,6 @@ const projectModel: ProjectModel = {
         frontProject === project &&
         (project.stage === ProjectStage.Running || project.stage === ProjectStage.Ready)
       ) {
-        console.log('frontProjectView', project.url)
         window.electron.frontProjectView(project.url, project.config?.lunchUrl)
         actions.setLoading(false)
       }
@@ -218,6 +217,7 @@ const projectModel: ProjectModel = {
 
     startingUnlisten = listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
+        actions.setLoading(false)
         toast({
           title: `Starting error:${payload.error}`,
           status: 'error',
@@ -229,17 +229,16 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.url === payload.id)
       if (!project) return
 
-      if (payload.reset || !project.runningOutput) {
+      if (!project.runningOutput) {
         project.runningOutput = []
-        return
       }
 
-      if (payload.stdout) {
+      if (payload.reset) {
+        project.runningOutput = []
+      } else if (payload.stdout) {
         project.runningOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         project.runningOutput.push(`stderr:${payload.stderr}`)
-      } else if (payload.error) {
-        project.runningOutput.push(`error:${payload.error}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
         actions.setLoading(false)

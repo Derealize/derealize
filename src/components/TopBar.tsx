@@ -166,7 +166,7 @@ const TopBar = (): JSX.Element => {
           icon={<CgPlayStopR />}
           onClick={() => stopProject(project.url)}
         />
-        <Popover isOpen={loading}>
+        <Popover>
           <PopoverTrigger>
             <IconButton aria-label="Output" icon={<VscOutput />} />
           </PopoverTrigger>
