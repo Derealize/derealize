@@ -14,7 +14,7 @@ export const npmInstall = (cwd: string): ChildProcessWithoutNullStreams => {
 }
 
 export const npmStart = (cwd: string, script: string): ChildProcessWithoutNullStreams => {
-  const process = spawn(path.resolve(__dirname, nodeBin), ['run', script], {
+  const process = spawn(path.resolve(__dirname, nodeBin), ['run', script, '--scripts-prepend-node-path'], {
     cwd,
   })
   return process

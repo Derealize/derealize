@@ -29,6 +29,12 @@ const TabBar = (): JSX.Element => {
     chromeTabs.current.setCurrentTab(document.querySelector(`.${css.maintab}`))
   }, [])
 
+  useEffect(() => {
+    chromeTabs.current?.layoutTabs()
+    chromeTabs.current?.setupDraggabilly()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openedProjects])
+
   useHotkeys(
     'ctrl+t',
     () => {
