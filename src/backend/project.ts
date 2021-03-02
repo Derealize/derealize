@@ -2,6 +2,7 @@ import fs from 'fs'
 import _path from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository } from 'nodegit'
+import killPort from 'kill-port'
 import {
   ProjectConfig,
   ProjectStage,
@@ -30,6 +31,7 @@ class Project {
     branch: 'derealize',
     npmScript: 'dev',
     lunchUrl: 'http://localhost:3000',
+    port: 3000,
     pages: [],
     assets: '',
     applyCssFile: '',
@@ -220,6 +222,7 @@ class Project {
     if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) return
 
     this.runningProcess?.kill()
+    killPort(this.config.port)
     this.runningProcess = npmStart(this.path, this.config.npmScript)
     broadcast('starting', { id: this.url, reset: true } as ProcessPayload)
 
@@ -250,11 +253,13 @@ class Project {
 
   Stop() {
     this.runningProcess?.kill()
+    killPort(this.config.port)
     this.stage = ProjectStage.Ready
     this.Status(false)
   }
 
   Dispose() {
+    killPort(this.config.port)
     this.installProcess?.kill()
     this.runningProcess?.kill()
   }

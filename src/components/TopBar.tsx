@@ -19,12 +19,20 @@ import {
   Tr,
   Td,
   IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuIcon,
+  MenuCommand,
+  MenuDivider,
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import { VscRepoPush, VscRepoPull, VscOutput } from 'react-icons/vsc'
 import { MdHistory } from 'react-icons/md'
-import { CgPlayButtonR, CgPlayStopR, CgSelectR } from 'react-icons/cg'
+import { CgPlayButtonR, CgPlayStopR, CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick } from 'react-icons/hi'
 import { BiRectangle } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
@@ -33,9 +41,12 @@ import { FiLink2 } from 'react-icons/fi'
 import { send, listen } from '../ipc'
 import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
 import { Project } from '../models/project'
+import { IntEnumObjects } from '../utils/assest'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import Loader from './loader'
 import style from './TopBar.module.scss'
+
+const ProjectStageObjects = IntEnumObjects(ProjectStage)
 
 const TopBar = (): JSX.Element => {
   const toast = useToast()
@@ -152,20 +163,24 @@ const TopBar = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <IconButton
-          variant="unstyled"
-          disabled={project.stage !== ProjectStage.Ready}
-          aria-label="Start Project"
-          icon={<CgPlayButtonR />}
-          onClick={() => startProject(project.url)}
-        />
-        <IconButton
-          variant="unstyled"
-          disabled={project.stage !== ProjectStage.Running && project.stage !== ProjectStage.Starting}
-          aria-label="Stop Project"
-          icon={<CgPlayStopR />}
-          onClick={() => stopProject(project.url)}
-        />
+        {project.stage === ProjectStage.Ready && (
+          <IconButton
+            variant="unstyled"
+            aria-label="Start Project"
+            icon={<CgPlayButtonR />}
+            onClick={() => startProject(project.url)}
+          />
+        )}
+        {project.stage === ProjectStage.Running ||
+          (project.stage === ProjectStage.Starting && (
+            <IconButton
+              variant="unstyled"
+              aria-label="Stop Project"
+              icon={<CgPlayStopR />}
+              onClick={() => stopProject(project.url)}
+            />
+          ))}
+
         <Popover>
           <PopoverTrigger>
             <IconButton aria-label="Output" icon={<VscOutput />} />
@@ -173,7 +188,7 @@ const TopBar = (): JSX.Element => {
           <PopoverContent>
             <PopoverArrow />
             <PopoverCloseButton />
-            <PopoverHeader>History</PopoverHeader>
+            <PopoverHeader>{project.stage && ProjectStage[project.stage]}</PopoverHeader>
             <PopoverBody>
               <div className={style.output}>
                 {project.runningOutput?.map((o, i) => (
@@ -186,6 +201,13 @@ const TopBar = (): JSX.Element => {
             </PopoverBody>
           </PopoverContent>
         </Popover>
+
+        <Menu>
+          <MenuButton as={IconButton} aria-label="Menu" icon={<CgMenu />} variant="outline" />
+          <MenuList>
+            <MenuItem>Refresh</MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
     </Flex>
   )

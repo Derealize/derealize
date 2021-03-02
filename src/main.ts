@@ -84,12 +84,11 @@ const projectViews = new Map<string, BrowserView>()
 
 const frontMainView = () => {
   if (!mainWindow) return
-  projectViews.forEach(mainWindow.removeBrowserView)
+  projectViews.forEach((v) => mainWindow?.removeBrowserView(v))
 }
 
 ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string) => {
   if (!mainWindow) return
-  console.log('frontProjectView', url)
 
   if (!url) {
     frontMainView()
