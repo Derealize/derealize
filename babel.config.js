@@ -26,6 +26,8 @@ module.exports = (api) => {
       [require('@babel/preset-react'), { development }],
     ],
     plugins: [
+      ['@emotion'],
+
       // learn https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/webpack.config.js#L439
       [
         require.resolve('babel-plugin-named-asset-import'),
