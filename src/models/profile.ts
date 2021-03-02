@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import ky from 'ky'
 import Language, { navigatorLanguage } from '../utils/language'
-import PreloadWindow from '../preload_window'
+import PreloadWindow from '../preload_inteeface'
 
 declare const window: PreloadWindow
 

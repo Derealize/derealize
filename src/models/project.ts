@@ -12,7 +12,7 @@ import {
   PayloadError,
 } from '../backend/project.interface'
 import { send, listen } from '../ipc'
-import PreloadWindow from '../preload_window'
+import PreloadWindow from '../preload_inteeface'
 
 declare const window: PreloadWindow
 
