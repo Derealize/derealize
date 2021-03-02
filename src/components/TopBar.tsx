@@ -150,15 +150,14 @@ const TopBar = (): JSX.Element => {
             onClick={() => startProject(project.url)}
           />
         )}
-        {project.stage === ProjectStage.Running ||
-          (project.stage === ProjectStage.Starting && (
-            <IconButton
-              variant="unstyled"
-              aria-label="Stop Project"
-              icon={<CgPlayStopR />}
-              onClick={() => stopProject(project.url)}
-            />
-          ))}
+        {(project.stage === ProjectStage.Running || project.stage === ProjectStage.Starting) && (
+          <IconButton
+            variant="unstyled"
+            aria-label="Stop Project"
+            icon={<CgPlayStopR />}
+            onClick={() => stopProject(project.url)}
+          />
+        )}
 
         <Popover>
           <PopoverTrigger>

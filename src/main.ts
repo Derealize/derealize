@@ -96,6 +96,7 @@ ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string
   } else {
     const view = new BrowserView({
       webPreferences: {
+        preload: path.resolve(__dirname, isProd ? 'dist/preload_browser.prod.js' : 'preload_browser.js'),
         contextIsolation: true,
         sandbox: true,
         devTools: !isProd || process.env.DEBUG_PROD === 'true', // todo: invalid
@@ -154,7 +155,7 @@ const createWindow = async (socketId: string) => {
       nodeIntegration: false,
       enableRemoteModule: false,
       contextIsolation: false,
-      preload: path.join(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
+      preload: path.resolve(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
     },
   })
 
