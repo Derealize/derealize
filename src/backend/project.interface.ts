@@ -2,6 +2,7 @@ export interface ProjectConfig {
   branch: string
   npmScript: string
   lunchUrl: string
+  port: number
   pages: Array<string>
   assets: string
   applyCssFile: string

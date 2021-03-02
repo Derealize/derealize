@@ -255,6 +255,7 @@
     "framer-motion": "^3.2.1",
     "history": "^5.0.0",
     "hotkeys-js": "^3.8.2",
+    "kill-port": "^1.6.1",
     "ky": "^0.26.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.omit": "^4.5.0",
