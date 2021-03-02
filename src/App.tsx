@@ -15,6 +15,7 @@ const App = (): JSX.Element => {
   const projectListen = useStoreActions((actions) => actions.project.listen)
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
+  const loading = useStoreState<boolean>((state) => state.project.loading)
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
 
   useEffect(() => {
@@ -31,6 +32,11 @@ const App = (): JSX.Element => {
       <div className={style.main}>
         {!frontProject && <Home />}
         {frontProject && <TopBar />}
+        {loading && (
+          <div className={style.centerWapper}>
+            <PuffLoader loading={loading} color="#4FD1C5" />
+          </div>
+        )}
       </div>
       <ImportProject />
     </div>

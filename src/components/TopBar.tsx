@@ -41,17 +41,12 @@ import { FiLink2 } from 'react-icons/fi'
 import { send, listen } from '../ipc'
 import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
 import { Project } from '../models/project'
-import { IntEnumObjects } from '../utils/assest'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import Loader from './loader'
 import style from './TopBar.module.scss'
-
-const ProjectStageObjects = IntEnumObjects(ProjectStage)
 
 const TopBar = (): JSX.Element => {
   const toast = useToast()
 
-  const loading = useStoreState<boolean>((state) => state.project.loading)
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
@@ -75,23 +70,7 @@ const TopBar = (): JSX.Element => {
     return unlisten
   }, [toast])
 
-  if (!project) {
-    return <></>
-  }
-
-  if (project && loading) {
-    return <Loader type={2} />
-    // return (
-    //   <div className={style.output}>
-    //     {project.runningOutput?.map((o, i) => (
-    //       // eslint-disable-next-line react/no-array-index-key
-    //       <Text color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'} key={i}>
-    //         {o}
-    //       </Text>
-    //     ))}
-    //   </div>
-    // )
-  }
+  if (!project) return <></>
 
   return (
     <Flex className={style.topbar} justify="space-between">

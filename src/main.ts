@@ -75,7 +75,6 @@ const setBrowserViewBounds = () => {
   if (browserView) {
     const rectangle = mainWindow.getBounds()
     const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight
-    console.log({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
     browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
   }
 }
