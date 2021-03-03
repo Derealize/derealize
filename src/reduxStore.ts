@@ -1,7 +1,7 @@
 import { createStore, persist, PersistConfig, createTypedHooks } from 'easy-peasy'
 import model, { StoreModel } from './models'
 import * as apiService from './services/api'
-import PreloadWindow from './preload_window'
+import PreloadWindow from './preload_inteeface'
 
 declare const window: PreloadWindow
 
