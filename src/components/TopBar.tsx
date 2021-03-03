@@ -46,7 +46,7 @@ const TopBar = (): JSX.Element => {
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
-  const debugging = useStoreState<Project | null>((state) => state.project.debugging)
+  const debugging = useStoreState<boolean>((state) => state.project.debugging)
   const setDebugging = useStoreActions((actions) => actions.project.setDebugging)
 
   const [commits, setCommits] = useState<Array<CommitLog>>([])
