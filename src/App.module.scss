@@ -5,13 +5,6 @@
   margin-top: 46px;
   overflow-y: auto;
   background-color: $white;
-
-  .centerWapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: calc(100vh - 46px -34px);
-  }
 }
 
 :global(.maximized) {

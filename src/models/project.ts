@@ -65,6 +65,9 @@ export interface ProjectModel {
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
   setModalClose: Action<ProjectModel>
+
+  debugging: boolean
+  setDebugging: Action<ProjectModel, boolean>
 }
 
 const projectModel: ProjectModel = {
@@ -252,6 +255,11 @@ const projectModel: ProjectModel = {
   }),
   setModalClose: action((state) => {
     state.modalDisclosure = false
+  }),
+
+  debugging: false,
+  setDebugging: action((state, payload) => {
+    state.debugging = payload
   }),
 }
 
