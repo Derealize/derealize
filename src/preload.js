@@ -61,8 +61,8 @@ ipcRenderer.on('isMaximized', (event, isMaximized) => {
   }
 })
 
-electron.popupMenu = () => {
-  ipcRenderer.send('popupMenu')
+electron.popupMenu = (projectId) => {
+  ipcRenderer.send('popupMenu', projectId)
 }
 
 electron.selectDirs = () => {
@@ -70,12 +70,12 @@ electron.selectDirs = () => {
   return filePaths
 }
 
-electron.frontProjectView = (url, lunchUrl) => {
-  ipcRenderer.send('frontProjectView', url, lunchUrl)
+electron.frontProjectView = (projectId, lunchUrl) => {
+  ipcRenderer.send('frontProjectView', projectId, lunchUrl)
 }
 
-electron.closeProjectView = (url) => {
-  ipcRenderer.send('closeProjectView', url)
+electron.closeProjectView = (projectId) => {
+  ipcRenderer.send('closeProjectView', projectId)
 }
 
 window.electron = electron

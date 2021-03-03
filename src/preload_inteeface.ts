@@ -11,9 +11,9 @@ export default interface PreloadWindow extends Window {
     getStore: (key: string) => any
     setStore: (payload: Record<string, unknown>) => void
     controls: (payload: string) => void
-    popupMenu: () => void
+    popupMenu: (prijectId?: string) => void
     selectDirs: () => string
-    frontProjectView: (url?: string, lunchUrl?: string) => void
-    closeProjectView: (id: string) => void
+    frontProjectView: (projectId?: string, lunchUrl?: string) => void
+    closeProjectView: (projectId: string) => void
   }
 }

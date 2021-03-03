@@ -67,6 +67,7 @@ const installExtensions = async () => {
 
 let mainWindow: BrowserWindow | null = null
 let menu: Menu | null = null
+let projectMenu: Menu | null = null
 
 const topbarHeight = 34
 const setBrowserViewBounds = () => {
@@ -86,13 +87,13 @@ const frontMainView = () => {
   projectViews.forEach((v) => mainWindow?.removeBrowserView(v))
 }
 
-ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string) => {
+ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: string) => {
   if (!mainWindow) return
 
-  if (!url) {
+  if (!projectId) {
     frontMainView()
-  } else if (projectViews.has(url)) {
-    mainWindow.setBrowserView(projectViews.get(url) || null)
+  } else if (projectViews.has(projectId)) {
+    mainWindow.setBrowserView(projectViews.get(projectId) || null)
   } else {
     const view = new BrowserView({
       webPreferences: {
@@ -106,7 +107,7 @@ ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string
     })
     view.setBackgroundColor('#fff') // todo: invalid
 
-    projectViews.set(url, view)
+    projectViews.set(projectId, view)
     mainWindow.setBrowserView(view)
     setBrowserViewBounds()
 
@@ -116,15 +117,15 @@ ipcMain.on('frontProjectView', (event: any, url: string | null, lunchUrl: string
   }
 })
 
-ipcMain.on('closeProjectView', (event, closeProject: string) => {
+ipcMain.on('closeProjectView', (event, projectId: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578
-  for (const [url, view] of projectViews) {
-    if (url === closeProject) {
+  for (const [id, view] of projectViews) {
+    if (id === projectId) {
       mainWindow.removeBrowserView(view)
       ;(view.webContents as any).destroy()
-      projectViews.delete(closeProject)
+      projectViews.delete(projectId)
     }
   }
 })
@@ -183,6 +184,7 @@ const createWindow = async (socketId: string) => {
 
   const menuBuilder = new MenuBuilder(mainWindow, frontMainView)
   menu = menuBuilder.buildMenu()
+  projectMenu = menuBuilder.buildProjectMenu()
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
@@ -319,9 +321,13 @@ ipcMain.on('controls', (event, payload: string) => {
   }
 })
 
-ipcMain.on('popupMenu', (event) => {
-  if (mainWindow && menu) {
-    menu.popup({ window: mainWindow })
+ipcMain.on('popupMenu', (event, projectId: string) => {
+  if (!mainWindow) return
+  if (projectId && projectMenu) {
+    const rectangle = mainWindow.getBounds()
+    projectMenu.popup({ window: mainWindow, x: rectangle.width - 30, y: 80 })
+  } else if (menu) {
+    menu.popup({ window: mainWindow, x: 228, y: 38 })
   }
 })
 
