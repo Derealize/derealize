@@ -19,14 +19,6 @@ import {
   Tr,
   Td,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuIcon,
-  MenuCommand,
-  MenuDivider,
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
@@ -53,6 +45,9 @@ const TopBar = (): JSX.Element => {
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
+
+  const debugging = useStoreState<Project | null>((state) => state.project.debugging)
+  const setDebugging = useStoreActions((actions) => actions.project.setDebugging)
 
   const [commits, setCommits] = useState<Array<CommitLog>>([])
 
@@ -162,26 +157,20 @@ const TopBar = (): JSX.Element => {
           />
         )}
 
-        <Popover>
-          <PopoverTrigger>
-            <IconButton aria-label="Output" icon={<VscOutput />} />
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverArrow />
-            <PopoverCloseButton />
-            <PopoverHeader>{project.stage && ProjectStage[project.stage]}</PopoverHeader>
-            <PopoverBody>
-              <div className={style.output}>
-                {project.runningOutput?.map((o, i) => (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <Text color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'} key={i}>
-                    {o}
-                  </Text>
-                ))}
-              </div>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
+        <IconButton
+          variant="unstyled"
+          aria-label="Project Menu"
+          icon={<VscOutput />}
+          onClick={() => {
+            if (debugging) {
+              window.electron.frontProjectView(project.url)
+              setDebugging(false)
+            } else {
+              window.electron.frontProjectView()
+              setDebugging(true)
+            }
+          }}
+        />
 
         <IconButton
           variant="unstyled"

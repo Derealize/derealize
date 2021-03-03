@@ -1,0 +1,15 @@
+@import './styles/variable';
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 80px); // 46 + 34
+}
+
+.output {
+  white-space: pre;
+  overflow: auto;
+  width: 70%;
+  margin-top: 20px;
+}

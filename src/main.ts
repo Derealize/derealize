@@ -325,7 +325,7 @@ ipcMain.on('popupMenu', (event, projectId: string) => {
   if (!mainWindow) return
   if (projectId && projectMenu) {
     const rectangle = mainWindow.getBounds()
-    projectMenu.popup({ window: mainWindow, x: rectangle.width - 30, y: 80 })
+    projectMenu.popup({ window: mainWindow, x: rectangle.width - 34, y: 80 })
   } else if (menu) {
     menu.popup({ window: mainWindow, x: 228, y: 38 })
   }
