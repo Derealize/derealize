@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
 import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
-import { FaBars } from 'react-icons/fa'
+import { VscThreeBars } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import useHotkeys from '../utils/useHotkeys'
@@ -69,7 +69,7 @@ const TabBar = (): JSX.Element => {
               <div className="chrome-tab-title">Derealize</div>
               <div className="chrome-tab-drag-handle" />
               {!window.env.isMac && (
-                <FaBars
+                <VscThreeBars
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()

@@ -43,6 +43,9 @@ import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backen
 import { Project } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
+import PreloadWindow from '../preload_inteeface'
+
+declare const window: PreloadWindow
 
 const TopBar = (): JSX.Element => {
   const toast = useToast()
@@ -180,12 +183,12 @@ const TopBar = (): JSX.Element => {
           </PopoverContent>
         </Popover>
 
-        <Menu>
-          <MenuButton as={IconButton} aria-label="Menu" icon={<CgMenu />} variant="outline" />
-          <MenuList>
-            <MenuItem>Refresh</MenuItem>
-          </MenuList>
-        </Menu>
+        <IconButton
+          variant="unstyled"
+          aria-label="Project Menu"
+          icon={<CgMenu />}
+          onClick={() => window.electron.popupMenu(project.url)}
+        />
       </Flex>
     </Flex>
   )
