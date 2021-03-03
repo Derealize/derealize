@@ -9,7 +9,7 @@ import useHotkeys from '../utils/useHotkeys'
 import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
-import PreloadWindow from '../preload_window'
+import PreloadWindow from '../preload_inteeface'
 
 declare const window: PreloadWindow
 
