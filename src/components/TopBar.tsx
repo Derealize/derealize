@@ -134,13 +134,12 @@ const TopBar = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="center">
-        <HiCursorClick />
-        <BiRectangle />
-        <FiLink2 />
-        <RiInputMethodLine />
-        <AiOutlineBorderHorizontal />
-        <AiOutlineBorder />
-        <CgSelectR />
+        <BarIconButton label="Cursor" icon={<HiCursorClick />} />
+        <BarIconButton label="Rect" icon={<BiRectangle />} />
+        <BarIconButton label="Link" icon={<FiLink2 />} />
+        <BarIconButton label="Text" icon={<RiInputMethodLine />} />
+        <BarIconButton label="Input" icon={<AiOutlineBorderHorizontal />} />
+        <BarIconButton label="Select" icon={<CgSelectR />} />
       </Flex>
 
       <Flex align="center" justify="right">
