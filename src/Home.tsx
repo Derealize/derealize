@@ -18,11 +18,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuIcon,
-  MenuCommand,
   MenuDivider,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
@@ -30,14 +25,11 @@ import cs from 'classnames'
 import { css } from '@emotion/react'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBars, faPlusCircle, faFolderOpen } from '@fortawesome/free-solid-svg-icons'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
 import style from './Home.module.scss'
 
 const Home = (): JSX.Element => {
-  const profileLoad = useStoreActions((actions) => actions.profile.load)
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
   const openProject = useStoreActions((actions) => actions.project.openProject)

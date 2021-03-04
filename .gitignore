@@ -56,3 +56,4 @@ src/yarn.lock
 **/*.LICENSE.txt
 
 assets/node-win
+theme.default.json

@@ -69,7 +69,7 @@ let mainWindow: BrowserWindow | null = null
 let menu: Menu | null = null
 let projectMenu: Menu | null = null
 
-const topbarHeight = 34
+const topbarHeight = 42
 const setBrowserViewBounds = () => {
   if (!mainWindow) return
   const browserView = mainWindow.getBrowserView()
@@ -325,7 +325,7 @@ ipcMain.on('popupMenu', (event, projectId: string) => {
   if (!mainWindow) return
   if (projectId && projectMenu) {
     const rectangle = mainWindow.getBounds()
-    projectMenu.popup({ window: mainWindow, x: rectangle.width - 34, y: 80 })
+    projectMenu.popup({ window: mainWindow, x: rectangle.width - 42, y: 80 })
   } else if (menu) {
     menu.popup({ window: mainWindow, x: 228, y: 38 })
   }

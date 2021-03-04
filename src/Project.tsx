@@ -27,7 +27,7 @@ const ProjectView = (): JSX.Element => {
             <div className={style.output}>
               {project.runningOutput?.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
-                <Text color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'} key={i}>
+                <Text key={i} color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'}>
                   {o}
                 </Text>
               ))}
