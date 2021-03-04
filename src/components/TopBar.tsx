@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, forwardRef } from 'react'
 import {
+  useStyleConfig,
   useToast,
   Flex,
   Box,
@@ -39,6 +40,15 @@ import PreloadWindow from '../preload_inteeface'
 
 declare const window: PreloadWindow
 
+const BarIconButton = React.forwardRef((props: any, ref) => {
+  const { label, ...rest } = props
+
+  const styles = useStyleConfig('BarIconButton')
+
+  // eslint-disable-next-line react/jsx-props-no-spreading
+  return <IconButton ref={ref} aria-label={label} sx={styles} {...rest} />
+})
+
 const TopBar = (): JSX.Element => {
   const toast = useToast()
 
@@ -75,12 +85,7 @@ const TopBar = (): JSX.Element => {
       <Flex align="center">
         <Popover>
           <PopoverTrigger>
-            <IconButton
-              variant="unstyled"
-              aria-label="History"
-              icon={<MdHistory />}
-              onClick={() => send('History', { url: project.url })}
-            />
+            <BarIconButton label="History" icon={<MdHistory />} onClick={() => send('History', { url: project.url })} />
           </PopoverTrigger>
           <PopoverContent>
             <PopoverArrow />
@@ -113,18 +118,17 @@ const TopBar = (): JSX.Element => {
           </PopoverContent>
         </Popover>
 
-        <IconButton
-          variant="unstyled"
-          disabled={project.changes?.length !== 0}
-          aria-label="Pull"
+        <BarIconButton
+          label="Pull"
           icon={<VscRepoPull />}
+          disabled={project.changes?.length !== 0}
           onClick={() => send('Pull', { url: project.url })}
         />
-        <IconButton
-          variant="unstyled"
-          disabled={project.changes?.length === 0}
-          aria-label="Push"
+
+        <BarIconButton
+          label="Push"
           icon={<VscRepoPush />}
+          disabled={project.changes?.length === 0}
           onClick={() => send('Push', { url: project.url })}
         />
       </Flex>
@@ -141,25 +145,14 @@ const TopBar = (): JSX.Element => {
 
       <Flex align="center" justify="right">
         {project.stage === ProjectStage.Ready && (
-          <IconButton
-            variant="unstyled"
-            aria-label="Start Project"
-            icon={<CgPlayButtonR />}
-            onClick={() => startProject(project.url)}
-          />
+          <BarIconButton label="Start" icon={<CgPlayButtonR />} onClick={() => startProject(project.url)} />
         )}
         {(project.stage === ProjectStage.Running || project.stage === ProjectStage.Starting) && (
-          <IconButton
-            variant="unstyled"
-            aria-label="Stop Project"
-            icon={<CgPlayStopR />}
-            onClick={() => stopProject(project.url)}
-          />
+          <BarIconButton label="Stop" icon={<CgPlayStopR />} onClick={() => stopProject(project.url)} />
         )}
 
-        <IconButton
-          variant="unstyled"
-          aria-label="Project Menu"
+        <BarIconButton
+          label="Debug"
           icon={<VscOutput />}
           onClick={() => {
             if (debugging) {
@@ -172,12 +165,7 @@ const TopBar = (): JSX.Element => {
           }}
         />
 
-        <IconButton
-          variant="unstyled"
-          aria-label="Project Menu"
-          icon={<CgMenu />}
-          onClick={() => window.electron.popupMenu(project.url)}
-        />
+        <BarIconButton label="Project Menu" icon={<CgMenu />} onClick={() => window.electron.popupMenu(project.url)} />
       </Flex>
     </Flex>
   )
