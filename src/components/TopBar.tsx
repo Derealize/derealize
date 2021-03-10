@@ -155,7 +155,7 @@ const TopBar = (): JSX.Element => {
           icon={<VscOutput />}
           onClick={() => {
             if (debugging) {
-              window.electron.frontProjectView(project.url)
+              window.electron.frontProjectView(project.url, project.config?.lunchUrl)
               setDebugging(false)
             } else {
               window.electron.frontProjectView()

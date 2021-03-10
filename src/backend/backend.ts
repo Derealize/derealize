@@ -11,6 +11,7 @@ process
     log('Backend UnhandledRejection', JSON.stringify(reason))
   })
   .on('exit', () => {
+    log('exit, DisposeAll')
     DisposeAll()
   })
 

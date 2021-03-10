@@ -121,13 +121,12 @@ ipcMain.on('closeProjectView', (event, projectId: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578
-  for (const [id, view] of projectViews) {
-    if (id === projectId) {
-      mainWindow.removeBrowserView(view)
-      ;(view.webContents as any).destroy()
-      projectViews.delete(projectId)
-    }
+  const view = projectViews.get(projectId)
+  if (view) {
+    mainWindow.removeBrowserView(view)
+    ;(view.webContents as any).destroy()
   }
+  projectViews.delete(projectId)
 })
 
 const sendIsMaximized = () => {

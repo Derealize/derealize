@@ -254,14 +254,15 @@ class Project {
   Stop() {
     this.runningProcess?.kill()
     killPort(this.config.port)
+
     this.stage = ProjectStage.Ready
     this.Status(false)
   }
 
   Dispose() {
-    killPort(this.config.port)
     this.installProcess?.kill()
     this.runningProcess?.kill()
+    killPort(this.config.port)
   }
 }
 
