@@ -100,7 +100,6 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
         preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
         contextIsolation: true,
         sandbox: true,
-        devTools: !isProd || process.env.DEBUG_PROD === 'true', // todo: invalid
         allowRunningInsecureContent: true,
         scrollBounce: true,
       },
@@ -110,6 +109,9 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
     projectViews.set(projectId, view)
     mainWindow.setBrowserView(view)
     setBrowserViewBounds()
+    if (!isProd || process.env.DEBUG_PROD === 'true') {
+      view.webContents.openDevTools()
+    }
 
     console.log(`lunchUrl:${lunchUrl}`)
     view.webContents.loadURL(lunchUrl)
