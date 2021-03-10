@@ -9,5 +9,5 @@ contextBridge.exposeInMainWorld('env', {
 })
 
 contextBridge.exposeInMainWorld('derealize', {
-  injectScript: isDev ? 'inject.js' : 'dist/inject.prod.js',
+  injectScript: isDev ? 'inject.dev.js' : 'dist/inject.prod.js',
 })

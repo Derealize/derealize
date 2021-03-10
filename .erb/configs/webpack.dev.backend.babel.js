@@ -9,7 +9,7 @@ export default merge(baseConfig, {
   mode: process.env.NODE_ENV || 'development',
 
   // 如果使用'node'，则main进程ipcRenderer不可用。
-  // 实际new BrowserWindow没有spawn/fork进程，而是把当前进程attach到了browser
+  // 因为main进程new BrowserWindow没有spawn/fork进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: path.join(__dirname, '../../src/backend/backend.ts'),

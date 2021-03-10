@@ -16,7 +16,7 @@ webpack 配置文件原则关于 NODE_ENV 的原则：
 
 - .dev 文件必然是 'development'
 - .prod 文件必然是 'production'，但可以带 DEBUG_PROD 布尔值 (是否生成 sourcemap)
-- 其它默认为'development'，可配置为'production' (隐含 DEBUG_PROD)
+- 其它默认为'development'，可配置'NODE_ENV=dproduction' (隐含 DEBUG_PROD)
 
 小坑：重新执行 'yarn start' 调试的时候 Backend Browser 刚启动不会执行新版 dev.js，需要 ctrl+r 刷新一下。CleanWebpackPlugin 解决不了这问题
 

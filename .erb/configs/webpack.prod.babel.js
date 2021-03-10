@@ -24,6 +24,8 @@ export default merge(baseConfig, {
   entry: {
     renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
     preload: path.join(__dirname, '../../src/preload.js'),
+    inject: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/inject.ts')],
+    preload_inject: path.join(__dirname, '../../src/preload_inject.js'),
   },
 
   output: {
@@ -182,12 +184,9 @@ export default merge(baseConfig, {
   },
 
   plugins: [
-    new webpack.DefinePlugin({
-      // 字符串值会当作代码片段!
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-
     new webpack.EnvironmentPlugin({
+      // 字符串值会当作代码片段!
+      NODE_ENV: JSON.stringify('production'),
       DEBUG_PROD: false,
     }),
 
