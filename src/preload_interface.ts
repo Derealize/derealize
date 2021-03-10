@@ -1,3 +1,5 @@
+import Project from './models/project.interface'
+
 // https://stackoverflow.com/a/45352250
 export default interface PreloadWindow extends Window {
   env: {
@@ -14,7 +16,7 @@ export default interface PreloadWindow extends Window {
     popupMenu: (prijectId?: string) => void
     selectDirs: () => string
     openDirs: (payload: string) => void
-    frontProjectView: (projectId?: string, lunchUrl?: string) => void
+    frontProjectView: (project?: Project) => void
     closeProjectView: (projectId: string) => void
   }
 }

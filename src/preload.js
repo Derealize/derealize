@@ -74,8 +74,12 @@ electron.openDirs = (folderpath) => {
   ipcRenderer.send('openDirs', folderpath)
 }
 
-electron.frontProjectView = (projectId, lunchUrl) => {
-  ipcRenderer.send('frontProjectView', projectId, lunchUrl)
+electron.frontProjectView = (project) => {
+  if (project && project.config) {
+    ipcRenderer.send('frontProjectView', project.url, project.config.lunchUrl)
+  } else {
+    ipcRenderer.send('frontProjectView')
+  }
 }
 
 electron.closeProjectView = (projectId) => {

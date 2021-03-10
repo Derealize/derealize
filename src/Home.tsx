@@ -26,9 +26,9 @@ import { css } from '@emotion/react'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
-import { Project } from './models/project'
+import Project from './models/project.interface'
 import style from './Home.module.scss'
-import PreloadWindow from './preload_inteeface'
+import PreloadWindow from './preload_interface'
 
 declare const window: PreloadWindow
 

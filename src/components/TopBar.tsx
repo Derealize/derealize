@@ -36,7 +36,7 @@ import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backen
 import { Project } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import PreloadWindow from '../preload_inteeface'
+import PreloadWindow from '../preload_interface'
 
 declare const window: PreloadWindow
 
@@ -152,10 +152,11 @@ const TopBar = (): JSX.Element => {
 
         <BarIconButton
           label="Debug"
+          colorScheme={debugging ? 'teal' : 'gray'}
           icon={<VscOutput />}
           onClick={() => {
             if (debugging) {
-              window.electron.frontProjectView(project.url, project.config?.lunchUrl)
+              window.electron.frontProjectView(project)
               setDebugging(false)
             } else {
               window.electron.frontProjectView()

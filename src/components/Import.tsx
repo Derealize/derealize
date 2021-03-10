@@ -40,7 +40,7 @@ import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
 import { send, listen } from '../ipc'
 import style from './Import.module.scss'
-import PreloadWindow from '../preload_inteeface'
+import PreloadWindow from '../preload_interface'
 
 declare const window: PreloadWindow
 

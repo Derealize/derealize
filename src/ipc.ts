@@ -1,5 +1,5 @@
 import uuid from 'uuid'
-import PreloadWindow from './preload_inteeface'
+import PreloadWindow from './preload_interface'
 
 declare const window: PreloadWindow
 const replyHandlers = new Map()
