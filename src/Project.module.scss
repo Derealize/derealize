@@ -2,7 +2,8 @@
 
 .content {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-around;
   align-items: center;
   height: calc(100vh - 88px); // 46 + 42
 }

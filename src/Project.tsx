@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import cs from 'classnames'
-import { Text, IconButton } from '@chakra-ui/react'
+import { Text, Button } from '@chakra-ui/react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
@@ -32,14 +32,15 @@ const ProjectView = (): JSX.Element => {
                 </Text>
               ))}
             </div>
-            <IconButton
-              aria-label="Close"
-              icon={<AiOutlineCloseCircle />}
+            <Button
+              leftIcon={<AiOutlineCloseCircle />}
               onClick={() => {
-                window.electron.frontProjectView(project.url)
                 setDebugging(false)
+                window.electron.frontProjectView(project.url, project.config?.lunchUrl)
               }}
-            />
+            >
+              Close
+            </Button>
           </>
         )}
       </div>

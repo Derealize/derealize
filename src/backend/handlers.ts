@@ -57,11 +57,11 @@ export const History = async ({ url }: Record<string, string>) => {
   await project?.History()
 }
 
-export const Dispose = async ({ url }: Record<string, string>) => {
-  const project = getProject(url)
-  project?.Dispose()
-  projectsMap.delete(url)
-}
+// export const Dispose = async ({ url }: Record<string, string>) => {
+//   const project = getProject(url)
+//   project?.Dispose()
+//   projectsMap.delete(url)
+// }
 
 export const DisposeAll = async () => {
   projectsMap.forEach((p) => p.Dispose())

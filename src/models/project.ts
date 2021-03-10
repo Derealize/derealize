@@ -161,7 +161,7 @@ const projectModel: ProjectModel = {
       }
     }
 
-    send('Dispose', { url: project.url })
+    send('Stop', { url: project.url })
     window.electron.closeProjectView(project.url)
     actions.setProjects({ projects })
   }),
@@ -206,6 +206,7 @@ const projectModel: ProjectModel = {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
           window.electron.frontProjectView(project.url, project.config?.lunchUrl)
+          actions.setDebugging(false)
         }
       }
 
