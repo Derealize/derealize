@@ -70,8 +70,8 @@ electron.selectDirs = () => {
   return filePaths
 }
 
-electron.openDirs = () => {
-  ipcRenderer.send('openDirs')
+electron.openDirs = (folderpath) => {
+  ipcRenderer.send('openDirs', folderpath)
 }
 
 electron.frontProjectView = (projectId, lunchUrl) => {

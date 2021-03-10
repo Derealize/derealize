@@ -102,10 +102,10 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              window.OpenFolder(p.path)
+                              window.electron.openDirs(p.path)
                             }}
                           >
-                            OpenFolder
+                            Open Folder
                           </MenuItem>
                           <MenuItem>Share</MenuItem>
                           <MenuItem>Rename</MenuItem>
