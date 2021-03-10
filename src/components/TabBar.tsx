@@ -4,12 +4,12 @@ import cs from 'classnames'
 import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
 import { VscThreeBars } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import { Project } from '../models/project'
+import Project from '../models/project.interface'
 import useHotkeys from '../utils/useHotkeys'
 import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
-import PreloadWindow from '../preload_inteeface'
+import PreloadWindow from '../preload_interface'
 
 declare const window: PreloadWindow
 

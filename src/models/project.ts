@@ -3,16 +3,10 @@ import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
-import {
-  ProjectConfig,
-  ProjectStage,
-  GitFileChanges,
-  ProcessPayload,
-  StatusPayload,
-  PayloadError,
-} from '../backend/project.interface'
+import { ProjectStage, ProcessPayload, StatusPayload, PayloadError } from '../backend/project.interface'
+import Project from './project.interface'
 import { send, listen } from '../ipc'
-import PreloadWindow from '../preload_inteeface'
+import PreloadWindow from '../preload_interface'
 
 declare const window: PreloadWindow
 
@@ -25,20 +19,6 @@ const toast = createStandaloneToast({
     isClosable: true,
   },
 })
-
-export interface Project {
-  url: string
-  path: string
-  editedTime: string
-  name: string
-  productName?: string
-  isOpened?: boolean
-  stage?: ProjectStage
-  tailwindVersion?: string
-  changes?: Array<GitFileChanges>
-  runningOutput?: Array<string>
-  config?: ProjectConfig
-}
 
 export interface ProjectModel {
   loading: boolean
@@ -205,7 +185,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
-          window.electron.frontProjectView(project.url, project.config?.lunchUrl)
+          window.electron.frontProjectView(project)
           actions.setDebugging(false)
         }
       }

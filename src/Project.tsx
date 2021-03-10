@@ -4,10 +4,10 @@ import { Text, Button } from '@chakra-ui/react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
-import { Project } from './models/project'
+import Project from './models/project.interface'
 import TopBar from './components/TopBar'
 import style from './Project.module.scss'
-import PreloadWindow from './preload_inteeface'
+import PreloadWindow from './preload_interface'
 
 declare const window: PreloadWindow
 
@@ -36,7 +36,7 @@ const ProjectView = (): JSX.Element => {
               leftIcon={<AiOutlineCloseCircle />}
               onClick={() => {
                 setDebugging(false)
-                window.electron.frontProjectView(project.url, project.config?.lunchUrl)
+                window.electron.frontProjectView(project)
               }}
             >
               Close

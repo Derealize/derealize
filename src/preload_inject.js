@@ -1,12 +1,16 @@
-const { ipcRenderer, contextBridge } = require('electron')
+const { ipcRenderer } = require('electron')
+const path = require('path')
 
 const isDev = process.env.NODE_ENV === 'development'
 
-contextBridge.exposeInMainWorld('env', {
+window.env = {
   isMac: process.platform === 'darwin',
   isDev,
-})
+}
 
-contextBridge.exposeInMainWorld('derealize', {
-  // injectScript: isDev ? path.join(__dirname, 'inject.dev.js') : path.join(__dirname, 'dist/inject.prod.js'),
-})
+const electron = {}
+electron.injectScript = () => {
+  return path.join(__dirname, isDev ? 'inject.dev.js' : 'dist/inject.prod.js')
+}
+
+window.electron = electron

@@ -97,9 +97,11 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
   } else {
     const view = new BrowserView({
       webPreferences: {
+        nodeIntegration: false,
+        enableRemoteModule: false,
+        contextIsolation: false,
         preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
-        contextIsolation: true,
-        sandbox: true,
+
         allowRunningInsecureContent: true,
         scrollBounce: true,
       },
