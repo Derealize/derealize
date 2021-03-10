@@ -28,6 +28,9 @@ import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project } from './models/project'
 import style from './Home.module.scss'
+import PreloadWindow from './preload_inteeface'
+
+declare const window: PreloadWindow
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
@@ -95,6 +98,14 @@ const Home = (): JSX.Element => {
                             }}
                           >
                             Open
+                          </MenuItem>
+                          <MenuItem
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              window.OpenFolder(p.path)
+                            }}
+                          >
+                            OpenFolder
                           </MenuItem>
                           <MenuItem>Share</MenuItem>
                           <MenuItem>Rename</MenuItem>

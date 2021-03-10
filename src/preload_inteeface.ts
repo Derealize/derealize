@@ -10,6 +10,7 @@ export default interface PreloadWindow extends Window {
     ipcConnect: (id: string, func: (client: any) => void) => void
     getStore: (key: string) => any
     setStore: (payload: Record<string, unknown>) => void
+    openStore: (payload: string) => void
     controls: (payload: string) => void
     popupMenu: (prijectId?: string) => void
     selectDirs: () => string

@@ -339,3 +339,7 @@ ipcMain.on('selectDirs', async (event, arg) => {
   })
   event.returnValue = result.filePaths
 })
+
+ipcMain.on('openDirs', async (event, folderpath: string) => {
+  shell.openPath(folderpath)
+})
