@@ -34,7 +34,7 @@ export default merge(baseConfig, {
 
   mode: process.env.NODE_ENV || 'development',
 
-  // target: 'electron-renderer',
+  // target: 'electron-renderer', // 支持 nodeIntegration: false
   target: 'web',
 
   entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
@@ -243,6 +243,17 @@ export default merge(baseConfig, {
           .on('error', (spawnError) => console.error(spawnError))
 
         // await sleep(1000)
+      }
+
+      if (!isProd) {
+        console.log('Starting Inject Process...')
+        spawn('yarn', ['run', 'start:inject'], {
+          shell: true,
+          env: process.env,
+          stdio: 'inherit',
+        })
+          .on('close', (code) => process.exit(code))
+          .on('error', (spawnError) => console.error(spawnError))
       }
 
       console.log('Starting Main Process...')

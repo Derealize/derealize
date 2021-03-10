@@ -6,7 +6,7 @@ module.exports = {
     'prettier/prettier': ['warn', { singleQuote: true, semi: false, printWidth: 120, trailingComma: 'all' }],
     'jsx-a11y/interactive-supports-focus': 'off',
     'jsx-a11y/control-has-associated-label': 'off',
-    'react/display-name': ['warn', { ignoreTranspilerName: true }],
+    'react/display-name': ['off', { ignoreTranspilerName: true }],
   },
   parserOptions: {
     ecmaVersion: 2020,

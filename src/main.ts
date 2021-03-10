@@ -97,7 +97,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
   } else {
     const view = new BrowserView({
       webPreferences: {
-        preload: path.resolve(__dirname, isProd ? 'dist/preload_browser.prod.js' : 'preload_browser.js'),
+        preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
         contextIsolation: true,
         sandbox: true,
         devTools: !isProd || process.env.DEBUG_PROD === 'true', // todo: invalid

@@ -49,14 +49,11 @@ export default merge(baseConfig, {
       openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
 
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
-    }),
-
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.optimize.ModuleConcatenationPlugin(),
 
     new webpack.EnvironmentPlugin({
+      NODE_ENV: JSON.stringify('production')
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),
