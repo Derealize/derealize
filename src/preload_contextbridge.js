@@ -62,6 +62,9 @@ contextBridge.exposeInMainWorld('electron', {
     const filePaths = ipcRenderer.sendSync('selectDirs')
     return filePaths
   },
+  openDirs: () => {
+    ipcRenderer.send('openDirs')
+  },
   frontProjectView: (url, lunchUrl) => {
     ipcRenderer.send('frontProjectView', url, lunchUrl)
   },
