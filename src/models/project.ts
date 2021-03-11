@@ -229,12 +229,13 @@ const projectModel: ProjectModel = {
     pullUnlisten = listen('pull', (payload: Payload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
-          title: `Pull error:${(payload as PayloadError).error}`,
+          title: `Pull error: ${(payload as PayloadError).error}`,
           status: 'error',
         })
       } else {
         toast({
-          title: `Pull:${(payload as Payload).result}`,
+          title: `Pull: ${(payload as Payload).result}`,
+          status: 'success',
         })
       }
     })
@@ -242,12 +243,13 @@ const projectModel: ProjectModel = {
     pushUnlisten = listen('push', (payload: Payload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
-          title: `Push error:${(payload as PayloadError).error}`,
+          title: `Push error: ${(payload as PayloadError).error}`,
           status: 'error',
         })
       } else {
         toast({
-          title: `Push:${(payload as Payload).result}`,
+          title: `Push: ${(payload as Payload).result}`,
+          status: 'success',
         })
       }
     })

@@ -103,7 +103,6 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
         preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
 
         allowRunningInsecureContent: true,
-        scrollBounce: true,
       },
     })
     view.setBackgroundColor('#fff') // todo: invalid
