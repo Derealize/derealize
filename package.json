@@ -14,7 +14,6 @@
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
     "start:main": "cross-env NODE_ENV=development UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
     "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
-    "start:inject": "webpack --config ./.erb/configs/webpack.dev.inject.babel.js",
     "test": "jest"
   },
   "lint-staged": {

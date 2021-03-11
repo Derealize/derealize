@@ -71,10 +71,50 @@ class Project {
     return false
   }
 
+  async Status(chackGit = true): Promise<boolean> {
+    if (!this.repo) return false
+
+    try {
+      await checkBranch(this.repo, this.config.branch)
+    } catch (err) {
+      broadcast('import', { id: this.url, error: err.message } as PayloadError)
+      log('git branch error', err)
+      return false
+    }
+
+    if (!this.assignConfig('import')) return false
+
+    if (chackGit) {
+      try {
+        const statuses = await this.repo.getStatus()
+        this.changes = statuses.map((item) => {
+          return {
+            file: item.path(),
+            status: fileStatusToText(item),
+          }
+        })
+      } catch (error) {
+        broadcast('status', { id: this.url, error: error.message })
+        log('git status error', error)
+        return false
+      }
+    }
+
+    broadcast('status', {
+      id: this.url,
+      changes: this.changes,
+      stage: this.stage,
+      productName: this.productName,
+      tailwindVersion: this.tailwindVersion,
+      config: this.config,
+    } as StatusPayload)
+
+    return true
+  }
+
   async Import() {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
-      await checkBranch(this.repo, this.config.branch)
       broadcast('import', { id: this.url, result: 'done' } as Payload)
     } catch (error) {
       if (error.message.includes('exists and is not an empty directory')) {
@@ -90,41 +130,11 @@ class Project {
       }
     }
 
-    if (!this.repo) return
-    if (!this.assignConfig('import')) return
-    this.stage = ProjectStage.Initialized
-
-    await this.Install()
-  }
-
-  async Status(chackGit = true) {
-    if (!this.repo) return
-
-    this.assignConfig('status')
-
-    try {
-      if (chackGit) {
-        const statuses = await this.repo.getStatus()
-        this.changes = statuses.map((item) => {
-          return {
-            file: item.path(),
-            status: fileStatusToText(item),
-          }
-        })
-      }
-    } catch (error) {
-      broadcast('status', { id: this.url, error: error.message })
-      log('git status error', error)
+    const fine = await this.Status()
+    if (fine) {
+      this.stage = ProjectStage.Initialized
+      this.Install()
     }
-
-    broadcast('status', {
-      id: this.url,
-      changes: this.changes,
-      stage: this.stage,
-      productName: this.productName,
-      tailwindVersion: this.tailwindVersion,
-      config: this.config,
-    } as StatusPayload)
   }
 
   async Pull() {

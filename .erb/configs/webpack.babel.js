@@ -245,17 +245,6 @@ export default merge(baseConfig, {
         // await sleep(1000)
       }
 
-      if (!isProd) {
-        console.log('Starting Inject Process...')
-        spawn('yarn', ['run', 'start:inject'], {
-          shell: true,
-          env: process.env,
-          stdio: 'inherit',
-        })
-          .on('close', (code) => process.exit(code))
-          .on('error', (spawnError) => console.error(spawnError))
-      }
-
       console.log('Starting Main Process...')
       spawn('yarn', ['run', 'start:main'], {
         shell: true,
