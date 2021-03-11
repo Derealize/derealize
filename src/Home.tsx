@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Tabs,
   TabList,
@@ -28,6 +28,7 @@ import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
 import Project from './models/project.interface'
 import style from './Home.module.scss'
+import { send } from './ipc'
 import PreloadWindow from './preload_interface'
 
 declare const window: PreloadWindow
@@ -106,6 +107,24 @@ const Home = (): JSX.Element => {
                             }}
                           >
                             Open Folder
+                          </MenuItem>
+                          {!!p.changes?.length && (
+                            <MenuItem
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                send('Push', { url: p.url })
+                              }}
+                            >
+                              Push {p.changes.length} files
+                            </MenuItem>
+                          )}
+                          <MenuItem
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              send('Pull', { url: p.url })
+                            }}
+                          >
+                            Pull
                           </MenuItem>
                           <MenuItem>Share</MenuItem>
                           <MenuItem>Rename</MenuItem>
