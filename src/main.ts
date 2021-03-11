@@ -117,7 +117,6 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
 
     console.log(`lunchUrl:${lunchUrl}`)
     view.webContents.loadURL(lunchUrl)
-    // view.webContents.loadURL('http://baidu.com')
   }
 })
 

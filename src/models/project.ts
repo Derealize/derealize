@@ -3,7 +3,7 @@ import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
-import { ProjectStage, ProcessPayload, StatusPayload, PayloadError } from '../backend/project.interface'
+import { ProjectStage, ProcessPayload, Payload, StatusPayload, PayloadError } from '../backend/project.interface'
 import Project from './project.interface'
 import { send, listen } from '../ipc'
 import PreloadWindow from '../preload_interface'
@@ -12,6 +12,8 @@ declare const window: PreloadWindow
 
 let statusUnlisten: any
 let startingUnlisten: any
+let pullUnlisten: any
+let pushUnlisten: any
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -223,11 +225,39 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`exit:${payload.error}`)
       }
     })
+
+    pullUnlisten = listen('pull', (payload: Payload | PayloadError) => {
+      if ((payload as PayloadError).error) {
+        toast({
+          title: `Pull error:${(payload as PayloadError).error}`,
+          status: 'error',
+        })
+      } else {
+        toast({
+          title: `Pull:${(payload as Payload).result}`,
+        })
+      }
+    })
+
+    pushUnlisten = listen('push', (payload: Payload | PayloadError) => {
+      if ((payload as PayloadError).error) {
+        toast({
+          title: `Push error:${(payload as PayloadError).error}`,
+          status: 'error',
+        })
+      } else {
+        toast({
+          title: `Push:${(payload as Payload).result}`,
+        })
+      }
+    })
   }),
 
   unlisten: action((state) => {
     if (statusUnlisten) statusUnlisten()
     if (startingUnlisten) startingUnlisten()
+    if (pullUnlisten) pullUnlisten()
+    if (pushUnlisten) pushUnlisten()
   }),
 
   modalDisclosure: false,

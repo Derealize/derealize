@@ -8,9 +8,10 @@ window.env = {
   isDev,
 }
 
-const electron = {}
-electron.injectScript = () => {
-  return path.join(__dirname, isDev ? 'inject.dev.js' : 'dist/inject.prod.js')
-}
+// window.derealize = {
+//   injectScript: path.join(__dirname, isDev ? 'inject.dev.js' : 'dist/inject.prod.js'),
+// }
 
-window.electron = electron
+document.addEventListener('DOMContentLoaded', (event) => {
+  console.log('injected!', document.body.innerHTML)
+})

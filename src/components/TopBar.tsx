@@ -33,7 +33,7 @@ import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
 import { send, listen } from '../ipc'
 import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
-import { Project } from '../models/project'
+import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import PreloadWindow from '../preload_interface'
@@ -92,28 +92,31 @@ const TopBar = (): JSX.Element => {
             <PopoverCloseButton />
             <PopoverHeader>History</PopoverHeader>
             <PopoverBody>
-              <List spacing={3}>
-                {commits.map((commit) => {
-                  const isDerealize = commit.message.includes('derealize')
-                  return (
-                    <ListItem key={commit.sha}>
-                      <ListIcon
-                        as={isDerealize ? VscRepoPush : VscRepoPull}
-                        color={isDerealize ? 'teal.400' : 'gray.400'}
-                      />
-                      <Table variant="simple" size="sm">
-                        <Tbody>
-                          <Tr>
-                            <Td>{commit.date}</Td>
-                            <Td>{commit.author}</Td>
-                            <Td>{commit.message}</Td>
-                          </Tr>
-                        </Tbody>
-                      </Table>
-                    </ListItem>
-                  )
-                })}
-              </List>
+              <>
+                {project.changes?.length && <Text>There are {project.changes.length} files to be pushed</Text>}
+                <List spacing={3}>
+                  {commits.map((commit) => {
+                    const isDerealize = commit.message.includes('derealize')
+                    return (
+                      <ListItem key={commit.sha}>
+                        <ListIcon
+                          as={isDerealize ? VscRepoPush : VscRepoPull}
+                          color={isDerealize ? 'teal.400' : 'gray.400'}
+                        />
+                        <Table variant="simple" size="sm">
+                          <Tbody>
+                            <Tr>
+                              <Td>{commit.date}</Td>
+                              <Td>{commit.author}</Td>
+                              <Td>{commit.message}</Td>
+                            </Tr>
+                          </Tbody>
+                        </Table>
+                      </ListItem>
+                    )
+                  })}
+                </List>
+              </>
             </PopoverBody>
           </PopoverContent>
         </Popover>
