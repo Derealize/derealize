@@ -86,4 +86,8 @@ electron.closeProjectView = (projectId) => {
   ipcRenderer.send('closeProjectView', projectId)
 }
 
+ipcRenderer.on('focusElement', (event, code) => {
+  console.log('code', code)
+})
+
 window.electron = electron
