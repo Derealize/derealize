@@ -7,7 +7,7 @@ import { useStoreActions, useStoreState } from './reduxStore'
 import Project from './models/project.interface'
 import TopBar from './components/TopBar'
 import style from './Project.module.scss'
-import PreloadWindow from './preload_interface'
+import { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
 
@@ -36,7 +36,7 @@ const ProjectView = (): JSX.Element => {
               leftIcon={<AiOutlineCloseCircle />}
               onClick={() => {
                 setDebugging(false)
-                window.electron.frontProjectView(project)
+                window.derealize.frontProjectView(project)
               }}
             >
               Close

@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import ky from 'ky'
 import Language, { navigatorLanguage } from '../utils/language'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -48,7 +48,7 @@ const profileModel: ProfileModel = {
   setSettings: action((state, { settings, storage = false, post = false }) => {
     state.settings = settings
     if (storage) {
-      window.electron.setStore({ settings })
+      window.derealize.setStore({ settings })
     }
     if (post && state.jwt) {
       ky.post(`${process.env.REACT_APP_NEST}/users/settings`, {
@@ -65,7 +65,7 @@ const profileModel: ProfileModel = {
     state.jwt = jwt
     localStorage.setItem('jwt', jwt || '') // support PrivateRoute
     if (storage) {
-      window.electron.setStore({ jwt })
+      window.derealize.setStore({ jwt })
     }
   }),
 
@@ -75,12 +75,12 @@ const profileModel: ProfileModel = {
   }),
 
   load: thunk(async (actions, payload, { getState }) => {
-    const settings = (await window.electron.getStore('settings')) as Settings
+    const settings = (await window.derealize.getStore('settings')) as Settings
     if (settings) {
       actions.setSettings({ settings })
     }
 
-    const jwt = (await window.electron.getStore('jwt')) as string
+    const jwt = (await window.derealize.getStore('jwt')) as string
     if (!jwt) {
       actions.logout()
       return

@@ -14,17 +14,11 @@ const isDebug = process.env.DEBUG_PROD === 'true'
 
 export default merge(baseConfig, {
   devtool: isDebug ? 'source-map' : false,
-
   mode: 'production',
-
-  // 兼容preload.js，不能用web
-  // webpack.prod.main target 为 electron-main, 无法加载 ipcRenderer
-  target: 'electron-renderer',
+  target: 'web',
 
   entry: {
     renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
-    preload: path.join(__dirname, '../../src/preload.js'),
-    preload_inject: path.join(__dirname, '../../src/preload_inject.js'),
   },
 
   output: {
@@ -186,7 +180,7 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       // 字符串值会当作代码片段!
       NODE_ENV: JSON.stringify('production'),
-      DEBUG_PROD: false,
+      DEBUG_PROD: isDebug,
     }),
 
     new MiniCssExtractPlugin({

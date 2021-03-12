@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import ipc from './ipc'
+import ipc from './backend-ipc'
 import log from './log'
 import { DisposeAll } from './handlers'
 

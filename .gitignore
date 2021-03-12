@@ -51,6 +51,7 @@ yarn.lock
 src/yarn.lock
 **/yarn
 
+**/*.dev.js
 **/*.prod.js
 **/*.node
 **/*.map

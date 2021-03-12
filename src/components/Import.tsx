@@ -37,10 +37,9 @@ import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
 import { Payload, ProcessPayload, PayloadError } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import { Project } from '../models/project'
-import { send, listen } from '../ipc'
+import Project from '../models/project.interface'
 import style from './Import.module.scss'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -117,7 +116,7 @@ const ImportProject = (): JSX.Element => {
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    send('Import', { url, path, branch })
+    window.derealize.send('Import', { url, path, branch })
   }, [projects, url, path, branch, onOpenExistsAlert])
 
   useEffect(() => {
@@ -206,7 +205,7 @@ const ImportProject = (): JSX.Element => {
                     disabled={isLoading}
                     onClick={(e) => {
                       e.stopPropagation()
-                      const filePaths = window.electron.selectDirs()
+                      const filePaths = window.derealize.selectDirs()
                       setPath(filePaths[0])
                     }}
                   >

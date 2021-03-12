@@ -1,22 +1,17 @@
-const { ipcRenderer } = require('electron')
-const ipc = require('node-ipc')
-const { uuid } = require('uuid')
-
-const isMac = process.platform === 'darwin'
-const isDev = process.env.NODE_ENV === 'development'
+import uuid from 'uuid'
+import ipc from 'node-ipc'
 
 const replyHandlers = new Map()
 const listeners = new Map()
 let messageQueue: Array<string> = []
 let socketClient: any = null
-let PROJECTID: string | null = null
 
-const connectSocket = (socketId) => {
+export const connectSocket = (socketId: string) => {
   ipc.config.silent = true
   ipc.connectTo(socketId, () => {
     const client = ipc.of[socketId]
 
-    client.on('message', (data) => {
+    client.on('message', (data: string) => {
       const msg = JSON.parse(data)
 
       if (msg.type === 'error') {
@@ -36,7 +31,7 @@ const connectSocket = (socketId) => {
 
         const listens = listeners.get(name)
         if (listens) {
-          listens.forEach((listener) => {
+          listens.forEach((listener: (payload: Record<string, unknown>) => void) => {
             listener(payload)
           })
         }
@@ -63,12 +58,7 @@ const connectSocket = (socketId) => {
   })
 }
 
-ipcRenderer.on('set-params', (event, { socketId, projectId }) => {
-  PROJECTID = projectId
-  connectSocket(socketId)
-})
-
-const sendToBackend = (name, payload = {}) => {
+export const send = (name: string, payload: Record<string, unknown> = {}): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     const id = uuid.v4()
     replyHandlers.set(id, { resolve, reject })
@@ -80,37 +70,22 @@ const sendToBackend = (name, payload = {}) => {
   })
 }
 
-const css = `
-  [data-code]:hover {
-    box-shadow: 0 0 0 1px #4fd1c5;
+export function listen(name: string, cb: (payload: any) => void): () => void {
+  if (!listeners.get(name)) {
+    listeners.set(name, [])
   }
-`
+  listeners.get(name).push(cb)
 
-const derealizeListener = (e) => {
-  e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
-  const code = e.target.getAttribute('data-code')
-  console.log('focusElement', PROJECTID, code, e.target.tagName)
-  sendToBackend('focusElement', { url: PROJECTID, code })
+  // unlisten only this cb
+  return () => {
+    const arr = listeners.get(name)
+    listeners.set(
+      name,
+      arr.filter((cb_: () => void) => cb_ !== cb),
+    )
+  }
 }
 
-window.derealize = {
-  listen: () => {
-    document.querySelectorAll('[data-code]').forEach((el) => {
-      el.removeEventListener('click', derealizeListener)
-      el.addEventListener('click', derealizeListener)
-
-      el.removeEventListener('contextmenu', derealizeListener)
-      el.addEventListener('contextmenu', derealizeListener)
-    })
-  },
+export function unlisten(name: string) {
+  listeners.set(name, [])
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  // console.log('injected!', document.body.innerHTML)
-
-  const style = document.createElement('style')
-  style.appendChild(document.createTextNode(css))
-  document.head.appendChild(style)
-
-  window.derealize.listen()
-})

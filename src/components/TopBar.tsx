@@ -31,12 +31,11 @@ import { BiRectangle } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
-import { send, listen } from '../ipc'
 import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
 import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -85,7 +84,11 @@ const TopBar = (): JSX.Element => {
       <Flex align="center">
         <Popover>
           <PopoverTrigger>
-            <BarIconButton label="History" icon={<MdHistory />} onClick={() => send('History', { url: project.url })} />
+            <BarIconButton
+              label="History"
+              icon={<MdHistory />}
+              onClick={() => window.derealize.send('History', { url: project.url })}
+            />
           </PopoverTrigger>
           <PopoverContent>
             <PopoverArrow />
@@ -125,14 +128,14 @@ const TopBar = (): JSX.Element => {
           label="Pull"
           icon={<VscRepoPull />}
           disabled={project.changes?.length !== 0}
-          onClick={() => send('Pull', { url: project.url })}
+          onClick={() => window.derealize.send('Pull', { url: project.url })}
         />
 
         <BarIconButton
           label="Push"
           icon={<VscRepoPush />}
           disabled={project.changes?.length === 0}
-          onClick={() => send('Push', { url: project.url })}
+          onClick={() => window.derealize.send('Push', { url: project.url })}
         />
       </Flex>
 
@@ -159,16 +162,16 @@ const TopBar = (): JSX.Element => {
           icon={<VscOutput />}
           onClick={() => {
             if (debugging) {
-              window.electron.frontProjectView(project)
+              window.derealize.frontProjectView(project)
               setDebugging(false)
             } else {
-              window.electron.frontProjectView()
+              window.derealize.frontProjectView()
               setDebugging(true)
             }
           }}
         />
 
-        <BarIconButton label="Project Menu" icon={<CgMenu />} onClick={() => window.electron.popupMenu(project.url)} />
+        <BarIconButton label="Project Menu" icon={<CgMenu />} onClick={() => window.derealize.popupMenu(project.url)} />
       </Flex>
     </Flex>
   )

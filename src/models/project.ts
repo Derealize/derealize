@@ -5,15 +5,14 @@ import omit from 'lodash.omit'
 import dayjs from 'dayjs'
 import { ProjectStage, ProcessPayload, Payload, StatusPayload, PayloadError } from '../backend/project.interface'
 import Project from './project.interface'
-import { send, listen } from '../ipc'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
-let statusUnlisten: any
-let startingUnlisten: any
-let pullUnlisten: any
-let pushUnlisten: any
+let statusUnlisten: () => void
+let startingUnlisten: () => void
+let pullUnlisten: () => void
+let pushUnlisten: () => void
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -65,7 +64,7 @@ const projectModel: ProjectModel = {
   setProjects: action((state, { projects, notStore }) => {
     state.projects = projects
     if (!notStore) {
-      window.electron.setStore({ projects })
+      window.derealize.setStore({ projects })
     }
   }),
 
@@ -80,7 +79,7 @@ const projectModel: ProjectModel = {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
       const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes', 'isOpened']))
-      window.electron.setStore({ projects: clone(projects) })
+      window.derealize.setStore({ projects: clone(projects) })
     }
   }),
   removeProject: thunk((actions, id, { getState }) => {
@@ -93,34 +92,34 @@ const projectModel: ProjectModel = {
   setFrontProject: action((state, project) => {
     state.frontProject = project
     if (!project) {
-      window.electron.frontProjectView()
+      window.derealize.frontProjectView()
       return
     }
-    send('Status', { url: project.url, checkGit: false })
+    window.derealize.send('Status', { url: project.url, checkGit: false })
   }),
 
   openProject: thunk((actions, id, { getState }) => {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
-    send('Start', { url: project.url })
+    window.derealize.send('Start', { url: project.url })
     project.isOpened = true
     actions.setFrontProject(project)
   }),
   startProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
-      send('Start', { url: project.url })
+      window.derealize.send('Start', { url: project.url })
     } else if (state.frontProject) {
-      send('Start', { url: state.frontProject.url })
+      window.derealize.send('Start', { url: state.frontProject.url })
     }
   }),
   stopProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
-      send('Stop', { url: project.url })
+      window.derealize.send('Stop', { url: project.url })
     } else if (state.frontProject) {
-      send('Stop', { url: state.frontProject.url })
+      window.derealize.send('Stop', { url: state.frontProject.url })
     }
   }),
   closeProject: thunk((actions, id, { getState }) => {
@@ -143,18 +142,18 @@ const projectModel: ProjectModel = {
       }
     }
 
-    send('Stop', { url: project.url })
-    window.electron.closeProjectView(project.url)
+    window.derealize.send('Stop', { url: project.url })
+    window.derealize.closeProjectView(project.url)
     actions.setProjects({ projects })
   }),
 
   load: thunk(async (actions) => {
     try {
-      const projects = await window.electron.getStore('projects')
+      const projects = await window.derealize.getStore('projects')
       if (projects) {
         actions.setProjects({ projects, notStore: true })
         projects.forEach((p: Project) => {
-          send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
+          window.derealize.send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
         })
       }
     } catch (err) {
@@ -167,7 +166,7 @@ const projectModel: ProjectModel = {
 
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
-    statusUnlisten = listen('status', (payload: StatusPayload | PayloadError) => {
+    statusUnlisten = window.derealize.listen('status', (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -187,7 +186,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
-          window.electron.frontProjectView(project)
+          window.derealize.frontProjectView(project)
           actions.setDebugging(false)
         }
       }
@@ -198,7 +197,7 @@ const projectModel: ProjectModel = {
       actions.setProject({ project })
     })
 
-    startingUnlisten = listen('starting', (payload: ProcessPayload) => {
+    startingUnlisten = window.derealize.listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
         toast({
           title: `Starting error:${payload.error}`,
@@ -226,7 +225,7 @@ const projectModel: ProjectModel = {
       }
     })
 
-    pullUnlisten = listen('pull', (payload: Payload | PayloadError) => {
+    pullUnlisten = window.derealize.listen('pull', (payload: Payload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Pull error: ${(payload as PayloadError).error}`,
@@ -240,7 +239,7 @@ const projectModel: ProjectModel = {
       }
     })
 
-    pushUnlisten = listen('push', (payload: Payload | PayloadError) => {
+    pushUnlisten = window.derealize.listen('push', (payload: Payload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Push error: ${(payload as PayloadError).error}`,

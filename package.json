@@ -3,7 +3,8 @@
   "productName": "Derealize",
   "description": "Tailwind CSS for Designer",
   "scripts": {
-    "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
+    "build": "concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
+    "build:preload": "webpack --config ./.erb/configs/webpack.preload.babel.js",
     "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
     "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
@@ -12,6 +13,7 @@
     "dist": "yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
+    "start:preload": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.preload.babel.js",
     "start:main": "cross-env NODE_ENV=development UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
     "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
     "test": "jest"
@@ -38,10 +40,6 @@
       "styles/icons/",
       "node_modules/",
       "index.html",
-      "main.prod.js",
-      "main.prod.js.map",
-      "backend.prod.js",
-      "backend.prod.js.map",
       "package.json"
     ],
     "afterSign": ".erb/scripts/Notarize.js",
