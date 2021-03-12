@@ -30,12 +30,14 @@ export default merge(baseConfig, {
   },
 
   output: {
-    path: path.resolve(__dirname, '../../src'),
+    path: path.resolve(__dirname, '../../src/dist'),
+    publicPath: './dist/',
     filename: '[name].prod.js',
     libraryTarget: 'commonjs2',
   },
 
   optimization: {
+    minimize: true,
     minimizer: [
       new TerserPlugin({
         parallel: true,

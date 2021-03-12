@@ -27,7 +27,7 @@ export default merge(baseConfig, {
   output: {
     library: 'renderer',
     path: dist,
-    filename: '[name].dev.dll.js',
+    filename: '[name].dll.dev.js',
     libraryTarget: 'var',
   },
 

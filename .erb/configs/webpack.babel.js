@@ -31,17 +31,16 @@ if (!requiredByDLLConfig && !(fs.existsSync(dllDir) && fs.existsSync(manifest)))
 
 export default merge(baseConfig, {
   devtool: 'inline-source-map',
-
   mode: process.env.NODE_ENV || 'development',
+  target: 'web'
 
-  // target: 'electron-renderer', // 支持 nodeIntegration: false
-  target: 'web',
-
-  entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
+  entry: {
+    renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
+  },
 
   output: {
     publicPath,
-    filename: 'renderer.dev.js',
+    filename: 'renderer.js',
   },
 
   module: {
@@ -245,7 +244,16 @@ export default merge(baseConfig, {
         // await sleep(1000)
       }
 
-      console.log('Starting Main Process...')
+      console.log('start:preload...')
+      spawn('yarn', ['run', 'start:preload'], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit',
+      })
+        .on('close', (code) => process.exit(code))
+        .on('error', (spawnError) => console.error(spawnError))
+
+      console.log('start:main...')
       spawn('yarn', ['run', 'start:main'], {
         shell: true,
         env: process.env,

@@ -28,8 +28,7 @@ import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
 import Project from './models/project.interface'
 import style from './Home.module.scss'
-import { send } from './ipc'
-import PreloadWindow from './preload_interface'
+import { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
 
@@ -103,7 +102,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              window.electron.openDirs(p.path)
+                              window.derealize.openDirs(p.path)
                             }}
                           >
                             Open Folder
@@ -112,7 +111,7 @@ const Home = (): JSX.Element => {
                             <MenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                send('Push', { url: p.url })
+                                window.derealize.send('Push', { url: p.url })
                               }}
                             >
                               Push {p.changes.length} files
@@ -121,7 +120,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              send('Pull', { url: p.url })
+                              window.derealize.send('Pull', { url: p.url })
                             }}
                           >
                             Pull

@@ -9,7 +9,7 @@ import useHotkeys from '../utils/useHotkeys'
 import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -73,7 +73,7 @@ const TabBar = (): JSX.Element => {
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.electron.popupMenu()
+                    window.derealize.popupMenu()
                   }}
                 />
               )}
@@ -118,7 +118,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.minButton)}
           onClick={() => {
-            window.electron.controls('minimize')
+            window.derealize.controls('minimize')
           }}
           role="button"
           aria-hidden="true"
@@ -133,7 +133,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.maxButton)}
           onClick={() => {
-            window.electron.controls('maximize')
+            window.derealize.controls('maximize')
           }}
           role="button"
           aria-hidden="true"
@@ -148,7 +148,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.restoreButton)}
           onClick={() => {
-            window.electron.controls('unmaximize')
+            window.derealize.controls('unmaximize')
           }}
           role="button"
           aria-hidden="true"
@@ -163,7 +163,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.closeButton)}
           onClick={() => {
-            window.electron.controls('close')
+            window.derealize.controls('close')
           }}
           role="button"
           aria-hidden="true"

@@ -101,8 +101,8 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
       webPreferences: {
         nodeIntegration: false,
         enableRemoteModule: false,
-        contextIsolation: false,
-        preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
+        contextIsolation: true,
+        preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.dev.js'),
         allowRunningInsecureContent: true,
       },
     })
@@ -161,8 +161,8 @@ const createWindow = async () => {
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
-      contextIsolation: false,
-      preload: path.resolve(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.js'),
+      contextIsolation: true,
+      preload: path.resolve(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.dev.js'),
     },
   })
 

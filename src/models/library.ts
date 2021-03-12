@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -31,7 +31,7 @@ const libraryModel: LibraryModel = {
     state.librarys = librarys
     if (storage) {
       // todo: RxDB store
-      window.electron.setStore({ librarys })
+      window.derealize.setStore({ librarys })
     }
   }),
   addLibrary: action((state, library) => {
@@ -43,15 +43,15 @@ const libraryModel: LibraryModel = {
       return
     }
     state.librarys.push(library)
-    window.electron.setStore({ librarys: state.librarys })
+    window.derealize.setStore({ librarys: state.librarys })
   }),
   removeLibrary: action((state, libraryName) => {
     state.librarys = state.librarys.filter((p) => p.name !== libraryName)
-    window.electron.setStore({ librarys: state.librarys })
+    window.derealize.setStore({ librarys: state.librarys })
   }),
   loadLibrary: thunk(async (actions) => {
     try {
-      const librarys = await window.electron.getStore('librarys')
+      const librarys = await window.derealize.getStore('librarys')
       if (librarys) actions.setLibrarys({ librarys })
     } catch (err) {
       toast({

@@ -19,12 +19,11 @@ import {
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import { send, listen } from '../ipc'
 import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
 import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './Controllers.module.scss'
-import PreloadWindow from '../preload_interface'
+import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
