@@ -74,6 +74,7 @@ export function listen(name: string, cb: any) {
   }
   listeners.get(name).push(cb)
 
+  // unlisten only this cb
   return () => {
     const arr = listeners.get(name)
     listeners.set(

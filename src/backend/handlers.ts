@@ -66,3 +66,8 @@ export const History = async ({ url }: Record<string, string>) => {
 export const DisposeAll = async () => {
   projectsMap.forEach((p) => p.Dispose())
 }
+
+export const focusElement = async ({ url, code }: Record<string, string>) => {
+  const project = getProject(url)
+  log(`${url}:${code}`)
+}

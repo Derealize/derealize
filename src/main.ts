@@ -12,6 +12,8 @@ import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
 
+let socketId: string
+
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
@@ -101,7 +103,6 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
         enableRemoteModule: false,
         contextIsolation: false,
         preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.js'),
-
         allowRunningInsecureContent: true,
       },
     })
@@ -116,6 +117,10 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
 
     console.log(`lunchUrl:${lunchUrl}`)
     view.webContents.loadURL(lunchUrl)
+
+    view.webContents.on('did-finish-load', () => {
+      view.webContents.send('set-params', { socketId, projectId })
+    })
   }
 })
 
@@ -136,7 +141,7 @@ const sendIsMaximized = () => {
   setBrowserViewBounds()
 }
 
-const createWindow = async (socketId: string) => {
+const createWindow = async () => {
   if (!isProd || process.env.DEBUG_PROD === 'true') {
     await installExtensions()
   }
@@ -215,13 +220,10 @@ app.on('window-all-closed', () => {
 app.on('activate', async () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    const scoketId = await findOpenSocket()
-    createWindow(scoketId)
-  }
+  if (mainWindow === null) createWindow()
 })
 
-const createBackendWindow = (socketId: string) => {
+const createBackendWindow = () => {
   // gitnode 还未支持non-context-aware, 希望未来支持
   // https://github.com/electron/electron/issues/18397#issuecomment-583221969
   // 这种特殊的调试模式好像也和RendererProcessReuse不兼容
@@ -248,7 +250,7 @@ const createBackendWindow = (socketId: string) => {
 }
 
 let backendProcess: ChildProcess
-const createBackendProcess = (socketId: string) => {
+const createBackendProcess = () => {
   if (process.env.DEV_SUB_PROCESS === 'true') {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
@@ -260,7 +262,7 @@ const createBackendProcess = (socketId: string) => {
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
   } else {
-    createBackendWindow(socketId)
+    createBackendWindow()
   }
 
   if (backendProcess) {
@@ -283,9 +285,9 @@ app
   .then(async () => {
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
 
-    const socketId = await findOpenSocket()
-    createBackendProcess(socketId)
-    createWindow(socketId)
+    socketId = await findOpenSocket()
+    createBackendProcess()
+    createWindow()
 
     return null
   })
