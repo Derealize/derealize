@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import { CommitLog, ProjectStage, HistoryPayload, PayloadError } from '../backend/project.interface'
+import { CommitLog, ProjectStage, PayloadError } from '../backend/project.interface'
 import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './Controllers.module.scss'

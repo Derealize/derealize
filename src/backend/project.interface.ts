@@ -56,7 +56,12 @@ export interface CommitLog {
   message: string
 }
 
-export interface HistoryPayload {
-  id: string
-  commits: Array<CommitLog>
+export interface HistoryReply {
+  result: Array<CommitLog>
+  error?: string
+}
+
+export interface BoolReply {
+  result: boolean
+  error?: string
 }

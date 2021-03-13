@@ -31,6 +31,7 @@ import style from './Home.module.scss'
 import { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
+const { openDirs, send } = window.derealize
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
@@ -102,7 +103,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              window.derealize.openDirs(p.path)
+                              openDirs(p.path)
                             }}
                           >
                             Open Folder
@@ -111,7 +112,7 @@ const Home = (): JSX.Element => {
                             <MenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                window.derealize.send('Push', { url: p.url })
+                                send('Push', { url: p.url })
                               }}
                             >
                               Push {p.changes.length} files
@@ -120,7 +121,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              window.derealize.send('Pull', { url: p.url })
+                              send('Pull', { url: p.url })
                             }}
                           >
                             Pull
