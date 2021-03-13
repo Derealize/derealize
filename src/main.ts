@@ -12,12 +12,13 @@ import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
 
+const isDev = process.env.NODE_ENV === 'development'
+const isDebug = isDev || process.env.DEBUG_PROD === 'true'
 let socketId: string
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
-const isProd = process.env.NODE_ENV === 'production'
 
 process.on('uncaughtException', (err) => {
   log.error('Main UncaughtException', err)
@@ -47,7 +48,7 @@ export default class AppUpdater {
   }
 }
 
-if (!isProd || process.env.DEBUG_PROD === 'true') {
+if (isDebug) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 
@@ -102,7 +103,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
         nodeIntegration: false,
         enableRemoteModule: false,
         contextIsolation: true,
-        preload: path.resolve(__dirname, isProd ? 'dist/preload_inject.prod.js' : 'preload_inject.dev.js'),
+        preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'dist/preload_inject.prod.js'),
         allowRunningInsecureContent: true,
       },
     })
@@ -111,7 +112,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
     projectViews.set(projectId, view)
     mainWindow.setBrowserView(view)
     setBrowserViewBounds()
-    if (!isProd || process.env.DEBUG_PROD === 'true') {
+    if (isDebug) {
       view.webContents.openDevTools()
     }
 
@@ -142,7 +143,7 @@ const sendIsMaximized = () => {
 }
 
 const createWindow = async () => {
-  if (!isProd || process.env.DEBUG_PROD === 'true') {
+  if (isDebug) {
     await installExtensions()
   }
 
@@ -162,7 +163,7 @@ const createWindow = async () => {
       nodeIntegration: false,
       enableRemoteModule: false,
       contextIsolation: true,
-      preload: path.resolve(__dirname, isProd ? 'dist/preload.prod.js' : 'preload.dev.js'),
+      preload: path.resolve(__dirname, isDev ? 'preload.js' : 'dist/preload.prod.js'),
     },
   })
 
@@ -181,7 +182,7 @@ const createWindow = async () => {
       mainWindow.focus()
     }
 
-    mainWindow.webContents.send('set-socket', { socketId })
+    mainWindow.webContents.send('set-params', { socketId })
   })
 
   mainWindow.on('closed', () => {
@@ -241,7 +242,7 @@ const createBackendWindow = () => {
       contextIsolation: false,
     },
   })
-  backendWin.loadURL(`file://${__dirname}/backend/backend.dev.html`)
+  backendWin.loadURL(`file://${__dirname}/backend/backend.html`)
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
@@ -251,18 +252,18 @@ const createBackendWindow = () => {
 
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
-  if (process.env.DEV_SUB_PROCESS === 'true') {
+  if (process.env.BACKEND_SUBPROCESS === 'true') {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
-  } else if (isProd) {
+  } else if (isDev) {
+    createBackendWindow()
+  } else {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
-  } else {
-    createBackendWindow()
   }
 
   if (backendProcess) {

@@ -30,32 +30,33 @@ node_modules
 # OSX
 .DS_Store
 
-# App packaged
-release
-src/style.css
-dist
-dll
-main.js
-
+# Project
 .idea
 npm-debug.log.*
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
 
-
-src/backend/backend.dev.js
-src/inject.dev.js
-
 yarn.lock
 src/yarn.lock
 **/yarn
 
-**/*.dev.js
-**/*.prod.js
+assets/node-win
+theme.default.json
+
 **/*.node
 **/*.map
 **/*.LICENSE.txt
 
-assets/node-win
-theme.default.json
+# App packaged
+release
+dist
+dll
+
+**/*.prod.js
+
+src/main.js
+src/backend/backend.js
+src/preload.js
+src/preload_inject.js
+src/style.css

@@ -30,8 +30,7 @@ export default merge(baseConfig, {
   },
 
   output: {
-    path: path.resolve(__dirname, '../../src/dist'),
-    publicPath: './dist/',
+    path: path.resolve(__dirname, '../../src'),
     filename: '[name].prod.js',
     libraryTarget: 'commonjs2',
   },

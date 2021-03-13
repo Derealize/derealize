@@ -7,6 +7,7 @@ import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
+// webpack config 无后缀默认为 'development'
 const isProd = process.env.NODE_ENV === 'production'
 
 const sleep = (ms) => {
@@ -32,7 +33,7 @@ if (!requiredByDLLConfig && !(fs.existsSync(dllDir) && fs.existsSync(manifest)))
 export default merge(baseConfig, {
   devtool: 'inline-source-map',
   mode: process.env.NODE_ENV || 'development',
-  target: 'web'
+  target: 'web',
 
   entry: {
     renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
@@ -231,7 +232,7 @@ export default merge(baseConfig, {
       disableDotRule: false,
     },
     before() {
-      if (!isProd && process.env.DEV_SUB_PROCESS !== 'true') {
+      if (!isProd && process.env.BACKEND_SUBPROCESS !== 'true') {
         console.log('Starting Backend Process...')
         spawn('yarn', ['run', 'start:backend'], {
           shell: true,

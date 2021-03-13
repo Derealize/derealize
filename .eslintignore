@@ -30,29 +30,28 @@ node_modules
 # OSX
 .DS_Store
 
-# App packaged
-release
-src/*.main.prod.js
-src/main.prod.js
-src/main.prod.js.map
-src/renderer.prod.js
-src/renderer.prod.js.map
-src/backend.prod.js
-src/backend.prod.js.map
-src/style.css
-src/style.css.map
-dist
-dll
-main.js
-main.js.map
-
+# Project
 .idea
 npm-debug.log.*
 __snapshots__
+**/yarn
+**/*.map
 
-# Package.json
 package.json
 .travis.yml
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
+
+# App packaged
+release
+dist
+dll
+
+**/*.prod.js
+
+src/main.js
+src/backend/backend.js
+src/preload.js
+src/preload_inject.js
+src/style.css
