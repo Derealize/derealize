@@ -149,7 +149,7 @@ const projectModel: ProjectModel = {
 
   load: thunk(async (actions) => {
     try {
-      const projects = await window.derealize.getStore('projects')
+      const projects = (await window.derealize.getStore('projects')) as Array<Project>
       if (projects) {
         actions.setProjects({ projects, notStore: true })
         projects.forEach((p: Project) => {

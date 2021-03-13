@@ -61,7 +61,7 @@ const TopBar = (): JSX.Element => {
   const [commits, setCommits] = useState<Array<CommitLog>>([])
 
   useEffect(() => {
-    const unlisten = listen('history', (payload: HistoryPayload | PayloadError) => {
+    const unlisten = window.derealize.listen('history', (payload: HistoryPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `History error:${(payload as PayloadError).error}`,

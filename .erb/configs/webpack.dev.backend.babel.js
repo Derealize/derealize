@@ -6,7 +6,7 @@ import baseConfig from './webpack.base'
 export default merge(baseConfig, {
   watch: true,
   devtool: 'inline-source-map',
-  mode: process.env.NODE_ENV || 'development',
+  mode: 'development',
 
   // 如果使用'node'，则main进程ipcMain不可用。
   // 因为main进程new BrowserWindow没有spawn/fork进程，而是把当前进程attach到了browser
@@ -16,7 +16,7 @@ export default merge(baseConfig, {
 
   output: {
     path: path.join(__dirname, '../../src/backend'),
-    filename: 'backend.dev.js',
+    filename: 'backend.js',
     libraryTarget: 'commonjs2',
   },
 

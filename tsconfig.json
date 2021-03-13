@@ -22,5 +22,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "exclude": ["test", "release", "src/main.prod.js", "src/backend.prod.js", "src/dist", ".erb/dll"]
+  "include": ["src/**/*"],
+  "exclude": ["src/dist"]
 }

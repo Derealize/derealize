@@ -3,20 +3,21 @@
   "productName": "Derealize",
   "description": "Tailwind CSS for Designer",
   "scripts": {
+    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
+    "start:preload": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.preload.babel.js",
+    "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:main:ext": "cross-env NODE_ENV=development UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
     "build": "concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
-    "build:preload": "webpack --config ./.erb/configs/webpack.preload.babel.js",
+    "build:preload": "webpack --config ./.erb/configs/webpack.prod.preload.babel.js",
     "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
     "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
+    "package": "rm -rf src/dist && yarn build && electron-builder build --publish never",
+    "dir": "rm -rf src/dist && yarn build && electron-builder build --dir",
+    "test": "jest",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
-    "package": "rm -rf src/dist && yarn build && electron-builder build --dir",
-    "dist": "yarn build && electron-builder build --publish never",
-    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
-    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
-    "start:preload": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.preload.babel.js",
-    "start:main": "cross-env NODE_ENV=development UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
-    "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
-    "test": "jest"
+    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -34,7 +35,7 @@
   },
   "build": {
     "productName": "Derealize",
-    "appId": "com.cooyi.derealize",
+    "appId": "com.derealize.app",
     "files": [
       "dist/",
       "styles/icons/",

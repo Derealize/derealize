@@ -7,12 +7,11 @@ import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDebug = process.env.DEBUG_PROD === 'true'
 
 export default merge(baseConfig, {
-  watch: true,
-  devtool: isDev ? 'inline-source-map' : false,
-  mode: process.env.NODE_ENV || 'development',
+  devtool: isDebug ? 'source-map' : false,
+  mode: 'none',
 
   target: 'electron-renderer',
 
@@ -22,13 +21,13 @@ export default merge(baseConfig, {
   },
 
   output: {
-    path: path.join(__dirname, isDev ? '../../src' : '../../src/dist'),
-    filename: isDev ? '[name].dev.js' : '[name].prod.js',
+    path: path.join(__dirname, '../../src'),
+    filename: '[name].prod.js'
     libraryTarget: 'commonjs2', // ref native module must use commonjs2
   },
 
   optimization: {
-    minimize: !isDev,
+    minimize: !isDebug,
     minimizer: [
       new TerserPlugin({
         parallel: true,
