@@ -1,14 +1,12 @@
 import Project from './project'
 import log from './log'
+import { HistoryReply, BoolReply } from './project.interface'
 
 const projectsMap = new Map<string, Project>()
 
-const getProject = (url: string): Project | undefined => {
+const getProject = (url: string): Project => {
   const project = projectsMap.get(url)
-  if (!project) {
-    log('project unexist')
-    return undefined
-  }
+  if (!project) throw new Error('project null')
   return project
 }
 
@@ -24,37 +22,40 @@ export const Import = async ({ url, path, branch }: Record<string, string>) => {
 
 export const Install = async ({ url }: Record<string, string>) => {
   const project = getProject(url)
-  await project?.Install()
+  await project.Install()
 }
 
 export const Status = async ({ url, checkGit }: { url: string; checkGit?: boolean }) => {
   const project = getProject(url)
-  await project?.Status(checkGit || true)
+  await project.Status(checkGit || true)
 }
 
 export const Start = async ({ url }: Record<string, string>) => {
   const project = getProject(url)
-  await project?.Start()
+  await project.Start()
 }
 
 export const Stop = async ({ url }: Record<string, string>) => {
   const project = getProject(url)
-  await project?.Stop()
+  await project.Stop()
 }
 
-export const Push = async ({ url, msg }: Record<string, string>) => {
+export const Pull = async ({ url }: Record<string, string>): Promise<BoolReply> => {
   const project = getProject(url)
-  await project?.Push(msg)
+  const reply = await project.Pull()
+  return reply
 }
 
-export const Pull = async ({ url }: Record<string, string>) => {
+export const Push = async ({ url, msg }: Record<string, string>): Promise<BoolReply> => {
   const project = getProject(url)
-  await project?.Pull()
+  const reply = await project.Push(msg)
+  return reply
 }
 
-export const History = async ({ url }: Record<string, string>) => {
+export const History = async ({ url }: Record<string, string>): Promise<HistoryReply> => {
   const project = getProject(url)
-  await project?.History()
+  const logs = await project.History()
+  return logs
 }
 
 // export const Dispose = async ({ url }: Record<string, string>) => {

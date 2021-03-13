@@ -42,6 +42,7 @@ import style from './Import.module.scss'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
+const { listen, send, selectDirs } = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -116,11 +117,11 @@ const ImportProject = (): JSX.Element => {
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    window.derealize.send('Import', { url, path, branch })
+    send('Import', { url, path, branch })
   }, [projects, url, path, branch, onOpenExistsAlert])
 
   useEffect(() => {
-    const importUnlisten = window.derealize.listen('import', (payload: Payload | PayloadError) => {
+    const importUnlisten = listen('import', (payload: Payload | PayloadError) => {
       if (payload.id !== url) return
       if ((payload as Payload).result) {
         output.current.push(`import: ${(payload as Payload).result}`)
@@ -131,7 +132,7 @@ const ImportProject = (): JSX.Element => {
       forceUpdate()
     })
 
-    const npmUnlisten = window.derealize.listen('install', (payload: ProcessPayload) => {
+    const npmUnlisten = listen('install', (payload: ProcessPayload) => {
       if (payload.id !== url) return
 
       if (payload.stdout) {
@@ -209,7 +210,7 @@ const ImportProject = (): JSX.Element => {
                     disabled={isLoading}
                     onClick={(e) => {
                       e.stopPropagation()
-                      const filePaths = window.derealize.selectDirs()
+                      const filePaths = selectDirs()
                       setPath(filePaths[0])
                     }}
                   >

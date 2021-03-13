@@ -12,6 +12,7 @@ import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/backgroun
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
+const { controls, popupMenu } = window.derealize
 
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
@@ -73,7 +74,7 @@ const TabBar = (): JSX.Element => {
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
-                    window.derealize.popupMenu()
+                    popupMenu()
                   }}
                 />
               )}
@@ -118,7 +119,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.minButton)}
           onClick={() => {
-            window.derealize.controls('minimize')
+            controls('minimize')
           }}
           role="button"
           aria-hidden="true"
@@ -133,7 +134,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.maxButton)}
           onClick={() => {
-            window.derealize.controls('maximize')
+            controls('maximize')
           }}
           role="button"
           aria-hidden="true"
@@ -148,7 +149,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.restoreButton)}
           onClick={() => {
-            window.derealize.controls('unmaximize')
+            controls('unmaximize')
           }}
           role="button"
           aria-hidden="true"
@@ -163,7 +164,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.closeButton)}
           onClick={() => {
-            window.derealize.controls('close')
+            controls('close')
           }}
           role="button"
           aria-hidden="true"

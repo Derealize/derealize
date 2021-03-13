@@ -3,6 +3,7 @@ import { createStandaloneToast } from '@chakra-ui/react'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
+const { setStore, getStore } = window.derealize
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -31,7 +32,7 @@ const libraryModel: LibraryModel = {
     state.librarys = librarys
     if (storage) {
       // todo: RxDB store
-      window.derealize.setStore({ librarys })
+      setStore({ librarys })
     }
   }),
   addLibrary: action((state, library) => {
@@ -43,15 +44,15 @@ const libraryModel: LibraryModel = {
       return
     }
     state.librarys.push(library)
-    window.derealize.setStore({ librarys: state.librarys })
+    setStore({ librarys: state.librarys })
   }),
   removeLibrary: action((state, libraryName) => {
     state.librarys = state.librarys.filter((p) => p.name !== libraryName)
-    window.derealize.setStore({ librarys: state.librarys })
+    setStore({ librarys: state.librarys })
   }),
   loadLibrary: thunk(async (actions) => {
     try {
-      const librarys = await window.derealize.getStore('librarys')
+      const librarys = await getStore('librarys')
       if (librarys) actions.setLibrarys({ librarys })
     } catch (err) {
       toast({

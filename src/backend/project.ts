@@ -10,8 +10,9 @@ import {
   Payload,
   StatusPayload,
   ProcessPayload,
-  HistoryPayload,
+  BoolReply,
   PayloadError,
+  HistoryReply,
 } from './project.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
@@ -137,30 +138,28 @@ class Project {
     }
   }
 
-  async Pull() {
-    if (!this.repo) return
+  async Pull(): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
 
     await this.Status()
     if (this.changes.length) {
-      broadcast('pull', { id: this.url, error: 'has changes' } as PayloadError)
-      return
+      return { result: false, error: 'has changes' }
     }
 
     try {
       await gitPull(this.repo)
-      broadcast('pull', { id: this.url, result: 'done' } as Payload)
+      return { result: true }
     } catch (error) {
       if (error.message.includes('is the current HEAD of the repository')) {
-        broadcast('pull', { id: this.url, result: 'done' })
-      } else {
-        broadcast('pull', { id: this.url, error: error.message } as PayloadError)
-        log('gitPull error', error)
+        return { result: true }
       }
+      log('gitPull error', error)
+      return { result: false, error: error.message }
     }
   }
 
-  async Push(msg: string) {
-    if (!this.repo) return
+  async Push(msg: string): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
 
     await this.Status()
 
@@ -173,30 +172,26 @@ class Project {
 
       await this.Status()
       if (this.changes.length) {
-        broadcast('push', {
-          id: this.url,
-          error: 'has conflicted. Please contact the engineer for help.',
-        } as PayloadError)
-        return
+        return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
 
       await gitPush(this.repo)
 
-      broadcast('push', { id: this.url, result: 'done' } as Payload)
+      return { result: true }
     } catch (error) {
-      broadcast('push', { id: this.url, error: error.message } as PayloadError)
-      log('gitPush', error)
+      log('gitPush error', error)
+      return { result: false, error: error.message }
     }
   }
 
-  async History() {
-    if (!this.repo) return
+  async History(): Promise<HistoryReply> {
+    if (!this.repo) throw new Error('repo null')
 
     try {
       const commits = await gitHistory(this.repo)
-      broadcast('history', { id: this.url, commits } as HistoryPayload)
-    } catch (error) {
-      broadcast('history', { id: this.url, error: error.message } as ProcessPayload)
+      return { result: commits }
+    } catch (err) {
+      return { result: [], error: err.message }
     }
   }
 

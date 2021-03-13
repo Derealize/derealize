@@ -8,11 +8,10 @@ import Project from './project.interface'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
+const { setStore, getStore, send, listen, frontProjectView, closeProjectView } = window.derealize
 
 let statusUnlisten: () => void
 let startingUnlisten: () => void
-let pullUnlisten: () => void
-let pushUnlisten: () => void
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -64,7 +63,7 @@ const projectModel: ProjectModel = {
   setProjects: action((state, { projects, notStore }) => {
     state.projects = projects
     if (!notStore) {
-      window.derealize.setStore({ projects })
+      setStore({ projects })
     }
   }),
 
@@ -79,7 +78,7 @@ const projectModel: ProjectModel = {
       // proxy object can't serialize
       // https://stackoverflow.com/a/60344844
       const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes', 'isOpened']))
-      window.derealize.setStore({ projects: clone(projects) })
+      setStore({ projects: clone(projects) })
     }
   }),
   removeProject: thunk((actions, id, { getState }) => {
@@ -92,34 +91,34 @@ const projectModel: ProjectModel = {
   setFrontProject: action((state, project) => {
     state.frontProject = project
     if (!project) {
-      window.derealize.frontProjectView()
+      frontProjectView()
       return
     }
-    window.derealize.send('Status', { url: project.url, checkGit: false })
+    send('Status', { url: project.url, checkGit: false })
   }),
 
   openProject: thunk((actions, id, { getState }) => {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
-    window.derealize.send('Start', { url: project.url })
+    send('Start', { url: project.url })
     project.isOpened = true
     actions.setFrontProject(project)
   }),
   startProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
-      window.derealize.send('Start', { url: project.url })
+      send('Start', { url: project.url })
     } else if (state.frontProject) {
-      window.derealize.send('Start', { url: state.frontProject.url })
+      send('Start', { url: state.frontProject.url })
     }
   }),
   stopProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
-      window.derealize.send('Stop', { url: project.url })
+      send('Stop', { url: project.url })
     } else if (state.frontProject) {
-      window.derealize.send('Stop', { url: state.frontProject.url })
+      send('Stop', { url: state.frontProject.url })
     }
   }),
   closeProject: thunk((actions, id, { getState }) => {
@@ -142,18 +141,18 @@ const projectModel: ProjectModel = {
       }
     }
 
-    window.derealize.send('Stop', { url: project.url })
-    window.derealize.closeProjectView(project.url)
+    send('Stop', { url: project.url })
+    closeProjectView(project.url)
     actions.setProjects({ projects })
   }),
 
   load: thunk(async (actions) => {
     try {
-      const projects = (await window.derealize.getStore('projects')) as Array<Project>
+      const projects = (await getStore('projects')) as Array<Project>
       if (projects) {
         actions.setProjects({ projects, notStore: true })
         projects.forEach((p: Project) => {
-          window.derealize.send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
+          send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
         })
       }
     } catch (err) {
@@ -166,7 +165,7 @@ const projectModel: ProjectModel = {
 
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
-    statusUnlisten = window.derealize.listen('status', (payload: StatusPayload | PayloadError) => {
+    statusUnlisten = listen('status', (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -186,7 +185,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
-          window.derealize.frontProjectView(project)
+          frontProjectView(project)
           actions.setDebugging(false)
         }
       }
@@ -197,7 +196,7 @@ const projectModel: ProjectModel = {
       actions.setProject({ project })
     })
 
-    startingUnlisten = window.derealize.listen('starting', (payload: ProcessPayload) => {
+    startingUnlisten = listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
         toast({
           title: `Starting error:${payload.error}`,
@@ -224,41 +223,11 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`exit:${payload.error}`)
       }
     })
-
-    pullUnlisten = window.derealize.listen('pull', (payload: Payload | PayloadError) => {
-      if ((payload as PayloadError).error) {
-        toast({
-          title: `Pull error: ${(payload as PayloadError).error}`,
-          status: 'error',
-        })
-      } else {
-        toast({
-          title: `Pull: ${(payload as Payload).result}`,
-          status: 'success',
-        })
-      }
-    })
-
-    pushUnlisten = window.derealize.listen('push', (payload: Payload | PayloadError) => {
-      if ((payload as PayloadError).error) {
-        toast({
-          title: `Push error: ${(payload as PayloadError).error}`,
-          status: 'error',
-        })
-      } else {
-        toast({
-          title: `Push: ${(payload as Payload).result}`,
-          status: 'success',
-        })
-      }
-    })
   }),
 
   unlisten: action((state) => {
     if (statusUnlisten) statusUnlisten()
     if (startingUnlisten) startingUnlisten()
-    if (pullUnlisten) pullUnlisten()
-    if (pushUnlisten) pushUnlisten()
   }),
 
   modalDisclosure: false,
