@@ -1,12 +1,14 @@
 import os from 'os'
+import fs from 'fs'
 import path from 'path'
 import shelljs from 'shelljs'
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process'
 
-const isProd = process.env.ELECTRON_ENV === 'production'
-let nodeBin = os.platform() === 'darwin' ? 'node/bin/node' : 'node/npm.cmd'
-if (!isProd) {
-  nodeBin = os.platform() === 'darwin' ? '../assets/node-mac/bin/npm' : '../assets/node-win/npm.cmd'
+const isDarwin = os.platform() === 'darwin'
+
+let nodeBin = isDarwin ? 'node/bin/node' : 'node/npm.cmd'
+if (!fs.existsSync(nodeBin)) {
+  nodeBin = isDarwin ? '../../assets/node-mac/bin/npm' : '../../assets/node-win/npm.cmd'
 }
 
 export const npmInstall = (cwd: string): ChildProcessWithoutNullStreams => {

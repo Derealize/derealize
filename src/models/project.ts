@@ -3,7 +3,14 @@ import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
-import { ProjectStage, ProcessPayload, Payload, StatusPayload, PayloadError } from '../backend/project.interface'
+import {
+  ProjectStage,
+  ProcessPayload,
+  CommitLog,
+  StatusPayload,
+  PayloadError,
+  HistoryReply,
+} from '../backend/project.interface'
 import Project from './project.interface'
 import { PreloadWindow } from '../preload'
 
@@ -48,6 +55,13 @@ export interface ProjectModel {
 
   debugging: boolean
   setDebugging: Action<ProjectModel, boolean>
+
+  openStatus: boolean
+  setOpenStatus: Action<ProjectModel, boolean>
+
+  historys: Array<CommitLog>
+  setHistorys: Action<ProjectModel, Array<CommitLog>>
+  callHistory: Thunk<ProjectModel>
 }
 
 const projectModel: ProjectModel = {
@@ -185,7 +199,6 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
-          frontProjectView(project)
           actions.setDebugging(false)
         }
       }
@@ -241,6 +254,43 @@ const projectModel: ProjectModel = {
   debugging: false,
   setDebugging: action((state, payload) => {
     state.debugging = payload
+    if (payload) {
+      frontProjectView()
+    } else if (state.frontProject) {
+      frontProjectView(clone(state.frontProject))
+    }
+  }),
+
+  openStatus: false,
+  setOpenStatus: action((state, payload) => {
+    state.openStatus = payload
+    if (payload) {
+      frontProjectView()
+    } else if (state.frontProject) {
+      frontProjectView(clone(state.frontProject))
+    }
+  }),
+
+  historys: [],
+  setHistorys: action((state, payload) => {
+    state.historys = payload
+  }),
+
+  callHistory: thunk(async (actions, id, { getState }) => {
+    actions.setHistorys([])
+
+    const { frontProject } = getState()
+    if (!frontProject) return
+
+    const reply = (await send('History', { url: frontProject.url })) as HistoryReply
+    if (reply.error) {
+      toast({
+        title: `History error:${reply.error}`,
+        status: 'error',
+      })
+    } else {
+      actions.setHistorys(reply.result)
+    }
   }),
 }
 
