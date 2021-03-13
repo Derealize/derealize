@@ -1,31 +1,10 @@
-import React, { useState, useEffect, forwardRef, useCallback } from 'react'
-import {
-  useStyleConfig,
-  useToast,
-  Flex,
-  Text,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverHeader,
-  PopoverBody,
-  PopoverArrow,
-  PopoverCloseButton,
-  List,
-  ListItem,
-  ListIcon,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  IconButton,
-} from '@chakra-ui/react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useStyleConfig, useToast, Flex, IconButton } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import { VscRepoPush, VscRepoPull, VscOutput } from 'react-icons/vsc'
-import { MdHistory } from 'react-icons/md'
 import { CgPlayButtonR, CgPlayStopR, CgSelectR, CgMenu } from 'react-icons/cg'
-import { HiCursorClick } from 'react-icons/hi'
+import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
@@ -37,7 +16,7 @@ import style from './TopBar.module.scss'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { listen, send, frontProjectView, popupMenu } = window.derealize
+const { send, popupMenu } = window.derealize
 
 const BarIconButton = React.forwardRef((props: any, ref) => {
   const { label, ...rest } = props
@@ -58,22 +37,11 @@ const TopBar = (): JSX.Element => {
   const debugging = useStoreState<boolean>((state) => state.project.debugging)
   const setDebugging = useStoreActions((actions) => actions.project.setDebugging)
 
-  const [commits, setCommits] = useState<Array<CommitLog>>([])
+  const openStatus = useStoreState<boolean>((state) => state.project.openStatus)
+  const setOpenStatus = useStoreActions((actions) => actions.project.setOpenStatus)
 
-  const callHistory = useCallback(async () => {
-    if (!project) return null
-
-    const reply = (await send('History', { url: project.url })) as HistoryReply
-    if (reply.error) {
-      toast({
-        title: `History error:${reply.error}`,
-        status: 'error',
-      })
-    } else {
-      setCommits(reply.result)
-    }
-    return null
-  }, [project, toast])
+  const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
+  const callHistory = useStoreActions((actions) => actions.project.callHistory)
 
   const callPull = useCallback(async () => {
     if (!project) return null
@@ -116,43 +84,19 @@ const TopBar = (): JSX.Element => {
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
-        <Popover>
-          <PopoverTrigger>
-            <BarIconButton label="History" icon={<MdHistory />} onClick={() => callHistory()} />
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverArrow />
-            <PopoverCloseButton />
-            <PopoverHeader>History</PopoverHeader>
-            <PopoverBody>
-              <>
-                {project.changes?.length && <Text>There are {project.changes.length} files to be pushed</Text>}
-                <List spacing={3}>
-                  {commits.map((commit) => {
-                    const isDerealize = commit.message.includes('derealize')
-                    return (
-                      <ListItem key={commit.sha}>
-                        <ListIcon
-                          as={isDerealize ? VscRepoPush : VscRepoPull}
-                          color={isDerealize ? 'teal.400' : 'gray.400'}
-                        />
-                        <Table variant="simple" size="sm">
-                          <Tbody>
-                            <Tr>
-                              <Td>{commit.date}</Td>
-                              <Td>{commit.author}</Td>
-                              <Td>{commit.message}</Td>
-                            </Tr>
-                          </Tbody>
-                        </Table>
-                      </ListItem>
-                    )
-                  })}
-                </List>
-              </>
-            </PopoverBody>
-          </PopoverContent>
-        </Popover>
+        <BarIconButton
+          label="History"
+          colorScheme={historys.length ? 'teal' : 'gray'}
+          icon={<HiOutlineStatusOnline />}
+          onClick={() => {
+            if (openStatus) {
+              setOpenStatus(false)
+            } else {
+              setOpenStatus(true)
+              callHistory()
+            }
+          }}
+        />
 
         <BarIconButton
           label="Pull"
@@ -191,13 +135,7 @@ const TopBar = (): JSX.Element => {
           colorScheme={debugging ? 'teal' : 'gray'}
           icon={<VscOutput />}
           onClick={() => {
-            if (debugging) {
-              frontProjectView(project)
-              setDebugging(false)
-            } else {
-              frontProjectView()
-              setDebugging(true)
-            }
+            setDebugging(!debugging)
           }}
         />
 
