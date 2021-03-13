@@ -14,7 +14,6 @@ import Login from './components/Login'
 import App from './App'
 import mytheme from './theme'
 import PrivateRoute from './utils/PrivateRoute'
-// import './ipc'
 
 dayjs.extend(utc)
 // dayjs.locale('zh-cn')

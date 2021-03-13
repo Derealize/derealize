@@ -12,12 +12,12 @@
     "build:preload": "webpack --config ./.erb/configs/webpack.prod.preload.babel.js",
     "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
     "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
-    "package": "rm -rf src/dist && yarn build && electron-builder build --publish never",
-    "dir": "rm -rf src/dist && yarn build && electron-builder build --dir",
+    "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
+    "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
-    "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
-    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock"
+    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
+    "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -40,6 +40,14 @@
       "dist/",
       "styles/icons/",
       "node_modules/",
+      "main.prod.js",
+      "main.prod.js.map",
+      "backend.prod.js",
+      "backend.prod.js.map",
+      "preload.prod.js",
+      "preload.prod.js.map",
+      "preload_inject.prod.js",
+      "preload_inject.prod.js.map",
       "index.html",
       "package.json"
     ],
@@ -226,6 +234,7 @@
     "react-test-renderer": "^17.0.1",
     "rimraf": "^3.0.0",
     "sass-loader": "^10.1.0",
+    "shx": "^0.3.3",
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^5.0.3",
     "ts-loader": "^8.0.14",
@@ -267,6 +276,7 @@
     "react-router-dom": "^5.2.0",
     "react-spinners": "^0.10.4",
     "regenerator-runtime": "^0.13.5",
+    "shelljs": "^0.8.4",
     "source-map-support": "^0.5.19",
     "uuid": "^8.3.2"
   },

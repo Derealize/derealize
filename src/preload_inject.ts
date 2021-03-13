@@ -17,8 +17,9 @@ const css = `
 const derealizeListener = (e) => {
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
   const code = e.target.getAttribute('data-code')
-  console.log('focusElement', PROJECTID, code, e.target.tagName)
-  send('focusElement', { url: PROJECTID, code })
+  if (code) {
+    send('focusElement', { url: PROJECTID, code })
+  }
 }
 
 const listen = () => {

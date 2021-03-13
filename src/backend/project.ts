@@ -215,7 +215,7 @@ class Project {
 
     this.installProcess.on('error', (error) => {
       hasError = true
-      broadcast('install', { id: this.url, error: error.message } as ProcessPayload)
+      broadcast('install', { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
       log('npmInstall error', error)
     })
 

@@ -25,9 +25,11 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.dev.dll')
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dllDir) && fs.existsSync(manifest))) {
   console.log(
-    chalk.black.bgYellow.bold('The DLL files are missing. Sit back while we build them for you with "yarn build-dll"'),
+    chalk.black.bgYellow.bold(
+      'The DLL files are missing. Sit back while we build them for you with "yarn postinstall"',
+    ),
   )
-  execSync('yarn build-dll')
+  execSync('yarn postinstall')
 }
 
 export default merge(baseConfig, {
