@@ -133,16 +133,20 @@ const ImportProject = (): JSX.Element => {
 
     const npmUnlisten = window.derealize.listen('install', (payload: ProcessPayload) => {
       if (payload.id !== url) return
+
       if (payload.stdout) {
         output.current.push(`install stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         output.current.push(`install stderr:${payload.stderr}`)
       } else if (payload.error) {
         output.current.push(`install error:${payload.error}`)
-      } else if (payload.exit !== undefined) {
+      }
+
+      if (payload.exit !== undefined) {
         setIsLoading(false)
         setIsReady(true)
       }
+
       forceUpdate()
     })
 
@@ -277,7 +281,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
 
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
-                  <FormLabel>Branch</FormLabel>
+                  <FormLabel>Git Branch</FormLabel>
                   <Input
                     name="branch"
                     type="text"

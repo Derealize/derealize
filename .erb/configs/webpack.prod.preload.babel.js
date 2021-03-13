@@ -1,11 +1,9 @@
 import path from 'path'
-import fs from 'fs'
 import webpack from 'webpack'
-import chalk from 'chalk'
 import { merge } from 'webpack-merge'
-import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
-import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 
 const isDebug = process.env.DEBUG_PROD === 'true'
 
@@ -22,7 +20,7 @@ export default merge(baseConfig, {
 
   output: {
     path: path.join(__dirname, '../../src'),
-    filename: '[name].prod.js'
+    filename: '[name].prod.js',
     libraryTarget: 'commonjs2', // ref native module must use commonjs2
   },
 

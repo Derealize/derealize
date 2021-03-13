@@ -103,7 +103,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
         nodeIntegration: false,
         enableRemoteModule: false,
         contextIsolation: true,
-        preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'dist/preload_inject.prod.js'),
+        preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'preload_inject.prod.js'),
         allowRunningInsecureContent: true,
       },
     })
@@ -163,9 +163,13 @@ const createWindow = async () => {
       nodeIntegration: false,
       enableRemoteModule: false,
       contextIsolation: true,
-      preload: path.resolve(__dirname, isDev ? 'preload.js' : 'dist/preload.prod.js'),
+      preload: path.resolve(__dirname, isDev ? 'preload.js' : 'preload.prod.js'),
     },
   })
+
+  if (isDebug) {
+    mainWindow.webContents.openDevTools()
+  }
 
   mainWindow.loadURL(`file://${__dirname}/index.html`)
 
