@@ -42,7 +42,6 @@ export interface StatusPayload {
 
 export interface ProcessPayload {
   id: string
-  reset?: boolean
   stdout?: string
   stderr?: string
   exit?: number

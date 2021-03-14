@@ -30,9 +30,10 @@ export const Status = async ({ url, checkGit }: { url: string; checkGit?: boolea
   await project.Status(checkGit || true)
 }
 
-export const Start = async ({ url }: Record<string, string>) => {
+export const Start = async ({ url }: Record<string, string>): Promise<BoolReply> => {
   const project = getProject(url)
-  await project.Start()
+  const result = await project.Start()
+  return result
 }
 
 export const Stop = async ({ url }: Record<string, string>) => {

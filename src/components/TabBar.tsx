@@ -34,7 +34,7 @@ const TabBar = (): JSX.Element => {
     chromeTabs.current?.layoutTabs()
     chromeTabs.current?.setupDraggabilly()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openedProjects])
+  }, [openedProjects, frontProject])
 
   useHotkeys(
     'ctrl+t',

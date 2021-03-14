@@ -2,13 +2,17 @@ import { ipcRenderer, contextBridge } from 'electron'
 import Project from './models/project.interface'
 import { connectSocket, send, listen, unlisten } from './client-ipc'
 
+let ISMAXIMIZED = false
+
 contextBridge.exposeInMainWorld('env', {
   isMac: process.platform === 'darwin',
   isDev: process.env.NODE_ENV === 'development',
   port: process.env.PORT || 1212,
+  isMaximized: () => ISMAXIMIZED,
 })
 
 ipcRenderer.on('isMaximized', (event: Event, isMaximized: boolean) => {
+  ISMAXIMIZED = isMaximized
   if (isMaximized) {
     document.body.classList.add('maximized')
   } else {
@@ -43,8 +47,8 @@ contextBridge.exposeInMainWorld('derealize', {
   controls: (payload: string) => {
     ipcRenderer.send('controls', payload)
   },
-  popupMenu: () => {
-    ipcRenderer.send('popupMenu')
+  popupMenu: (prijectId?: string) => {
+    ipcRenderer.send('popupMenu', prijectId)
   },
   selectDirs: () => {
     const filePaths = ipcRenderer.sendSync('selectDirs')
@@ -75,6 +79,7 @@ export interface PreloadWindow extends Window {
     isDev: boolean
     isMac: boolean
     port: boolean
+    isMaximized: () => boolean
   }
   derealize: {
     send: (name: string, payload: Record<string, unknown>) => Promise<unknown>

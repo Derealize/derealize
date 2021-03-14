@@ -8,7 +8,7 @@ const fontmono = '"SFMono-Regular", Consolas, "Liberation Mono", Menlo, "Ubuntu 
 
 const BarIconButton = {
   baseStyle: ({ colorMode }: Record<string, any>) => ({
-    bg: 'transparent',
+    // bg: 'transparent',
     borderRadius: 'full',
     m: 1,
     color: 'gray.600',

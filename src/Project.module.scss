@@ -5,7 +5,15 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: calc(100vh - 88px); // 46 + 42
+  height: calc(100vh - 89px); // 46 + 42 + 1
+  background-color: white;
+  overflow-y: auto;
+}
+
+body.maximized {
+  .content {
+    height: calc(100vh - 77px); // 34 + 42 + 1
+  }
 }
 
 .output {
@@ -13,4 +21,23 @@
   overflow: auto;
   width: 70%;
   margin-top: 20px;
+}
+
+.listitem {
+  display: flex;
+  align-items: center;
+  & > .data,
+  & > .author,
+  & > .message {
+    display: inline-block;
+    width: 130px;
+    @include ellipsis();
+  }
+
+  & > .author {
+    width: 100px;
+  }
+  & > .message {
+    width: 200px;
+  }
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import cs from 'classnames'
 import { useStoreActions, useStoreState } from './reduxStore'
-import { Project } from './models/project'
+import Project from './models/project.interface'
 import Home from './Home'
 import TabBar from './components/TabBar'
 import ImportProject from './components/Import'
@@ -29,7 +29,7 @@ const App = (): JSX.Element => {
       <TabBar />
       <div className={style.main}>
         {!frontProject && <Home />}
-        {frontProject && <ProjectView />}
+        {frontProject && <ProjectView project={frontProject} />}
       </div>
       <ImportProject />
     </div>
