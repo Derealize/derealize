@@ -42,8 +42,8 @@ export interface ProjectModel {
   setFrontProject: Action<ProjectModel, Project | null>
 
   openProject: Thunk<ProjectModel, string>
-  startProject: Action<ProjectModel, string | undefined>
-  stopProject: Action<ProjectModel, string | undefined>
+  startProject: Thunk<ProjectModel, string>
+  stopProject: Action<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string>
 
   load: Thunk<ProjectModel>
@@ -109,17 +109,25 @@ const projectModel: ProjectModel = {
       frontProjectView()
       return
     }
-    send('Status', { url: project.url, checkGit: false })
+    send('CheckStatus', { url: project.url })
   }),
 
   openProject: thunk(async (actions, id, { getState }) => {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
-    project.isOpened = true
-    actions.setFrontProject(project)
     actions.setDebugging(false)
     actions.setOpenStatus(false)
+
+    project.isOpened = true
+    actions.setFrontProject(project)
+
+    actions.startProject(project.url)
+  }),
+  startProject: thunk(async (actions, id, { getState }) => {
+    const { projects } = getState()
+    const project = projects.find((p) => p.url === id)
+    if (!project) return
 
     actions.setLoading(true)
     const reply = (await send('Start', { url: project.url })) as BoolReply
@@ -133,20 +141,10 @@ const projectModel: ProjectModel = {
       })
     }
   }),
-  startProject: action((state, id) => {
-    const project = state.projects.find((p) => p.url === id)
-    if (project) {
-      send('Start', { url: project.url })
-    } else if (state.frontProject) {
-      send('Start', { url: state.frontProject.url })
-    }
-  }),
   stopProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
       send('Stop', { url: project.url })
-    } else if (state.frontProject) {
-      send('Stop', { url: state.frontProject.url })
     }
   }),
   closeProject: thunk((actions, id, { getState }) => {
