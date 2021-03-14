@@ -31,7 +31,7 @@ const ProjectView: React.FC<Props> = ({ project }: Props): JSX.Element => {
       <TopBar project={project} />
       <div className={style.content}>
         <PuffLoader loading={loading} color="#4FD1C5" />
-        {project && debugging && (
+        {debugging && (
           <>
             <CloseButton
               size="lg"
@@ -51,7 +51,7 @@ const ProjectView: React.FC<Props> = ({ project }: Props): JSX.Element => {
           </>
         )}
 
-        {project && openStatus && (
+        {!debugging && openStatus && (
           <>
             <CloseButton
               size="lg"
