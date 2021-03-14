@@ -117,13 +117,20 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     project.isOpened = true
+    actions.setFrontProject(project)
+    actions.setDebugging(false)
+    actions.setOpenStatus(false)
 
+    actions.setLoading(true)
     const reply = (await send('Start', { url: project.url })) as BoolReply
     if (reply.result) {
       project.runningOutput = []
-      actions.setFrontProject(project)
-      actions.setDebugging(false)
-      actions.setOpenStatus(false)
+    } else {
+      actions.setLoading(false)
+      toast({
+        title: reply.error,
+        status: 'error',
+      })
     }
   }),
   startProject: action((state, id) => {
