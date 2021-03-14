@@ -78,7 +78,7 @@ const setBrowserViewBounds = () => {
   const browserView = mainWindow.getBrowserView()
   if (browserView) {
     const rectangle = mainWindow.getBounds()
-    const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight
+    const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight + 1
     browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
   }
 }
@@ -250,7 +250,7 @@ const createBackendWindow = () => {
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('set-socket', { socketId })
+    backendWin.webContents.send('set-params', { socketId })
   })
 }
 

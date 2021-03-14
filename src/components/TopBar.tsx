@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useStyleConfig, useToast, Flex, IconButton } from '@chakra-ui/react'
+import { useStyleConfig, useToast, Flex, IconButton, RefAttributes } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import { VscRepoPush, VscRepoPull, VscOutput } from 'react-icons/vsc'
@@ -9,7 +9,7 @@ import { BiRectangle } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
-import { CommitLog, ProjectStage, BoolReply, HistoryReply } from '../backend/project.interface'
+import { ProjectStage, BoolReply } from '../backend/project.interface'
 import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
@@ -18,19 +18,26 @@ import { PreloadWindow } from '../preload'
 declare const window: PreloadWindow
 const { send, popupMenu } = window.derealize
 
-const BarIconButton = React.forwardRef((props: any, ref) => {
-  const { label, ...rest } = props
+const BarIconButton = React.forwardRef(
+  (
+    props: { label: string; selected: boolean } & RefAttributes<HTMLButtonElement>,
+    ref: React.LegacyRef<HTMLButtonElement> | undefined,
+  ) => {
+    const { label, selected, ...rest } = props
+    const styles = useStyleConfig('BarIconButton')
 
-  const styles = useStyleConfig('BarIconButton')
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    return <IconButton ref={ref} aria-label={label} sx={styles} bg={selected ? 'gray.200' : 'transparent'} {...rest} />
+  },
+)
 
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <IconButton ref={ref} aria-label={label} sx={styles} {...rest} />
-})
+type Props = {
+  project: Project
+}
 
-const TopBar = (): JSX.Element => {
+const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const toast = useToast()
 
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
@@ -40,7 +47,6 @@ const TopBar = (): JSX.Element => {
   const openStatus = useStoreState<boolean>((state) => state.project.openStatus)
   const setOpenStatus = useStoreActions((actions) => actions.project.setOpenStatus)
 
-  const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
 
   const callPull = useCallback(async () => {
@@ -79,14 +85,12 @@ const TopBar = (): JSX.Element => {
     return null
   }, [project, toast])
 
-  if (!project) return <></>
-
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
         <BarIconButton
           label="History"
-          colorScheme={historys.length ? 'teal' : 'gray'}
+          selected={openStatus}
           icon={<HiOutlineStatusOnline />}
           onClick={() => {
             if (openStatus) {
@@ -132,7 +136,7 @@ const TopBar = (): JSX.Element => {
 
         <BarIconButton
           label="Debug"
-          colorScheme={debugging ? 'teal' : 'gray'}
+          selected={debugging}
           icon={<VscOutput />}
           onClick={() => {
             setDebugging(!debugging)

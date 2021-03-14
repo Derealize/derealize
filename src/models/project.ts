@@ -10,6 +10,7 @@ import {
   StatusPayload,
   PayloadError,
   HistoryReply,
+  BoolReply,
 } from '../backend/project.interface'
 import Project from './project.interface'
 import { PreloadWindow } from '../preload'
@@ -111,13 +112,19 @@ const projectModel: ProjectModel = {
     send('Status', { url: project.url, checkGit: false })
   }),
 
-  openProject: thunk((actions, id, { getState }) => {
+  openProject: thunk(async (actions, id, { getState }) => {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
-    send('Start', { url: project.url })
     project.isOpened = true
-    actions.setFrontProject(project)
+
+    const reply = (await send('Start', { url: project.url })) as BoolReply
+    if (reply.result) {
+      project.runningOutput = []
+      actions.setFrontProject(project)
+      actions.setDebugging(false)
+      actions.setOpenStatus(false)
+    }
   }),
   startProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
@@ -226,9 +233,7 @@ const projectModel: ProjectModel = {
         project.runningOutput = []
       }
 
-      if (payload.reset) {
-        project.runningOutput = []
-      } else if (payload.stdout) {
+      if (payload.stdout) {
         project.runningOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         project.runningOutput.push(`stderr:${payload.stderr}`)

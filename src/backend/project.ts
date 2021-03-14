@@ -196,8 +196,11 @@ class Project {
   }
 
   async Install() {
+    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) return
+
+    this.runningProcess?.kill()
+
     this.installProcess = npmInstall(this.path)
-    broadcast('install', { id: this.url, reset: true } as ProcessPayload)
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
@@ -223,13 +226,15 @@ class Project {
     })
   }
 
-  async Start() {
-    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) return
+  async Start(): Promise<BoolReply> {
+    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
+      return { result: false, error: 'Starting or Running' }
+    }
 
     this.runningProcess?.kill()
-    killPort(this.config.port)
+    await killPort(this.config.port)
+
     this.runningProcess = npmStart(this.path, this.config.npmScript)
-    broadcast('starting', { id: this.url, reset: true } as ProcessPayload)
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
@@ -254,6 +259,8 @@ class Project {
       this.stage = ProjectStage.Ready
       this.Status(false)
     })
+
+    return { result: true }
   }
 
   Stop() {

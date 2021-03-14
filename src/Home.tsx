@@ -38,6 +38,7 @@ const Home = (): JSX.Element => {
   const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProject)
+  const loadAll = useStoreActions((actions) => actions.project.load)
 
   return (
     <div className={style.home}>
@@ -56,6 +57,7 @@ const Home = (): JSX.Element => {
               <Button onClick={() => setModalOpen()} leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
                 Import
               </Button>
+              {window.env.isDev && <Button onClick={() => loadAll()}>ImportAll</Button>}
             </HStack>
             <Wrap mt={6} spacing={4}>
               {projects.map((p) => (
