@@ -25,9 +25,9 @@ export const Install = async ({ url }: Record<string, string>) => {
   await project.Install()
 }
 
-export const Status = async ({ url, checkGit }: { url: string; checkGit?: boolean }) => {
+export const CheckStatus = async ({ url, checkGit }: { url: string; checkGit?: boolean }) => {
   const project = getProject(url)
-  await project.Status(checkGit || true)
+  await project.CheckStatus(!!checkGit)
 }
 
 export const Start = async ({ url }: Record<string, string>): Promise<BoolReply> => {

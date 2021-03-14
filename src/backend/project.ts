@@ -72,7 +72,7 @@ class Project {
     return false
   }
 
-  async Status(chackGit = true): Promise<boolean> {
+  async CheckStatus(chackGit = true): Promise<boolean> {
     if (!this.repo) return false
 
     try {
@@ -131,7 +131,7 @@ class Project {
       }
     }
 
-    const fine = await this.Status()
+    const fine = await this.CheckStatus()
     if (fine) {
       this.stage = ProjectStage.Initialized
       this.Install()
@@ -141,7 +141,7 @@ class Project {
   async Pull(): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    await this.Status()
+    await this.CheckStatus()
     if (this.changes.length) {
       return { result: false, error: 'has changes' }
     }
@@ -161,7 +161,7 @@ class Project {
   async Push(msg: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    await this.Status()
+    await this.CheckStatus()
 
     try {
       if (this.changes.length) {
@@ -170,7 +170,7 @@ class Project {
 
       await gitPull(this.repo)
 
-      await this.Status()
+      await this.CheckStatus()
       if (this.changes.length) {
         return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
@@ -221,7 +221,7 @@ class Project {
       broadcast('install', { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
-        this.Status(false)
+        this.CheckStatus(false)
       }
     })
   }
@@ -242,7 +242,7 @@ class Project {
       broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
 
       this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
-      this.Status(false)
+      this.CheckStatus(false)
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
@@ -257,18 +257,18 @@ class Project {
     this.runningProcess.on('exit', (exit) => {
       broadcast('starting', { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
-      this.Status(false)
+      this.CheckStatus(false)
     })
 
     return { result: true }
   }
 
-  Stop() {
+  async Stop() {
     this.runningProcess?.kill()
-    killPort(this.config.port)
+    await killPort(this.config.port)
 
     this.stage = ProjectStage.Ready
-    this.Status(false)
+    this.CheckStatus(false)
   }
 
   Dispose() {
