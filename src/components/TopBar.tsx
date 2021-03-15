@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useStyleConfig, useToast, Flex, IconButton, RefAttributes } from '@chakra-ui/react'
+import { useStyleConfig, useToast, Flex, IconButton, Tooltip, IconButtonProps } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import { VscRepoPush, VscRepoPull, VscOutput } from 'react-icons/vsc'
-import { CgPlayButtonR, CgPlayStopR, CgSelectR, CgMenu } from 'react-icons/cg'
+import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
+import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
 import { ProjectStage, BoolReply } from '../backend/project.interface'
-import Project from '../models/project.interface'
+import Project, { PopoverView } from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import { PreloadWindow } from '../preload'
@@ -19,17 +19,17 @@ declare const window: PreloadWindow
 const { send, popupMenu } = window.derealize
 
 const BarIconButton = React.forwardRef(
-  (
-    props: { label: string; selected: boolean } & RefAttributes<HTMLButtonElement>,
-    ref: React.LegacyRef<HTMLButtonElement> | undefined,
-  ) => {
-    const { label, selected, ...rest } = props
+  (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
+    const { selected, ...rest } = props
     const styles = useStyleConfig('BarIconButton')
 
     // eslint-disable-next-line react/jsx-props-no-spreading
-    return <IconButton ref={ref} aria-label={label} sx={styles} bg={selected ? 'gray.200' : 'transparent'} {...rest} />
+    return <IconButton ref={ref} sx={styles} bg={selected ? 'gray.200' : 'transparent'} {...rest} />
   },
 )
+BarIconButton.defaultProps = {
+  selected: false,
+}
 
 type Props = {
   project: Project
@@ -41,11 +41,8 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
-  const debugging = useStoreState<boolean>((state) => state.project.debugging)
-  const setDebugging = useStoreActions((actions) => actions.project.setDebugging)
-
-  const openStatus = useStoreState<boolean>((state) => state.project.openStatus)
-  const setOpenStatus = useStoreActions((actions) => actions.project.setOpenStatus)
+  const popoverView = useStoreState<PopoverView>((state) => state.project.popoverView)
+  const setPopoverView = useStoreActions((actions) => actions.project.setPopoverView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
 
@@ -88,62 +85,79 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
-        <BarIconButton
-          label="History"
-          selected={openStatus}
-          icon={<HiOutlineStatusOnline />}
-          onClick={() => {
-            if (openStatus) {
-              setOpenStatus(false)
-            } else {
-              setOpenStatus(true)
-              callHistory()
-            }
-          }}
-        />
+        <Tooltip label="files status and history">
+          <BarIconButton
+            aria-label="FileStatus"
+            selected={popoverView === PopoverView.FileStatus}
+            icon={<HiOutlineStatusOnline />}
+            onClick={() => {
+              if (popoverView !== PopoverView.FileStatus) {
+                callHistory()
+                setPopoverView(PopoverView.FileStatus)
+              } else {
+                setPopoverView(PopoverView.BrowserView)
+              }
+            }}
+          />
+        </Tooltip>
 
-        <BarIconButton
-          label="Pull"
-          icon={<VscRepoPull />}
-          disabled={project.changes?.length !== 0}
-          onClick={() => callPull()}
-        />
+        <Tooltip label="pull remote files">
+          <BarIconButton
+            aria-label="Pull"
+            icon={<VscRepoPull />}
+            disabled={project.changes?.length !== 0}
+            onClick={() => callPull()}
+          />
+        </Tooltip>
 
-        <BarIconButton
-          label="Push"
-          icon={<VscRepoPush />}
-          disabled={project.changes?.length === 0}
-          onClick={() => callPush()}
-        />
+        <Tooltip label="push files to remote">
+          <BarIconButton
+            aria-label="Push"
+            icon={<VscRepoPush />}
+            disabled={project.changes?.length === 0}
+            onClick={() => callPush()}
+          />
+        </Tooltip>
       </Flex>
 
       <Flex align="center" justify="center">
-        <BarIconButton label="Cursor" icon={<HiCursorClick />} />
-        <BarIconButton label="Rect" icon={<BiRectangle />} />
-        <BarIconButton label="Link" icon={<FiLink2 />} />
-        <BarIconButton label="Text" icon={<RiInputMethodLine />} />
-        <BarIconButton label="Input" icon={<AiOutlineBorderHorizontal />} />
-        <BarIconButton label="Select" icon={<CgSelectR />} />
+        <BarIconButton aria-label="Cursor" icon={<HiCursorClick />} />
+        <BarIconButton aria-label="Rect" icon={<BiRectangle />} />
+        <BarIconButton aria-label="Link" icon={<FiLink2 />} />
+        <BarIconButton aria-label="Text" icon={<RiInputMethodLine />} />
+        <BarIconButton aria-label="Input" icon={<AiOutlineBorderHorizontal />} />
+        <BarIconButton aria-label="Select" icon={<CgSelectR />} />
       </Flex>
 
       <Flex align="center" justify="right">
         {project.stage === ProjectStage.Ready && (
-          <BarIconButton label="Start" icon={<CgPlayButtonR />} onClick={() => startProject(project.url)} />
+          <Tooltip label="start">
+            <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.url)} />
+          </Tooltip>
         )}
+
         {(project.stage === ProjectStage.Running || project.stage === ProjectStage.Starting) && (
-          <BarIconButton label="Stop" icon={<CgPlayStopR />} onClick={() => stopProject(project.url)} />
+          <Tooltip label="stop">
+            <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.url)} />
+          </Tooltip>
         )}
 
-        <BarIconButton
-          label="Debug"
-          selected={debugging}
-          icon={<VscOutput />}
-          onClick={() => {
-            setDebugging(!debugging)
-          }}
-        />
+        <Tooltip label="debug information">
+          <BarIconButton
+            aria-label="Debug"
+            selected={popoverView === PopoverView.Debugging}
+            icon={<VscOutput />}
+            onClick={() => {
+              if (popoverView !== PopoverView.Debugging) {
+                setPopoverView(PopoverView.Debugging)
+              } else {
+                setPopoverView(PopoverView.BrowserView)
+              }
+            }}
+          />
+        </Tooltip>
 
-        <BarIconButton label="Project Menu" icon={<CgMenu />} onClick={() => popupMenu(project.url)} />
+        <BarIconButton aria-label="Project Menu" icon={<CgMenu />} onClick={() => popupMenu(project.url)} />
       </Flex>
     </Flex>
   )

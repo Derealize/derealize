@@ -3,10 +3,11 @@
 .content {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   height: calc(100vh - 89px); // 46 + 42 + 1
   overflow-y: auto;
+  position: relative;
 }
 
 body.maximized {
@@ -39,4 +40,10 @@ body.maximized {
   & > .message {
     width: 200px;
   }
+}
+
+.closebtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }

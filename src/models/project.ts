@@ -12,7 +12,7 @@ import {
   HistoryReply,
   BoolReply,
 } from '../backend/project.interface'
-import Project from './project.interface'
+import Project, { PopoverView } from './project.interface'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -27,7 +27,6 @@ const toast = createStandaloneToast({
     isClosable: true,
   },
 })
-
 export interface ProjectModel {
   loading: boolean
   setLoading: Action<ProjectModel, boolean>
@@ -54,11 +53,8 @@ export interface ProjectModel {
   setModalOpen: Action<ProjectModel>
   setModalClose: Action<ProjectModel>
 
-  debugging: boolean
-  setDebugging: Action<ProjectModel, boolean>
-
-  openStatus: boolean
-  setOpenStatus: Action<ProjectModel, boolean>
+  popoverView: PopoverView
+  setPopoverView: Action<ProjectModel, PopoverView>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -261,23 +257,13 @@ const projectModel: ProjectModel = {
     state.modalDisclosure = false
   }),
 
-  debugging: false,
-  setDebugging: action((state, payload) => {
-    state.debugging = payload
-    if (payload) {
-      frontProjectView()
-    } else if (state.frontProject) {
+  popoverView: PopoverView.BrowserView,
+  setPopoverView: action((state, payload) => {
+    state.popoverView = payload
+    if (payload === PopoverView.BrowserView && state.frontProject) {
       frontProjectView(clone(state.frontProject))
-    }
-  }),
-
-  openStatus: false,
-  setOpenStatus: action((state, payload) => {
-    state.openStatus = payload
-    if (payload) {
+    } else {
       frontProjectView()
-    } else if (state.frontProject) {
-      frontProjectView(clone(state.frontProject))
     }
   }),
 
