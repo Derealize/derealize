@@ -16,6 +16,10 @@ const store = new Store({
     jwt: {
       type: 'string',
     },
+    barWidth: {
+      type: 'number',
+      minimum: 10,
+    },
     projects: {
       type: 'array',
       uniqueItems: true,

@@ -19,7 +19,6 @@ import {
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import { CommitLog, ProjectStage, PayloadError } from '../backend/project.interface'
 import Project from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './Controllers.module.scss'
@@ -27,11 +26,12 @@ import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
-const Controllers = (): JSX.Element => {
-  const toast = useToast()
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+type Props = {
+  project: Project
+}
 
-  if (!project) return <></>
+const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
+  const toast = useToast()
 
   return <Flex className={style.controllers} />
 }

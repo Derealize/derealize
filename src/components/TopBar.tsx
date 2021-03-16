@@ -5,12 +5,12 @@ import { css } from '@emotion/react'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { BiRectangle } from 'react-icons/bi'
+import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
 import { ProjectStage, BoolReply } from '../backend/project.interface'
-import Project, { PopoverView } from '../models/project.interface'
+import Project, { ProjectView } from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import { PreloadWindow } from '../preload'
@@ -41,8 +41,8 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
-  const popoverView = useStoreState<PopoverView>((state) => state.project.popoverView)
-  const setPopoverView = useStoreActions((actions) => actions.project.setPopoverView)
+  const projectView = useStoreState<ProjectView>((state) => state.project.projectView)
+  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
 
@@ -88,14 +88,14 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         <Tooltip label="files status and history">
           <BarIconButton
             aria-label="FileStatus"
-            selected={popoverView === PopoverView.FileStatus}
+            selected={projectView === ProjectView.FileStatus}
             icon={<HiOutlineStatusOnline />}
             onClick={() => {
-              if (popoverView !== PopoverView.FileStatus) {
+              if (projectView !== ProjectView.FileStatus) {
                 callHistory()
-                setPopoverView(PopoverView.FileStatus)
+                setProjectView(ProjectView.FileStatus)
               } else {
-                setPopoverView(PopoverView.BrowserView)
+                setProjectView(ProjectView.BrowserView)
               }
             }}
           />
@@ -121,8 +121,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="center">
-        <BarIconButton aria-label="Cursor" icon={<HiCursorClick />} />
-        <BarIconButton aria-label="Rect" icon={<BiRectangle />} />
+        <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         <BarIconButton aria-label="Link" icon={<FiLink2 />} />
         <BarIconButton aria-label="Text" icon={<RiInputMethodLine />} />
         <BarIconButton aria-label="Input" icon={<AiOutlineBorderHorizontal />} />
@@ -142,16 +141,18 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
           </Tooltip>
         )}
 
+        <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} />
+
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"
-            selected={popoverView === PopoverView.Debugging}
+            selected={projectView === ProjectView.Debugging}
             icon={<VscOutput />}
             onClick={() => {
-              if (popoverView !== PopoverView.Debugging) {
-                setPopoverView(PopoverView.Debugging)
+              if (projectView !== ProjectView.Debugging) {
+                setProjectView(ProjectView.Debugging)
               } else {
-                setPopoverView(PopoverView.BrowserView)
+                setProjectView(ProjectView.BrowserView)
               }
             }}
           />

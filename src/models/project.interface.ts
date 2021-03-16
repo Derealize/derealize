@@ -14,7 +14,7 @@ interface Project {
   config?: ProjectConfig
 }
 
-export enum PopoverView {
+export enum ProjectView {
   Debugging,
   FileStatus,
   BrowserView,
