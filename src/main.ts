@@ -73,14 +73,15 @@ let menu: Menu | null = null
 let projectMenu: Menu | null = null
 
 const topbarHeight = 42
-const setBrowserViewBounds = () => {
-  if (!mainWindow) return
-  const browserView = mainWindow.getBrowserView()
-  if (browserView) {
-    const rectangle = mainWindow.getBounds()
-    const yaxis = (mainWindow.isMaximized() ? 34 : 46) + topbarHeight + 1
-    browserView.setBounds({ x: 0, y: yaxis, width: rectangle.width, height: rectangle.height - yaxis })
-  }
+const setBrowserViewBounds = (mainwin: BrowserWindow) => {
+  const browserView = mainwin.getBrowserView()
+  if (!browserView) return
+
+  const barwidth = (store.get('barWidth') as number) || 200
+  const rectangle = mainwin.getBounds()
+  const xaxis = barwidth + 5
+  const yaxis = (mainwin.isMaximized() ? 34 : 46) + topbarHeight + 1
+  browserView.setBounds({ x: xaxis, y: yaxis, width: rectangle.width - xaxis, height: rectangle.height - yaxis })
 }
 
 const projectViews = new Map<string, BrowserView>()
@@ -111,7 +112,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
 
     projectViews.set(projectId, view)
     mainWindow.setBrowserView(view)
-    setBrowserViewBounds()
+    setBrowserViewBounds(mainWindow)
     if (isDebug) {
       view.webContents.openDevTools()
     }
@@ -138,8 +139,9 @@ ipcMain.on('closeProjectView', (event, projectId: string) => {
 })
 
 const sendIsMaximized = () => {
-  mainWindow?.webContents.send('isMaximized', mainWindow.isMaximized())
-  setBrowserViewBounds()
+  if (!mainWindow) return
+  mainWindow.webContents.send('isMaximized', mainWindow.isMaximized())
+  setBrowserViewBounds(mainWindow)
 }
 
 const createWindow = async () => {
@@ -210,7 +212,8 @@ const createWindow = async () => {
   mainWindow.on('maximize', sendIsMaximized)
   mainWindow.on('unmaximize', sendIsMaximized)
   mainWindow.on('resize', () => {
-    setBrowserViewBounds()
+    if (!mainWindow) return
+    setBrowserViewBounds(mainWindow)
   })
 }
 
@@ -300,13 +303,12 @@ app
 
 ipcMain.on('getStore', (event, key: string) => {
   const value = store.get(key)
-  // event.returnValue = value
-  event.sender.send(`getStore-${key}`, value)
+  event.returnValue = value
+  // event.sender.send(`getStore-${key}`, value) // contextBridge getStoreAsync()
 })
 
 ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
   store.set(payload)
-  // event.sender.send('setStore-reply', payload)
 })
 
 ipcMain.on('controls', (event, payload: string) => {

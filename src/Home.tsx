@@ -38,7 +38,6 @@ const Home = (): JSX.Element => {
   const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProject)
-  const loadAll = useStoreActions((actions) => actions.project.load)
 
   return (
     <div className={style.home}>

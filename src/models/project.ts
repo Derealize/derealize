@@ -12,7 +12,7 @@ import {
   HistoryReply,
   BoolReply,
 } from '../backend/project.interface'
-import Project, { PopoverView } from './project.interface'
+import Project, { ProjectView } from './project.interface'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -32,7 +32,7 @@ export interface ProjectModel {
   setLoading: Action<ProjectModel, boolean>
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
-  setProjects: Action<ProjectModel, { projects: Array<Project>; notStore?: boolean }>
+  setProjects: Action<ProjectModel, Array<Project>>
 
   setProject: Action<ProjectModel, { project: Project; notStore?: boolean }>
   removeProject: Thunk<ProjectModel, string>
@@ -45,7 +45,7 @@ export interface ProjectModel {
   stopProject: Action<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string>
 
-  load: Thunk<ProjectModel>
+  loadStore: Action<ProjectModel>
   listen: Thunk<ProjectModel>
   unlisten: Action<ProjectModel>
 
@@ -53,8 +53,8 @@ export interface ProjectModel {
   setModalOpen: Action<ProjectModel>
   setModalClose: Action<ProjectModel>
 
-  popoverView: PopoverView
-  setPopoverView: Action<ProjectModel, PopoverView>
+  projectView: ProjectView
+  setProjectView: Action<ProjectModel, ProjectView>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -71,11 +71,8 @@ const projectModel: ProjectModel = {
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
   }),
-  setProjects: action((state, { projects, notStore }) => {
-    state.projects = projects
-    if (!notStore) {
-      setStore({ projects })
-    }
+  setProjects: action((state, payload) => {
+    state.projects = payload
   }),
 
   setProject: action((state, { project, notStore }) => {
@@ -95,7 +92,7 @@ const projectModel: ProjectModel = {
   removeProject: thunk((actions, id, { getState }) => {
     actions.closeProject(id)
     const projects = getState().projects.filter((p) => p.url !== id)
-    actions.setProjects({ projects })
+    actions.setProjects(projects)
   }),
 
   frontProject: null,
@@ -112,12 +109,10 @@ const projectModel: ProjectModel = {
     const project = getState().projects.find((p) => p.url === id)
     if (!project) return
 
-    actions.setDebugging(false)
-    actions.setOpenStatus(false)
-
     project.isOpened = true
     actions.setFrontProject(project)
 
+    actions.setProjectView(ProjectView.BrowserView)
     actions.startProject(project.url)
   }),
   startProject: thunk(async (actions, id, { getState }) => {
@@ -165,22 +160,15 @@ const projectModel: ProjectModel = {
 
     send('Stop', { url: project.url })
     closeProjectView(project.url)
-    actions.setProjects({ projects })
+    actions.setProjects(projects)
   }),
 
-  load: thunk(async (actions) => {
-    try {
-      const projects = (await getStore('projects')) as Array<Project>
-      if (projects) {
-        actions.setProjects({ projects, notStore: true })
-        projects.forEach((p: Project) => {
-          send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
-        })
-      }
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
+  loadStore: action((state) => {
+    const projects = getStore('projects') as Array<Project> | undefined
+    if (projects) {
+      state.projects = projects
+      projects.forEach((p: Project) => {
+        send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
       })
     }
   }),
@@ -207,7 +195,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
         if (project.stage === ProjectStage.Running) {
-          actions.setDebugging(false)
+          actions.setProjectView(ProjectView.BrowserView)
         }
       }
 
@@ -257,10 +245,10 @@ const projectModel: ProjectModel = {
     state.modalDisclosure = false
   }),
 
-  popoverView: PopoverView.BrowserView,
-  setPopoverView: action((state, payload) => {
-    state.popoverView = payload
-    if (payload === PopoverView.BrowserView && state.frontProject) {
+  projectView: ProjectView.BrowserView,
+  setProjectView: action((state, payload) => {
+    state.projectView = payload
+    if (payload === ProjectView.BrowserView && state.frontProject) {
       frontProjectView(clone(state.frontProject))
     } else {
       frontProjectView()

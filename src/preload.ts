@@ -26,20 +26,24 @@ contextBridge.exposeInMainWorld('derealize', {
   unlisten,
 
   // https://www.electronjs.org/docs/api/ipc-renderer#ipcrenderersendsyncchannel-args
-  getStore: async (key: string) => {
-    ipcRenderer.send('getStore', key)
-    return Promise.race([
-      new Promise((resolve) => {
-        ipcRenderer.once(`getStore-${key}`, (event, data) => {
-          resolve(data)
-        })
-      }),
-      new Promise((resolve, reject) =>
-        setTimeout(() => {
-          reject(new Error('getStore timed out.'))
-        }, 2000),
-      ),
-    ])
+  // getStoreAsync: async (key: string): Promise<unknown> => {
+  //   ipcRenderer.send('getStore', key)
+  //   return Promise.race([
+  //     new Promise((resolve) => {
+  //       ipcRenderer.once(`getStore-${key}`, (event, data) => {
+  //         resolve(data)
+  //       })
+  //     }),
+  //     new Promise((resolve, reject) =>
+  //       setTimeout(() => {
+  //         reject(new Error('getStore timed out.'))
+  //       }, 2000),
+  //     ),
+  //   ])
+  // },
+
+  getStore: (key: string): unknown | undefined => {
+    return ipcRenderer.sendSync('getStore', key)
   },
   setStore: (payload: Record<string, unknown>) => {
     ipcRenderer.send('setStore', payload)
@@ -85,7 +89,7 @@ export interface PreloadWindow extends Window {
     send: (name: string, payload: Record<string, unknown>) => Promise<unknown>
     listen: (name: string, cb: (payload: any) => void) => () => void
     unlisten: (name: string) => void
-    getStore: (key: string) => Promise<unknown>
+    getStore: (key: string) => unknown | undefined
     setStore: (payload: Record<string, unknown>) => void
     controls: (payload: string) => void
     popupMenu: (prijectId?: string) => void

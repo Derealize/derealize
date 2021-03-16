@@ -23,7 +23,7 @@ export interface LibraryModel {
   setLibrarys: Action<LibraryModel, { librarys: Array<Library>; storage?: boolean }>
   addLibrary: Action<LibraryModel, Library>
   removeLibrary: Action<LibraryModel, string>
-  loadLibrary: Thunk<LibraryModel>
+  loadStore: Action<LibraryModel>
 }
 
 const libraryModel: LibraryModel = {
@@ -50,15 +50,10 @@ const libraryModel: LibraryModel = {
     state.librarys = state.librarys.filter((p) => p.name !== libraryName)
     setStore({ librarys: state.librarys })
   }),
-  loadLibrary: thunk(async (actions) => {
-    try {
-      const librarys = await getStore('librarys')
-      if (librarys) actions.setLibrarys({ librarys })
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
-      })
+  loadStore: action((state) => {
+    const librarys = getStore('librarys') as Array<Library> | undefined
+    if (librarys) {
+      state.librarys = librarys
     }
   }),
 }

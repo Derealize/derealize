@@ -37,7 +37,7 @@ export interface ProfileModel {
   profile: Profile | null
   setProfile: Action<ProfileModel, { profile: Profile | null }>
 
-  load: Thunk<ProfileModel>
+  loadStore: Thunk<ProfileModel>
   logout: Thunk<ProfileModel>
 }
 
@@ -75,13 +75,13 @@ const profileModel: ProfileModel = {
     state.profile = profile
   }),
 
-  load: thunk(async (actions, payload, { getState }) => {
-    const settings = (await getStore('settings')) as Settings
+  loadStore: thunk(async (actions) => {
+    const settings = getStore('settings') as Settings | undefined
     if (settings) {
       actions.setSettings({ settings })
     }
 
-    const jwt = (await getStore('jwt')) as string
+    const jwt = getStore('jwt') as string | undefined
     if (!jwt) {
       actions.logout()
       return

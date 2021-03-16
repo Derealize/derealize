@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import cs from 'classnames'
 import { useStoreActions, useStoreState } from './reduxStore'
 import Project from './models/project.interface'
 import Home from './Home'
@@ -9,20 +8,25 @@ import ProjectView from './Project'
 import style from './App.module.scss'
 
 const App = (): JSX.Element => {
-  const profileLoad = useStoreActions((actions) => actions.profile.load)
-  const projectLoad = useStoreActions((actions) => actions.project.load)
+  const profileLoadStore = useStoreActions((actions) => actions.profile.loadStore)
+  const projectLoadStore = useStoreActions((actions) => actions.project.loadStore)
+  const workspaceLoadStore = useStoreActions((actions) => actions.workspace.loadStore)
+  const libraryLoadStore = useStoreActions((actions) => actions.library.loadStore)
+
   const projectListen = useStoreActions((actions) => actions.project.listen)
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
 
   useEffect(() => {
-    profileLoad()
-    projectLoad()
-    projectListen()
+    profileLoadStore()
+    projectLoadStore()
+    workspaceLoadStore()
+    libraryLoadStore()
 
+    projectListen()
     return projectUnListen
-  }, [profileLoad, projectListen, projectLoad, projectUnListen])
+  }, [workspaceLoadStore, profileLoadStore, libraryLoadStore, projectLoadStore, projectListen, projectUnListen])
 
   return (
     <div className="app">
