@@ -113,7 +113,7 @@ const projectModel: ProjectModel = {
     actions.setFrontProject(project)
 
     actions.setProjectView(ProjectView.BrowserView)
-    actions.startProject(project.url)
+    // actions.startProject(project.url)
   }),
   startProject: thunk(async (actions, id, { getState }) => {
     const { projects } = getState()
