@@ -3,6 +3,7 @@
 .main {
   display: flex;
   height: calc(100vh - 89px); // 46 + 42 + 1
+  margin-top: 1px;
 }
 
 body.maximized {
