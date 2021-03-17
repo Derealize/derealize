@@ -50,12 +50,12 @@ export interface ProjectModel {
   listen: Thunk<ProjectModel>
   unlisten: Action<ProjectModel>
 
+  projectView: ProjectView
+  setProjectView: Action<ProjectModel, ProjectView>
+
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
   setModalClose: Action<ProjectModel>
-
-  projectView: ProjectView
-  setProjectView: Action<ProjectModel, ProjectView>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -214,6 +214,7 @@ const projectModel: ProjectModel = {
 
     listen('install', (payload: ProcessPayload) => {
       if (payload.error) {
+        actions.setLoading(false)
         toast({
           title: `Install error:${payload.error}`,
           status: 'error',
@@ -233,10 +234,9 @@ const projectModel: ProjectModel = {
         project.installOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         project.installOutput.push(`stderr:${payload.stderr}`)
-      } else if (payload.error) {
-        project.installOutput.push(`error:${payload.error}`)
       } else if (payload.exit !== undefined) {
         project.installOutput.push(`exit:${payload.error}`)
+        actions.setLoading(false)
       }
     })
 
@@ -261,8 +261,6 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         project.runningOutput.push(`stderr:${payload.stderr}`)
-      } else if (payload.error) {
-        project.runningOutput.push(`error:${payload.error}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
       }
@@ -275,14 +273,6 @@ const projectModel: ProjectModel = {
     unlisten('starting')
   }),
 
-  modalDisclosure: false,
-  setModalOpen: action((state) => {
-    state.modalDisclosure = true
-  }),
-  setModalClose: action((state) => {
-    state.modalDisclosure = false
-  }),
-
   projectView: ProjectView.BrowserView,
   setProjectView: action((state, payload) => {
     state.projectView = payload
@@ -291,6 +281,14 @@ const projectModel: ProjectModel = {
     } else {
       frontProjectView()
     }
+  }),
+
+  modalDisclosure: false,
+  setModalOpen: action((state) => {
+    state.modalDisclosure = true
+  }),
+  setModalClose: action((state) => {
+    state.modalDisclosure = false
   }),
 
   historys: [],

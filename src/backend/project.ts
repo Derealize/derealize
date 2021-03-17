@@ -49,6 +49,17 @@ class Project {
     this.config.branch = branch
   }
 
+  BroadcastStatus(): void {
+    broadcast('status', {
+      id: this.url,
+      changes: this.changes,
+      stage: this.stage,
+      productName: this.productName,
+      tailwindVersion: this.tailwindVersion,
+      config: this.config,
+    } as StatusPayload)
+  }
+
   private assignConfig(): BoolReply {
     try {
       const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
@@ -100,17 +111,6 @@ class Project {
     return { result: true }
   }
 
-  BroadcastStatus(): void {
-    broadcast('status', {
-      id: this.url,
-      changes: this.changes,
-      stage: this.stage,
-      productName: this.productName,
-      tailwindVersion: this.tailwindVersion,
-      config: this.config,
-    } as StatusPayload)
-  }
-
   async Import(): Promise<BoolReply> {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
@@ -132,9 +132,95 @@ class Project {
     if (!reply.result) return reply
 
     this.stage = ProjectStage.Initialized
-    this.Install()
+    return { result: true }
+  }
+
+  async Install(): Promise<BoolReply> {
+    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
+      return { result: false, error: 'Starting or Running' }
+    }
+
+    this.runningProcess?.kill()
+
+    this.installProcess = npmInstall(this.path)
+    let hasError = false
+
+    this.installProcess.stdout.on('data', (stdout) => {
+      broadcast('install', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
+    })
+
+    this.installProcess.stderr.on('data', (stderr) => {
+      broadcast('install', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+    })
+
+    this.installProcess.on('error', (error) => {
+      hasError = true
+      broadcast('install', { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
+      log('npmInstall error', error)
+    })
+
+    this.installProcess.on('exit', (exit) => {
+      broadcast('install', { id: this.url, exit } as ProcessPayload)
+      if (!hasError) {
+        this.stage = ProjectStage.Ready
+        this.BroadcastStatus()
+      }
+    })
 
     return { result: true }
+  }
+
+  async Start(): Promise<BoolReply> {
+    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
+      return { result: false, error: 'Starting or Running' }
+    }
+
+    this.runningProcess?.kill()
+    await killPort(this.config.port)
+
+    this.runningProcess = npmStart(this.path, this.config.npmScript)
+
+    this.runningProcess.stdout.on('data', (stdout) => {
+      const message = stdout.toString()
+      if (!message) return
+      broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
+
+      this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
+      this.BroadcastStatus()
+    })
+
+    this.runningProcess.stderr.on('data', (stderr) => {
+      broadcast('starting', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+    })
+
+    this.runningProcess.on('error', (error) => {
+      log('starting error', error)
+      broadcast('starting', { id: this.url, error: error.message } as ProcessPayload)
+      this.stage = ProjectStage.Ready
+      this.BroadcastStatus()
+    })
+
+    this.runningProcess.on('exit', (exit) => {
+      broadcast('starting', { id: this.url, exit } as ProcessPayload)
+      this.stage = ProjectStage.Ready
+      this.BroadcastStatus()
+    })
+
+    return { result: true }
+  }
+
+  async Stop() {
+    await killPort(this.config.port)
+    this.runningProcess?.kill()
+
+    this.stage = ProjectStage.Ready
+    this.BroadcastStatus()
+  }
+
+  async Dispose() {
+    await killPort(this.config.port)
+    this.installProcess?.kill()
+    this.runningProcess?.kill()
   }
 
   async Pull(): Promise<BoolReply> {
@@ -199,88 +285,6 @@ class Project {
     } catch (err) {
       return { result: [], error: err.message }
     }
-  }
-
-  async Install() {
-    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) return
-
-    this.runningProcess?.kill()
-
-    this.installProcess = npmInstall(this.path)
-    let hasError = false
-
-    this.installProcess.stdout.on('data', (stdout) => {
-      broadcast('install', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
-    })
-
-    this.installProcess.stderr.on('data', (stderr) => {
-      broadcast('install', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
-    })
-
-    this.installProcess.on('error', (error) => {
-      hasError = true
-      broadcast('install', { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
-      log('npmInstall error', error)
-    })
-
-    this.installProcess.on('exit', (exit) => {
-      broadcast('install', { id: this.url, exit } as ProcessPayload)
-      if (!hasError) {
-        this.stage = ProjectStage.Ready
-        this.BroadcastStatus()
-      }
-    })
-  }
-
-  async Start(): Promise<BoolReply> {
-    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
-      return { result: false, error: 'Starting or Running' }
-    }
-
-    this.runningProcess?.kill()
-    await killPort(this.config.port)
-
-    this.runningProcess = npmStart(this.path, this.config.npmScript)
-
-    this.runningProcess.stdout.on('data', (stdout) => {
-      const message = stdout.toString()
-      if (!message) return
-      broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
-
-      this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
-      this.BroadcastStatus()
-    })
-
-    this.runningProcess.stderr.on('data', (stderr) => {
-      broadcast('starting', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
-    })
-
-    this.runningProcess.on('error', (error) => {
-      broadcast('starting', { id: this.url, error: error.message } as ProcessPayload)
-      log('starting error', error)
-    })
-
-    this.runningProcess.on('exit', (exit) => {
-      broadcast('starting', { id: this.url, exit } as ProcessPayload)
-      this.stage = ProjectStage.Ready
-      this.BroadcastStatus()
-    })
-
-    return { result: true }
-  }
-
-  async Stop() {
-    await killPort(this.config.port)
-    this.runningProcess?.kill()
-
-    this.stage = ProjectStage.Ready
-    this.BroadcastStatus()
-  }
-
-  async Dispose() {
-    await killPort(this.config.port)
-    this.installProcess?.kill()
-    this.runningProcess?.kill()
   }
 }
 

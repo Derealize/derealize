@@ -3,6 +3,7 @@ import log from './log'
 import { HistoryReply, BoolReply } from './project.interface'
 
 const projectsMap = new Map<string, Project>()
+type IdParam = { url: string }
 
 const getProject = (url: string): Project => {
   const project = projectsMap.get(url)
@@ -20,28 +21,29 @@ export const Import = async ({ url, path, branch }: Record<string, string>) => {
   await project.Import()
 }
 
-export const Install = async ({ url }: Record<string, string>) => {
+export const Install = async ({ url }: IdParam): Promise<BoolReply> => {
   const project = getProject(url)
-  await project.Install()
+  const result = await project.Install()
+  return result
 }
 
-export const CheckStatus = async ({ url, checkGit }: { url: string; checkGit?: boolean }) => {
+export const CheckStatus = async ({ url }: IdParam) => {
   const project = getProject(url)
-  await project.CheckStatus(!!checkGit)
+  await project.CheckStatus()
 }
 
-export const Start = async ({ url }: Record<string, string>): Promise<BoolReply> => {
+export const Start = async ({ url }: IdParam): Promise<BoolReply> => {
   const project = getProject(url)
   const result = await project.Start()
   return result
 }
 
-export const Stop = async ({ url }: Record<string, string>) => {
+export const Stop = async ({ url }: IdParam) => {
   const project = getProject(url)
   await project.Stop()
 }
 
-export const Pull = async ({ url }: Record<string, string>): Promise<BoolReply> => {
+export const Pull = async ({ url }: IdParam): Promise<BoolReply> => {
   const project = getProject(url)
   const reply = await project.Pull()
   return reply
@@ -53,13 +55,13 @@ export const Push = async ({ url, msg }: Record<string, string>): Promise<BoolRe
   return reply
 }
 
-export const History = async ({ url }: Record<string, string>): Promise<HistoryReply> => {
+export const History = async ({ url }: IdParam): Promise<HistoryReply> => {
   const project = getProject(url)
   const logs = await project.History()
   return logs
 }
 
-// export const Dispose = async ({ url }: Record<string, string>) => {
+// export const Dispose = async ({ url }: IdParam) => {
 //   const project = getProject(url)
 //   project?.Dispose()
 //   projectsMap.delete(url)
