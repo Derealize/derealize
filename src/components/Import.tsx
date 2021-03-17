@@ -62,6 +62,8 @@ const ImportProject = (): JSX.Element => {
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setProject = useStoreActions((actions) => actions.project.setProject)
+  const addProject = useStoreActions((actions) => actions.project.addProject)
+  const resolveTailwindcssConfig = useStoreActions((actions) => actions.project.resolveTailwindcssConfig)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
   const [name, setName] = useState('')
@@ -121,8 +123,6 @@ const ImportProject = (): JSX.Element => {
       return
     }
 
-    setLoading(true)
-    const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
     const newProject: Project = {
       url,
       path,
@@ -131,14 +131,18 @@ const ImportProject = (): JSX.Element => {
       stage: ProjectStage.Initialized,
       installOutput: [],
     }
+    addProject(newProject)
+
+    setLoading(true)
+    const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
+
     if (result) {
-      setProject(newProject)
       send('Install', { url, path, branch })
+      resolveTailwindcssConfig(url)
     } else {
       newProject.installOutput?.push(`import error: ${error}`)
-      setProject(newProject)
     }
-  }, [projects, url, setProject, path, name, setLoading, branch, onOpenExistsAlert])
+  }, [projects, url, path, name, addProject, setLoading, branch, onOpenExistsAlert, resolveTailwindcssConfig])
 
   const open = useCallback(() => {
     if (readyOpen) {
