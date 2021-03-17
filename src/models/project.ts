@@ -1,4 +1,4 @@
-import path from 'path'
+import sysPath from 'path'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
@@ -27,6 +27,12 @@ const toast = createStandaloneToast({
   },
 })
 
+const storeProject = (projects: Array<Project>) => {
+  // proxy object can't serialize https://stackoverflow.com/a/60344844
+  const omitProjects = projects.map((p) => omit(p, OmitStoreProp))
+  setStore({ projects: clone(omitProjects) })
+}
+
 export interface ProjectModel {
   loading: boolean
   setLoading: Action<ProjectModel, boolean>
@@ -34,9 +40,12 @@ export interface ProjectModel {
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, Array<Project>>
+  initProjects: Action<ProjectModel>
 
-  setProject: Action<ProjectModel, Project>
+  addProject: Action<ProjectModel, Project>
   removeProject: Thunk<ProjectModel, string>
+  setProject: Action<ProjectModel, Project>
+  resolveTailwindcssConfig: Action<ProjectModel, string>
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
@@ -46,7 +55,7 @@ export interface ProjectModel {
   stopProject: Action<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string>
 
-  loadStore: Action<ProjectModel>
+  loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel>
   unlisten: Action<ProjectModel>
 
@@ -74,27 +83,66 @@ const projectModel: ProjectModel = {
   }),
   setProjects: action((state, payload) => {
     state.projects = payload
-
-    const projects = state.projects.map((p) => omit(p, OmitStoreProp))
-    // proxy object can't serialize https://stackoverflow.com/a/60344844
-    setStore({ projects: clone(projects) })
+    storeProject(state.projects)
+  }),
+  initProjects: action((state) => {
+    const projects = getStore('projects') as Array<Project> | undefined
+    if (projects) {
+      state.projects = projects
+    }
   }),
 
-  setProject: action((state, project) => {
-    const fproject = state.projects.find((p) => p.url === project.url)
-    if (!fproject) {
-      state.projects.push(project)
-    } else {
-      Object.assign(fproject, project)
+  addProject: action((state, project) => {
+    if (state.projects.some((p) => p.url === project.url)) {
+      toast({
+        title: 'project url existed',
+        status: 'warning',
+      })
+      return
     }
 
-    const projects = state.projects.map((p) => omit(p, OmitStoreProp))
-    setStore({ projects: clone(projects) })
+    state.projects.push(project)
+    storeProject(state.projects)
   }),
   removeProject: thunk((actions, id, { getState }) => {
     actions.closeProject(id)
     const projects = getState().projects.filter((p) => p.url !== id)
     actions.setProjects(projects)
+  }),
+  setProject: action((state, project) => {
+    const fproject = state.projects.find((p) => p.url === project.url)
+    if (!fproject) {
+      toast({
+        title: "project don't exist",
+        status: 'error',
+      })
+      return
+    }
+
+    Object.assign(fproject, project)
+    storeProject(state.projects)
+  }),
+  resolveTailwindcssConfig: action((state, id) => {
+    const project = state.projects.find((p) => p.url === id)
+    if (!project) {
+      toast({
+        title: "project don't exist",
+        status: 'error',
+      })
+      return
+    }
+
+    import(sysPath.join(project.path, './tailwind.config.js'))
+      .then((customConfig) => {
+        project.tailwindConfig = resolveConfig(customConfig)
+        return undefined
+      })
+      .catch((err) => {
+        toast({
+          title: err.message,
+          status: 'error',
+        })
+      })
   }),
 
   frontProject: null,
@@ -165,17 +213,22 @@ const projectModel: ProjectModel = {
     actions.setProjects(projects)
   }),
 
-  loadStore: action((state) => {
-    const projects = getStore('projects') as Array<Project> | undefined
-    if (projects) {
-      state.projects = projects
-      projects.forEach(async (p: Project) => {
-        send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
+  loadStore: thunk((actions, none, { getState }) => {
+    actions.initProjects()
+    const { projects } = getState()
 
-        const customConfig = await import(path.join(p.path, './tailwind.config.js'))
-        p.tailwindConfig = resolveConfig(customConfig)
-      })
-    }
+    projects?.forEach(async (project: Project) => {
+      const { url, path, config } = project
+      const branch = config?.branch
+
+      const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
+      if (result) {
+        send('Install', { url, path, branch })
+        actions.resolveTailwindcssConfig(url)
+      } else {
+        project.installOutput?.push(`import error: ${error}`)
+      }
+    })
   }),
 
   listen: thunk(async (actions, none, { getState }) => {

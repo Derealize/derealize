@@ -10,7 +10,6 @@ import {
   StatusPayload,
   ProcessPayload,
   BoolReply,
-  PayloadError,
   HistoryReply,
 } from './project.interface'
 import { npmInstall, npmStart } from './npm'
