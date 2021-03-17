@@ -7,7 +7,6 @@ import {
   ProjectConfig,
   ProjectStage,
   GitFileChanges,
-  Payload,
   StatusPayload,
   ProcessPayload,
   BoolReply,
@@ -50,7 +49,7 @@ class Project {
     this.config.branch = branch
   }
 
-  private assignConfig(channel: string): boolean {
+  private assignConfig(): BoolReply {
     try {
       const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
       const pacakge = JSON.parse(jsonraw)
@@ -59,48 +58,49 @@ class Project {
 
       this.productName = pacakge.productName || pacakge.name
       this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (this.tailwindVersion) return true // todo:parse and check min supported version
-
-      broadcast(channel, { id: this.url, error: 'project not imported tailwindcss' } as PayloadError)
+      if (this.tailwindVersion) {
+        // todo:parse and check min supported version
+        return { result: false, error: 'project not imported tailwindcss' }
+      }
     } catch (error) {
-      broadcast(channel, { id: this.url, error: error.message } as PayloadError)
-      log('config error', error)
+      log('assignConfig error', error)
+      return { result: false, error: error.message }
     }
 
-    this.Stop()
-    this.stage = ProjectStage.None
-    return false
+    return { result: true }
   }
 
-  async CheckStatus(chackGit = true): Promise<boolean> {
-    if (!this.repo) return false
+  async CheckStatus(): Promise<BoolReply> {
+    if (!this.repo) return { result: false, error: 'repo null' }
 
     try {
       await checkBranch(this.repo, this.config.branch)
     } catch (err) {
-      broadcast('import', { id: this.url, error: err.message } as PayloadError)
       log('git branch error', err)
-      return false
+      return { result: false, error: err.message }
     }
 
-    if (!this.assignConfig('import')) return false
+    const reply = this.assignConfig()
+    if (!reply.result) return reply
 
-    if (chackGit) {
-      try {
-        const statuses = await this.repo.getStatus()
-        this.changes = statuses.map((item) => {
-          return {
-            file: item.path(),
-            status: fileStatusToText(item),
-          }
-        })
-      } catch (error) {
-        broadcast('status', { id: this.url, error: error.message })
-        log('git status error', error)
-        return false
-      }
+    try {
+      const statuses = await this.repo.getStatus()
+      this.changes = statuses.map((item) => {
+        return {
+          file: item.path(),
+          status: fileStatusToText(item),
+        }
+      })
+    } catch (err) {
+      log('git status error', err)
+      return { result: false, error: err.message }
     }
 
+    this.BroadcastStatus()
+    return { result: true }
+  }
+
+  BroadcastStatus(): void {
     broadcast('status', {
       id: this.url,
       changes: this.changes,
@@ -109,45 +109,48 @@ class Project {
       tailwindVersion: this.tailwindVersion,
       config: this.config,
     } as StatusPayload)
-
-    return true
   }
 
-  async Import() {
+  async Import(): Promise<BoolReply> {
     try {
       this.repo = await gitClone(this.url, this.path, this.config.branch)
-      broadcast('import', { id: this.url, result: 'done' } as Payload)
-    } catch (error) {
-      if (error.message.includes('exists and is not an empty directory')) {
+    } catch (err) {
+      if (err.message.includes('exists and is not an empty directory')) {
         try {
           this.repo = await gitOpen(this.path)
-        } catch (err) {
-          broadcast('import', { id: this.url, error: error.message } as PayloadError)
-          log('git open error', error)
+        } catch (openErr) {
+          log('git open error', openErr)
+          return { result: false, error: openErr.message }
         }
       } else {
-        broadcast('import', { id: this.url, error: error.message } as PayloadError)
-        log('git clone error', error)
+        log('git clone error', err)
+        return { result: false, error: err.message }
       }
     }
 
-    const fine = await this.CheckStatus()
-    if (fine) {
-      this.stage = ProjectStage.Initialized
-      this.Install()
-    }
+    const reply = await this.CheckStatus()
+    if (!reply.result) return reply
+
+    this.stage = ProjectStage.Initialized
+    this.Install()
+
+    return { result: true }
   }
 
   async Pull(): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    await this.CheckStatus()
+    const reply = await this.CheckStatus()
+    if (!reply.result) return reply
+
     if (this.changes.length) {
-      return { result: false, error: 'has changes' }
+      return { result: false, error: 'Some files have changed, please push first.' }
     }
 
     try {
       await gitPull(this.repo)
+      this.Install()
+
       return { result: true }
     } catch (error) {
       if (error.message.includes('is the current HEAD of the repository')) {
@@ -161,7 +164,8 @@ class Project {
   async Push(msg: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    await this.CheckStatus()
+    const reply = await this.CheckStatus()
+    if (!reply.result) return reply
 
     try {
       if (this.changes.length) {
@@ -170,7 +174,9 @@ class Project {
 
       await gitPull(this.repo)
 
-      await this.CheckStatus()
+      const reply2 = await this.CheckStatus()
+      if (!reply2.result) return reply2
+
       if (this.changes.length) {
         return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
@@ -221,7 +227,7 @@ class Project {
       broadcast('install', { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
-        this.CheckStatus(false)
+        this.BroadcastStatus()
       }
     })
   }
@@ -242,7 +248,7 @@ class Project {
       broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
 
       this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
-      this.CheckStatus(false)
+      this.BroadcastStatus()
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
@@ -257,24 +263,24 @@ class Project {
     this.runningProcess.on('exit', (exit) => {
       broadcast('starting', { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
-      this.CheckStatus(false)
+      this.BroadcastStatus()
     })
 
     return { result: true }
   }
 
   async Stop() {
-    this.runningProcess?.kill()
     await killPort(this.config.port)
+    this.runningProcess?.kill()
 
     this.stage = ProjectStage.Ready
-    this.CheckStatus(false)
+    this.BroadcastStatus()
   }
 
-  Dispose() {
+  async Dispose() {
+    await killPort(this.config.port)
     this.installProcess?.kill()
     this.runningProcess?.kill()
-    killPort(this.config.port)
   }
 }
 

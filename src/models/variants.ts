@@ -65,7 +65,7 @@ const variantsModel: VariantsModel = {
     'translate',
   ],
   addHoverTargets: action((state, payload) => {
-    state.hoverTargets.concat(payload)
+    state.hoverTargets = [...new Set([...state.hoverTargets, ...payload])]
   }),
 
   focus: false,
@@ -100,7 +100,7 @@ const variantsModel: VariantsModel = {
     'zIndex',
   ],
   addFocusTargets: action((state, payload) => {
-    state.focusTargets.concat(payload)
+    state.focusTargets = [...new Set([...state.focusTargets, ...payload])]
   }),
 
   active: false,

@@ -77,7 +77,7 @@ const setBrowserViewBounds = (mainwin: BrowserWindow) => {
   const browserView = mainwin.getBrowserView()
   if (!browserView) return
 
-  const barwidth = (store.get('barWidth') as number) || 200
+  const barwidth = (store.get('barWidth') as number) || 300
   const rectangle = mainwin.getBounds()
   const xaxis = barwidth + 5
   const yaxis = (mainwin.isMaximized() ? 34 : 46) + topbarHeight + 1
