@@ -35,7 +35,7 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
-import { Payload, ProcessPayload, PayloadError } from '../backend/project.interface'
+import { Payload, ProcessPayload, PayloadError, BoolReply } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import Project from '../models/project.interface'
 import style from './Import.module.scss'
@@ -109,29 +109,25 @@ const ImportProject = (): JSX.Element => {
     [toast, url],
   )
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     if (projects.map((p) => p.url).includes(url)) {
       onOpenExistsAlert()
       return
     }
+
+    setProject({ url, path, name, editedTime: dayjs().toString() })
+
     setIsLoading(true)
     setIsReady(false)
     output.current = []
-    send('Import', { url, path, branch })
-  }, [projects, url, path, branch, onOpenExistsAlert])
+
+    const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
+    if (!result) {
+      output.current.push(`import error: ${error}`)
+    }
+  }, [projects, url, path, branch, onOpenExistsAlert, setProject, name])
 
   useEffect(() => {
-    const importUnlisten = listen('import', (payload: Payload | PayloadError) => {
-      if (payload.id !== url) return
-      if ((payload as Payload).result) {
-        output.current.push(`import: ${(payload as Payload).result}`)
-      } else if ((payload as PayloadError).error) {
-        output.current.push(`import error:${(payload as PayloadError).error}`)
-        setIsLoading(false)
-      }
-      forceUpdate()
-    })
-
     const npmUnlisten = listen('install', (payload: ProcessPayload) => {
       if (payload.id !== url) return
 
@@ -152,18 +148,9 @@ const ImportProject = (): JSX.Element => {
     })
 
     return () => {
-      importUnlisten()
       npmUnlisten()
     }
   }, [path, url])
-
-  useEffect(() => {
-    if (isReady) {
-      setProject({
-        project: { url, path, name, editedTime: dayjs().toString() },
-      })
-    }
-  }, [setProject, name, isReady, url, path])
 
   const open = useCallback(() => {
     if (isReady) {

@@ -20,7 +20,7 @@ export interface WorkspaceModel {
 }
 
 const workspaceModel: WorkspaceModel = {
-  barWidth: 200,
+  barWidth: 300,
   setBarWidth: action((state, barWidth) => {
     state.barWidth = barWidth
     setStore({ barWidth: clone(barWidth) })

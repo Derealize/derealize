@@ -10,9 +10,9 @@ process
   .on('unhandledRejection', (reason) => {
     log('Backend UnhandledRejection', JSON.stringify(reason))
   })
-  .on('exit', () => {
+  .on('exit', async () => {
+    await DisposeAll()
     log('exit, DisposeAll')
-    DisposeAll()
   })
 
 if (process.argv[2] === '--subprocess') {

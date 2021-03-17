@@ -1,3 +1,4 @@
+import { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { ProjectConfig, ProjectStage, GitFileChanges } from '../backend/project.interface'
 
 interface Project {
@@ -10,8 +11,10 @@ interface Project {
   stage?: ProjectStage
   tailwindVersion?: string
   changes?: Array<GitFileChanges>
+  installOutput?: Array<string>
   runningOutput?: Array<string>
   config?: ProjectConfig
+  tailwindConfig?: TailwindConfig
 }
 
 export enum ProjectView {
@@ -19,5 +22,15 @@ export enum ProjectView {
   FileStatus,
   BrowserView,
 }
+
+export const OmitStoreProp = [
+  'isOpened',
+  'stage',
+  'changes',
+  'runningOutput',
+  'installOutput',
+  'config',
+  'tailwindConfig',
+]
 
 export default Project

@@ -1,8 +1,10 @@
+import path from 'path'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
+import resolveConfig from 'tailwindcss/resolveConfig'
 import {
   ProjectStage,
   ProcessPayload,
@@ -12,14 +14,11 @@ import {
   HistoryReply,
   BoolReply,
 } from '../backend/project.interface'
-import Project, { ProjectView } from './project.interface'
+import Project, { ProjectView, OmitStoreProp } from './project.interface'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { setStore, getStore, send, listen, frontProjectView, closeProjectView } = window.derealize
-
-let statusUnlisten: () => void
-let startingUnlisten: () => void
+const { setStore, getStore, send, listen, unlisten, frontProjectView, closeProjectView } = window.derealize
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -27,14 +26,16 @@ const toast = createStandaloneToast({
     isClosable: true,
   },
 })
+
 export interface ProjectModel {
   loading: boolean
   setLoading: Action<ProjectModel, boolean>
+
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, Array<Project>>
 
-  setProject: Action<ProjectModel, { project: Project; notStore?: boolean }>
+  setProject: Action<ProjectModel, Project>
   removeProject: Thunk<ProjectModel, string>
 
   frontProject: Project | null
@@ -73,21 +74,22 @@ const projectModel: ProjectModel = {
   }),
   setProjects: action((state, payload) => {
     state.projects = payload
+
+    const projects = state.projects.map((p) => omit(p, OmitStoreProp))
+    // proxy object can't serialize https://stackoverflow.com/a/60344844
+    setStore({ projects: clone(projects) })
   }),
 
-  setProject: action((state, { project, notStore }) => {
+  setProject: action((state, project) => {
     const fproject = state.projects.find((p) => p.url === project.url)
     if (!fproject) {
       state.projects.push(project)
     } else {
       Object.assign(fproject, project)
     }
-    if (!notStore) {
-      // proxy object can't serialize
-      // https://stackoverflow.com/a/60344844
-      const projects = state.projects.map((p) => omit(p, ['runningOutput', 'changes', 'isOpened']))
-      setStore({ projects: clone(projects) })
-    }
+
+    const projects = state.projects.map((p) => omit(p, OmitStoreProp))
+    setStore({ projects: clone(projects) })
   }),
   removeProject: thunk((actions, id, { getState }) => {
     actions.closeProject(id)
@@ -167,15 +169,19 @@ const projectModel: ProjectModel = {
     const projects = getStore('projects') as Array<Project> | undefined
     if (projects) {
       state.projects = projects
-      projects.forEach((p: Project) => {
+      projects.forEach(async (p: Project) => {
         send('Import', { url: p.url, path: p.path, branch: p.config?.branch })
+
+        const customConfig = await import(path.join(p.path, './tailwind.config.js'))
+        p.tailwindConfig = resolveConfig(customConfig)
       })
     }
   }),
 
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
-    statusUnlisten = listen('status', (payload: StatusPayload | PayloadError) => {
+
+    listen('status', (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -190,22 +196,51 @@ const projectModel: ProjectModel = {
 
       const status = payload as StatusPayload
       project.config = status.config
-      project.stage = status.stage
 
       if (frontProject === project) {
         actions.setLoading(project.stage === ProjectStage.Starting)
-        if (project.stage === ProjectStage.Running) {
+        if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
           actions.setProjectView(ProjectView.BrowserView)
         }
       }
 
+      project.stage = status.stage
       project.changes = status.changes
       project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
-      actions.setProject({ project })
+
+      actions.setProject(project)
     })
 
-    startingUnlisten = listen('starting', (payload: ProcessPayload) => {
+    listen('install', (payload: ProcessPayload) => {
+      if (payload.error) {
+        toast({
+          title: `Install error:${payload.error}`,
+          status: 'error',
+        })
+        return
+      }
+
+      const { projects } = getState()
+      const project = projects.find((p) => p.url === payload.id)
+      if (!project) return
+
+      if (!project.installOutput) {
+        project.installOutput = []
+      }
+
+      if (payload.stdout) {
+        project.installOutput.push(`stdout:${payload.stdout}`)
+      } else if (payload.stderr) {
+        project.installOutput.push(`stderr:${payload.stderr}`)
+      } else if (payload.error) {
+        project.installOutput.push(`error:${payload.error}`)
+      } else if (payload.exit !== undefined) {
+        project.installOutput.push(`exit:${payload.error}`)
+      }
+    })
+
+    listen('starting', (payload: ProcessPayload) => {
       if (payload.error) {
         toast({
           title: `Starting error:${payload.error}`,
@@ -226,15 +261,18 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`stdout:${payload.stdout}`)
       } else if (payload.stderr) {
         project.runningOutput.push(`stderr:${payload.stderr}`)
+      } else if (payload.error) {
+        project.runningOutput.push(`error:${payload.error}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
       }
     })
   }),
 
-  unlisten: action((state) => {
-    if (statusUnlisten) statusUnlisten()
-    if (startingUnlisten) startingUnlisten()
+  unlisten: action(() => {
+    unlisten('status')
+    unlisten('install')
+    unlisten('starting')
   }),
 
   modalDisclosure: false,
