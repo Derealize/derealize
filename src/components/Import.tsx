@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useReducer } from 'react'
+import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo, useReducer } from 'react'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import {
@@ -35,9 +35,9 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
-import { Payload, ProcessPayload, PayloadError, BoolReply } from '../backend/project.interface'
+import { BoolReply, ProjectStage } from '../backend/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import Project from '../models/project.interface'
+import Project, { ProjectView } from '../models/project.interface'
 import style from './Import.module.scss'
 import { PreloadWindow } from '../preload'
 
@@ -53,11 +53,14 @@ const ImportProject = (): JSX.Element => {
   const { register, handleSubmit, watch, errors } = useForm()
 
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
-  const [, forceUpdate] = useReducer((x) => x + 1, 0)
+  // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
-  const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
+  const loading = useStoreState<boolean>((state) => state.project.loading)
+  const setLoading = useStoreActions((actions) => actions.project.setLoading)
+
+  const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setProject = useStoreActions((actions) => actions.project.setProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
@@ -69,13 +72,16 @@ const ImportProject = (): JSX.Element => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [isReady, setIsReady] = useState(false)
-  const output = useRef<Array<string>>([])
+  const project = useMemo(() => projects.find((p) => p.url === url), [projects, url])
+  const readyOpen = project?.stage === ProjectStage.Ready
 
   useEffect(() => {
-    setIsReady(false)
+    if (project) {
+      setProject({ ...project, stage: ProjectStage.Initialized })
+    }
+
     if (!url) return
+
     try {
       const parseURL = new URL(url)
       setUsername(parseURL.username)
@@ -89,7 +95,7 @@ const ImportProject = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [toast, url])
+  }, [project, setProject, toast, url])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
@@ -115,49 +121,31 @@ const ImportProject = (): JSX.Element => {
       return
     }
 
-    setProject({ url, path, name, editedTime: dayjs().toString() })
-
-    setIsLoading(true)
-    setIsReady(false)
-    output.current = []
-
+    setLoading(true)
     const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
-    if (!result) {
-      output.current.push(`import error: ${error}`)
+    const newProject: Project = {
+      url,
+      path,
+      name,
+      editedTime: dayjs().toString(),
+      stage: ProjectStage.Initialized,
+      installOutput: [],
     }
-  }, [projects, url, path, branch, onOpenExistsAlert, setProject, name])
-
-  useEffect(() => {
-    const npmUnlisten = listen('install', (payload: ProcessPayload) => {
-      if (payload.id !== url) return
-
-      if (payload.stdout) {
-        output.current.push(`install stdout:${payload.stdout}`)
-      } else if (payload.stderr) {
-        output.current.push(`install stderr:${payload.stderr}`)
-      } else if (payload.error) {
-        output.current.push(`install error:${payload.error}`)
-      }
-
-      if (payload.exit !== undefined) {
-        setIsLoading(false)
-        setIsReady(true)
-      }
-
-      forceUpdate()
-    })
-
-    return () => {
-      npmUnlisten()
+    if (result) {
+      setProject(newProject)
+      send('Install', { url, path, branch })
+    } else {
+      newProject.installOutput?.push(`import error: ${error}`)
+      setProject(newProject)
     }
-  }, [path, url])
+  }, [projects, url, setProject, path, name, setLoading, branch, onOpenExistsAlert])
 
   const open = useCallback(() => {
-    if (isReady) {
+    if (readyOpen) {
       setModalClose()
       openProject(url)
     }
-  }, [isReady, openProject, setModalClose, url])
+  }, [openProject, readyOpen, setModalClose, url])
 
   return (
     <>
@@ -176,7 +164,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={url}
                     ref={register({ required: true, pattern: gitUrlPattern })}
-                    disabled={isLoading}
+                    disabled={loading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
                   <FormHelperText className="prose">
@@ -194,7 +182,7 @@ const ImportProject = (): JSX.Element => {
                   <Button
                     leftIcon={<FaRegFolderOpen />}
                     colorScheme="gray"
-                    disabled={isLoading}
+                    disabled={loading}
                     onClick={(e) => {
                       e.stopPropagation()
                       const filePaths = selectDirs()
@@ -225,7 +213,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={username}
                     ref={register({ required: true })}
-                    disabled={isLoading}
+                    disabled={loading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setUsername(e.target.value)
                       updateUrl({ _username: e.target.value })
@@ -242,7 +230,7 @@ const ImportProject = (): JSX.Element => {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
-                      disabled={isLoading}
+                      disabled={loading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         setPassword(e.target.value)
                         updateUrl({ _password: e.target.value })
@@ -261,7 +249,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     type="text"
                     value={name}
-                    disabled={isLoading}
+                    disabled={loading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setName(e.target.value)
                     }}
@@ -273,7 +261,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     name="branch"
                     type="text"
-                    disabled={isLoading}
+                    disabled={loading}
                     value={branch}
                     colorScheme="gray"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -285,22 +273,22 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p className={style.output}>{output.current.join('\n')}</p>
-                {isLoading && (
+                <p className={style.output}>{project?.installOutput?.join('\n')}</p>
+                {loading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
                   </p>
                 )}
               </Box>
             </Grid>
-            {isReady && (
+            {readyOpen && (
               <Text color="teal.500" align="center">
                 Congratulations, it looks like the project is ready to work.
               </Text>
             )}
           </ModalBody>
           <ModalFooter justifyContent="center">
-            {isReady && (
+            {readyOpen && (
               <ButtonGroup variant="outline" size="lg" spacing={6}>
                 <Button colorScheme="gray" onClick={() => setModalClose()}>
                   Close Dialog
@@ -313,13 +301,13 @@ const ImportProject = (): JSX.Element => {
             <Button
               colorScheme="teal"
               size="lg"
-              variant={isReady ? 'outline' : 'solid'}
-              isLoading={isLoading}
+              variant={readyOpen ? 'outline' : 'solid'}
+              isLoading={loading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={handleSubmit(submit)}
               ml={6}
             >
-              Import {isReady && 'Again'}
+              Import {readyOpen && 'Again'}
             </Button>
           </ModalFooter>
         </ModalContent>
