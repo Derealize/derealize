@@ -1,4 +1,3 @@
-import sysPath from 'path'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
@@ -275,7 +274,7 @@ const projectModel: ProjectModel = {
       if (payload.error) {
         actions.setImportLoading(false)
         toast({
-          title: `Install error:${payload.error}`,
+          title: `Installing error:${payload.error}`,
           status: 'error',
         })
         return
@@ -355,7 +354,7 @@ const projectModel: ProjectModel = {
     state.historys = payload
   }),
 
-  callHistory: thunk(async (actions, id, { getState }) => {
+  callHistory: thunk(async (actions, none, { getState }) => {
     actions.setHistorys([])
 
     const { frontProject } = getState()
@@ -364,7 +363,7 @@ const projectModel: ProjectModel = {
     const reply = (await send(Handler.History, { url: frontProject.url })) as HistoryReply
     if (reply.error) {
       toast({
-        title: `History error:${reply.error}`,
+        title: `callHistory error:${reply.error}`,
         status: 'error',
       })
     } else {
