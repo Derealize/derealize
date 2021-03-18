@@ -36,8 +36,11 @@ const storeProject = (projects: Array<Project>) => {
 }
 
 export interface ProjectModel {
-  loading: boolean
-  setLoading: Action<ProjectModel, boolean>
+  startloading: boolean
+  setStartLoading: Action<ProjectModel, boolean>
+
+  importloading: boolean
+  setImportLoading: Action<ProjectModel, boolean>
 
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
@@ -74,9 +77,14 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
-  loading: false,
-  setLoading: action((state, payload) => {
-    state.loading = payload
+  startloading: false,
+  setStartLoading: action((state, payload) => {
+    state.startloading = payload
+  }),
+
+  importloading: false,
+  setImportLoading: action((state, payload) => {
+    state.importloading = payload
   }),
 
   projects: [],
@@ -167,12 +175,12 @@ const projectModel: ProjectModel = {
     const project = projects.find((p) => p.url === id)
     if (!project) return
 
-    actions.setLoading(true)
+    actions.setStartLoading(true)
     const reply = (await send(Handler.Start, { url: project.url })) as BoolReply
     if (reply.result) {
       project.runningOutput = []
     } else {
-      actions.setLoading(false)
+      actions.setStartLoading(false)
       toast({
         title: reply.error,
         status: 'error',
@@ -248,7 +256,7 @@ const projectModel: ProjectModel = {
       project.config = status.config
 
       if (frontProject === project) {
-        actions.setLoading(project.stage === ProjectStage.Starting)
+        actions.setStartLoading(project.stage === ProjectStage.Starting)
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
           actions.setProjectView(ProjectView.BrowserView)
         }
@@ -265,7 +273,7 @@ const projectModel: ProjectModel = {
 
     listen(Broadcast.Installing, (payload: ProcessPayload) => {
       if (payload.error) {
-        actions.setLoading(false)
+        actions.setImportLoading(false)
         toast({
           title: `Install error:${payload.error}`,
           status: 'error',
@@ -287,7 +295,7 @@ const projectModel: ProjectModel = {
         project.installOutput.push(`stderr:${payload.stderr}`)
       } else if (payload.exit !== undefined) {
         project.installOutput.push(`exit:${payload.error}`)
-        actions.setLoading(false)
+        actions.setImportLoading(false)
       }
     })
 
