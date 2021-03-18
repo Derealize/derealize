@@ -7,7 +7,7 @@ import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import Project, { ProjectView } from './models/project.interface'
-import { CommitLog, BoolReply } from './backend/project.interface'
+import { CommitLog, BoolReply, Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
 import Controllers from './components/Controllers'
 import style from './Project.module.scss'
@@ -33,7 +33,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send('Push', { url: project.url })) as BoolReply
+    const reply = (await send(Handler.Push, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Push error:${reply.error}`,

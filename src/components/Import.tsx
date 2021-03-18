@@ -35,7 +35,7 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
-import { BoolReply, ProjectStage } from '../backend/project.interface'
+import { BoolReply, ProjectStage, Handler } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import Project, { ProjectView } from '../models/project.interface'
 import style from './Import.module.scss'
@@ -134,10 +134,10 @@ const ImportProject = (): JSX.Element => {
     addProject(newProject)
 
     setLoading(true)
-    const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
+    const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
 
     if (result) {
-      send('Install', { url, path, branch })
+      send(Handler.Install, { url, path, branch })
       resolveTailwindcssConfig(url)
     } else {
       newProject.installOutput?.push(`import error: ${error}`)

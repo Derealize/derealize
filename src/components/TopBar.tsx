@@ -9,7 +9,7 @@ import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
-import { ProjectStage, BoolReply } from '../backend/project.interface'
+import { ProjectStage, BoolReply, Handler } from '../backend/backend.interface'
 import Project, { ProjectView } from '../models/project.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
@@ -49,7 +49,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const callPull = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send('Pull', { url: project.url })) as BoolReply
+    const reply = (await send(Handler.Pull, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Pull error:${reply.error}`,
@@ -67,7 +67,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send('Push', { url: project.url })) as BoolReply
+    const reply = (await send(Handler.Push, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Push error:${reply.error}`,
