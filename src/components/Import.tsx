@@ -57,8 +57,8 @@ const ImportProject = (): JSX.Element => {
 
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
-  const loading = useStoreState<boolean>((state) => state.project.loading)
-  const setLoading = useStoreActions((actions) => actions.project.setLoading)
+  const importLoading = useStoreState<boolean>((state) => state.project.importLoading)
+  const setImportLoading = useStoreActions((actions) => actions.project.setImportLoading)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setProject = useStoreActions((actions) => actions.project.setProject)
@@ -133,7 +133,7 @@ const ImportProject = (): JSX.Element => {
     }
     addProject(newProject)
 
-    setLoading(true)
+    setImportLoading(true)
     const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
 
     if (result) {
@@ -142,7 +142,7 @@ const ImportProject = (): JSX.Element => {
     } else {
       newProject.installOutput?.push(`import error: ${error}`)
     }
-  }, [projects, url, path, name, addProject, setLoading, branch, onOpenExistsAlert, resolveTailwindcssConfig])
+  }, [projects, url, path, name, addProject, setImportLoading, branch, onOpenExistsAlert, resolveTailwindcssConfig])
 
   const open = useCallback(() => {
     if (readyOpen) {
@@ -168,7 +168,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={url}
                     ref={register({ required: true, pattern: gitUrlPattern })}
-                    disabled={loading}
+                    disabled={importLoading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
                   <FormHelperText className="prose">
@@ -186,7 +186,7 @@ const ImportProject = (): JSX.Element => {
                   <Button
                     leftIcon={<FaRegFolderOpen />}
                     colorScheme="gray"
-                    disabled={loading}
+                    disabled={importLoading}
                     onClick={(e) => {
                       e.stopPropagation()
                       const filePaths = selectDirs()
@@ -217,7 +217,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={username}
                     ref={register({ required: true })}
-                    disabled={loading}
+                    disabled={importLoading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setUsername(e.target.value)
                       updateUrl({ _username: e.target.value })
@@ -234,7 +234,7 @@ const ImportProject = (): JSX.Element => {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
-                      disabled={loading}
+                      disabled={importLoading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         setPassword(e.target.value)
                         updateUrl({ _password: e.target.value })
@@ -253,7 +253,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     type="text"
                     value={name}
-                    disabled={loading}
+                    disabled={importLoading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setName(e.target.value)
                     }}
@@ -265,7 +265,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     name="branch"
                     type="text"
-                    disabled={loading}
+                    disabled={importLoading}
                     value={branch}
                     colorScheme="gray"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -278,7 +278,7 @@ const ImportProject = (): JSX.Element => {
               </Box>
               <Box>
                 <p className={style.output}>{project?.installOutput?.join('\n')}</p>
-                {loading && (
+                {importLoading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
                   </p>
@@ -306,7 +306,7 @@ const ImportProject = (): JSX.Element => {
               colorScheme="teal"
               size="lg"
               variant={readyOpen ? 'outline' : 'solid'}
-              isLoading={loading}
+              isLoading={importLoading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={handleSubmit(submit)}
               ml={6}
