@@ -1,6 +1,6 @@
 import Project from './project'
 import log from './log'
-import { HistoryReply, BoolReply } from './project.interface'
+import { HistoryReply, BoolReply } from './backend.interface'
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
@@ -11,14 +11,15 @@ const getProject = (url: string): Project => {
   return project
 }
 
-export const Import = async ({ url, path, branch }: Record<string, string>) => {
+export const Import = async ({ url, path, branch }: Record<string, string>): Promise<BoolReply> => {
   let project = projectsMap.get(url)
   if (!project) {
     project = new Project(url, path, branch)
     projectsMap.set(url, project)
   }
 
-  await project.Import()
+  const result = await project.Import()
+  return result
 }
 
 export const Install = async ({ url }: IdParam): Promise<BoolReply> => {
@@ -71,7 +72,7 @@ export const DisposeAll = async () => {
   projectsMap.forEach((p) => p.Dispose())
 }
 
-export const focusElement = async ({ url, code }: Record<string, string>) => {
+export const FocusElement = async ({ url, code }: Record<string, string>) => {
   const project = getProject(url)
   log(`${url}:${code}`)
 }

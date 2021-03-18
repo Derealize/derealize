@@ -1,3 +1,21 @@
+export enum Broadcast {
+  Status = 'Status',
+  Installing = 'Installing',
+  Starting = 'Starting',
+}
+
+export enum Handler {
+  Import = 'Import',
+  Install = 'Install',
+  CheckStatus = 'CheckStatus',
+  Start = 'Start',
+  Stop = 'Stop',
+  Pull = 'Pull',
+  Push = 'Push',
+  History = 'History',
+  FocusElement = 'FocusElement',
+}
+
 export interface ProjectConfig {
   branch: string
   npmScript: string
@@ -37,6 +55,7 @@ export interface StatusPayload {
   changes: Array<GitFileChanges>
   stage: ProjectStage
   tailwindVersion: string
+  tailwindConfigPath: string
   config: ProjectConfig
 }
 

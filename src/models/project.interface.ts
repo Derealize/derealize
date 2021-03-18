@@ -1,5 +1,5 @@
 import { TailwindConfig } from 'tailwindcss/tailwind-config'
-import { ProjectConfig, ProjectStage, GitFileChanges } from '../backend/project.interface'
+import { ProjectConfig, ProjectStage, GitFileChanges } from '../backend/backend.interface'
 
 interface Project {
   url: string
@@ -10,6 +10,7 @@ interface Project {
   isOpened?: boolean
   stage?: ProjectStage
   tailwindVersion?: string
+  tailwindConfigPath?: string
   changes?: Array<GitFileChanges>
   installOutput?: Array<string>
   runningOutput?: Array<string>

@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send } from './client-ipc'
+import { Handler } from './backend/backend.interface'
 
 let PROJECTID: string | null = null
 
@@ -18,7 +19,7 @@ const derealizeListener = (e) => {
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
   const code = e.target.getAttribute('data-code')
   if (code) {
-    send('focusElement', { url: PROJECTID, code })
+    send(Handler.FocusElement, { url: PROJECTID, code })
   }
 }
 

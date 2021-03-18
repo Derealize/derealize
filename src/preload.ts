@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import Project from './models/project.interface'
+import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, send, listen, unlisten } from './client-ipc'
 
 let ISMAXIMIZED = false
@@ -86,9 +87,9 @@ export interface PreloadWindow extends Window {
     isMaximized: () => boolean
   }
   derealize: {
-    send: (name: string, payload: Record<string, unknown>) => Promise<unknown>
-    listen: (name: string, cb: (payload: any) => void) => () => void
-    unlisten: (name: string) => void
+    send: (handler: Handler, payload: Record<string, unknown>) => Promise<unknown>
+    listen: (broadcast: Broadcast, cb: (payload: any) => void) => () => void
+    unlisten: (broadcast: Broadcast) => void
     getStore: (key: string) => unknown | undefined
     setStore: (payload: Record<string, unknown>) => void
     controls: (payload: string) => void

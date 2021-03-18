@@ -27,6 +27,7 @@ import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
 import Project from './models/project.interface'
+import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import { PreloadWindow } from './preload'
 
@@ -113,7 +114,7 @@ const Home = (): JSX.Element => {
                             <MenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                send('Push', { url: p.url })
+                                send(Handler.Push, { url: p.url })
                               }}
                             >
                               Push {p.changes.length} files
@@ -122,7 +123,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              send('Pull', { url: p.url })
+                              send(Handler.Pull, { url: p.url })
                             }}
                           >
                             Pull

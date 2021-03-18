@@ -1,9 +1,10 @@
 import fs from 'fs'
-import _path from 'path'
+import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository } from 'nodegit'
 import killPort from 'kill-port'
 import {
+  Broadcast,
   ProjectConfig,
   ProjectStage,
   GitFileChanges,
@@ -11,10 +12,10 @@ import {
   ProcessPayload,
   BoolReply,
   HistoryReply,
-} from './project.interface'
+} from './backend.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
-import broadcast from './broadcast'
+import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['compiled', 'successfully']
@@ -40,6 +41,8 @@ class Project {
 
   tailwindVersion: string | undefined
 
+  tailwindConfigPath: string | undefined
+
   installProcess: ChildProcessWithoutNullStreams | undefined
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
@@ -48,20 +51,21 @@ class Project {
     this.config.branch = branch
   }
 
-  BroadcastStatus(): void {
-    broadcast('status', {
+  EmitStatus(): void {
+    emit(Broadcast.Status, {
       id: this.url,
       changes: this.changes,
       stage: this.stage,
       productName: this.productName,
       tailwindVersion: this.tailwindVersion,
+      tailwindConfigPath: this.tailwindConfigPath,
       config: this.config,
     } as StatusPayload)
   }
 
   private assignConfig(): BoolReply {
     try {
-      const jsonraw = fs.readFileSync(_path.join(this.path, './package.json'), 'utf8')
+      const jsonraw = fs.readFileSync(sysPath.join(this.path, './package.json'), 'utf8')
       const pacakge = JSON.parse(jsonraw)
 
       Object.assign(this.config, pacakge.derealize)
@@ -72,6 +76,7 @@ class Project {
         // todo:parse and check min supported version
         return { result: false, error: 'project not imported tailwindcss' }
       }
+      this.tailwindConfigPath = sysPath.join(this.path, './tailwind.config.js')
     } catch (error) {
       log('assignConfig error', error)
       return { result: false, error: error.message }
@@ -106,7 +111,7 @@ class Project {
       return { result: false, error: err.message }
     }
 
-    this.BroadcastStatus()
+    this.EmitStatus()
     return { result: true }
   }
 
@@ -145,24 +150,24 @@ class Project {
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
-      broadcast('install', { id: this.url, stdout: stdout.toString() } as ProcessPayload)
+      emit(Broadcast.Installing, { id: this.url, stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.installProcess.stderr.on('data', (stderr) => {
-      broadcast('install', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+      emit(Broadcast.Installing, { id: this.url, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.installProcess.on('error', (error) => {
       hasError = true
-      broadcast('install', { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
-      log('npmInstall error', error)
+      emit(Broadcast.Installing, { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
+      log('installing error', error)
     })
 
     this.installProcess.on('exit', (exit) => {
-      broadcast('install', { id: this.url, exit } as ProcessPayload)
+      emit(Broadcast.Installing, { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
-        this.BroadcastStatus()
+        this.EmitStatus()
       }
     })
 
@@ -182,27 +187,27 @@ class Project {
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
       if (!message) return
-      broadcast('starting', { id: this.url, stdout: message } as ProcessPayload)
+      emit(Broadcast.Starting, { id: this.url, stdout: message } as ProcessPayload)
 
       this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
-      this.BroadcastStatus()
+      this.EmitStatus()
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      broadcast('starting', { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+      emit(Broadcast.Starting, { id: this.url, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.runningProcess.on('error', (error) => {
       log('starting error', error)
-      broadcast('starting', { id: this.url, error: error.message } as ProcessPayload)
+      emit(Broadcast.Starting, { id: this.url, error: error.message } as ProcessPayload)
       this.stage = ProjectStage.Ready
-      this.BroadcastStatus()
+      this.EmitStatus()
     })
 
     this.runningProcess.on('exit', (exit) => {
-      broadcast('starting', { id: this.url, exit } as ProcessPayload)
+      emit(Broadcast.Starting, { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
-      this.BroadcastStatus()
+      this.EmitStatus()
     })
 
     return { result: true }
@@ -213,7 +218,7 @@ class Project {
     this.runningProcess?.kill()
 
     this.stage = ProjectStage.Ready
-    this.BroadcastStatus()
+    this.EmitStatus()
   }
 
   async Dispose() {

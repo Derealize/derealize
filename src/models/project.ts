@@ -13,7 +13,9 @@ import {
   PayloadError,
   HistoryReply,
   BoolReply,
-} from '../backend/project.interface'
+  Handler,
+  Broadcast,
+} from '../backend/backend.interface'
 import Project, { ProjectView, OmitStoreProp } from './project.interface'
 import { PreloadWindow } from '../preload'
 
@@ -124,15 +126,10 @@ const projectModel: ProjectModel = {
   }),
   resolveTailwindcssConfig: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
-    if (!project) {
-      toast({
-        title: "project don't exist",
-        status: 'error',
-      })
-      return
-    }
+    if (!project) throw new Error("project don't exist")
+    if (!project.tailwindConfigPath) throw new Error("tailwindConfigPath don't exist")
 
-    import(sysPath.join(project.path, './tailwind.config.js'))
+    import(project.tailwindConfigPath)
       .then((customConfig) => {
         project.tailwindConfig = resolveConfig(customConfig)
         return undefined
@@ -152,7 +149,7 @@ const projectModel: ProjectModel = {
       frontProjectView()
       return
     }
-    send('CheckStatus', { url: project.url })
+    send(Handler.CheckStatus, { url: project.url })
   }),
 
   openProject: thunk(async (actions, id, { getState }) => {
@@ -171,7 +168,7 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     actions.setLoading(true)
-    const reply = (await send('Start', { url: project.url })) as BoolReply
+    const reply = (await send(Handler.Start, { url: project.url })) as BoolReply
     if (reply.result) {
       project.runningOutput = []
     } else {
@@ -185,7 +182,7 @@ const projectModel: ProjectModel = {
   stopProject: action((state, id) => {
     const project = state.projects.find((p) => p.url === id)
     if (project) {
-      send('Stop', { url: project.url })
+      send(Handler.Stop, { url: project.url })
     }
   }),
   closeProject: thunk((actions, id, { getState }) => {
@@ -208,7 +205,7 @@ const projectModel: ProjectModel = {
       }
     }
 
-    send('Stop', { url: project.url })
+    send(Handler.Stop, { url: project.url })
     closeProjectView(project.url)
     actions.setProjects(projects)
   }),
@@ -221,9 +218,9 @@ const projectModel: ProjectModel = {
       const { url, path, config } = project
       const branch = config?.branch
 
-      const { result, error } = (await send('Import', { url, path, branch })) as BoolReply
+      const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
       if (result) {
-        send('Install', { url, path, branch })
+        send(Handler.Install, { url, path, branch })
         actions.resolveTailwindcssConfig(url)
       } else {
         project.installOutput?.push(`import error: ${error}`)
@@ -234,7 +231,7 @@ const projectModel: ProjectModel = {
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
 
-    listen('status', (payload: StatusPayload | PayloadError) => {
+    listen(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -261,11 +258,12 @@ const projectModel: ProjectModel = {
       project.changes = status.changes
       project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
+      project.tailwindConfigPath = status.tailwindConfigPath
 
       actions.setProject(project)
     })
 
-    listen('install', (payload: ProcessPayload) => {
+    listen(Broadcast.Installing, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setLoading(false)
         toast({
@@ -293,7 +291,7 @@ const projectModel: ProjectModel = {
       }
     })
 
-    listen('starting', (payload: ProcessPayload) => {
+    listen(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         toast({
           title: `Starting error:${payload.error}`,
@@ -321,9 +319,9 @@ const projectModel: ProjectModel = {
   }),
 
   unlisten: action(() => {
-    unlisten('status')
-    unlisten('install')
-    unlisten('starting')
+    unlisten(Broadcast.Status)
+    unlisten(Broadcast.Installing)
+    unlisten(Broadcast.Starting)
   }),
 
   projectView: ProjectView.BrowserView,
@@ -355,7 +353,7 @@ const projectModel: ProjectModel = {
     const { frontProject } = getState()
     if (!frontProject) return
 
-    const reply = (await send('History', { url: frontProject.url })) as HistoryReply
+    const reply = (await send(Handler.History, { url: frontProject.url })) as HistoryReply
     if (reply.error) {
       toast({
         title: `History error:${reply.error}`,
