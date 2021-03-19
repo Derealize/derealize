@@ -292,6 +292,7 @@ app
   .whenReady()
   .then(async () => {
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
+    console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()
     createBackendProcess()

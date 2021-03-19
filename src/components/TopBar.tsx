@@ -41,8 +41,8 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
-  const projectView = useStoreState<ProjectView>((state) => state.project.projectView)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
+  const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
 
@@ -88,14 +88,14 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         <Tooltip label="files status and history">
           <BarIconButton
             aria-label="FileStatus"
-            selected={projectView === ProjectView.FileStatus}
+            selected={frontProjectView === ProjectView.FileStatus}
             icon={<HiOutlineStatusOnline />}
             onClick={() => {
-              if (projectView !== ProjectView.FileStatus) {
+              if (frontProjectView !== ProjectView.FileStatus) {
                 callHistory()
-                setProjectView(ProjectView.FileStatus)
+                setFrontProjectView(ProjectView.FileStatus)
               } else {
-                setProjectView(ProjectView.BrowserView)
+                setFrontProjectView(ProjectView.BrowserView)
               }
             }}
           />
@@ -146,13 +146,13 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"
-            selected={projectView === ProjectView.Debugging}
+            selected={frontProjectView === ProjectView.Debugging}
             icon={<VscOutput />}
             onClick={() => {
-              if (projectView !== ProjectView.Debugging) {
-                setProjectView(ProjectView.Debugging)
+              if (frontProjectView !== ProjectView.Debugging) {
+                setFrontProjectView(ProjectView.Debugging)
               } else {
-                setProjectView(ProjectView.BrowserView)
+                setFrontProjectView(ProjectView.BrowserView)
               }
             }}
           />

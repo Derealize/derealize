@@ -24,8 +24,8 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const toast = useToast()
   const loading = useStoreState<boolean>((state) => state.project.loading)
 
-  const projectView = useStoreState<ProjectView>((state) => state.project.projectView)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
+  const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
@@ -52,7 +52,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
     <>
       <TopBar project={project} />
       <div className={style.main}>
-        {projectView === ProjectView.BrowserView && (
+        {frontProjectView === ProjectView.BrowserView && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
             <Controllers project={project} />
           </div>
@@ -65,18 +65,18 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
             </Box>
           )}
 
-          {(projectView === ProjectView.Debugging || projectView === ProjectView.FileStatus) && (
+          {(frontProjectView === ProjectView.Debugging || frontProjectView === ProjectView.FileStatus) && (
             <CloseButton
               size="lg"
               colorScheme="gray"
               className={style.closebtn}
               onClick={() => {
-                setProjectView(ProjectView.BrowserView)
+                setFrontProjectView(ProjectView.BrowserView)
               }}
             />
           )}
 
-          {projectView === ProjectView.Debugging && (
+          {frontProjectView === ProjectView.Debugging && (
             <div className={style.output}>
               {project.runningOutput?.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
@@ -87,7 +87,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
             </div>
           )}
 
-          {projectView === ProjectView.FileStatus && (
+          {frontProjectView === ProjectView.FileStatus && (
             <>
               {project.changes?.length !== 0 && (
                 <Text mb={10}>

@@ -44,15 +44,17 @@ export interface ProjectModel {
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, Array<Project>>
-  initProjects: Action<ProjectModel>
+  getStoreProjects: Action<ProjectModel>
 
   addProject: Action<ProjectModel, Project>
   removeProject: Thunk<ProjectModel, string>
   setProject: Action<ProjectModel, Project>
-  resolveTailwindcssConfig: Action<ProjectModel, string>
+  resolveTailwindcssConfig: Thunk<ProjectModel, string>
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
+  frontProjectView: ProjectView
+  setFrontProjectView: Action<ProjectModel, ProjectView>
 
   openProject: Thunk<ProjectModel, string>
   startProject: Thunk<ProjectModel, string>
@@ -62,9 +64,6 @@ export interface ProjectModel {
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel>
   unlisten: Action<ProjectModel>
-
-  projectView: ProjectView
-  setProjectView: Action<ProjectModel, ProjectView>
 
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
@@ -94,7 +93,7 @@ const projectModel: ProjectModel = {
     state.projects = payload
     storeProject(state.projects)
   }),
-  initProjects: action((state) => {
+  getStoreProjects: action((state) => {
     const projects = getStore('projects') as Array<Project> | undefined
     if (projects) {
       state.projects = projects
@@ -131,22 +130,25 @@ const projectModel: ProjectModel = {
     Object.assign(fproject, project)
     storeProject(state.projects)
   }),
-  resolveTailwindcssConfig: action((state, id) => {
-    const project = state.projects.find((p) => p.url === id)
+  resolveTailwindcssConfig: thunk(async (actions, url, { getState }) => {
+    const project = getState().projects.find((p) => p.url === url)
     if (!project) throw new Error("project don't exist")
     if (!project.tailwindConfigPath) throw new Error("tailwindConfigPath don't exist")
 
-    import(project.tailwindConfigPath)
-      .then((customConfig) => {
-        project.tailwindConfig = resolveConfig(customConfig)
-        return undefined
+    try {
+      // const customConfig = await import(project.tailwindConfigPath)
+      const zz = 'D:\\playground\\nextjs\\tailwind.config'
+      const customConfig = await import(zz)
+      // const customConfig = await import('D:\\playground\\nextjs\\tailwind.config')
+      project.tailwindConfig = resolveConfig(customConfig)
+      console.log(project.tailwindConfig)
+    } catch (err) {
+      console.error(err)
+      toast({
+        title: err.message,
+        status: 'error',
       })
-      .catch((err) => {
-        toast({
-          title: err.message,
-          status: 'error',
-        })
-      })
+    }
   }),
 
   frontProject: null,
@@ -158,20 +160,28 @@ const projectModel: ProjectModel = {
     }
     send(Handler.CheckStatus, { url: project.url })
   }),
+  frontProjectView: ProjectView.BrowserView,
+  setFrontProjectView: action((state, payload) => {
+    state.frontProjectView = payload
+    if (payload === ProjectView.BrowserView && state.frontProject) {
+      // frontProjectView(clone(state.frontProject))
+    } else {
+      frontProjectView()
+    }
+  }),
 
-  openProject: thunk(async (actions, id, { getState }) => {
-    const project = getState().projects.find((p) => p.url === id)
+  openProject: thunk(async (actions, url, { getState }) => {
+    const project = getState().projects.find((p) => p.url === url)
     if (!project) return
 
     project.isOpened = true
     actions.setFrontProject(project)
 
-    actions.setProjectView(ProjectView.BrowserView)
+    actions.setFrontProjectView(ProjectView.BrowserView)
     // actions.startProject(project.url)
   }),
-  startProject: thunk(async (actions, id, { getState }) => {
-    const { projects } = getState()
-    const project = projects.find((p) => p.url === id)
+  startProject: thunk(async (actions, url, { getState }) => {
+    const project = getState().projects.find((p) => p.url === url)
     if (!project) return
 
     actions.setStartLoading(true)
@@ -186,15 +196,15 @@ const projectModel: ProjectModel = {
       })
     }
   }),
-  stopProject: action((state, id) => {
-    const project = state.projects.find((p) => p.url === id)
+  stopProject: action((state, url) => {
+    const project = state.projects.find((p) => p.url === url)
     if (project) {
       send(Handler.Stop, { url: project.url })
     }
   }),
-  closeProject: thunk((actions, id, { getState }) => {
+  closeProject: thunk((actions, url, { getState }) => {
     const { projects, frontProject, openedProjects } = getState()
-    const project = projects.find((p) => p.url === id)
+    const project = projects.find((p) => p.url === url)
     if (!project) throw new Error('closeProject null')
     project.isOpened = false
 
@@ -218,7 +228,7 @@ const projectModel: ProjectModel = {
   }),
 
   loadStore: thunk((actions, none, { getState }) => {
-    actions.initProjects()
+    actions.getStoreProjects()
     const { projects } = getState()
 
     projects?.forEach(async (project: Project) => {
@@ -230,7 +240,10 @@ const projectModel: ProjectModel = {
         send(Handler.Install, { url, path, branch })
         actions.resolveTailwindcssConfig(url)
       } else {
-        project.installOutput?.push(`import error: ${error}`)
+        toast({
+          title: `Import error:${error}`,
+          status: 'error',
+        })
       }
     })
   }),
@@ -257,7 +270,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         actions.setStartLoading(project.stage === ProjectStage.Starting)
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
-          actions.setProjectView(ProjectView.BrowserView)
+          actions.setFrontProjectView(ProjectView.BrowserView)
         }
       }
 
@@ -329,16 +342,6 @@ const projectModel: ProjectModel = {
     unlisten(Broadcast.Status)
     unlisten(Broadcast.Installing)
     unlisten(Broadcast.Starting)
-  }),
-
-  projectView: ProjectView.BrowserView,
-  setProjectView: action((state, payload) => {
-    state.projectView = payload
-    if (payload === ProjectView.BrowserView && state.frontProject) {
-      frontProjectView(clone(state.frontProject))
-    } else {
-      frontProjectView()
-    }
   }),
 
   modalDisclosure: false,

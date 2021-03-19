@@ -21,7 +21,11 @@ module.exports = (api) => {
   return {
     presets: [
       // @babel/preset-env will automatically target our browserslist targets
-      require('@babel/preset-env'),
+      require('@babel/preset-env', {
+        targets: {
+          chrome: '87',
+        },
+      }),
       require('@babel/preset-typescript'),
       [require('@babel/preset-react'), { development }],
     ],

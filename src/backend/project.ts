@@ -72,11 +72,11 @@ class Project {
 
       this.productName = pacakge.productName || pacakge.name
       this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
-      if (this.tailwindVersion) {
+      if (!this.tailwindVersion) {
         // todo:parse and check min supported version
         return { result: false, error: 'project not imported tailwindcss' }
       }
-      this.tailwindConfigPath = sysPath.join(this.path, './tailwind.config.js')
+      this.tailwindConfigPath = sysPath.join(this.path, './tailwind.config')
     } catch (error) {
       log('assignConfig error', error)
       return { result: false, error: error.message }
