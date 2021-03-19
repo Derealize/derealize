@@ -11,14 +11,16 @@ export default merge(baseConfig, {
   target: 'electron-renderer',
 
   entry: {
-    preload: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/preload.ts')],
-    preload_inject: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/preload_inject.ts')],
+    preload: path.join(__dirname, '../../src/preload.ts'),
+    preload_inject: path.join(__dirname, '../../src/preload_inject.ts'),
   },
 
   output: {
     path: path.join(__dirname, '../../src'),
     filename: '[name].js',
-    libraryTarget: 'commonjs2', // ref native module must use commonjs2
+    library: {
+      type: 'commonjs2',
+    },
   },
 
   node: {
