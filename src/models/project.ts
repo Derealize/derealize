@@ -157,7 +157,7 @@ const projectModel: ProjectModel = {
     actions.setFrontProject(project)
 
     actions.setFrontProjectView(ProjectView.BrowserView)
-    // actions.startProject(project.url)
+    actions.startProject(project.url)
     console.log(project.tailwindConfig)
   }),
   startProject: thunk(async (actions, url, { getState }) => {
