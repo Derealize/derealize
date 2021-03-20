@@ -1,6 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send } from './client-ipc'
-import { Handler, FocusElementPayload } from './backend/backend.interface'
+import { Handler, FocusElementPayload } from './backend/handlers'
 
 let PROJECTID: string | null = null
 

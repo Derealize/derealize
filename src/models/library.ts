@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
-import { PreloadWindow } from '../preload'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { setStore, getStore } = window.derealize

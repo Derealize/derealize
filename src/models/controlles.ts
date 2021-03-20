@@ -1,7 +1,9 @@
-import { Action, action, Thunk, thunk } from 'easy-peasy'
+import { Action, action, Thunk, thunk, actionOn, ActionOn, thunkOn, ThunkOn } from 'easy-peasy'
 import clone from 'lodash.clonedeep'
-import { Broadcast, FocusElementPayload } from '../backend/backend.interface'
-import { PreloadWindow } from '../preload'
+import type { StoreModel } from './index'
+import type { Broadcast } from '../backend/backend.interface'
+import type { FocusElementPayload } from '../backend/handlers'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { setStore, getStore, send, listen, unlisten } = window.derealize
@@ -37,6 +39,9 @@ export interface ControllesModel {
 
   listen: Thunk<ControllesModel>
   unlisten: Action<ControllesModel>
+
+  onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
+  onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
 }
 
 const controllesModel: ControllesModel = {
@@ -63,6 +68,20 @@ const controllesModel: ControllesModel = {
   unlisten: action(() => {
     unlisten(Broadcast.FocusElement)
   }),
+
+  onOpenProject: thunkOn(
+    (actions, storeActions) => storeActions.project.openProject,
+    (actions, target) => {
+      actions.listen()
+    },
+  ),
+
+  onCloseProject: thunkOn(
+    (actions, storeActions) => storeActions.project.closeProject,
+    (actions, target) => {
+      actions.unlisten()
+    },
+  ),
 }
 
 export default controllesModel

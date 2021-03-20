@@ -1,4 +1,4 @@
-import { PreloadWindow } from '../preload'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 

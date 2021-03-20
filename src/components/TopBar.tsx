@@ -9,11 +9,13 @@ import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import { FiLink2 } from 'react-icons/fi'
-import { ProjectStage, BoolReply, Handler } from '../backend/backend.interface'
-import Project, { ProjectView } from '../models/project.interface'
+import type { ProjectStage, BoolReply } from '../backend/backend.interface'
+import { Handler } from '../backend/handlers'
+import { Project, ProjectView } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import { PreloadWindow } from '../preload'
+import Breadcrumb from './Breadcrumb'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { send, popupMenu } = window.derealize
@@ -120,15 +122,11 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         </Tooltip>
       </Flex>
 
-      <Flex align="center" justify="center">
-        <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
-        <BarIconButton aria-label="Link" icon={<FiLink2 />} />
-        <BarIconButton aria-label="Text" icon={<RiInputMethodLine />} />
-        <BarIconButton aria-label="Input" icon={<AiOutlineBorderHorizontal />} />
-        <BarIconButton aria-label="Select" icon={<CgSelectR />} />
-      </Flex>
+      <Breadcrumb />
 
       <Flex align="center" justify="right">
+        <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
+
         {project.stage === ProjectStage.Ready && (
           <Tooltip label="start">
             <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.url)} />
