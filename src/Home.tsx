@@ -57,7 +57,6 @@ const Home = (): JSX.Element => {
               <Button onClick={() => setModalOpen()} leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
                 Import
               </Button>
-              {window.env.isDev && <Button onClick={() => loadAll()}>ImportAll</Button>}
             </HStack>
             <Wrap mt={6} spacing={4}>
               {projects.map((p) => (

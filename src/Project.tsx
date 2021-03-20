@@ -22,7 +22,7 @@ type Props = {
 
 const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const toast = useToast()
-  const loading = useStoreState<boolean>((state) => state.project.loading)
+  const loading = useStoreState<boolean>((state) => state.project.startloading)
 
   const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)

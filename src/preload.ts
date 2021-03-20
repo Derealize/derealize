@@ -59,8 +59,8 @@ contextBridge.exposeInMainWorld('derealize', {
     const filePaths = ipcRenderer.sendSync('selectDirs')
     return filePaths
   },
-  openDirs: () => {
-    ipcRenderer.send('openDirs')
+  openDirs: (payload: string) => {
+    ipcRenderer.send('openDirs', payload)
   },
   frontProjectView: (project?: Project) => {
     if (project && project.config) {
