@@ -121,7 +121,7 @@ ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: 
     view.webContents.loadURL(lunchUrl)
 
     view.webContents.on('did-finish-load', () => {
-      view.webContents.send('set-params', { socketId, projectId })
+      view.webContents.send('setParams', { socketId, projectId })
     })
   }
 })
@@ -188,7 +188,7 @@ const createWindow = async () => {
       mainWindow.focus()
     }
 
-    mainWindow.webContents.send('set-params', { socketId })
+    mainWindow.webContents.send('setParams', { socketId })
   })
 
   mainWindow.on('closed', () => {
@@ -332,9 +332,9 @@ ipcMain.on('controls', (event, payload: string) => {
   }
 })
 
-ipcMain.on('popupMenu', (event, projectId: string) => {
+ipcMain.on('popupMenu', (event, id: string) => {
   if (!mainWindow) return
-  if (projectId && projectMenu) {
+  if (id && projectMenu) {
     const rectangle = mainWindow.getBounds()
     projectMenu.popup({ window: mainWindow, x: rectangle.width - 42, y: 80 })
   } else if (menu) {
@@ -353,4 +353,9 @@ ipcMain.on('selectDirs', async (event, arg) => {
 
 ipcMain.on('openDirs', async (event, folderpath: string) => {
   shell.openPath(folderpath)
+})
+
+ipcMain.on('focusElement', async (event, payload) => {
+  if (!mainWindow) return
+  mainWindow.webContents.send('focusElement', payload)
 })

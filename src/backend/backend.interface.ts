@@ -2,6 +2,7 @@ export enum Broadcast {
   Status = 'Status',
   Installing = 'Installing',
   Starting = 'Starting',
+  FocusElement = 'FocusElement',
 }
 
 export enum Handler {
@@ -83,4 +84,11 @@ export interface HistoryReply {
 export interface BoolReply {
   result: boolean
   error?: string
+}
+
+export interface FocusElementPayload {
+  id: string
+  code: string
+  tagName: string
+  className: string
 }

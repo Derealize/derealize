@@ -1,10 +1,10 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send } from './client-ipc'
-import { Handler } from './backend/backend.interface'
+import { Handler, FocusElementPayload } from './backend/backend.interface'
 
 let PROJECTID: string | null = null
 
-ipcRenderer.on('set-params', (event: Event, { socketId, projectId }: Record<string, string>) => {
+ipcRenderer.on('setParams', (event: Event, { socketId, projectId }: Record<string, string>) => {
   PROJECTID = projectId
   connectSocket(socketId)
 })
@@ -15,11 +15,13 @@ const css = `
   }
 `
 
-const derealizeListener = (e) => {
+const derealizeListener = (e: any) => {
+  if (!e.target) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
   const code = e.target.getAttribute('data-code')
-  if (code) {
-    send(Handler.FocusElement, { url: PROJECTID, code })
+  if (code && PROJECTID) {
+    const { tagName, className } = e.target.tagName
+    send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
   }
 }
 
