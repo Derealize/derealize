@@ -69,12 +69,12 @@ contextBridge.exposeInMainWorld('derealize', {
       ipcRenderer.send('frontProjectView')
     }
   },
-  closeProjectView: (projectId: string) => {
-    ipcRenderer.send('closeProjectView', projectId)
+  closeProjectView: (id: string) => {
+    ipcRenderer.send('closeProjectView', id)
   },
 })
 
-ipcRenderer.on('set-params', (event: Event, { socketId }: Record<string, string>) => {
+ipcRenderer.on('setParams', (event: Event, { socketId }: Record<string, string>) => {
   connectSocket(socketId)
 })
 
@@ -97,6 +97,6 @@ export interface PreloadWindow extends Window {
     selectDirs: () => string
     openDirs: (payload: string) => void
     frontProjectView: (project?: Project) => void
-    closeProjectView: (projectId: string) => void
+    closeProjectView: (id: string) => void
   }
 }

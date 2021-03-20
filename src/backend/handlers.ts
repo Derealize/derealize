@@ -1,7 +1,9 @@
+/* eslint-disable no-restricted-syntax */
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import { HistoryReply, BoolReply } from './backend.interface'
+import { HistoryReply, BoolReply, Broadcast, FocusElementPayload } from './backend.interface'
+import emit from './emit'
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
@@ -70,7 +72,13 @@ export const History = async ({ url }: IdParam): Promise<HistoryReply> => {
 // }
 
 export const DisposeAll = async () => {
-  projectsMap.forEach((p) => p.Dispose())
+  // https://eslint.org/docs/rules/no-await-in-loop#examples
+  const promises = []
+  for (const project of projectsMap.values()) {
+    promises.push(project.Dispose())
+  }
+  await Promise.all(promises)
+  log('DisposeAll')
 }
 
 export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfig> => {
@@ -79,7 +87,7 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
   return config
 }
 
-export const FocusElement = async ({ url, code }: Record<string, string>) => {
-  const project = getProject(url)
-  log(`${url}:${code}`)
+export const FocusElement = async (payload: FocusElementPayload) => {
+  const project = getProject(payload.id)
+  emit(Broadcast.FocusElement, payload)
 }

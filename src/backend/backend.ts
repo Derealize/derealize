@@ -12,7 +12,7 @@ process
   })
   .on('exit', async () => {
     await DisposeAll()
-    log('exit, DisposeAll')
+    log('exit')
   })
 
 if (process.argv[2] === '--subprocess') {
