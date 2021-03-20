@@ -1,3 +1,4 @@
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
 import { HistoryReply, BoolReply } from './backend.interface'
@@ -24,7 +25,7 @@ export const Import = async ({ url, path, branch }: Record<string, string>): Pro
 
 export const Install = async ({ url }: IdParam): Promise<BoolReply> => {
   const project = getProject(url)
-  const result = await project.Install()
+  const result = project.Install()
   return result
 }
 
@@ -70,6 +71,12 @@ export const History = async ({ url }: IdParam): Promise<HistoryReply> => {
 
 export const DisposeAll = async () => {
   projectsMap.forEach((p) => p.Dispose())
+}
+
+export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfig> => {
+  const project = getProject(url)
+  const config = await project.GetTailwindConfig()
+  return config
 }
 
 export const FocusElement = async ({ url, code }: Record<string, string>) => {

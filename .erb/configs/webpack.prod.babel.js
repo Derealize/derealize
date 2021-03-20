@@ -21,10 +21,17 @@ export default merge(baseConfig, {
     renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
   },
 
+  experiments: {
+    outputModule: true,
+  },
+
   output: {
     path: path.join(__dirname, '../../src/dist'),
     publicPath: './dist/',
     filename: '[name].prod.js',
+    library: {
+      type: 'module',
+    },
   },
 
   module: {

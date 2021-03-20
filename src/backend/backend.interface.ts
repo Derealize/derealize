@@ -13,6 +13,7 @@ export enum Handler {
   Pull = 'Pull',
   Push = 'Push',
   History = 'History',
+  GetTailwindConfig = 'GetTailwindConfig',
   FocusElement = 'FocusElement',
 }
 

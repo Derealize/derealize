@@ -17,8 +17,13 @@ export default merge(baseConfig, {
   output: {
     path: path.join(__dirname, '../../src/backend'),
     filename: 'backend.js',
-    libraryTarget: 'commonjs2',
+    library: {
+      type: 'commonjs2',
+    },
   },
+
+  // 任何 externals 都与 nodegit 不兼容，会让nodegit打包失效
+  // externals: /.*\\tailwind\.config$/i,
 
   plugins: [
     new webpack.EnvironmentPlugin({

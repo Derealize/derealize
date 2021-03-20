@@ -2,6 +2,8 @@ import fs from 'fs'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository } from 'nodegit'
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'
 import {
   Broadcast,
@@ -41,8 +43,6 @@ class Project {
 
   tailwindVersion: string | undefined
 
-  tailwindConfigPath: string | undefined
-
   installProcess: ChildProcessWithoutNullStreams | undefined
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
@@ -58,7 +58,6 @@ class Project {
       stage: this.stage,
       productName: this.productName,
       tailwindVersion: this.tailwindVersion,
-      tailwindConfigPath: this.tailwindConfigPath,
       config: this.config,
     } as StatusPayload)
   }
@@ -76,13 +75,19 @@ class Project {
         // todo:parse and check min supported version
         return { result: false, error: 'project not imported tailwindcss' }
       }
-      this.tailwindConfigPath = sysPath.join(this.path, './tailwind.config')
     } catch (error) {
       log('assignConfig error', error)
       return { result: false, error: error.message }
     }
 
     return { result: true }
+  }
+
+  async GetTailwindConfig(): Promise<TailwindConfig> {
+    // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
+    const config = __non_webpack_require__(sysPath.resolve(this.path, './tailwind.config'))
+    // const config = await import(sysPath.resolve(this.path, './tailwind.config.js'))
+    return resolveConfig(config)
   }
 
   async CheckStatus(): Promise<BoolReply> {
@@ -139,7 +144,7 @@ class Project {
     return { result: true }
   }
 
-  async Install(): Promise<BoolReply> {
+  Install(): BoolReply {
     if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
       return { result: false, error: 'Starting or Running' }
     }
