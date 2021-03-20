@@ -1,6 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron'
-import Project from './models/project.interface'
-import { Handler, Broadcast } from './backend/backend.interface'
+import type { Project } from './models/project'
+import type { Broadcast } from './backend/backend.interface'
+import { Handler } from './backend/handlers'
 import { connectSocket, send, listen, unlisten } from './client-ipc'
 
 let ISMAXIMIZED = false

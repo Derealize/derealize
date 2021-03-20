@@ -24,10 +24,10 @@ import { CgSpaceBetweenV, CgComponents } from 'react-icons/cg'
 import { GiResize } from 'react-icons/gi'
 import { GrThreeDEffects } from 'react-icons/gr'
 import { MdBorderStyle } from 'react-icons/md'
-import Project from '../models/project.interface'
+import type { Project } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './Controllers.module.scss'
-import { PreloadWindow } from '../preload'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 
@@ -38,9 +38,7 @@ type Props = {
 const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
   return (
     <div className={style.components}>
-      <div className={style.head}>
-        <div className={style.title}>DIV</div>
-      </div>
+      <div className={style.variants} />
       <div className={style.controllers}>
         <Tabs orientation="vertical" colorScheme="teal">
           <TabList>

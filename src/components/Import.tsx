@@ -36,11 +36,12 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
-import { BoolReply, ProjectStage, Handler } from '../backend/backend.interface'
+import type { BoolReply, ProjectStage } from '../backend/backend.interface'
+import { Handler } from '../backend/handlers'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import Project, { ProjectView } from '../models/project.interface'
+import type { Project, ProjectView } from '../models/project'
 import style from './Import.module.scss'
-import { PreloadWindow } from '../preload'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { send, selectDirs } = window.derealize

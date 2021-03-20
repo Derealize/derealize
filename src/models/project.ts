@@ -1,25 +1,58 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
-import {
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import type {
   ProjectStage,
+  ProjectConfig,
   ProcessPayload,
   CommitLog,
   StatusPayload,
   PayloadError,
   HistoryReply,
   BoolReply,
-  Handler,
   Broadcast,
+  GitFileChanges,
 } from '../backend/backend.interface'
-import Project, { ProjectView, OmitStoreProp } from './project.interface'
-import { PreloadWindow } from '../preload'
+import { Handler } from '../backend/handlers'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { setStore, getStore, send, listen, unlisten, frontProjectView, closeProjectView } = window.derealize
+
+export interface Project {
+  url: string
+  path: string
+  editedTime: string
+  name: string
+  productName?: string
+  isOpened?: boolean
+  stage?: ProjectStage
+  tailwindVersion?: string
+  changes?: Array<GitFileChanges>
+  installOutput?: Array<string>
+  runningOutput?: Array<string>
+  config?: ProjectConfig
+  tailwindConfig?: TailwindConfig
+}
+
+export enum ProjectView {
+  Debugging,
+  FileStatus,
+  BrowserView,
+}
+
+export const OmitStoreProp = [
+  'isOpened',
+  'stage',
+  'changes',
+  'runningOutput',
+  'installOutput',
+  'config',
+  'tailwindConfig',
+]
 
 const toast = createStandaloneToast({
   defaultOptions: {

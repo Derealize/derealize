@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useStoreActions, useStoreState } from './reduxStore'
-import Project from './models/project.interface'
+import type { Project } from './models/project'
 import Home from './Home'
 import TabBar from './components/TabBar'
 import ImportProject from './components/Import'

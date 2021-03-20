@@ -1,7 +1,7 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import ky from 'ky'
 import Language, { navigatorLanguage } from '../utils/language'
-import { PreloadWindow } from '../preload'
+import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { setStore, getStore } = window.derealize

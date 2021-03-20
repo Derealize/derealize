@@ -5,19 +5,6 @@ export enum Broadcast {
   FocusElement = 'FocusElement',
 }
 
-export enum Handler {
-  Import = 'Import',
-  Install = 'Install',
-  CheckStatus = 'CheckStatus',
-  Start = 'Start',
-  Stop = 'Stop',
-  Pull = 'Pull',
-  Push = 'Push',
-  History = 'History',
-  GetTailwindConfig = 'GetTailwindConfig',
-  FocusElement = 'FocusElement',
-}
-
 export interface ProjectConfig {
   branch: string
   npmScript: string
@@ -84,11 +71,4 @@ export interface HistoryReply {
 export interface BoolReply {
   result: boolean
   error?: string
-}
-
-export interface FocusElementPayload {
-  id: string
-  code: string
-  tagName: string
-  className: string
 }

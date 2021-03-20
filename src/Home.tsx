@@ -26,10 +26,10 @@ import { css } from '@emotion/react'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
-import Project from './models/project.interface'
-import { Handler } from './backend/backend.interface'
+import type { Project } from './models/project'
+import { Handler } from './backend/handlers'
 import style from './Home.module.scss'
-import { PreloadWindow } from './preload'
+import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
 const { openDirs, send } = window.derealize

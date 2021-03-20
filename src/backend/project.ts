@@ -5,8 +5,7 @@ import { Repository } from 'nodegit'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'
-import {
-  Broadcast,
+import type {
   ProjectConfig,
   ProjectStage,
   GitFileChanges,
@@ -21,6 +20,13 @@ import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['compiled', 'successfully']
+
+export enum Broadcast {
+  Status = 'Status',
+  Installing = 'Installing',
+  Starting = 'Starting',
+  FocusElement = 'FocusElement',
+}
 
 class Project {
   stage: ProjectStage = ProjectStage.None

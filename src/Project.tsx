@@ -6,12 +6,13 @@ import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } fr
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
-import Project, { ProjectView } from './models/project.interface'
-import { CommitLog, BoolReply, Handler } from './backend/backend.interface'
+import type { Project, ProjectView } from './models/project'
+import type { CommitLog, BoolReply } from './backend/backend.interface'
+import { Handler } from './backend/handlers'
 import TopBar from './components/TopBar'
 import Controllers from './components/Controllers'
 import style from './Project.module.scss'
-import { PreloadWindow } from './preload'
+import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
 const { send } = window.derealize

@@ -2,8 +2,28 @@
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import { HistoryReply, BoolReply, Broadcast, FocusElementPayload } from './backend.interface'
+import type { HistoryReply, BoolReply, Broadcast } from './backend.interface'
 import emit from './emit'
+
+export enum Handler {
+  Import = 'Import',
+  Install = 'Install',
+  CheckStatus = 'CheckStatus',
+  Start = 'Start',
+  Stop = 'Stop',
+  Pull = 'Pull',
+  Push = 'Push',
+  History = 'History',
+  GetTailwindConfig = 'GetTailwindConfig',
+  FocusElement = 'FocusElement',
+}
+
+export interface FocusElementPayload {
+  id: string
+  code: string
+  tagName: string
+  className: string
+}
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
