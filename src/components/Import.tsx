@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo, useReducer } from 'react'
 import dayjs from 'dayjs'
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { useForm } from 'react-hook-form'
 import {
   useToast,
@@ -42,7 +43,7 @@ import style from './Import.module.scss'
 import { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { listen, send, selectDirs } = window.derealize
+const { send, selectDirs } = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -57,13 +58,12 @@ const ImportProject = (): JSX.Element => {
 
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
-  const importLoading = useStoreState<boolean>((state) => state.project.importLoading)
+  const importLoading = useStoreState<boolean>((state) => state.project.importloading)
   const setImportLoading = useStoreActions((actions) => actions.project.setImportLoading)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setProject = useStoreActions((actions) => actions.project.setProject)
   const addProject = useStoreActions((actions) => actions.project.addProject)
-  const resolveTailwindcssConfig = useStoreActions((actions) => actions.project.resolveTailwindcssConfig)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
   const [name, setName] = useState('')
@@ -138,11 +138,11 @@ const ImportProject = (): JSX.Element => {
 
     if (result) {
       send(Handler.Install, { url, path, branch })
-      resolveTailwindcssConfig(url)
+      newProject.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
     } else {
       newProject.installOutput?.push(`import error: ${error}`)
     }
-  }, [projects, url, path, name, addProject, setImportLoading, branch, onOpenExistsAlert, resolveTailwindcssConfig])
+  }, [projects, url, path, name, addProject, setImportLoading, branch, onOpenExistsAlert])
 
   const open = useCallback(() => {
     if (readyOpen) {

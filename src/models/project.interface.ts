@@ -10,7 +10,6 @@ interface Project {
   isOpened?: boolean
   stage?: ProjectStage
   tailwindVersion?: string
-  tailwindConfigPath?: string
   changes?: Array<GitFileChanges>
   installOutput?: Array<string>
   runningOutput?: Array<string>

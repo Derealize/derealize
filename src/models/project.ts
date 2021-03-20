@@ -1,9 +1,9 @@
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
-import resolveConfig from 'tailwindcss/resolveConfig'
 import {
   ProjectStage,
   ProcessPayload,
@@ -49,7 +49,6 @@ export interface ProjectModel {
   addProject: Action<ProjectModel, Project>
   removeProject: Thunk<ProjectModel, string>
   setProject: Action<ProjectModel, Project>
-  resolveTailwindcssConfig: Thunk<ProjectModel, string>
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
@@ -130,26 +129,6 @@ const projectModel: ProjectModel = {
     Object.assign(fproject, project)
     storeProject(state.projects)
   }),
-  resolveTailwindcssConfig: thunk(async (actions, url, { getState }) => {
-    const project = getState().projects.find((p) => p.url === url)
-    if (!project) throw new Error("project don't exist")
-    if (!project.tailwindConfigPath) throw new Error("tailwindConfigPath don't exist")
-
-    try {
-      // const customConfig = await import(project.tailwindConfigPath)
-      const zz = 'D:\\playground\\nextjs\\tailwind.config'
-      const customConfig = await import(zz)
-      // const customConfig = await import('D:\\playground\\nextjs\\tailwind.config')
-      project.tailwindConfig = resolveConfig(customConfig)
-      console.log(project.tailwindConfig)
-    } catch (err) {
-      console.error(err)
-      toast({
-        title: err.message,
-        status: 'error',
-      })
-    }
-  }),
 
   frontProject: null,
   setFrontProject: action((state, project) => {
@@ -179,6 +158,7 @@ const projectModel: ProjectModel = {
 
     actions.setFrontProjectView(ProjectView.BrowserView)
     // actions.startProject(project.url)
+    console.log(project.tailwindConfig)
   }),
   startProject: thunk(async (actions, url, { getState }) => {
     const project = getState().projects.find((p) => p.url === url)
@@ -227,7 +207,7 @@ const projectModel: ProjectModel = {
     actions.setProjects(projects)
   }),
 
-  loadStore: thunk((actions, none, { getState }) => {
+  loadStore: thunk(async (actions, none, { getState }) => {
     actions.getStoreProjects()
     const { projects } = getState()
 
@@ -238,7 +218,7 @@ const projectModel: ProjectModel = {
       const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
       if (result) {
         send(Handler.Install, { url, path, branch })
-        actions.resolveTailwindcssConfig(url)
+        project.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
       } else {
         toast({
           title: `Import error:${error}`,
@@ -278,7 +258,6 @@ const projectModel: ProjectModel = {
       project.changes = status.changes
       project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
-      project.tailwindConfigPath = status.tailwindConfigPath
 
       actions.setProject(project)
     })

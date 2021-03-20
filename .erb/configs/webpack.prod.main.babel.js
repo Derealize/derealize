@@ -32,7 +32,9 @@ export default merge(baseConfig, {
   output: {
     path: path.resolve(__dirname, '../../src'),
     filename: '[name].prod.js',
-    libraryTarget: 'commonjs2',
+    library: {
+      type: 'commonjs2',
+    },
   },
 
   optimization: {
