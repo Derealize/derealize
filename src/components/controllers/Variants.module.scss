@@ -1,0 +1,23 @@
+.variants {
+  background-color: white;
+}
+
+.responsives {
+  margin: 10px 0;
+}
+
+$gray400: #a0aec0;
+$teal500: #319795;
+
+.option {
+  color: $gray400;
+  &:hover {
+    @include linelink($gray400);
+  }
+  &.already {
+    color: $teal500;
+  }
+  &.active {
+    color: $link;
+  }
+}

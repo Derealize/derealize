@@ -1,6 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import type { Project } from './models/project'
-import type { Broadcast } from './backend/backend.interface'
+import { Broadcast } from './backend/backend.interface'
 import { Handler } from './backend/handlers'
 import { connectSocket, send, listen, unlisten } from './client-ipc'
 
