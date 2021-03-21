@@ -6,11 +6,11 @@ import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } fr
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
-import type { Project, ProjectView } from './models/project'
+import { Project, ProjectView } from './models/project'
 import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/handlers'
 import TopBar from './components/TopBar'
-import Controllers from './components/Controllers'
+import Controllers from './components/controllers/Controllers'
 import style from './Project.module.scss'
 import type { PreloadWindow } from './preload'
 

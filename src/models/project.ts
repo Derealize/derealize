@@ -30,11 +30,11 @@ export interface Project {
   productName?: string
   isOpened?: boolean
   stage?: ProjectStage
-  tailwindVersion?: string
   changes?: Array<GitFileChanges>
+  config?: ProjectConfig
   installOutput?: Array<string>
   runningOutput?: Array<string>
-  config?: ProjectConfig
+  tailwindVersion?: string
   tailwindConfig?: TailwindConfig
 }
 

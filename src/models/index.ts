@@ -3,6 +3,7 @@ import projectModel, { ProjectModel } from './project'
 import libraryModel, { LibraryModel } from './library'
 import workspaceModel, { WorkspaceModel } from './workspace'
 import controllesModel, { ControllesModel } from './controlles'
+import layoutModel, { LayoutModel } from './controlles/layout'
 
 export interface StoreModel {
   profile: ProfileModel
@@ -10,6 +11,7 @@ export interface StoreModel {
   library: LibraryModel
   workspace: WorkspaceModel
   controlles: ControllesModel
+  layout: LayoutModel
 }
 
 const storeModel: StoreModel = {
@@ -18,6 +20,7 @@ const storeModel: StoreModel = {
   library: libraryModel,
   workspace: workspaceModel,
   controlles: controllesModel,
+  layout: layoutModel,
 }
 
 export default storeModel
