@@ -153,7 +153,7 @@ const controllesModel: ControllesModel = {
     let result: Array<string> = []
     for (const [, variants] of Object.entries(project.tailwindConfig.variants)) {
       const leftVariants = variants.filter(
-        (v) => v !== 'responsive' && !StateVariants.includes(v) && !ListVariants.includes(v),
+        (v) => v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v) && !ListVariants.includes(v),
       )
       result = result.concat(leftVariants)
     }
