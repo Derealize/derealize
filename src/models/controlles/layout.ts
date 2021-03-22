@@ -12,7 +12,7 @@ export type ContainerProperty = PropertyVariants & { apply: boolean }
 
 export interface LayoutModel {
   containerPropertys: Array<ContainerProperty>
-  setContainer: Action<LayoutModel, ContainerProperty>
+  setContainerProperty: Action<LayoutModel, ContainerProperty>
 
   alreadyScreenVariants: Computed<LayoutModel, Array<string>, StoreModel>
   alreadyStateVariants: Computed<LayoutModel, Array<string>, StoreModel>
@@ -21,15 +21,15 @@ export interface LayoutModel {
 }
 
 const layoutModel: LayoutModel = {
-  container: [{ apply: false }],
-  setContainer: action((state, payload) => {
-    const property = state.container.find(
+  containerPropertys: [{ apply: false }],
+  setContainerProperty: action((state, payload) => {
+    const property = state.containerPropertys.find(
       (prop) => prop.dark === payload.dark && prop.list === payload.list && prop.screen === payload.screen,
     )
     if (property) {
       property.apply = payload.apply
     } else {
-      state.container.push(payload)
+      state.containerPropertys.push(payload)
     }
   }),
 
@@ -44,6 +44,7 @@ const layoutModel: LayoutModel = {
 
       className.split(' ').forEach((name) => {
         const words = name.split(':')
+        const property = words[words.length - 1]
         words.forEach((word, index) => {
           if (screenVariants.includes(word) && index < words.length - 1) {
             variants.push(word)
