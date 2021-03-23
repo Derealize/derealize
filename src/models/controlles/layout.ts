@@ -3,16 +3,21 @@ import clone from 'lodash.clonedeep'
 import type { StoreModel } from '../index'
 import { Broadcast } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
-import { PropertyVariants } from '.'
+import { Property } from '.'
 
 declare const window: PreloadWindow
 const { send, listen, unlisten } = window.derealize
 
-export type ContainerProperty = PropertyVariants & { apply: boolean }
+const containerName = 'container'
+
+export enum BoxSizing {
+  'boxBorder',
+  'boxContent',
+}
 
 export interface LayoutModel {
-  containerPropertys: Array<ContainerProperty>
-  setContainerProperty: Action<LayoutModel, ContainerProperty>
+  containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  setContainerProperty: Action<LayoutModel, Property>
 
   alreadyScreenVariants: Computed<LayoutModel, Array<string>, StoreModel>
   alreadyStateVariants: Computed<LayoutModel, Array<string>, StoreModel>
@@ -21,40 +26,12 @@ export interface LayoutModel {
 }
 
 const layoutModel: LayoutModel = {
-  containerPropertys: [{ apply: false }],
-  setContainerProperty: action((state, payload) => {
-    const property = state.containerPropertys.find(
-      (prop) => prop.dark === payload.dark && prop.list === payload.list && prop.screen === payload.screen,
-    )
-    if (property) {
-      property.apply = payload.apply
-    } else {
-      state.containerPropertys.push(payload)
-    }
-  }),
-
-  alreadyScreenVariants: computed(
-    [
-      (state, storeState) => storeState.controlles.className,
-      (state, storeState) => storeState.controlles.screenVariants,
-    ],
-    (className, screenVariants) => {
-      if (!className || !screenVariants.length) return []
-      const variants: Array<string> = []
-
-      className.split(' ').forEach((name) => {
-        const words = name.split(':')
-        const property = words[words.length - 1]
-        words.forEach((word, index) => {
-          if (screenVariants.includes(word) && index < words.length - 1) {
-            variants.push(word)
-          }
-        })
-      })
-
-      return variants
-    },
+  containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter((property) => property.classname === 'container'),
   ),
+  // alreadyScreenVariants: computed([(state, storeState) => storeState.controlles.propertys], (propertys) => {
+  //   return propertys.filter((property) => property.classname).map((property) => property.screen as string)
+  // }),
 }
 
 export default layoutModel
