@@ -10,7 +10,8 @@ import type { Project } from '../project'
 declare const window: PreloadWindow
 const { send, listen, unlisten } = window.derealize
 
-// 这些variant类型切分后各自单选，只是遵循设计经验。本质上所有variant都可以多选应用在同一个属性上
+// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时达成的
+// 本质上所有variant都可以多选应用在同一个属性上
 export const StateVariants = [
   'hover',
   'focus',
@@ -25,10 +26,12 @@ export const StateVariants = [
 ]
 export const ListVariants = ['first', 'last', 'odd', 'even']
 
-export interface PropertyVariants {
+export interface Property {
+  classname: string
   screen?: string
   state?: string
   list?: string
+  custom?: string
   dark?: boolean
 }
 
@@ -63,6 +66,8 @@ export interface ControllesModel {
   listen: Thunk<ControllesModel, void, void, StoreModel>
   unlisten: Action<ControllesModel>
 
+  propertys: Computed<ControllesModel, Array<Property>, StoreModel>
+
   onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
   onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
 }
@@ -78,82 +83,40 @@ const controllesModel: ControllesModel = {
     state.className = payload
   }),
 
-  screenVariants: computed(
-    [(state) => state.className, (state, storeState) => storeState.project.frontProject],
-    (className, project) => {
-      if (!project?.tailwindConfig || !className) return []
-      return Object.keys(project.tailwindConfig.theme.screens)
-    },
-  ),
+  screenVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.screens)
+  }),
   selectScreenVariant: null,
   setSelectScreenVariant: action((state, payload) => {
     state.selectScreenVariant = payload
   }),
-  alreadyScreenVariants: computed(
-    [(state) => state.className, (state) => state.screenVariants],
-    (className, screenVariants) => {
-      if (!className || !screenVariants.length) return []
-      const variants: Array<string> = []
-
-      className.split(' ').forEach((name) => {
-        const words = name.split(':')
-        words.forEach((word, index) => {
-          if (screenVariants.includes(word) && index < words.length - 1) {
-            variants.push(word)
-          }
-        })
-      })
-
-      return variants
-    },
-  ),
+  alreadyScreenVariants: computed([(state) => state.propertys], (propertys) => {
+    return propertys.filter((property) => property.screen).map((property) => property.screen as string)
+  }),
 
   selectStateVariant: null,
   setSelectStateVariant: action((state, payload) => {
     state.selectStateVariant = payload
   }),
-  alreadyStateVariants: computed([(state) => state.className], (className) => {
-    if (!className) return []
-    const variants: Array<string> = []
-
-    className.split(' ').forEach((name) => {
-      const words = name.split(':')
-      words.forEach((word, index) => {
-        if (StateVariants.includes(word) && index < words.length - 1) {
-          variants.push(word)
-        }
-      })
-    })
-
-    return variants
-  }),
+  alreadyStateVariants: computed([(state) => state.propertys], (propertys) =>
+    propertys.filter((property) => property.state).map((property) => property.state as string),
+  ),
 
   selectListVariant: null,
   setSelectListVariant: action((state, payload) => {
     state.selectListVariant = payload
   }),
-  alreadyListVariants: computed([(state) => state.className], (className) => {
-    if (!className) return []
-    const variants: Array<string> = []
-
-    className.split(' ').forEach((name) => {
-      const words = name.split(':')
-      words.forEach((word, index) => {
-        if (ListVariants.includes(word) && index < words.length - 1) {
-          variants.push(word)
-        }
-      })
-    })
-
-    return variants
-  }),
+  alreadyListVariants: computed([(state) => state.propertys], (propertys) =>
+    propertys.filter((property) => property.list).map((property) => property.list as string),
+  ),
 
   customVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     let result: Array<string> = []
     for (const [, variants] of Object.entries(project.tailwindConfig.variants)) {
       const leftVariants = variants.filter(
-        (v) => v !== 'responsive' && !StateVariants.includes(v) && !ListVariants.includes(v),
+        (v) => v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v) && !ListVariants.includes(v),
       )
       result = result.concat(leftVariants)
     }
@@ -163,23 +126,8 @@ const controllesModel: ControllesModel = {
   setSelectCustomVariant: action((state, payload) => {
     state.selectCustomVariant = payload
   }),
-  alreadyCustomVariants: computed(
-    [(state) => state.className, (state) => state.customVariants],
-    (className, customVariants) => {
-      if (!className || !customVariants.length) return []
-      const variants: Array<string> = []
-
-      className.split(' ').forEach((name) => {
-        const words = name.split(':')
-        words.forEach((word, index) => {
-          if (customVariants.includes(word) && index < words.length - 1) {
-            variants.push(word)
-          }
-        })
-      })
-
-      return variants
-    },
+  alreadyCustomVariants: computed([(state) => state.propertys], (propertys) =>
+    propertys.filter((property) => property.custom).map((property) => property.custom as string),
   ),
 
   dark: false,
@@ -197,6 +145,32 @@ const controllesModel: ControllesModel = {
   unlisten: action(() => {
     unlisten(Broadcast.FocusElement)
   }),
+
+  propertys: computed(
+    [(state) => state.className, (state) => state.screenVariants, (state) => state.customVariants],
+    (className, screenVariants, customVariants) => {
+      const propertys: Array<Property> = []
+      className?.split(' ').forEach((name) => {
+        const variants = name.split(':')
+        const property: Property = {
+          classname: variants.splice(-1)[0],
+        }
+        variants.forEach((variant) => {
+          if (screenVariants.includes(variant)) {
+            property.screen = variant
+          } else if (StateVariants.includes(variant)) {
+            property.state = variant
+          } else if (ListVariants.includes(variant)) {
+            property.list = variant
+          } else if (customVariants.includes(variant)) {
+            property.custom = variant
+          }
+        })
+        propertys.push(property)
+      })
+      return propertys
+    },
+  ),
 
   onOpenProject: thunkOn(
     (actions, storeActions) => storeActions.project.openProject,
