@@ -43,77 +43,70 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
       <Tabs orientation="vertical" colorScheme="teal">
         <TabList>
           <Tab p={3}>
-            <Tooltip label="Already (F1)">
+            <Tooltip label="(F1) Already">
               <Box>
                 <Icon as={RiFileList2Line} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Layout (F2)">
+            <Tooltip label="(F2) Layout Flex Grid Table">
               <Box>
                 <Icon as={BsLayoutWtf} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Alignment (F3)">
-              <Box>
-                <Icon as={AiOutlineAlignCenter} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="Spacing (F4)">
+            <Tooltip label="(F3) Spacing">
               <Box>
                 <Icon as={CgSpaceBetweenV} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Size (F5)">
+            <Tooltip label="(F4) Size">
               <Box>
                 <Icon as={GiResize} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Typography (F6)">
+            <Tooltip label="(F5) Typography">
               <Box>
                 <Icon as={BsType} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Background (F7)">
+            <Tooltip label="(F6) Background">
               <Box>
                 <Icon as={IoImageOutline} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Border (F8)">
+            <Tooltip label="(F7) Border">
               <Box>
                 <Icon as={MdBorderStyle} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Effects (F9)">
+            <Tooltip label="(F8) Effects Transition Transform">
               <Box>
                 <Icon as={GrThreeDEffects} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Components (F10)">
+            <Tooltip label="(F9) Components">
               <Box>
                 <Icon as={CgComponents} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="Interactivity (F11)">
+            <Tooltip label="(F10) Interactivity">
               <Box>
                 <Icon as={AiOutlineInteraction} boxSize={6} />
               </Box>

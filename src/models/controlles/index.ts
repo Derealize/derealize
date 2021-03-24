@@ -10,7 +10,7 @@ import type { Project } from '../project'
 declare const window: PreloadWindow
 const { send, listen, unlisten } = window.derealize
 
-// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时达成的
+// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
 export const StateVariants = [
   'hover',
@@ -19,7 +19,7 @@ export const StateVariants = [
   'disabled',
   'visited',
   'checked',
-  'group-hover', // 需要父元素辅助设置 'group' class
+  'group-hover', // 需要父元素设置 'group' class
   'group-focus',
   'focus-within',
   'focus-visible',
@@ -150,7 +150,7 @@ const controllesModel: ControllesModel = {
     [(state) => state.className, (state) => state.screenVariants, (state) => state.customVariants],
     (className, screenVariants, customVariants) => {
       const propertys: Array<Property> = []
-      className?.split(' ').forEach((name) => {
+      className?.split(/\s+/).forEach((name) => {
         const variants = name.split(':')
         const property: Property = {
           classname: variants.splice(-1)[0],
@@ -158,11 +158,14 @@ const controllesModel: ControllesModel = {
         variants.forEach((variant) => {
           if (screenVariants.includes(variant)) {
             property.screen = variant
-          } else if (StateVariants.includes(variant)) {
+          }
+          if (StateVariants.includes(variant)) {
             property.state = variant
-          } else if (ListVariants.includes(variant)) {
+          }
+          if (ListVariants.includes(variant)) {
             property.list = variant
-          } else if (customVariants.includes(variant)) {
+          }
+          if (customVariants.includes(variant)) {
             property.custom = variant
           }
         })
