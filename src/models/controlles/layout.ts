@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property } from '.'
+import { Property, AlreadyVariants } from '.'
 
 export const ContainerName = 'container'
 export const BoxSizingName = ['box-border', 'box-content']
@@ -96,12 +96,8 @@ export interface LayoutModel {
   zindexValues: Computed<LayoutModel, Array<string>, StoreModel>
   zindexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  layoutPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-
-  alreadyScreenVariants: Computed<LayoutModel, Array<string>, StoreModel>
-  alreadyStateVariants: Computed<LayoutModel, Array<string>, StoreModel>
-  alreadyListVariants: Computed<LayoutModel, Array<string>, StoreModel>
-  alreadyCustomVariants: Computed<LayoutModel, Array<string>, StoreModel>
+  allPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
 }
 
 const layoutModel: LayoutModel = {
@@ -162,7 +158,7 @@ const layoutModel: LayoutModel = {
     propertys.filter(({ classname }) => classname.startsWith('z-')),
   ),
 
-  layoutPropertys: computed(
+  allPropertys: computed(
     ({
       containerPropertys,
       boxSizingPropertys,
@@ -191,17 +187,18 @@ const layoutModel: LayoutModel = {
     },
   ),
 
-  alreadyScreenVariants: computed(({ layoutPropertys }) => {
-    return layoutPropertys.map((property) => property.screen as string)
-  }),
-  alreadyStateVariants: computed(({ layoutPropertys }) => {
-    return layoutPropertys.map((property) => property.state as string)
-  }),
-  alreadyListVariants: computed(({ layoutPropertys }) => {
-    return layoutPropertys.map((property) => property.list as string)
-  }),
-  alreadyCustomVariants: computed(({ layoutPropertys }) => {
-    return layoutPropertys.map((property) => property.custom as string)
+  alreadyVariants: computed(({ allPropertys }) => {
+    const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
+    const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
+    const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
+    const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
+    return {
+      screens: [...new Set(screens)],
+      states: [...new Set(states)],
+      lists: [...new Set(lists)],
+      customs: [...new Set(customs)],
+      dark: allPropertys.some((property) => property.dark),
+    }
   }),
 }
 

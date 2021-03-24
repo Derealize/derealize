@@ -50,7 +50,21 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F2) Layout Flex Grid Table">
+            <Tooltip label="(F2) Layout">
+              <Box>
+                <Icon as={BsLayoutWtf} boxSize={6} />
+              </Box>
+            </Tooltip>
+          </Tab>
+          <Tab p={3}>
+            <Tooltip label="(F2) Flex">
+              <Box>
+                <Icon as={BsLayoutWtf} boxSize={6} />
+              </Box>
+            </Tooltip>
+          </Tab>
+          <Tab p={3}>
+            <Tooltip label="(F2) Grid">
               <Box>
                 <Icon as={BsLayoutWtf} boxSize={6} />
               </Box>
