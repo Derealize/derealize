@@ -35,6 +35,13 @@ export interface Property {
   dark?: boolean
 }
 
+export interface AlreadyVariants {
+  screens: Array<string>
+  states: Array<string>
+  lists: Array<string>
+  customs: Array<string>
+  dark: boolean
+}
 export interface ControllesModel {
   tagName: string | null
   setTagName: Action<ControllesModel, string | null>
@@ -45,23 +52,21 @@ export interface ControllesModel {
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
   selectScreenVariant: string | null
   setSelectScreenVariant: Action<ControllesModel, string | null>
-  alreadyScreenVariants: Computed<ControllesModel, Array<string>, StoreModel>
 
   selectStateVariant: string | null
   setSelectStateVariant: Action<ControllesModel, string | null>
-  alreadyStateVariants: Computed<ControllesModel, Array<string>, StoreModel>
 
   selectListVariant: string | null
   setSelectListVariant: Action<ControllesModel, string | null>
-  alreadyListVariants: Computed<ControllesModel, Array<string>, StoreModel>
 
   customVariants: Computed<ControllesModel, Array<string>, StoreModel>
   selectCustomVariant: string | null
   setSelectCustomVariant: Action<ControllesModel, string | null>
-  alreadyCustomVariants: Computed<ControllesModel, Array<string>, StoreModel>
 
   dark: boolean
   setDark: Action<ControllesModel, boolean>
+
+  alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
 
   listen: Thunk<ControllesModel, void, void, StoreModel>
   unlisten: Action<ControllesModel>
@@ -91,25 +96,16 @@ const controllesModel: ControllesModel = {
   setSelectScreenVariant: action((state, payload) => {
     state.selectScreenVariant = payload
   }),
-  alreadyScreenVariants: computed([(state) => state.propertys], (propertys) => {
-    return propertys.filter((property) => property.screen).map((property) => property.screen as string)
-  }),
 
   selectStateVariant: null,
   setSelectStateVariant: action((state, payload) => {
     state.selectStateVariant = payload
   }),
-  alreadyStateVariants: computed([(state) => state.propertys], (propertys) =>
-    propertys.filter((property) => property.state).map((property) => property.state as string),
-  ),
 
   selectListVariant: null,
   setSelectListVariant: action((state, payload) => {
     state.selectListVariant = payload
   }),
-  alreadyListVariants: computed([(state) => state.propertys], (propertys) =>
-    propertys.filter((property) => property.list).map((property) => property.list as string),
-  ),
 
   customVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
@@ -126,13 +122,24 @@ const controllesModel: ControllesModel = {
   setSelectCustomVariant: action((state, payload) => {
     state.selectCustomVariant = payload
   }),
-  alreadyCustomVariants: computed([(state) => state.propertys], (propertys) =>
-    propertys.filter((property) => property.custom).map((property) => property.custom as string),
-  ),
 
   dark: false,
   setDark: action((state, payload) => {
     state.dark = payload
+  }),
+
+  alreadyVariants: computed([(state) => state.propertys], (propertys) => {
+    const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)
+    const states = propertys.filter((property) => property.state).map((property) => property.state as string)
+    const lists = propertys.filter((property) => property.list).map((property) => property.list as string)
+    const customs = propertys.filter((property) => property.custom).map((property) => property.custom as string)
+    return {
+      screens: [...new Set(screens)],
+      states: [...new Set(states)],
+      lists: [...new Set(lists)],
+      customs: [...new Set(customs)],
+      dark: propertys.some((property) => property.dark),
+    }
   }),
 
   listen: thunk(async (actions) => {
