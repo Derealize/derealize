@@ -3,6 +3,7 @@ export enum Broadcast {
   Installing = 'Installing',
   Starting = 'Starting',
   FocusElement = 'FocusElement',
+  LiveUpdateClass = 'LiveUpdateClass',
 }
 
 export interface ProjectConfig {

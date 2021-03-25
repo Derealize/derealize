@@ -27,7 +27,7 @@ import { RiFileList2Line } from 'react-icons/ri'
 import { MdBorderStyle } from 'react-icons/md'
 import type { Project } from '../../models/project'
 import { useStoreActions, useStoreState } from '../../reduxStore'
-import Layout from './Layout'
+import Layout from './layout/Layout'
 import style from './Controllers.module.scss'
 import type { PreloadWindow } from '../../preload'
 

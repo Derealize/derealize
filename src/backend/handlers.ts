@@ -2,7 +2,8 @@
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import type { HistoryReply, BoolReply, Broadcast } from './backend.interface'
+import type { HistoryReply, BoolReply } from './backend.interface'
+import { Broadcast } from './backend.interface'
 import emit from './emit'
 
 export enum Handler {
@@ -16,12 +17,18 @@ export enum Handler {
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
   FocusElement = 'FocusElement',
+  UpdateClass = 'UpdateClass',
 }
 
 export interface FocusElementPayload {
   id: string
   code: string
   tagName: string
+  className: string
+}
+
+export interface UpdateClassPayload {
+  id: string
   className: string
 }
 
@@ -110,4 +117,10 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
 export const FocusElement = async (payload: FocusElementPayload) => {
   const project = getProject(payload.id)
   emit(Broadcast.FocusElement, payload)
+}
+
+export const UpdateClass = async (payload: UpdateClassPayload) => {
+  const project = getProject(payload.id)
+  emit(Broadcast.LiveUpdateClass, payload)
+  // ...
 }
