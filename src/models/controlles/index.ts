@@ -42,6 +42,7 @@ export interface AlreadyVariants {
   customs: Array<string>
   dark: boolean
 }
+
 export interface ControllesModel {
   tagName: string | null
   setTagName: Action<ControllesModel, string | null>

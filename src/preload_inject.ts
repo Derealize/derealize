@@ -1,6 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron'
-import { connectSocket, send } from './client-ipc'
-import { Handler, FocusElementPayload } from './backend/handlers'
+import { connectSocket, send, listen } from './client-ipc'
+import { Handler, UpdateClassPayload } from './backend/handlers'
+import { Broadcast } from './backend/backend.interface'
 
 let PROJECTID: string | null = null
 
@@ -15,17 +16,27 @@ const css = `
   }
 `
 
-const derealizeListener = (e: any) => {
-  if (!e.target) return
+let activeElement: HTMLElement | null = null
+
+listen(Broadcast.LiveUpdateClass, (payload: UpdateClassPayload) => {
+  if (payload.id === PROJECTID && activeElement) {
+    activeElement.className = payload.className
+  }
+})
+
+const derealizeListener = (e: Event) => {
+  if (!e.target || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
-  const code = e.target.getAttribute('data-code')
-  if (code && PROJECTID) {
-    const { tagName, className } = e.target.tagName
+  activeElement = e.target as HTMLElement
+
+  const code = activeElement.getAttribute('data-code')
+  if (code) {
+    const { tagName, className } = activeElement
     send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
   }
 }
 
-const listen = () => {
+const listenElement = () => {
   document.querySelectorAll('[data-code]').forEach((el) => {
     el.removeEventListener('click', derealizeListener)
     el.addEventListener('click', derealizeListener)
@@ -41,11 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(css))
   document.head.appendChild(style)
-  listen()
+  listenElement()
 })
 
 contextBridge.exposeInMainWorld('derealize', {
   isMac: process.platform === 'darwin',
   isDev: process.env.NODE_ENV === 'development',
-  listen,
+  listenElement,
 })

@@ -18,13 +18,13 @@ import {
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import type { Project } from '../../models/project'
-import type { Responsive, AlreadyVariants } from '../../models/controlles'
-import type { ContainerPropertys } from '../../models/controlles/layout'
-import { useStoreActions, useStoreState } from '../../reduxStore'
-import Variants from './Variants'
+import type { Project } from '../../../models/project'
+import type { Responsive, AlreadyVariants } from '../../../models/controlles'
+import type { ContainerPropertys } from '../../../models/controlles/layout'
+import { useStoreActions, useStoreState } from '../../../reduxStore'
+import Variants from '../Variants'
 import style from './Layout.module.scss'
-import type { PreloadWindow } from '../../preload'
+import type { PreloadWindow } from '../../../preload'
 
 declare const window: PreloadWindow
 
@@ -35,15 +35,9 @@ type Props = {
 const Layout: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.controlles.alreadyVariants)
 
-  const responsive = useStoreState<Responsive>((state) => state.controlles.responsive)
-  const container = useStoreState<ContainerPropertys>((state) => state.layout.container)
-
   return (
     <VStack className={style.layout}>
       <Variants alreadyVariants={alreadyVariants} />
-      <Checkbox colorScheme="teal" checked={container.apply}>
-        container
-      </Checkbox>
     </VStack>
   )
 }
