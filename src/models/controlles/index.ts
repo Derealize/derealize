@@ -4,6 +4,7 @@ import clone from 'lodash.clonedeep'
 import type { StoreModel } from '../index'
 import { Broadcast } from '../../backend/backend.interface'
 import type { FocusElementPayload } from '../../backend/handlers'
+import { Handler } from '../../backend/handlers'
 import type { PreloadWindow } from '../../preload'
 import type { Project } from '../project'
 
@@ -33,6 +34,12 @@ export interface Property {
   list?: string
   custom?: string
   dark?: boolean
+}
+
+enum PropertyMethod {
+  Add,
+  Update,
+  Delete,
 }
 
 export interface AlreadyVariants {
@@ -72,7 +79,10 @@ export interface ControllesModel {
   listen: Thunk<ControllesModel, void, void, StoreModel>
   unlisten: Action<ControllesModel>
 
-  propertys: Computed<ControllesModel, Array<Property>, StoreModel>
+  propertys: Array<Property>
+  setPropertys: Action<ControllesModel, { property: Property; method: PropertyMethod; updatePropertyName: string }>
+  computePropertys: Action<ControllesModel>
+  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
 
   onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
   onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
@@ -147,6 +157,7 @@ const controllesModel: ControllesModel = {
     listen(Broadcast.FocusElement, ({ tagName, className }: FocusElementPayload) => {
       actions.setTagName(tagName)
       actions.setClassName(className)
+      actions.computePropertys()
     })
   }),
 
@@ -154,34 +165,95 @@ const controllesModel: ControllesModel = {
     unlisten(Broadcast.FocusElement)
   }),
 
-  propertys: computed(
-    [(state) => state.className, (state) => state.screenVariants, (state) => state.customVariants],
-    (className, screenVariants, customVariants) => {
-      const propertys: Array<Property> = []
-      className?.split(/\s+/).forEach((name) => {
-        const variants = name.split(':')
-        const property: Property = {
-          classname: variants.splice(-1)[0],
+  propertys: [],
+  setPropertys: action((state, { property, method, updatePropertyName }) => {
+    switch (method) {
+      case PropertyMethod.Add:
+        state.propertys.push(property)
+        break
+      case PropertyMethod.Delete:
+        state.propertys = state.propertys.filter(
+          (p) =>
+            !(
+              p.classname === property.classname &&
+              p.screen === property.screen &&
+              p.state === property.screen &&
+              p.list === property.list &&
+              p.custom === property.custom &&
+              p.dark === property.dark
+            ),
+        )
+        break
+      case PropertyMethod.Update: {
+        const item = state.propertys.find(
+          (p) =>
+            p.classname.startsWith(updatePropertyName) &&
+            p.screen === property.screen &&
+            p.state === property.screen &&
+            p.list === property.list &&
+            p.custom === property.custom &&
+            p.dark === property.dark,
+        )
+        if (item) {
+          item.classname = property.classname
         }
-        variants.forEach((variant) => {
-          if (screenVariants.includes(variant)) {
-            property.screen = variant
-          }
-          if (StateVariants.includes(variant)) {
-            property.state = variant
-          }
-          if (ListVariants.includes(variant)) {
-            property.list = variant
-          }
-          if (customVariants.includes(variant)) {
-            property.custom = variant
-          }
-        })
-        propertys.push(property)
+        break
+      }
+      default:
+        break
+    }
+  }),
+  computePropertys: action((state) => {
+    state.propertys = []
+    state.className?.split(/\s+/).forEach((name) => {
+      const names = name.split(':')
+      const property: Property = {
+        classname: names.splice(-1)[0],
+      }
+      names.forEach((variant) => {
+        if (state.screenVariants.includes(variant)) {
+          property.screen = variant
+        }
+        if (StateVariants.includes(variant)) {
+          property.state = variant
+        }
+        if (ListVariants.includes(variant)) {
+          property.list = variant
+        }
+        if (state.customVariants.includes(variant)) {
+          property.custom = variant
+        }
       })
-      return propertys
-    },
-  ),
+      state.propertys.push(property)
+    })
+  }),
+  updateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+    const id = getStoreState().project.frontProject?.url
+    if (!id) return
+
+    let className = ''
+    getState().propertys.forEach((property) => {
+      const { screen, state, list, custom, classname } = property
+      if (!classname) return
+
+      let variants = ''
+      if (screen) {
+        variants += `${screen}:`
+      }
+      if (state) {
+        variants += `${state}:`
+      }
+      if (list) {
+        variants += `${list}:`
+      }
+      if (custom) {
+        variants += `${custom}:`
+      }
+      className += `${variants + classname} `
+    })
+
+    send(Handler.UpdateClass, { id, className })
+  }),
 
   onOpenProject: thunkOn(
     (actions, storeActions) => storeActions.project.openProject,

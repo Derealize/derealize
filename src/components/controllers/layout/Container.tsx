@@ -21,18 +21,24 @@ const Container: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | null>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | null>((state) => state.controlles.selectCustomVariant)
 
+  const property = useMemo<Property | undefined>(
+    () =>
+      propertys.find(
+        (p) =>
+          p.screen === selectScreenVariant &&
+          p.state === selectStateVariant &&
+          p.list === selectListVariant &&
+          p.custom === selectCustomVariant,
+      ),
+    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
+  )
+
   const [modified, setModified] = useState<boolean | null>(null)
 
   const checked = useMemo<boolean | Property | undefined>(() => {
     if (modified !== null) return modified
-    return propertys.find(
-      (p) =>
-        p.screen === selectScreenVariant &&
-        p.state === selectStateVariant &&
-        p.list === selectListVariant &&
-        p.custom === selectCustomVariant,
-    )
-  }, [modified, propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant])
+    return property
+  }, [modified, property])
 
   return (
     <VStack className={style.layout}>
