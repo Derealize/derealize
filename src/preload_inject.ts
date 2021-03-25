@@ -14,6 +14,9 @@ const css = `
   [data-code]:hover {
     box-shadow: 0 0 0 1px #4fd1c5;
   }
+  [data-active] {
+    box-shadow: 0 0 0 1px #319795;
+  }
 `
 
 let activeElement: HTMLElement | null = null
@@ -24,7 +27,7 @@ listen(Broadcast.LiveUpdateClass, (payload: UpdateClassPayload) => {
   }
 })
 
-const derealizeListener = (e: Event) => {
+const derealizeListener = async (e: Event) => {
   if (!e.target || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
   activeElement = e.target as HTMLElement
@@ -32,7 +35,8 @@ const derealizeListener = (e: Event) => {
   const code = activeElement.getAttribute('data-code')
   if (code) {
     const { tagName, className } = activeElement
-    send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
+    await send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
+    activeElement.setAttribute('data-active', 'true')
   }
 }
 
@@ -44,6 +48,15 @@ const listenElement = () => {
     el.removeEventListener('contextmenu', derealizeListener)
     el.addEventListener('contextmenu', derealizeListener)
   })
+
+  activeElement = document.querySelector('[data-active]')
+  if (activeElement) {
+    const code = activeElement.getAttribute('data-code')
+    if (code) {
+      const { tagName, className } = activeElement
+      send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
