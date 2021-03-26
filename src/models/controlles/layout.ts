@@ -115,8 +115,8 @@ const layoutModel: LayoutModel = {
   containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter((property) => property.classname === ContainerName),
   ),
-  updateContainerProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
-    getStoreActions().controlles.update({ classname, method, targetNames: [ContainerName] })
+  updateContainerProperty: thunk((actions, { method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname: ContainerName, method, targetNames: [ContainerName] })
   }),
 
   boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
