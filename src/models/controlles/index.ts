@@ -29,6 +29,7 @@ export const ListVariants = ['first', 'last', 'odd', 'even']
 
 export interface Property {
   classname: string
+  value?: string
   screen?: string
   state?: string
   list?: string
@@ -36,10 +37,17 @@ export interface Property {
   dark?: boolean
 }
 
-enum PropertyMethod {
+export enum PropertyMethod {
   Add,
   Update,
   Delete,
+}
+
+export interface UpdatePayload {
+  classname: string
+  method: PropertyMethod
+  targetStartName?: string
+  targetNames?: Array<string>
 }
 
 export interface AlreadyVariants {
@@ -51,25 +59,25 @@ export interface AlreadyVariants {
 }
 
 export interface ControllesModel {
-  tagName: string | null
-  setTagName: Action<ControllesModel, string | null>
+  tagName: string | undefined
+  setTagName: Action<ControllesModel, string | undefined>
 
-  className: string | null
-  setClassName: Action<ControllesModel, string | null>
+  className: string | undefined
+  setClassName: Action<ControllesModel, string | undefined>
 
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
-  selectScreenVariant: string | null
-  setSelectScreenVariant: Action<ControllesModel, string | null>
+  selectScreenVariant: string | undefined
+  setSelectScreenVariant: Action<ControllesModel, string | undefined>
 
-  selectStateVariant: string | null
-  setSelectStateVariant: Action<ControllesModel, string | null>
+  selectStateVariant: string | undefined
+  setSelectStateVariant: Action<ControllesModel, string | undefined>
 
-  selectListVariant: string | null
-  setSelectListVariant: Action<ControllesModel, string | null>
+  selectListVariant: string | undefined
+  setSelectListVariant: Action<ControllesModel, string | undefined>
 
   customVariants: Computed<ControllesModel, Array<string>, StoreModel>
-  selectCustomVariant: string | null
-  setSelectCustomVariant: Action<ControllesModel, string | null>
+  selectCustomVariant: string | undefined
+  setSelectCustomVariant: Action<ControllesModel, string | undefined>
 
   dark: boolean
   setDark: Action<ControllesModel, boolean>
@@ -80,21 +88,21 @@ export interface ControllesModel {
   unlisten: Action<ControllesModel>
 
   propertys: Array<Property>
-  setPropertys: Action<ControllesModel, { property: Property; method: PropertyMethod; updatePropertyName: string }>
   computePropertys: Action<ControllesModel>
-  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
+  updateProperty: Action<ControllesModel, UpdatePayload>
+  update: Thunk<ControllesModel, UpdatePayload, void, StoreModel>
 
   onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
   onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
 }
 
 const controllesModel: ControllesModel = {
-  tagName: null,
+  tagName: undefined,
   setTagName: action((state, payload) => {
     state.tagName = payload
   }),
 
-  className: null,
+  className: undefined,
   setClassName: action((state, payload) => {
     state.className = payload
   }),
@@ -103,17 +111,17 @@ const controllesModel: ControllesModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.screens)
   }),
-  selectScreenVariant: null,
+  selectScreenVariant: undefined,
   setSelectScreenVariant: action((state, payload) => {
     state.selectScreenVariant = payload
   }),
 
-  selectStateVariant: null,
+  selectStateVariant: undefined,
   setSelectStateVariant: action((state, payload) => {
     state.selectStateVariant = payload
   }),
 
-  selectListVariant: null,
+  selectListVariant: undefined,
   setSelectListVariant: action((state, payload) => {
     state.selectListVariant = payload
   }),
@@ -129,7 +137,7 @@ const controllesModel: ControllesModel = {
     }
     return result
   }),
-  selectCustomVariant: null,
+  selectCustomVariant: undefined,
   setSelectCustomVariant: action((state, payload) => {
     state.selectCustomVariant = payload
   }),
@@ -166,43 +174,6 @@ const controllesModel: ControllesModel = {
   }),
 
   propertys: [],
-  setPropertys: action((state, { property, method, updatePropertyName }) => {
-    switch (method) {
-      case PropertyMethod.Add:
-        state.propertys.push(property)
-        break
-      case PropertyMethod.Delete:
-        state.propertys = state.propertys.filter(
-          (p) =>
-            !(
-              p.classname === property.classname &&
-              p.screen === property.screen &&
-              p.state === property.screen &&
-              p.list === property.list &&
-              p.custom === property.custom &&
-              p.dark === property.dark
-            ),
-        )
-        break
-      case PropertyMethod.Update: {
-        const item = state.propertys.find(
-          (p) =>
-            p.classname.startsWith(updatePropertyName) &&
-            p.screen === property.screen &&
-            p.state === property.screen &&
-            p.list === property.list &&
-            p.custom === property.custom &&
-            p.dark === property.dark,
-        )
-        if (item) {
-          item.classname = property.classname
-        }
-        break
-      }
-      default:
-        break
-    }
-  }),
   computePropertys: action((state) => {
     state.propertys = []
     state.className?.split(/\s+/).forEach((name) => {
@@ -227,13 +198,61 @@ const controllesModel: ControllesModel = {
       state.propertys.push(property)
     })
   }),
-  updateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+  updateProperty: action((state, { classname, method, targetStartName, targetNames }) => {
+    const property: Property = {
+      classname,
+      screen: state.selectScreenVariant,
+      state: state.selectStateVariant,
+      list: state.selectListVariant,
+      custom: state.selectCustomVariant,
+    }
+    switch (method) {
+      case PropertyMethod.Add:
+        state.propertys.push(property)
+        break
+      case PropertyMethod.Delete:
+        state.propertys = state.propertys.filter(
+          (p) =>
+            !(
+              p.classname === property.classname &&
+              p.screen === property.screen &&
+              p.state === property.screen &&
+              p.list === property.list &&
+              p.custom === property.custom &&
+              p.dark === property.dark
+            ),
+        )
+        break
+      case PropertyMethod.Update: {
+        const item = state.propertys.find(
+          (p) =>
+            (targetNames
+              ? targetNames.includes(p.classname)
+              : targetStartName && p.classname.startsWith(targetStartName)) &&
+            p.screen === property.screen &&
+            p.state === property.screen &&
+            p.list === property.list &&
+            p.custom === property.custom &&
+            p.dark === property.dark,
+        )
+        if (item) {
+          item.classname = property.classname
+        }
+        break
+      }
+      default:
+        break
+    }
+  }),
+  update: thunk(async (actions, { classname, method, targetStartName, targetNames }, { getState, getStoreState }) => {
     const id = getStoreState().project.frontProject?.url
     if (!id) return
 
+    actions.updateProperty({ classname, method, targetStartName, targetNames })
+
     let className = ''
     getState().propertys.forEach((property) => {
-      const { screen, state, list, custom, classname } = property
+      const { screen, state, list, custom, classname: name } = property
       if (!classname) return
 
       let variants = ''
@@ -249,7 +268,7 @@ const controllesModel: ControllesModel = {
       if (custom) {
         variants += `${custom}:`
       }
-      className += `${variants + classname} `
+      className += `${variants + name} `
     })
 
     send(Handler.UpdateClass, { id, className })

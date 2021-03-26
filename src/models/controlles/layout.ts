@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property, AlreadyVariants } from '.'
+import { Property, AlreadyVariants, UpdatePayload } from '.'
 
 export const ContainerName = 'container'
 export const BoxSizingName = ['box-border', 'box-content']
@@ -72,29 +72,40 @@ export const Visibility = ['visible', 'invisible']
 
 export interface LayoutModel {
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateContainerProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   boxSizingPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateBoxSizingProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   displayPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateDisplayProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   floatPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateFloatProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   objectFitPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateObjectFitProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
-  objectPosition: Computed<LayoutModel, Array<string>, StoreModel>
+  objectPositionValues: Computed<LayoutModel, Array<string>, StoreModel>
   objectPositionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateObjectPositionProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   overflowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateOverflowProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updatePositionProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   insetValues: Computed<LayoutModel, Array<string>, StoreModel>
   insetPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateInsetProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   visibilityPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateVisibilityProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   zindexValues: Computed<LayoutModel, Array<string>, StoreModel>
   zindexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  updateZindexProperty: Thunk<LayoutModel, UpdatePayload, void, StoreModel>
 
   allPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
@@ -104,35 +115,57 @@ const layoutModel: LayoutModel = {
   containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter((property) => property.classname === ContainerName),
   ),
+  updateContainerProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: [ContainerName] })
+  }),
 
   boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => BoxSizingName.includes(classname)),
   ),
+  updateBoxSizingProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: BoxSizingName })
+  }),
 
   displayPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => DisplayName.includes(classname)),
   ),
+  updateDisplayProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: DisplayName })
+  }),
 
   floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => FloatName.includes(classname)),
   ),
+  updateFloatProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: FloatName })
+  }),
 
   objectFitPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => ObjectFit.includes(classname)),
   ),
+  updateObjectFitProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: ObjectFit })
+  }),
 
-  objectPosition: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  objectPositionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.objectPosition)
   }),
-  objectPositionPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.objectPosition],
-    (propertys, objectPosition) => propertys.filter(({ classname }) => objectPosition.includes(classname)),
+  objectPositionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys
+      .filter(({ classname }) => !ObjectFit.includes(classname) && classname.startsWith('object-'))
+      .map((p) => ({ value: p.classname.replace('object-', ''), ...p })),
   ),
+  updatePositionProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetStartName: 'object-' })
+  }),
 
   overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ObjectFit.includes(classname)),
+    propertys.filter(({ classname }) => Overflow.includes(classname)),
   ),
+  updateOverflowProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetNames: Overflow })
+  }),
 
   positionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => Position.includes(classname)),

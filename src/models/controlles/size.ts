@@ -1,10 +1,11 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property, AlreadyVariants } from '.'
+import { Property, AlreadyVariants, UpdatePayload } from '.'
 
 export interface SizeModel {
   widthValues: Computed<SizeModel, Array<string>, StoreModel>
   widthPropertys: Computed<SizeModel, Array<Property>, StoreModel>
+  updateWidthProperty: Thunk<SizeModel, UpdatePayload, void, StoreModel>
 
   minWidthValues: Computed<SizeModel, Array<string>, StoreModel>
   minWidthPropertys: Computed<SizeModel, Array<Property>, StoreModel>
@@ -34,6 +35,9 @@ const sizeModel: SizeModel = {
   widthPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => classname.startsWith('w-')),
   ),
+  updateWidthProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
+    getStoreActions().controlles.update({ classname, method, targetStartName: 'w-' })
+  }),
 
   minWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
