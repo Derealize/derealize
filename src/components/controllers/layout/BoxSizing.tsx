@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
 import { Tooltip, VStack, Checkbox, CheckboxGroup, Box, Text } from '@chakra-ui/react'
-import clone from 'lodash.clonedeep'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
@@ -12,13 +11,11 @@ import type { PreloadWindow } from '../../../preload'
 
 declare const window: PreloadWindow
 
-const ContainerName = 'container'
-
 type Props = {
   project: Project
 }
 
-const Container: React.FC<Props> = ({ project }: Props): JSX.Element => {
+const BoxSizing: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const propertys = useStoreState<Array<Property>>((state) => state.controlles.propertys)
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
@@ -26,22 +23,16 @@ const Container: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertysClone = useMemo<Array<Property>>(() => clone(propertys), [propertys])
-  const containerPropertys = useMemo<Array<Property>>(
-    () => propertysClone.filter((property) => property.classname === ContainerName),
-    [propertysClone],
-  )
-
   const property = useMemo<Property | undefined>(
     () =>
-      containerPropertys.find(
+      propertys.find(
         (p) =>
           p.screen === selectScreenVariant &&
           p.state === selectStateVariant &&
           p.list === selectListVariant &&
           p.custom === selectCustomVariant,
       ),
-    [containerPropertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
+    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
   const [modified, setModified] = useState<boolean | null>(null)
@@ -58,14 +49,7 @@ const Container: React.FC<Props> = ({ project }: Props): JSX.Element => {
         checked={!!checked}
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
           setModified(e.target.checked)
-          // if (property) {
-          //   if (e.target.checked) {
-          //     property.classname = ContainerName
-          //   } else {
-          //     property.value = 'delete'
-          //   }
-          // } else {
-          // }
+          // updateContainerProperty({ method: e.target.checked?  })
         }}
       >
         container
@@ -74,4 +58,4 @@ const Container: React.FC<Props> = ({ project }: Props): JSX.Element => {
   )
 }
 
-export default Container
+export default BoxSizing

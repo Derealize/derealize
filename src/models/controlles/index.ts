@@ -91,6 +91,7 @@ export interface ControllesModel {
   computePropertys: Action<ControllesModel>
   updateProperty: Action<ControllesModel, UpdatePayload>
   update: Thunk<ControllesModel, UpdatePayload, void, StoreModel>
+  update2: Thunk<ControllesModel, Array<Property>, void, StoreModel>
 
   onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
   onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
@@ -253,7 +254,34 @@ const controllesModel: ControllesModel = {
     let className = ''
     getState().propertys.forEach((property) => {
       const { screen, state, list, custom, classname: name } = property
-      if (!classname) return
+      if (!name) return
+
+      let variants = ''
+      if (screen) {
+        variants += `${screen}:`
+      }
+      if (state) {
+        variants += `${state}:`
+      }
+      if (list) {
+        variants += `${list}:`
+      }
+      if (custom) {
+        variants += `${custom}:`
+      }
+      className += `${variants + name} `
+    })
+
+    send(Handler.UpdateClass, { id, className })
+  }),
+  update2: thunk(async (actions, propertys, { getStoreState }) => {
+    const id = getStoreState().project.frontProject?.url
+    if (!id) return
+
+    let className = ''
+    propertys.forEach((property) => {
+      const { screen, state, list, custom, classname: name } = property
+      if (!name) return
 
       let variants = ''
       if (screen) {
