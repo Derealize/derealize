@@ -132,7 +132,7 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
             <p>Already</p>
           </TabPanel>
           <TabPanel>
-            <Layout project={project} />
+            <Layout />
           </TabPanel>
           <TabPanel>
             <p>Alignment!</p>
