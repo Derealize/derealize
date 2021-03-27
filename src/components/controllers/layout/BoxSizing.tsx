@@ -1,12 +1,11 @@
 import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
-import { RadioGroup, Stack, Radio, Box, Text } from '@chakra-ui/react'
+import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
 import { BoxSizingName } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
-import style from './BoxSizing.module.scss'
 
 const BoxSizing: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
@@ -31,10 +30,14 @@ const BoxSizing: React.FC = (): JSX.Element => {
   )
 
   return (
-    <RadioGroup
+    <Select
+      placeholder="Box Sizing"
+      colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
-        if (property) {
+        if (!value && property) {
+          deleteProperty(property.id)
+        } else if (property) {
           property.classname = value.toString()
           setProperty(property)
         } else {
@@ -45,14 +48,12 @@ const BoxSizing: React.FC = (): JSX.Element => {
         }
       }}
     >
-      <Stack direction="row">
-        {BoxSizingName.map((name) => (
-          <Radio key={name} value={name}>
-            {name}
-          </Radio>
-        ))}
-      </Stack>
-    </RadioGroup>
+      {BoxSizingName.map((name) => (
+        <option key={name} value={name}>
+          {name}
+        </option>
+      ))}
+    </Select>
   )
 }
 

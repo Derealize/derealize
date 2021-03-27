@@ -7,7 +7,6 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Container from './Container'
 import BoxSizing from './BoxSizing'
 import Variants from '../Variants'
-import style from './Layout.module.scss'
 
 const Layout: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
