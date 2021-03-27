@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
-import { Tooltip, VStack, Checkbox, Box, Text } from '@chakra-ui/react'
-import { nanoid } from 'nanoid'
+import React, { useMemo, useState, useEffect } from 'react'
+import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
+import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { ContainerName } from '../../../models/controlles/layout'
+import { FloatName } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const Container: React.FC = (): JSX.Element => {
+const Float: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -16,7 +16,7 @@ const Container: React.FC = (): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.floatPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -30,21 +30,31 @@ const Container: React.FC = (): JSX.Element => {
   )
 
   return (
-    <Checkbox
-      colorScheme="teal"
-      checked={!!property}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked && !property) {
+    <Select
+      placeholder="Float"
+      colorScheme={property ? 'teal' : 'gray'}
+      value={property?.classname}
+      onChange={(value) => {
+        if (!value && property) {
+          deleteProperty(property.id)
+        } else if (property) {
+          property.classname = value.toString()
+          setProperty(property)
+        } else {
           setProperty({
             id: nanoid(),
-            classname: ContainerName,
+            classname: value.toString(),
           } as Property)
-        } else if (!e.target.checked && property) {
-          deleteProperty(property.id)
         }
       }}
     >
-      container
-    </Checkbox>
+      {FloatName.map((name) => (
+        <option key={name} value={name}>
+          {name}
+        </option>
+      ))}
+    </Select>
   )
 }
+
+export default Float
