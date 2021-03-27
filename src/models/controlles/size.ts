@@ -35,9 +35,6 @@ const sizeModel: SizeModel = {
   widthPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => classname.startsWith('w-')),
   ),
-  updateWidthProperty: thunk((actions, { classname, method }, { getStoreActions }) => {
-    getStoreActions().controlles.update({ classname, method, targetStartName: 'w-' })
-  }),
 
   minWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []

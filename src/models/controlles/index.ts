@@ -1,12 +1,11 @@
 /* eslint-disable no-restricted-syntax */
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
-import clone from 'lodash.clonedeep'
+import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
 import { Broadcast } from '../../backend/backend.interface'
 import type { FocusElementPayload } from '../../backend/handlers'
 import { Handler } from '../../backend/handlers'
 import type { PreloadWindow } from '../../preload'
-import type { Project } from '../project'
 
 declare const window: PreloadWindow
 const { send, listen, unlisten } = window.derealize
@@ -28,6 +27,7 @@ export const StateVariants = [
 export const ListVariants = ['first', 'last', 'odd', 'even']
 
 export interface Property {
+  id: string
   classname: string
   value?: string
   screen?: string
@@ -35,19 +35,6 @@ export interface Property {
   list?: string
   custom?: string
   dark?: boolean
-}
-
-export enum PropertyMethod {
-  Add,
-  Update,
-  Delete,
-}
-
-export interface UpdatePayload {
-  classname: string
-  method: PropertyMethod
-  targetStartName?: string
-  targetNames?: Array<string>
 }
 
 export interface AlreadyVariants {
@@ -89,9 +76,9 @@ export interface ControllesModel {
 
   propertys: Array<Property>
   computePropertys: Action<ControllesModel>
-  updateProperty: Action<ControllesModel, UpdatePayload>
-  update: Thunk<ControllesModel, UpdatePayload, void, StoreModel>
-  update2: Thunk<ControllesModel, Array<Property>, void, StoreModel>
+  setProperty: Action<ControllesModel, Property>
+  deleteProperty: Action<ControllesModel, string>
+  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
 
   onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
   onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
@@ -180,6 +167,7 @@ const controllesModel: ControllesModel = {
     state.className?.split(/\s+/).forEach((name) => {
       const names = name.split(':')
       const property: Property = {
+        id: nanoid(),
         classname: names.splice(-1)[0],
       }
       names.forEach((variant) => {
@@ -199,87 +187,23 @@ const controllesModel: ControllesModel = {
       state.propertys.push(property)
     })
   }),
-  updateProperty: action((state, { classname, method, targetStartName, targetNames }) => {
-    const property: Property = {
-      classname,
-      screen: state.selectScreenVariant,
-      state: state.selectStateVariant,
-      list: state.selectListVariant,
-      custom: state.selectCustomVariant,
-    }
-    switch (method) {
-      case PropertyMethod.Add:
-        state.propertys.push(property)
-        break
-      case PropertyMethod.Delete:
-        state.propertys = state.propertys.filter(
-          (p) =>
-            !(
-              p.classname === property.classname &&
-              p.screen === property.screen &&
-              p.state === property.screen &&
-              p.list === property.list &&
-              p.custom === property.custom &&
-              p.dark === property.dark
-            ),
-        )
-        break
-      case PropertyMethod.Update: {
-        const item = state.propertys.find(
-          (p) =>
-            (targetNames
-              ? targetNames.includes(p.classname)
-              : targetStartName && p.classname.startsWith(targetStartName)) &&
-            p.screen === property.screen &&
-            p.state === property.screen &&
-            p.list === property.list &&
-            p.custom === property.custom &&
-            p.dark === property.dark,
-        )
-        if (item) {
-          item.classname = property.classname
-        }
-        break
-      }
-      default:
-        break
+  setProperty: action((state, payload) => {
+    const property = state.propertys.find((p) => payload.id === p.id)
+    if (property) {
+      property.classname = payload.classname
+    } else {
+      state.propertys.push(payload)
     }
   }),
-  update: thunk(async (actions, { classname, method, targetStartName, targetNames }, { getState, getStoreState }) => {
+  deleteProperty: action((state, payload) => {
+    state.propertys = state.propertys.filter((p) => payload !== p.id)
+  }),
+  updateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
     const id = getStoreState().project.frontProject?.url
     if (!id) return
-
-    actions.updateProperty({ classname, method, targetStartName, targetNames })
 
     let className = ''
     getState().propertys.forEach((property) => {
-      const { screen, state, list, custom, classname: name } = property
-      if (!name) return
-
-      let variants = ''
-      if (screen) {
-        variants += `${screen}:`
-      }
-      if (state) {
-        variants += `${state}:`
-      }
-      if (list) {
-        variants += `${list}:`
-      }
-      if (custom) {
-        variants += `${custom}:`
-      }
-      className += `${variants + name} `
-    })
-
-    send(Handler.UpdateClass, { id, className })
-  }),
-  update2: thunk(async (actions, propertys, { getStoreState }) => {
-    const id = getStoreState().project.frontProject?.url
-    if (!id) return
-
-    let className = ''
-    propertys.forEach((property) => {
       const { screen, state, list, custom, classname: name } = property
       if (!name) return
 
