@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
+import groupBy from 'lodash.groupBy'
 import { Box, Text } from '@chakra-ui/react'
 import Select from 'react-select'
 import cs from 'classnames'
@@ -6,7 +7,15 @@ import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
 import { OverscrollValues } from '../../../models/controlles/layout'
+import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+
+const OverscrollGroups = groupBy(OverscrollValues, (value) => value.split('-').splice(-1).join('-'))
+
+const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values]) => ({
+  label,
+  options: values.map((value) => ({ value, label: value })),
+}))
 
 const Overscroll: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
@@ -30,44 +39,7 @@ const Overscroll: React.FC = (): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
-  return (
-    <Select
-      className="basic-single"
-      defaultValue={colourOptions[0]}
-      isDisabled={isDisabled}
-      isLoading={isLoading}
-      isClearable={isClearable}
-      isRtl={isRtl}
-      isSearchable={isSearchable}
-      name="color"
-      options={colourOptions}
-      onChange={(value) => {}}
-    />
-    // <Select
-    //   placeholder="Float"
-    //   colorScheme={property ? 'teal' : 'gray'}
-    //   value={property?.classname}
-    //   onChange={(value) => {
-    //     if (!value && property) {
-    //       deleteProperty(property.id)
-    //     } else if (property) {
-    //       property.classname = value.toString()
-    //       setProperty(property)
-    //     } else {
-    //       setProperty({
-    //         id: nanoid(),
-    //         classname: value.toString(),
-    //       } as Property)
-    //     }
-    //   }}
-    // >
-    //   {OverscrollBehaviorValues.map((value) => (
-    //     <option key={value} value={value}>
-    //       {value}
-    //     </option>
-    //   ))}
-    // </Select>
-  )
+  return <SelectController options={OverscrollOptions} />
 }
 
 export default Overscroll
