@@ -4,10 +4,10 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { ObjectFitValues } from '../../../models/controlles/layout'
+import { OverflowValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const ObjectFit: React.FC = (): JSX.Element => {
+const Overflow: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -16,7 +16,7 @@ const ObjectFit: React.FC = (): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.clearPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.floatPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -31,7 +31,7 @@ const ObjectFit: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Object Fit"
+      placeholder="Float"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
@@ -48,13 +48,13 @@ const ObjectFit: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {ObjectFitValues.map((name) => (
-        <option key={name} value={name}>
-          {name}
+      {OverflowValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
         </option>
       ))}
     </Select>
   )
 }
 
-export default ObjectFit
+export default Overflow

@@ -4,10 +4,9 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { ObjectFitValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const ObjectFit: React.FC = (): JSX.Element => {
+const ObjectPosition: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -17,6 +16,7 @@ const ObjectFit: React.FC = (): JSX.Element => {
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.clearPropertys)
+  const objectPositionValues = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -31,7 +31,7 @@ const ObjectFit: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Object Fit"
+      placeholder="Object Position"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
@@ -48,7 +48,7 @@ const ObjectFit: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {ObjectFitValues.map((name) => (
+      {objectPositionValues.map((name) => (
         <option key={name} value={name}>
           {name}
         </option>
@@ -57,4 +57,4 @@ const ObjectFit: React.FC = (): JSX.Element => {
   )
 }
 
-export default ObjectFit
+export default ObjectPosition
