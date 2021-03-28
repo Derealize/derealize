@@ -1,10 +1,10 @@
-import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
+import { computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from '.'
 
-export const ContainerName = 'container'
-export const BoxSizingNames = ['box-border', 'box-content']
-export const DisplayNames = [
+export const ContainerValue = 'container'
+export const BoxSizingValues = ['box-border', 'box-content']
+export const DisplayValues = [
   'block',
   'inline-block',
   'inline',
@@ -20,10 +20,10 @@ export const DisplayNames = [
   'table-row-group',
   'table-row',
 ]
-export const FloatNames = ['right', 'left', 'none']
-export const ClearNames = ['clear-left', 'clear-right', 'clear-none']
-export const ObjectFitNames = ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down']
-export const OverflowNames = [
+export const FloatValues = ['right', 'left', 'none']
+export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
+export const ObjectFitValues = ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down']
+export const OverflowValues = [
   'overflow-auto',
   'overflow-hidden',
   'overflow-visible',
@@ -38,7 +38,7 @@ export const OverflowNames = [
   'overflow-y-scroll',
 ]
 
-export const OverscrollNames = [
+export const OverscrollValues = [
   'overscroll-auto',
   'overscroll-contain',
   'overscroll-none',
@@ -50,8 +50,8 @@ export const OverscrollNames = [
   'overscroll-x-none',
 ]
 
-export const PositionNames = ['static', 'fixed', 'absolute', 'relative', 'sticky']
-export const InsetPrefixNames = [
+export const PositionValues = ['static', 'fixed', 'absolute', 'relative', 'sticky']
+export const InsetPrefixValues = [
   'inset',
   '-inset',
   'inset-y',
@@ -68,7 +68,7 @@ export const InsetPrefixNames = [
   '-left',
 ]
 
-export const VisibilityNames = ['visible', 'invisible']
+export const VisibilityValues = ['visible', 'invisible']
 
 export interface LayoutModel {
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -104,27 +104,27 @@ export interface LayoutModel {
 
 const layoutModel: LayoutModel = {
   containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter((property) => property.classname === ContainerName),
+    propertys.filter((property) => property.classname === ContainerValue),
   ),
 
   boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => BoxSizingNames.includes(classname)),
+    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
   ),
 
   displayPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => DisplayNames.includes(classname)),
+    propertys.filter(({ classname }) => DisplayValues.includes(classname)),
   ),
 
   floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => FloatNames.includes(classname)),
+    propertys.filter(({ classname }) => FloatValues.includes(classname)),
   ),
 
   clearPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ClearNames.includes(classname)),
+    propertys.filter(({ classname }) => ClearValues.includes(classname)),
   ),
 
   objectFitPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ObjectFitNames.includes(classname)),
+    propertys.filter(({ classname }) => ObjectFitValues.includes(classname)),
   ),
 
   objectPositionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -133,16 +133,16 @@ const layoutModel: LayoutModel = {
   }),
   objectPositionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys
-      .filter(({ classname }) => !ObjectFitNames.includes(classname) && classname.startsWith('object-'))
+      .filter(({ classname }) => !ObjectFitValues.includes(classname) && classname.startsWith('object-'))
       .map((p) => ({ value: p.classname.replace('object-', ''), ...p })),
   ),
 
   overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => OverflowNames.includes(classname)),
+    propertys.filter(({ classname }) => OverflowValues.includes(classname)),
   ),
 
   positionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => PositionNames.includes(classname)),
+    propertys.filter(({ classname }) => PositionValues.includes(classname)),
   ),
 
   insetValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -150,11 +150,11 @@ const layoutModel: LayoutModel = {
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
   insetPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => InsetPrefixNames.some((prefix) => classname.startsWith(prefix))),
+    propertys.filter(({ classname }) => InsetPrefixValues.some((prefix) => classname.startsWith(prefix))),
   ),
 
   visibilityPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => VisibilityNames.includes(classname)),
+    propertys.filter(({ classname }) => VisibilityValues.includes(classname)),
   ),
 
   zindexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
