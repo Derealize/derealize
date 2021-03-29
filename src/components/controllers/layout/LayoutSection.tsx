@@ -19,14 +19,14 @@ import Visibility from './Visibility'
 import Zindex from './Zindex'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const LayoutSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
-    <VStack>
+    <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <Container already={already} />
       <BoxSizing already={already} />
@@ -42,6 +42,10 @@ const LayoutSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
       <Zindex already={already} />
     </VStack>
   )
+}
+
+LayoutSection.defaultProps = {
+  already: false,
 }
 
 export default LayoutSection

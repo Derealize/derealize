@@ -8,7 +8,7 @@ import { VisibilityValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const Visibility: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const Visibility: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+Visibility.defaultProps = {
+  already: false,
 }
 
 export default Visibility

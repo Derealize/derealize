@@ -8,7 +8,7 @@ import { ObjectFitValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const ObjectFit: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const ObjectFit: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+ObjectFit.defaultProps = {
+  already: false,
 }
 
 export default ObjectFit

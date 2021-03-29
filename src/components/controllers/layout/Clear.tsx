@@ -8,7 +8,7 @@ import { ClearValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const Clear: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const Clear: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+Clear.defaultProps = {
+  already: false,
 }
 
 export default Clear

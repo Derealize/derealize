@@ -18,7 +18,7 @@ const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values])
 }))
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -72,6 +72,10 @@ const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
       }}
     />
   )
+}
+
+Overscroll.defaultProps = {
+  already: false,
 }
 
 export default Overscroll

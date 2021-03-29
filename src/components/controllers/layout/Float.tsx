@@ -8,7 +8,7 @@ import { FloatValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+Float.defaultProps = {
+  already: false,
 }
 
 export default Float
