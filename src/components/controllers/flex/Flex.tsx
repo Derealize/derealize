@@ -31,7 +31,7 @@ const Flex: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Box Sizing"
+      placeholder="Flex"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

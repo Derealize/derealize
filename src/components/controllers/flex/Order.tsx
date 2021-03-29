@@ -31,7 +31,7 @@ const Order: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Float"
+      placeholder="Order"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

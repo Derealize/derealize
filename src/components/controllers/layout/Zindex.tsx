@@ -31,7 +31,7 @@ const Zindex: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Float"
+      placeholder="Zindex"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

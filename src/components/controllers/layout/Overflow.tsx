@@ -31,7 +31,7 @@ const Overflow: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Float"
+      placeholder="Overflow"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

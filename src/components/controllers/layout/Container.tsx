@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { ContainerName } from '../../../models/controlles/layout'
+import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 const Container: React.FC = (): JSX.Element => {
@@ -37,14 +37,16 @@ const Container: React.FC = (): JSX.Element => {
         if (e.target.checked && !property) {
           setProperty({
             id: nanoid(),
-            classname: ContainerName,
+            classname: ContainerValue,
           } as Property)
         } else if (!e.target.checked && property) {
           deleteProperty(property.id)
         }
       }}
     >
-      container
+      Container
     </Checkbox>
   )
 }
+
+export default Container
