@@ -1,11 +1,10 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property, AlreadyVariants, UpdatePayload } from '.'
+import { Property, AlreadyVariants } from '.'
 
 export interface SizeModel {
   widthValues: Computed<SizeModel, Array<string>, StoreModel>
   widthPropertys: Computed<SizeModel, Array<Property>, StoreModel>
-  updateWidthProperty: Thunk<SizeModel, UpdatePayload, void, StoreModel>
 
   minWidthValues: Computed<SizeModel, Array<string>, StoreModel>
   minWidthPropertys: Computed<SizeModel, Array<Property>, StoreModel>

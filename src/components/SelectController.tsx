@@ -1,17 +1,18 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import Select, { GroupTypeBase, OptionTypeBase } from 'react-select'
+import Select, { GroupTypeBase, OptionTypeBase, ActionMeta, ValueType } from 'react-select'
 import cs from 'classnames'
-import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import styles from './SelectController.module.scss'
 
-interface OptionType extends OptionTypeBase {
+export interface OptionType extends OptionTypeBase {
   label: string
   value: string
 }
 
 type Props = {
   options: ReadonlyArray<OptionType | GroupTypeBase<OptionType>>
+  value: OptionType | null
+  onChange: (value: ValueType<OptionType, false>, actionMeta: ActionMeta<OptionType>) => void
 }
 
 const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
@@ -21,8 +22,8 @@ const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
   </div>
 )
 
-const SelectController: React.FC<Props> = ({ options }: Props): JSX.Element => {
-  return <Select isClearable options={options} formatGroupLabel={formatGroupLabel} onChange={(value) => {}} />
+const SelectController: React.FC<Props> = ({ options, value, onChange }: Props): JSX.Element => {
+  return <Select isClearable options={options} value={value} formatGroupLabel={formatGroupLabel} onChange={onChange} />
 }
 
 export default SelectController

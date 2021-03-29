@@ -4,7 +4,7 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { ClearName } from '../../../models/controlles/layout'
+import { ClearValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 const Clear: React.FC = (): JSX.Element => {
@@ -48,9 +48,9 @@ const Clear: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {ClearName.map((name) => (
-        <option key={name} value={name}>
-          {name}
+      {ClearValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
         </option>
       ))}
     </Select>

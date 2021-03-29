@@ -4,7 +4,7 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { BoxSizingName } from '../../../models/controlles/layout'
+import { BoxSizingValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 const BoxSizing: React.FC = (): JSX.Element => {
@@ -48,9 +48,9 @@ const BoxSizing: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {BoxSizingName.map((name) => (
-        <option key={name} value={name}>
-          {name}
+      {BoxSizingValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
         </option>
       ))}
     </Select>
