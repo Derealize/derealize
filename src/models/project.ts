@@ -13,10 +13,9 @@ import type {
   PayloadError,
   HistoryReply,
   BoolReply,
-  Broadcast,
   GitFileChanges,
 } from '../backend/backend.interface'
-import { Handler } from '../backend/handlers'
+import { Broadcast, Handler } from '../backend/backend.interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow

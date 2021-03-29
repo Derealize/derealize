@@ -18,7 +18,7 @@ export default merge(baseConfig, {
   target: 'web',
 
   entry: {
-    renderer: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
+    renderer: [path.join(__dirname, '../../src/index.tsx')],
   },
 
   experiments: {

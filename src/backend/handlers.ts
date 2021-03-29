@@ -6,20 +6,6 @@ import type { HistoryReply, BoolReply } from './backend.interface'
 import { Broadcast } from './backend.interface'
 import emit from './emit'
 
-export enum Handler {
-  Import = 'Import',
-  Install = 'Install',
-  CheckStatus = 'CheckStatus',
-  Start = 'Start',
-  Stop = 'Stop',
-  Pull = 'Pull',
-  Push = 'Push',
-  History = 'History',
-  GetTailwindConfig = 'GetTailwindConfig',
-  FocusElement = 'FocusElement',
-  UpdateClass = 'UpdateClass',
-}
-
 export interface FocusElementPayload {
   id: string
   code: string
