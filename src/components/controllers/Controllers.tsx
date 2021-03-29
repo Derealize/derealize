@@ -17,29 +17,22 @@ import {
 } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
-import { IoApps, IoImageOutline } from 'react-icons/io5'
-import { BsLayoutWtf, BsType } from 'react-icons/bs'
+import { IoImageOutline, IoGridOutline } from 'react-icons/io5'
+import { BsType } from 'react-icons/bs'
 import { AiOutlineAlignCenter, AiOutlineInteraction } from 'react-icons/ai'
 import { CgSpaceBetweenV, CgComponents } from 'react-icons/cg'
 import { GiResize } from 'react-icons/gi'
 import { GrThreeDEffects } from 'react-icons/gr'
-import { RiFileList2Line } from 'react-icons/ri'
-import { MdBorderStyle } from 'react-icons/md'
+import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-icons/ri'
+import { MdBorderStyle, MdGridOn } from 'react-icons/md'
 import type { Project } from '../../models/project'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import Already from './Already'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
 import style from './Controllers.module.scss'
-import type { PreloadWindow } from '../../preload'
 
-declare const window: PreloadWindow
-
-type Props = {
-  project: Project
-}
-
-const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
+const Controllers: React.FC = (): JSX.Element => {
   return (
     <div className={style.controllers}>
       <Tabs orientation="vertical" colorScheme="teal">
@@ -54,21 +47,21 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
           <Tab p={3}>
             <Tooltip label="(F2) Layout">
               <Box>
-                <Icon as={BsLayoutWtf} boxSize={6} />
+                <Icon as={RiLayoutMasonryLine} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
             <Tooltip label="(F3) Flex">
               <Box>
-                <Icon as={BsLayoutWtf} boxSize={6} />
+                <Icon as={IoGridOutline} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
             <Tooltip label="(F4) Grid">
               <Box>
-                <Icon as={BsLayoutWtf} boxSize={6} />
+                <Icon as={MdGridOn} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>

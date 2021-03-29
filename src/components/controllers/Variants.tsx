@@ -41,7 +41,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
             onClick={() => setSelectScreenVariant(variant)}
             aria-hidden="true"
           >
-            :{variant}
+            {variant}
           </span>
         ))}
       </div>
@@ -56,7 +56,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
             onClick={() => setSelectStateVariant(variant)}
             aria-hidden="true"
           >
-            :{variant}
+            {variant}
           </span>
         ))}
       </div>
@@ -71,7 +71,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
             onClick={() => setSelectListVariant(variant)}
             aria-hidden="true"
           >
-            :{variant}
+            {variant}
           </span>
         ))}
       </div>
@@ -87,7 +87,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
               onClick={() => setSelectCustomVariant(variant)}
               aria-hidden="true"
             >
-              :{variant}
+              {variant}
             </span>
           ))}
         </div>

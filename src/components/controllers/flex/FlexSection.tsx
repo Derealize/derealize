@@ -17,7 +17,7 @@ import AlignItems from './AlignItems'
 import AlignSelf from './AlignSelf'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const FlexSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -38,6 +38,10 @@ const FlexSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
       <AlignSelf already={already} />
     </VStack>
   )
+}
+
+FlexSection.defaultProps = {
+  already: false,
 }
 
 export default FlexSection

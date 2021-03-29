@@ -8,7 +8,7 @@ import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const Container: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -53,6 +53,10 @@ const Container: React.FC<Props> = ({ already }: Props): JSX.Element => {
       Container
     </Checkbox>
   )
+}
+
+Container.defaultProps = {
+  already: false,
 }
 
 export default Container

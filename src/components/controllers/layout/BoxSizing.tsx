@@ -8,7 +8,7 @@ import { BoxSizingValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+BoxSizing.defaultProps = {
+  already: false,
 }
 
 export default BoxSizing

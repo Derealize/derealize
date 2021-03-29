@@ -7,7 +7,7 @@ import type { Property } from '../../../models/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+ObjectPosition.defaultProps = {
+  already: false,
 }
 
 export default ObjectPosition

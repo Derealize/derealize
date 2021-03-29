@@ -8,7 +8,7 @@ import { FlexWrapValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
-  already: boolean
+  already?: boolean
 }
 
 const FlexWrap: React.FC<Props> = ({ already }: Props): JSX.Element => {
@@ -61,6 +61,10 @@ const FlexWrap: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
+}
+
+FlexWrap.defaultProps = {
+  already: false,
 }
 
 export default FlexWrap

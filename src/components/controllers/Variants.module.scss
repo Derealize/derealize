@@ -1,24 +1,32 @@
 @import '../../styles/variable';
 
+$gray400: #a0aec0;
+$teal500: #319795;
+
 .variants {
-  background-color: white;
+  font-family: $font-mono;
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+  }
 }
 
 .screenVariants,
 .stateVariants,
 .listVariants,
 .customVariants {
-  margin: 0 0 10px;
+  & > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-left: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-right: calc(0.75rem * var(--tw-space-y-reverse));
+  }
 }
-
-$gray400: #a0aec0;
-$teal500: #319795;
 
 .option {
   color: $gray400;
   cursor: pointer;
-  margin-right: calc(0.25rem * $tw-space-x-reverse);
-  margin-left: calc(0.25rem * calc(1 - $tw-space-x-reverse));
+  display: inline-block;
   &:hover {
     @include linelink($gray400);
   }
