@@ -10,6 +10,7 @@ export interface OptionType extends OptionTypeBase {
 }
 
 type Props = {
+  placeholder: string
   options: ReadonlyArray<OptionType | GroupTypeBase<OptionType>>
   value: OptionType | null
   onChange: (value: ValueType<OptionType, false>, actionMeta: ActionMeta<OptionType>) => void
@@ -22,8 +23,17 @@ const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
   </div>
 )
 
-const SelectController: React.FC<Props> = ({ options, value, onChange }: Props): JSX.Element => {
-  return <Select isClearable options={options} value={value} formatGroupLabel={formatGroupLabel} onChange={onChange} />
+const SelectController: React.FC<Props> = ({ placeholder, options, value, onChange }: Props): JSX.Element => {
+  return (
+    <Select
+      placeholder={placeholder}
+      isClearable
+      options={options}
+      value={value}
+      formatGroupLabel={formatGroupLabel}
+      onChange={onChange}
+    />
+  )
 }
 
 export default SelectController

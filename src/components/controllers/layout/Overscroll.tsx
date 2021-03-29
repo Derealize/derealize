@@ -46,6 +46,7 @@ const Overscroll: React.FC = (): JSX.Element => {
 
   return (
     <SelectController
+      placeholder="Overscroll"
       options={OverscrollOptions}
       value={value}
       onChange={(cvalue, { action }) => {

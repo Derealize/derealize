@@ -31,7 +31,7 @@ const FlexDirection: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Box Sizing"
+      placeholder="Flex Direction"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

@@ -31,7 +31,7 @@ const FlexShrink: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Box Sizing"
+      placeholder="Flex Shrink"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

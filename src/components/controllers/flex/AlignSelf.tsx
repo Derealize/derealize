@@ -4,10 +4,10 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { FlexWrapValues } from '../../../models/controlles/flex'
+import { AlignSelfValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const FlexGrow: React.FC = (): JSX.Element => {
+const AlignSelf: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -16,8 +16,7 @@ const FlexGrow: React.FC = (): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const flexGrowValues = useStoreState<Array<string>>((state) => state.flex.flexGrowValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.flexGrowPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.flex.alignSelfPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -32,24 +31,24 @@ const FlexGrow: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Flex Grow"
+      placeholder="Align Self"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
         if (!value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `flex-grow-${value.toString()}`
+          property.classname = value.toString()
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `flex-grow-${value.toString()}`,
+            classname: value.toString(),
           } as Property)
         }
       }}
     >
-      {flexGrowValues.map((value) => (
+      {AlignSelfValues.map((value) => (
         <option key={value} value={value}>
           {value}
         </option>
@@ -58,4 +57,4 @@ const FlexGrow: React.FC = (): JSX.Element => {
   )
 }
 
-export default FlexGrow
+export default AlignSelf

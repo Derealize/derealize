@@ -31,7 +31,7 @@ const Visibility: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Float"
+      placeholder="Visibility"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

@@ -31,7 +31,7 @@ const Position: React.FC = (): JSX.Element => {
 
   return (
     <Select
-      placeholder="Float"
+      placeholder="Position"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

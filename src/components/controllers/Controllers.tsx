@@ -27,7 +27,8 @@ import { RiFileList2Line } from 'react-icons/ri'
 import { MdBorderStyle } from 'react-icons/md'
 import type { Project } from '../../models/project'
 import { useStoreActions, useStoreState } from '../../reduxStore'
-import Layout from './layout/Layout'
+import LayoutSection from './layout/LayoutSection'
+import FlexSection from './flex/FlexSection'
 import style from './Controllers.module.scss'
 import type { PreloadWindow } from '../../preload'
 
@@ -57,63 +58,63 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F2) Flex">
+            <Tooltip label="(F3) Flex">
               <Box>
                 <Icon as={BsLayoutWtf} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F2) Grid">
+            <Tooltip label="(F4) Grid">
               <Box>
                 <Icon as={BsLayoutWtf} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F3) Spacing">
+            <Tooltip label="(F5) Spacing">
               <Box>
                 <Icon as={CgSpaceBetweenV} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F4) Size">
+            <Tooltip label="(F6) Size">
               <Box>
                 <Icon as={GiResize} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F5) Typography">
+            <Tooltip label="(F7) Typography">
               <Box>
                 <Icon as={BsType} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F6) Background">
+            <Tooltip label="(F8) Background">
               <Box>
                 <Icon as={IoImageOutline} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F7) Border">
+            <Tooltip label="(F9) Border">
               <Box>
                 <Icon as={MdBorderStyle} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F8) Effects Transition Transform">
+            <Tooltip label="(F10) Effects Transition Transform">
               <Box>
                 <Icon as={GrThreeDEffects} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F9) Components">
+            <Tooltip label="(F11) Components">
               <Box>
                 <Icon as={CgComponents} boxSize={6} />
               </Box>
@@ -132,10 +133,13 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
             <p>Already</p>
           </TabPanel>
           <TabPanel>
-            <Layout />
+            <LayoutSection />
           </TabPanel>
           <TabPanel>
-            <p>Alignment!</p>
+            <FlexSection />
+          </TabPanel>
+          <TabPanel>
+            <p>Grid!</p>
           </TabPanel>
           <TabPanel>
             <p>Spacing!</p>
@@ -147,10 +151,10 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
             <p>Typography!</p>
           </TabPanel>
           <TabPanel>
-            <p>Border!</p>
+            <p>Background!</p>
           </TabPanel>
           <TabPanel>
-            <p>Background!</p>
+            <p>Border!</p>
           </TabPanel>
           <TabPanel>
             <p>Effects! transitions,animation,transforms,</p>
