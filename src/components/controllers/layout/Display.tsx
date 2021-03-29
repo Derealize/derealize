@@ -4,7 +4,7 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { DisplayName } from '../../../models/controlles/layout'
+import { DisplayValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 const Display: React.FC = (): JSX.Element => {
@@ -48,9 +48,9 @@ const Display: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {DisplayName.map((name) => (
-        <option key={name} value={name}>
-          {name}
+      {DisplayValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
         </option>
       ))}
     </Select>

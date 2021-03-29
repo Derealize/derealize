@@ -2,9 +2,8 @@
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
-import { Broadcast } from '../../backend/backend.interface'
+import { Broadcast, Handler } from '../../backend/backend.interface'
 import type { FocusElementPayload } from '../../backend/handlers'
-import { Handler } from '../../backend/handlers'
 import type { PreloadWindow } from '../../preload'
 
 declare const window: PreloadWindow

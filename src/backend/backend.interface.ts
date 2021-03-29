@@ -1,3 +1,17 @@
+export enum Handler {
+  Import = 'Import',
+  Install = 'Install',
+  CheckStatus = 'CheckStatus',
+  Start = 'Start',
+  Stop = 'Stop',
+  Pull = 'Pull',
+  Push = 'Push',
+  History = 'History',
+  GetTailwindConfig = 'GetTailwindConfig',
+  FocusElement = 'FocusElement',
+  UpdateClass = 'UpdateClass',
+}
+
 export enum Broadcast {
   Status = 'Status',
   Installing = 'Installing',

@@ -48,7 +48,7 @@ const AlignContent: React.FC = (): JSX.Element => {
         }
       }}
     >
-      {AlignItemsValues.map((value) => (
+      {AlignContentValues.map((value) => (
         <option key={value} value={value}>
           {value}
         </option>

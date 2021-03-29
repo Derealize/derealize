@@ -27,7 +27,7 @@ import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
 import type { Project } from './models/project'
-import { Handler } from './backend/handlers'
+import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
 

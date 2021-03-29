@@ -1,7 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send, listen } from './client-ipc'
-import { Handler, UpdateClassPayload } from './backend/handlers'
-import { Broadcast } from './backend/backend.interface'
+import { UpdateClassPayload } from './backend/handlers'
+import { Handler, Broadcast } from './backend/backend.interface'
 
 let PROJECTID: string | null = null
 
