@@ -15,48 +15,48 @@ type Props = {
 
 const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const screenVariants = useStoreState<Array<string>>((state) => state.controlles.screenVariants)
-  const selectScreenVariant = useStoreState<string | null>((state) => state.controlles.selectScreenVariant)
+  const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const setSelectScreenVariant = useStoreActions((actions) => actions.controlles.setSelectScreenVariant)
 
-  const selectStateVariant = useStoreState<string | null>((state) => state.controlles.selectStateVariant)
+  const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const setSelectStateVariant = useStoreActions((actions) => actions.controlles.setSelectStateVariant)
 
-  const selectListVariant = useStoreState<string | null>((state) => state.controlles.selectListVariant)
+  const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const setSelectListVariant = useStoreActions((actions) => actions.controlles.setSelectListVariant)
 
   const customVariants = useStoreState<Array<string>>((state) => state.controlles.customVariants)
-  const selectCustomVariant = useStoreState<string | null>((state) => state.controlles.selectCustomVariant)
+  const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const setSelectCustomVariant = useStoreActions((actions) => actions.controlles.setSelectCustomVariant)
 
   return (
     <div className={style.variants}>
       <div className={style.screenVariants}>
-        {screenVariants.map((screen) => (
+        {screenVariants.map((variant) => (
           <span
-            key={screen}
+            key={variant}
             className={cs(style.option, {
-              [style.active]: screen === selectScreenVariant,
-              [style.already]: alreadyVariants.screens.includes(screen),
+              [style.active]: variant === selectScreenVariant,
+              [style.already]: alreadyVariants.screens.includes(variant),
             })}
-            onClick={() => setSelectScreenVariant(screen)}
+            onClick={() => setSelectScreenVariant(variant)}
             aria-hidden="true"
           >
-            :{screen}
+            :{variant}
           </span>
         ))}
       </div>
       <div className={style.stateVariants}>
-        {StateVariants.map((state) => (
+        {StateVariants.map((variant) => (
           <span
-            key={state}
+            key={variant}
             className={cs(style.option, {
-              [style.active]: state === selectStateVariant,
-              [style.already]: alreadyVariants.states.includes(state),
+              [style.active]: variant === selectStateVariant,
+              [style.already]: alreadyVariants.states.includes(variant),
             })}
-            onClick={() => setSelectStateVariant(state)}
+            onClick={() => setSelectStateVariant(variant)}
             aria-hidden="true"
           >
-            :{state}
+            :{variant}
           </span>
         ))}
       </div>

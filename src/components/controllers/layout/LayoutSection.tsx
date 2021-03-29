@@ -18,24 +18,28 @@ import Position from './Position'
 import Visibility from './Visibility'
 import Zindex from './Zindex'
 
-const LayoutSection: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const LayoutSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
     <VStack>
-      <Variants alreadyVariants={alreadyVariants} />
-      <Container />
-      <BoxSizing />
-      <Clear />
-      <Display />
-      <Float />
-      <ObjectFit />
-      <ObjectPosition />
-      <Overflow />
-      <Overscroll />
-      <Position />
-      <Visibility />
-      <Zindex />
+      {!already && <Variants alreadyVariants={alreadyVariants} />}
+      <Container already={already} />
+      <BoxSizing already={already} />
+      <Clear already={already} />
+      <Display already={already} />
+      <Float already={already} />
+      <ObjectFit already={already} />
+      <ObjectPosition already={already} />
+      <Overflow already={already} />
+      <Overscroll already={already} />
+      <Position already={already} />
+      <Visibility already={already} />
+      <Zindex already={already} />
     </VStack>
   )
 }

@@ -7,7 +7,11 @@ import type { Property } from '../../../models/controlles'
 import { FlexDirectionValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const FlexDirection: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const FlexDirection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -28,6 +32,8 @@ const FlexDirection: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
+
+  if (already && !property) return <></>
 
   return (
     <Select

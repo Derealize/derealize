@@ -7,13 +7,13 @@ import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'
 import type {
   ProjectConfig,
-  ProjectStage,
   GitFileChanges,
   StatusPayload,
   ProcessPayload,
   BoolReply,
   HistoryReply,
 } from './backend.interface'
+import { ProjectStage } from './backend.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
 import emit from './emit'

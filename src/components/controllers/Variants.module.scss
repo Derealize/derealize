@@ -6,8 +6,9 @@
 
 .screenVariants,
 .stateVariants,
-.listVariants {
-  margin: 10px 0;
+.listVariants,
+.customVariants {
+  margin: 0 0 10px;
 }
 
 $gray400: #a0aec0;
@@ -15,6 +16,9 @@ $teal500: #319795;
 
 .option {
   color: $gray400;
+  cursor: pointer;
+  margin-right: calc(0.25rem * $tw-space-x-reverse);
+  margin-left: calc(0.25rem * calc(1 - $tw-space-x-reverse));
   &:hover {
     @include linelink($gray400);
   }

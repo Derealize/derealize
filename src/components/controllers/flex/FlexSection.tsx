@@ -16,22 +16,26 @@ import AlignContent from './AlignContent'
 import AlignItems from './AlignItems'
 import AlignSelf from './AlignSelf'
 
-const FlexSection: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const FlexSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.flex.alreadyVariants)
 
   return (
     <VStack>
-      <Variants alreadyVariants={alreadyVariants} />
-      <Flex />
-      <FlexDirection />
-      <FlexGrow />
-      <FlexShrink />
-      <FlexWrap />
-      <JustifyContent />
-      <Order />
-      <AlignContent />
-      <AlignItems />
-      <AlignSelf />
+      {!already && <Variants alreadyVariants={alreadyVariants} />}
+      <Flex already={already} />
+      <FlexDirection already={already} />
+      <FlexGrow already={already} />
+      <FlexShrink already={already} />
+      <FlexWrap already={already} />
+      <JustifyContent already={already} />
+      <Order already={already} />
+      <AlignContent already={already} />
+      <AlignItems already={already} />
+      <AlignSelf already={already} />
     </VStack>
   )
 }

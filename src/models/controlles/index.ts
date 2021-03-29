@@ -122,7 +122,7 @@ const controllesModel: ControllesModel = {
       )
       result = result.concat(leftVariants)
     }
-    return result
+    return [...new Set(result)]
   }),
   selectCustomVariant: undefined,
   setSelectCustomVariant: action((state, payload) => {

@@ -46,6 +46,9 @@ $teal: #0e7490;
 
 $link: $teal;
 
+$tw-space-y-reverse: 0;
+$tw-space-x-reverse: 0;
+
 $primary-gradient: linear-gradient(5deg, $primary, adjust-color($primary, $lightness: 2%, $hue: 16deg));
 
 $fontsize: 14px;
