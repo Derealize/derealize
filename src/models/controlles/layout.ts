@@ -51,22 +51,7 @@ export const OverscrollValues = [
 ]
 
 export const PositionValues = ['static', 'fixed', 'absolute', 'relative', 'sticky']
-export const InsetPrefixValues = [
-  'inset',
-  '-inset',
-  'inset-y',
-  '-inset-y',
-  'inset-x',
-  '-inset-x',
-  'top',
-  '-top',
-  'right',
-  '-right',
-  'bottom',
-  '-bottom',
-  'left',
-  '-left',
-]
+export const InsetPrefixs = ['inset', 'inset-y', 'inset-x', 'top', 'right', 'bottom', 'left']
 
 export const VisibilityValues = ['visible', 'invisible']
 
@@ -150,7 +135,9 @@ const layoutModel: LayoutModel = {
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
   insetPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => InsetPrefixValues.some((prefix) => classname.startsWith(prefix))),
+    propertys
+      .filter(({ classname }) => InsetPrefixs.some((prefix) => classname.startsWith(prefix)))
+      .map((p) => ({ value: p.classname.split('-').slice(-1)[0], ...p })),
   ),
 
   visibilityPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>

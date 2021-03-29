@@ -2,9 +2,9 @@ import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from '.'
 
-export const FlexDirection = ['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']
-export const FlexWrap = ['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap']
-export const JustifyContent = [
+export const FlexDirectionValues = ['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']
+export const FlexWrapValues = ['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap']
+export const JustifyContentValues = [
   'justify-start',
   'justify-end',
   'justify-center',
@@ -12,8 +12,8 @@ export const JustifyContent = [
   'justify-around',
   'justify-evenly',
 ]
-export const AlignItems = ['items-start', 'items-end', 'items-center', 'items-baseline', 'items-stretch']
-export const AlignContent = [
+export const AlignItemsValues = ['items-start', 'items-end', 'items-center', 'items-baseline', 'items-stretch']
+export const AlignContentValues = [
   'content-center',
   'content-start',
   'content-end',
@@ -21,7 +21,7 @@ export const AlignContent = [
   'content-around',
   'content-evenly',
 ]
-export const AlignSelf = ['self-auto', 'self-start', 'self-end', 'self-center', 'self-stretch']
+export const AlignSelfValues = ['self-auto', 'self-start', 'self-end', 'self-center', 'self-stretch']
 
 export interface FlexModel {
   flexDirectionPropertys: Computed<FlexModel, Array<Property>, StoreModel>
@@ -51,11 +51,11 @@ export interface FlexModel {
 
 const flexModel: FlexModel = {
   flexDirectionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => FlexDirection.includes(classname)),
+    propertys.filter(({ classname }) => FlexDirectionValues.includes(classname)),
   ),
 
   flexWrapPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => FlexWrap.includes(classname)),
+    propertys.filter(({ classname }) => FlexWrapValues.includes(classname)),
   ),
 
   flexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -91,16 +91,16 @@ const flexModel: FlexModel = {
   ),
 
   justifyContentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => JustifyContent.includes(classname)),
+    propertys.filter(({ classname }) => JustifyContentValues.includes(classname)),
   ),
   alignItemsPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => AlignItems.includes(classname)),
+    propertys.filter(({ classname }) => AlignItemsValues.includes(classname)),
   ),
   alignContentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => AlignContent.includes(classname)),
+    propertys.filter(({ classname }) => AlignContentValues.includes(classname)),
   ),
   alignSelfPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => AlignSelf.includes(classname)),
+    propertys.filter(({ classname }) => AlignSelfValues.includes(classname)),
   ),
 
   allPropertys: computed(

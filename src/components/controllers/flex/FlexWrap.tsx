@@ -1,23 +1,13 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import groupBy from 'lodash.groupBy'
-import { Box, Text } from '@chakra-ui/react'
-import Select from 'react-select'
+import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
-import { OverscrollValues } from '../../../models/controlles/layout'
-import SelectController, { OptionType } from '../../SelectController'
+import { FlexWrapValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => value.split('-').splice(-1).join('-'))
-
-const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values]) => ({
-  label,
-  options: values.map((value) => ({ value, label: value })),
-}))
-
-const Overscroll: React.FC = (): JSX.Element => {
+const FlexWrap: React.FC = (): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -26,7 +16,7 @@ const Overscroll: React.FC = (): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.floatPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.flex.flexDirectionPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -39,32 +29,32 @@ const Overscroll: React.FC = (): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
-  const value = useMemo<OptionType | null>(
-    () => (property ? { value: property.classname, label: property.classname } : null),
-    [property],
-  )
-
   return (
-    <SelectController
-      options={OverscrollOptions}
-      value={value}
-      onChange={(cvalue, { action }) => {
-        if (action === 'clear' && property) {
+    <Select
+      placeholder="Box Sizing"
+      colorScheme={property ? 'teal' : 'gray'}
+      value={property?.classname}
+      onChange={(value) => {
+        if (!value && property) {
           deleteProperty(property.id)
-        } else if (action === 'select-option' && cvalue) {
-          if (property) {
-            property.classname = cvalue.value
-            setProperty(property)
-          } else {
-            setProperty({
-              id: nanoid(),
-              classname: cvalue.value,
-            } as Property)
-          }
+        } else if (property) {
+          property.classname = value.toString()
+          setProperty(property)
+        } else {
+          setProperty({
+            id: nanoid(),
+            classname: value.toString(),
+          } as Property)
         }
       }}
-    />
+    >
+      {FlexWrapValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
+        </option>
+      ))}
+    </Select>
   )
 }
 
-export default Overscroll
+export default FlexWrap

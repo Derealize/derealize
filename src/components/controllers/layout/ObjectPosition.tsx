@@ -38,12 +38,12 @@ const ObjectPosition: React.FC = (): JSX.Element => {
         if (!value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = value.toString()
+          property.classname = `object-${value.toString()}`
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: value.toString(),
+            classname: `object-${value.toString()}`,
           } as Property)
         }
       }}
