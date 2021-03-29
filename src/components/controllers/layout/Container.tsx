@@ -7,7 +7,11 @@ import type { Property } from '../../../models/controlles'
 import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const Container: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const Container: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -28,6 +32,8 @@ const Container: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
+
+  if (already && !property) return <></>
 
   return (
     <Checkbox

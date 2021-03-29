@@ -7,7 +7,11 @@ import type { Property } from '../../../models/controlles'
 import { FlexWrapValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const FlexGrow: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const FlexGrow: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -29,6 +33,8 @@ const FlexGrow: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
+
+  if (already && !property) return <></>
 
   return (
     <Select

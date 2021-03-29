@@ -7,7 +7,11 @@ import type { Property } from '../../../models/controlles'
 import { AlignSelfValues } from '../../../models/controlles/flex'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const AlignSelf: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const AlignSelf: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -28,6 +32,8 @@ const AlignSelf: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
+
+  if (already && !property) return <></>
 
   return (
     <Select

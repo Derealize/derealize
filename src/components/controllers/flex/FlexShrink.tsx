@@ -6,7 +6,11 @@ import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const FlexShrink: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const FlexShrink: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -28,6 +32,8 @@ const FlexShrink: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
+
+  if (already && !property) return <></>
 
   return (
     <Select

@@ -5,7 +5,6 @@ import omit from 'lodash.omit'
 import dayjs from 'dayjs'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type {
-  ProjectStage,
   ProjectConfig,
   ProcessPayload,
   CommitLog,
@@ -15,7 +14,7 @@ import type {
   BoolReply,
   GitFileChanges,
 } from '../backend/backend.interface'
-import { Broadcast, Handler } from '../backend/backend.interface'
+import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow

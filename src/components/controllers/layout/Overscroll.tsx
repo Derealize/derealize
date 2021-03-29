@@ -17,7 +17,11 @@ const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values])
   options: values.map((value) => ({ value, label: value })),
 }))
 
-const Overscroll: React.FC = (): JSX.Element => {
+type Props = {
+  already: boolean
+}
+
+const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
 
@@ -43,6 +47,8 @@ const Overscroll: React.FC = (): JSX.Element => {
     () => (property ? { value: property.classname, label: property.classname } : null),
     [property],
   )
+
+  if (already && !property) return <></>
 
   return (
     <SelectController

@@ -27,6 +27,7 @@ import { RiFileList2Line } from 'react-icons/ri'
 import { MdBorderStyle } from 'react-icons/md'
 import type { Project } from '../../models/project'
 import { useStoreActions, useStoreState } from '../../reduxStore'
+import Already from './Already'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
 import style from './Controllers.module.scss'
@@ -130,7 +131,7 @@ const Controllers: React.FC<Props> = ({ project }: Props): JSX.Element => {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <p>Already</p>
+            <Already />
           </TabPanel>
           <TabPanel>
             <LayoutSection />
