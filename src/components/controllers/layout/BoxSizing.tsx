@@ -38,6 +38,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Box Sizing"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

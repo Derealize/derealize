@@ -38,6 +38,7 @@ const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Object Position"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

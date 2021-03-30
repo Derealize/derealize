@@ -1,20 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import {
-  Tooltip,
-  Stack,
-  Checkbox,
-  Box,
-  Text,
-  Tabs,
-  TabList,
-  Tab,
-  TabPanels,
-  TabPanel,
-  List,
-  ListItem,
-  ListIcon,
-  Icon,
-} from '@chakra-ui/react'
+import { Tooltip, Stack, Box, Text, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import { IoImageOutline, IoGridOutline } from 'react-icons/io5'

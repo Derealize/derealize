@@ -38,6 +38,7 @@ const ObjectFit: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Object Fit"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

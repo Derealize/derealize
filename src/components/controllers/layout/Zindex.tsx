@@ -38,6 +38,7 @@ const Zindex: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Zindex"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

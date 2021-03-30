@@ -5,22 +5,14 @@ $teal500: #319795;
 
 .variants {
   font-family: $font-mono;
-  & > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
-  }
+  @include space-bteween-y();
 }
 
 .screenVariants,
 .stateVariants,
 .listVariants,
 .customVariants {
-  & > :not([hidden]) ~ :not([hidden]) {
-    --tw-space-y-reverse: 0;
-    margin-left: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-right: calc(0.75rem * var(--tw-space-y-reverse));
-  }
+  @include space-bteween-x(0.75rem);
 }
 
 .option {

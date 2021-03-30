@@ -38,6 +38,7 @@ const Display: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Display"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

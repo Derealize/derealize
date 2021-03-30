@@ -38,6 +38,7 @@ const Flex: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Flex"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
