@@ -38,6 +38,7 @@ const FlexDirection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Flex Direction"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

@@ -38,6 +38,7 @@ const FlexWrap: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Flex Wrap"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

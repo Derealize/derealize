@@ -38,6 +38,7 @@ const Order: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Order"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

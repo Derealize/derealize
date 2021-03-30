@@ -38,6 +38,7 @@ const AlignContent: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Align Content"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

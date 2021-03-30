@@ -38,6 +38,7 @@ const FlexShrink: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Flex Shrink"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

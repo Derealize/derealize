@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import groupBy from 'lodash.groupBy'
 import { Box, Text } from '@chakra-ui/react'
-import Select from 'react-select'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
@@ -10,7 +9,11 @@ import { OverscrollValues } from '../../../models/controlles/layout'
 import SelectController, { OptionType } from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => value.split('-').splice(-1).join('-'))
+const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
+  const array = value.split('-')
+  array.splice(-1)
+  return array.join('-')
+})
 
 const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values]) => ({
   label,
@@ -60,12 +63,12 @@ const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
           deleteProperty(property.id)
         } else if (action === 'select-option' && cvalue) {
           if (property) {
-            property.classname = cvalue.value
+            property.classname = (cvalue as OptionType).value
             setProperty(property)
           } else {
             setProperty({
               id: nanoid(),
-              classname: cvalue.value,
+              classname: (cvalue as OptionType).value,
             } as Property)
           }
         }

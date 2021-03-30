@@ -38,6 +38,7 @@ const Visibility: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Visibility"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {

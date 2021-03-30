@@ -39,6 +39,7 @@ const FlexGrow: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <Select
       placeholder="Flex Grow"
+      variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
       onChange={(value) => {
