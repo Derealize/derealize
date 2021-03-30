@@ -4,6 +4,7 @@ import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
 import { Broadcast } from './backend.interface'
+import shift from './shift'
 import emit from './emit'
 
 export interface FocusElementPayload {
@@ -16,6 +17,8 @@ export interface FocusElementPayload {
 export interface UpdateClassPayload {
   id: string
   className: string
+  line: number
+  column: number
 }
 
 const projectsMap = new Map<string, Project>()
@@ -108,5 +111,5 @@ export const FocusElement = async (payload: FocusElementPayload) => {
 export const UpdateClass = async (payload: UpdateClassPayload) => {
   const project = getProject(payload.id)
   emit(Broadcast.LiveUpdateClass, payload)
-  // ...
+  shift(project.path, payload.line, payload.column, payload.className)
 }

@@ -16,7 +16,6 @@
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
-    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "prepare": "husky install"
   },
@@ -172,6 +171,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/history": "4.7.8",
     "@types/jest": "^26.0.15",
+    "@types/jscodeshift": "^0.11.0",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.groupby": "^4.6.6",
     "@types/lodash.omit": "^4.5.6",
@@ -268,6 +268,7 @@
     "framer-motion": "^3.10.3",
     "history": "^5.0.0",
     "hotkeys-js": "^3.8.3",
+    "jscodeshift": "^0.11.0",
     "kill-port": "^1.6.1",
     "ky": "^0.27.0",
     "lodash.clonedeep": "^4.5.0",

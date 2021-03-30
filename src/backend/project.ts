@@ -53,7 +53,7 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly url: string, private path: string, branch = 'derealize') {
+  constructor(readonly url: string, readonly path: string, branch = 'derealize') {
     this.config.branch = branch
   }
 
