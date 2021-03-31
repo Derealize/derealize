@@ -99,5 +99,5 @@ export const UpdateClass = async (payload: ElementPayload) => {
   const project = getProject(id)
 
   emit(Broadcast.LiveUpdateClass, payload)
-  shift(codePosition, className)
+  shift(project, codePosition, className)
 }

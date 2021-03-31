@@ -27,6 +27,7 @@ export default merge(baseConfig, {
   entry: {
     main: path.join(__dirname, '../../src/main.ts'),
     backend: path.join(__dirname, '../../src/backend/backend.ts'),
+    react_transformer: path.join(__dirname, '../../src/backend/react_transformer.ts'),
   },
 
   output: {

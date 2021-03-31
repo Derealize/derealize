@@ -1,12 +1,19 @@
+import path from 'path'
 import jscodeshift from 'jscodeshift/dist/Runner'
-import ReactTransformer from './react-transformer'
 import log from './log'
+import Project from './project'
 
 const isDev = process.env.NODE_ENV === 'development'
 
-export default async (codePosition: string, className: string) => {
+export default async (project: Project, codePosition: string, className: string) => {
   const position = codePosition.split(':')
-  const resp = await jscodeshift.run(ReactTransformer, [position[0]], {
+
+  const transformerPath = path.resolve(__dirname, '../react_transformer.js')
+  log(transformerPath)
+  const filePath = path.resolve(project.path, position[0])
+  log(filePath)
+
+  const resp = await jscodeshift.run(transformerPath, [filePath], {
     line: parseInt(position[1], 10),
     column: parseInt(position[2], 10),
     className,

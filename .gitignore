@@ -56,7 +56,8 @@ dll
 **/*.prod.js
 
 src/main.js
-src/backend/backend.js
+src/backend.js
+src/react_transformer.js
 src/preload.js
 src/preload_inject.js
 src/style.css

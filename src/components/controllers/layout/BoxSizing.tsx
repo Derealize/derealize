@@ -14,6 +14,7 @@ type Props = {
 const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
+  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
@@ -53,6 +54,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
             classname: value.toString(),
           } as Property)
         }
+        updateClassName()
       }}
     >
       {BoxSizingValues.map((value) => (
