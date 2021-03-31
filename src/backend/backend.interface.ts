@@ -20,6 +20,13 @@ export enum Broadcast {
   LiveUpdateClass = 'LiveUpdateClass',
 }
 
+export interface ElementPayload {
+  id: string
+  className: string
+  codePosition: string
+  tagName?: string
+}
+
 export interface ProjectConfig {
   branch: string
   npmScript: string

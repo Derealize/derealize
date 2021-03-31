@@ -2,24 +2,10 @@
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import type { HistoryReply, BoolReply } from './backend.interface'
+import type { HistoryReply, BoolReply, ElementPayload } from './backend.interface'
 import { Broadcast } from './backend.interface'
 import shift from './shift'
 import emit from './emit'
-
-export interface FocusElementPayload {
-  id: string
-  code: string
-  tagName: string
-  className: string
-}
-
-export interface UpdateClassPayload {
-  id: string
-  className: string
-  line: number
-  column: number
-}
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
@@ -103,13 +89,15 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
   return config
 }
 
-export const FocusElement = async (payload: FocusElementPayload) => {
+export const FocusElement = async (payload: ElementPayload) => {
   const project = getProject(payload.id)
   emit(Broadcast.FocusElement, payload)
 }
 
-export const UpdateClass = async (payload: UpdateClassPayload) => {
-  const project = getProject(payload.id)
+export const UpdateClass = async (payload: ElementPayload) => {
+  const { id, codePosition, className } = payload
+  const project = getProject(id)
+
   emit(Broadcast.LiveUpdateClass, payload)
-  shift(project.path, payload.line, payload.column, payload.className)
+  shift(codePosition, className)
 }
