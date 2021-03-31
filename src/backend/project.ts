@@ -20,6 +20,7 @@ import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['compiled', 'successfully']
+const debugEmitStatus = false
 
 export enum Broadcast {
   Status = 'Status',
@@ -122,6 +123,7 @@ class Project {
       return { result: false, error: err.message }
     }
 
+    if (debugEmitStatus) log('CheckStatus EmitStatus')
     this.EmitStatus()
     return { result: true }
   }
@@ -178,6 +180,7 @@ class Project {
       emit(Broadcast.Installing, { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
         this.stage = ProjectStage.Ready
+        if (debugEmitStatus) log('Install EmitStatus')
         this.EmitStatus()
       }
     })
@@ -201,6 +204,7 @@ class Project {
       emit(Broadcast.Starting, { id: this.url, stdout: message } as ProcessPayload)
 
       this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
+      if (debugEmitStatus) log(`Start data EmitStatus ${this.stage}`)
       this.EmitStatus()
     })
 
@@ -212,12 +216,14 @@ class Project {
       log('starting error', error)
       emit(Broadcast.Starting, { id: this.url, error: error.message } as ProcessPayload)
       this.stage = ProjectStage.Ready
+      if (debugEmitStatus) log(`Start error EmitStatus ${this.stage}`)
       this.EmitStatus()
     })
 
     this.runningProcess.on('exit', (exit) => {
       emit(Broadcast.Starting, { id: this.url, exit } as ProcessPayload)
       this.stage = ProjectStage.Ready
+      if (debugEmitStatus) log(`Start exit EmitStatus ${this.stage}`)
       this.EmitStatus()
     })
 

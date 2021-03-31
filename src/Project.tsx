@@ -55,7 +55,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
       <div className={style.main}>
         {frontProjectView === ProjectView.BrowserView && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
-            <Controllers project={project} />
+            <Controllers />
           </div>
         )}
 

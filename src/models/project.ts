@@ -18,7 +18,7 @@ import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { setStore, getStore, send, listen, unlisten, frontProjectView, closeProjectView } = window.derealize
+const { setStore, getStore, send, listen, unlisten, frontMain, frontProjectWeb, closeProjectView } = window.derealize
 
 export interface Project {
   url: string
@@ -147,9 +147,9 @@ const projectModel: ProjectModel = {
     const projects = getState().projects.filter((p) => p.url !== id)
     actions.setProjects(projects)
   }),
-  setProject: action((state, project) => {
-    const fproject = state.projects.find((p) => p.url === project.url)
-    if (!fproject) {
+  setProject: action((state, payload) => {
+    const project = state.projects.find((p) => p.url === payload.url)
+    if (!project) {
       toast({
         title: "project don't exist",
         status: 'error',
@@ -157,7 +157,7 @@ const projectModel: ProjectModel = {
       return
     }
 
-    Object.assign(fproject, project)
+    Object.assign(project, payload)
     storeProject(state.projects)
   }),
 
@@ -165,7 +165,7 @@ const projectModel: ProjectModel = {
   setFrontProject: action((state, project) => {
     state.frontProject = project
     if (!project) {
-      frontProjectView()
+      frontMain()
       return
     }
     send(Handler.CheckStatus, { url: project.url })
@@ -173,10 +173,10 @@ const projectModel: ProjectModel = {
   frontProjectView: ProjectView.BrowserView,
   setFrontProjectView: action((state, payload) => {
     state.frontProjectView = payload
-    if (payload === ProjectView.BrowserView && state.frontProject) {
-      // frontProjectView(clone(state.frontProject))
+    if (state.frontProject && payload === ProjectView.BrowserView) {
+      frontProjectWeb(clone(state.frontProject))
     } else {
-      frontProjectView()
+      frontMain()
     }
   }),
 
@@ -185,11 +185,8 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     project.isOpened = true
+    await actions.startProject(project.url)
     actions.setFrontProject(project)
-
-    actions.setFrontProjectView(ProjectView.BrowserView)
-    actions.startProject(project.url)
-    console.log(project.tailwindConfig)
   }),
   startProject: thunk(async (actions, url, { getState }) => {
     const project = getState().projects.find((p) => p.url === url)
@@ -279,6 +276,7 @@ const projectModel: ProjectModel = {
       project.config = status.config
 
       if (frontProject === project) {
+        // if (project.stage) console.log('project.stage', ProjectStage[project.stage])
         actions.setStartLoading(project.stage === ProjectStage.Starting)
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
           actions.setFrontProjectView(ProjectView.BrowserView)
