@@ -17,10 +17,10 @@ export default async (codePosition: string, className: string) => {
   })
 
   if (resp.ok) {
-    log(codePosition, `in ${resp.timeElapsed}s`)
+    log(`${codePosition} in ${resp.timeElapsed}s`)
   } else if (resp.nochange) {
-    log('did not change', codePosition)
+    log(`did not change. ${codePosition}`)
   } else if (resp.error) {
-    log('error changing', codePosition)
+    log(`error. ${codePosition}`, resp.error)
   }
 }
