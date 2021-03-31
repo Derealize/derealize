@@ -28,5 +28,5 @@ if (process.argv[2] === '--subprocess') {
       })
       return null
     })
-    .catch(console.error)
+    .catch((err) => log('error', err))
 }
