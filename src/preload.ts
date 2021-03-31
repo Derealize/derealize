@@ -62,12 +62,13 @@ contextBridge.exposeInMainWorld('derealize', {
   openDirs: (payload: string) => {
     ipcRenderer.send('openDirs', payload)
   },
-  frontProjectView: (project?: Project) => {
+  frontProjectWeb: (project: Project) => {
     if (project && project.config) {
-      ipcRenderer.send('frontProjectView', project.url, project.config.lunchUrl)
-    } else {
-      ipcRenderer.send('frontProjectView')
+      ipcRenderer.send('frontProjectWeb', project.url, project.config.lunchUrl)
     }
+  },
+  frontMain: () => {
+    ipcRenderer.send('frontMain')
   },
   closeProjectView: (id: string) => {
     ipcRenderer.send('closeProjectView', id)
@@ -96,7 +97,8 @@ export interface PreloadWindow extends Window {
     popupMenu: (prijectId?: string) => void
     selectDirs: () => string
     openDirs: (payload: string) => void
-    frontProjectView: (project?: Project) => void
+    frontProjectWeb: (project: Project) => void
+    frontMain: () => void
     closeProjectView: (id: string) => void
   }
 }

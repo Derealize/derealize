@@ -264,6 +264,7 @@ export default merge(baseConfig, {
 
       console.log('start:main...')
       spawn('yarn', ['run', 'start:main'], {
+        // spawn('yarn', ['run', 'start:main:ext'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

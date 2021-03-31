@@ -26,6 +26,7 @@ const transformer = (file: FileInfo, api: API, options: Options) => {
         if (jsxAttr.value?.type === 'Literal') {
           jsxAttr.value.value = className
         } else if (jsxAttr.value?.type === 'JSXExpressionContainer') {
+          // todo: 使用babel实现依赖状态表达式的 className
           log(`${file.path} Cannot predictibly change JSX expression, skipping`)
         } else if (jsxAttr.value) {
           log(`${file.path} Attempting to change non-string value: ${jsxAttr.value?.type}, this might not work`)

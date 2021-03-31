@@ -86,18 +86,21 @@ const setBrowserViewBounds = (mainwin: BrowserWindow) => {
 
 const projectViews = new Map<string, BrowserView>()
 
-const frontMainView = () => {
+const frontMain = () => {
   if (!mainWindow) return
   projectViews.forEach((v) => mainWindow?.removeBrowserView(v))
 }
 
-ipcMain.on('frontProjectView', (event: any, projectId: string | null, lunchUrl: string) => {
-  if (!mainWindow) return
+ipcMain.on('frontMain', (event: any) => {
+  frontMain()
+})
 
-  if (!projectId) {
-    frontMainView()
-  } else if (projectViews.has(projectId)) {
-    mainWindow.setBrowserView(projectViews.get(projectId) || null)
+ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: string) => {
+  if (!mainWindow || !projectId) return
+
+  const projectView = projectViews.get(projectId)
+  if (projectView) {
+    mainWindow.setBrowserView(projectView)
   } else {
     const view = new BrowserView({
       webPreferences: {
@@ -195,7 +198,7 @@ const createWindow = async () => {
     mainWindow = null
   })
 
-  const menuBuilder = new MenuBuilder(mainWindow, frontMainView)
+  const menuBuilder = new MenuBuilder(mainWindow, frontMain)
   menu = menuBuilder.buildMenu()
   projectMenu = menuBuilder.buildProjectMenu()
 

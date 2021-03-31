@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
-import { IconButton, Container, Button, VisuallyHidden } from '@chakra-ui/react'
 import { VscThreeBars } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
