@@ -44,6 +44,8 @@
       "main.prod.js.map",
       "backend.prod.js",
       "backend.prod.js.map",
+      "react_transformer.prod.js",
+      "react_transformer.prod.js.map",
       "preload.prod.js",
       "preload.prod.js.map",
       "preload_inject.prod.js",

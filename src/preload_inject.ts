@@ -21,6 +21,7 @@ const css = `
 let activeElement: HTMLElement | null = null
 
 listen(Broadcast.LiveUpdateClass, ({ id, className }: ElementPayload) => {
+  console.log('LiveUpdateClass', className)
   if (id === PROJECTID && activeElement) {
     activeElement.className = className
   }

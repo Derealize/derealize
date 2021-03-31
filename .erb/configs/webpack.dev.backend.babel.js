@@ -12,11 +12,14 @@ export default merge(baseConfig, {
   // 因为main进程new BrowserWindow没有spawn/fork进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
-  entry: path.join(__dirname, '../../src/backend/backend.ts'),
+  entry: {
+    backend: path.join(__dirname, '../../src/backend/backend.ts'),
+    react_transformer: path.join(__dirname, '../../src/backend/react_transformer.ts'),
+  },
 
   output: {
-    path: path.join(__dirname, '../../src/backend'),
-    filename: 'backend.js',
+    path: path.join(__dirname, '../../src'),
+    filename: '[name].js',
     library: {
       type: 'commonjs2',
     },
