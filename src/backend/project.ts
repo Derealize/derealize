@@ -225,17 +225,17 @@ class Project {
   }
 
   async Stop() {
-    await killPort(this.config.port)
     this.runningProcess?.kill()
+    await killPort(this.config.port)
 
     this.stage = ProjectStage.Ready
     this.EmitStatus()
   }
 
   async Dispose() {
-    await killPort(this.config.port)
     this.installProcess?.kill()
     this.runningProcess?.kill()
+    await killPort(this.config.port)
   }
 
   async Pull(): Promise<BoolReply> {

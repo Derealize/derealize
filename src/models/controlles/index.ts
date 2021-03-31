@@ -2,8 +2,7 @@
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
-import { Broadcast, Handler } from '../../backend/backend.interface'
-import type { FocusElementPayload } from '../../backend/handlers'
+import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
 
 declare const window: PreloadWindow
@@ -45,11 +44,19 @@ export interface AlreadyVariants {
 }
 
 export interface ControllesModel {
-  tagName: string | undefined
-  setTagName: Action<ControllesModel, string | undefined>
+  elementPayload: ElementPayload | undefined
+  setElementPayload: Action<ControllesModel, ElementPayload | undefined>
 
-  className: string | undefined
-  setClassName: Action<ControllesModel, string | undefined>
+  listen: Thunk<ControllesModel, void, void, StoreModel>
+  unlisten: Action<ControllesModel>
+  onFrontProject: ThunkOn<ControllesModel, void, StoreModel>
+
+  propertys: Array<Property>
+  computePropertys: Action<ControllesModel>
+  setProperty: Action<ControllesModel, Property>
+  deleteProperty: Action<ControllesModel, string>
+
+  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
 
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
   selectScreenVariant: string | undefined
@@ -69,29 +76,97 @@ export interface ControllesModel {
   setDark: Action<ControllesModel, boolean>
 
   alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
-
-  listen: Thunk<ControllesModel, void, void, StoreModel>
-  unlisten: Action<ControllesModel>
-
-  propertys: Array<Property>
-  computePropertys: Action<ControllesModel>
-  setProperty: Action<ControllesModel, Property>
-  deleteProperty: Action<ControllesModel, string>
-  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
-
-  onOpenProject: ThunkOn<ControllesModel, void, StoreModel>
-  onCloseProject: ThunkOn<ControllesModel, void, StoreModel>
 }
 
 const controllesModel: ControllesModel = {
-  tagName: undefined,
-  setTagName: action((state, payload) => {
-    state.tagName = payload
+  elementPayload: undefined,
+  setElementPayload: action((state, payload) => {
+    state.elementPayload = payload
   }),
 
-  className: undefined,
-  setClassName: action((state, payload) => {
-    state.className = payload
+  listen: thunk(async (actions) => {
+    listen(Broadcast.FocusElement, (payload: ElementPayload) => {
+      actions.setElementPayload(payload)
+      actions.computePropertys()
+    })
+  }),
+
+  unlisten: action(() => {
+    unlisten(Broadcast.FocusElement)
+  }),
+
+  onFrontProject: thunkOn(
+    (actions, storeActions) => storeActions.project.setFrontProject,
+    (actions, target) => {
+      actions.setElementPayload(undefined)
+      actions.computePropertys()
+    },
+  ),
+
+  propertys: [],
+  computePropertys: action((state) => {
+    state.propertys = []
+    state.elementPayload?.className?.split(/\s+/).forEach((name) => {
+      const names = name.split(':')
+      const property: Property = {
+        id: nanoid(),
+        classname: names.splice(-1)[0],
+      }
+      names.forEach((variant) => {
+        if (state.screenVariants.includes(variant)) {
+          property.screen = variant
+        }
+        if (StateVariants.includes(variant)) {
+          property.state = variant
+        }
+        if (ListVariants.includes(variant)) {
+          property.list = variant
+        }
+        if (state.customVariants.includes(variant)) {
+          property.custom = variant
+        }
+      })
+      state.propertys.push(property)
+    })
+  }),
+  setProperty: action((state, payload) => {
+    const property = state.propertys.find((p) => payload.id === p.id)
+    if (property) {
+      property.classname = payload.classname
+    } else {
+      state.propertys.push(payload)
+    }
+  }),
+  deleteProperty: action((state, payload) => {
+    state.propertys = state.propertys.filter((p) => payload !== p.id)
+  }),
+
+  updateClassName: thunk(async (actions, none, { getState }) => {
+    const { propertys, elementPayload } = getState()
+    if (!elementPayload) return
+
+    let className = ''
+    propertys.forEach((property) => {
+      const { screen, state, list, custom, classname: name } = property
+      if (!name) return
+
+      let variants = ''
+      if (screen) {
+        variants += `${screen}:`
+      }
+      if (state) {
+        variants += `${state}:`
+      }
+      if (list) {
+        variants += `${list}:`
+      }
+      if (custom) {
+        variants += `${custom}:`
+      }
+      className += `${variants + name} `
+    })
+
+    send(Handler.UpdateClass, { ...elementPayload, className })
   }),
 
   screenVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -147,97 +222,6 @@ const controllesModel: ControllesModel = {
       dark: propertys.some((property) => property.dark),
     }
   }),
-
-  listen: thunk(async (actions) => {
-    listen(Broadcast.FocusElement, ({ tagName, className }: FocusElementPayload) => {
-      actions.setTagName(tagName)
-      actions.setClassName(className)
-      actions.computePropertys()
-    })
-  }),
-
-  unlisten: action(() => {
-    unlisten(Broadcast.FocusElement)
-  }),
-
-  propertys: [],
-  computePropertys: action((state) => {
-    state.propertys = []
-    state.className?.split(/\s+/).forEach((name) => {
-      const names = name.split(':')
-      const property: Property = {
-        id: nanoid(),
-        classname: names.splice(-1)[0],
-      }
-      names.forEach((variant) => {
-        if (state.screenVariants.includes(variant)) {
-          property.screen = variant
-        }
-        if (StateVariants.includes(variant)) {
-          property.state = variant
-        }
-        if (ListVariants.includes(variant)) {
-          property.list = variant
-        }
-        if (state.customVariants.includes(variant)) {
-          property.custom = variant
-        }
-      })
-      state.propertys.push(property)
-    })
-  }),
-  setProperty: action((state, payload) => {
-    const property = state.propertys.find((p) => payload.id === p.id)
-    if (property) {
-      property.classname = payload.classname
-    } else {
-      state.propertys.push(payload)
-    }
-  }),
-  deleteProperty: action((state, payload) => {
-    state.propertys = state.propertys.filter((p) => payload !== p.id)
-  }),
-  updateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const id = getStoreState().project.frontProject?.url
-    if (!id) return
-
-    let className = ''
-    getState().propertys.forEach((property) => {
-      const { screen, state, list, custom, classname: name } = property
-      if (!name) return
-
-      let variants = ''
-      if (screen) {
-        variants += `${screen}:`
-      }
-      if (state) {
-        variants += `${state}:`
-      }
-      if (list) {
-        variants += `${list}:`
-      }
-      if (custom) {
-        variants += `${custom}:`
-      }
-      className += `${variants + name} `
-    })
-
-    send(Handler.UpdateClass, { id, className })
-  }),
-
-  onOpenProject: thunkOn(
-    (actions, storeActions) => storeActions.project.openProject,
-    (actions, target) => {
-      actions.listen()
-    },
-  ),
-
-  onCloseProject: thunkOn(
-    (actions, storeActions) => storeActions.project.closeProject,
-    (actions, target) => {
-      actions.unlisten()
-    },
-  ),
 }
 
 export default controllesModel

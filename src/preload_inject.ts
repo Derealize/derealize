@@ -1,7 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send, listen } from './client-ipc'
-import { UpdateClassPayload } from './backend/handlers'
-import { Handler, Broadcast } from './backend/backend.interface'
+import { Handler, Broadcast, ElementPayload } from './backend/backend.interface'
 
 let PROJECTID: string | null = null
 
@@ -21,9 +20,9 @@ const css = `
 
 let activeElement: HTMLElement | null = null
 
-listen(Broadcast.LiveUpdateClass, (payload: UpdateClassPayload) => {
-  if (payload.id === PROJECTID && activeElement) {
-    activeElement.className = payload.className
+listen(Broadcast.LiveUpdateClass, ({ id, className }: ElementPayload) => {
+  if (id === PROJECTID && activeElement) {
+    activeElement.className = className
   }
 })
 
@@ -32,10 +31,10 @@ const derealizeListener = async (e: Event) => {
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
   activeElement = e.target as HTMLElement
 
-  const code = activeElement.getAttribute('data-code')
-  if (code) {
+  const codePosition = activeElement.getAttribute('data-code')
+  if (codePosition) {
     const { tagName, className } = activeElement
-    await send(Handler.FocusElement, { id: PROJECTID, code, tagName, className })
+    await send(Handler.FocusElement, { id: PROJECTID, codePosition, className, tagName })
     activeElement.setAttribute('data-active', 'true')
   }
 }
