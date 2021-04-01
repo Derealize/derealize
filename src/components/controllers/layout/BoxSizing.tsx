@@ -3,7 +3,7 @@ import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
-import type { Property } from '../../../models/controlles'
+import type { Property } from '../../../models/controlles/controlles'
 import { BoxSizingValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
@@ -42,16 +42,16 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
-      onChange={(value) => {
-        if (!value && property) {
+      onChange={(e) => {
+        if (!e.target.value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = value.toString()
+          property.classname = e.target.value
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: value.toString(),
+            classname: e.target.value,
           } as Property)
         }
         updateClassName()

@@ -3,7 +3,7 @@ import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
-import type { Property } from '../../../models/controlles'
+import type { Property } from '../../../models/controlles/controlles'
 import { ObjectFitValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
@@ -14,6 +14,7 @@ type Props = {
 const ObjectFit: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
+  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
@@ -41,18 +42,19 @@ const ObjectFit: React.FC<Props> = ({ already }: Props): JSX.Element => {
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
-      onChange={(value) => {
-        if (!value && property) {
+      onChange={(e) => {
+        if (!e.target.value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = value.toString()
+          property.classname = e.target.value
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: value.toString(),
+            classname: e.target.value,
           } as Property)
         }
+        updateClassName()
       }}
     >
       {ObjectFitValues.map((name) => (

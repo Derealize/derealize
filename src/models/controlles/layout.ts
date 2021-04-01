@@ -1,6 +1,6 @@
 import { computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property, AlreadyVariants } from '.'
+import { Property, AlreadyVariants } from './controlles'
 
 export const ContainerValue = 'container'
 export const BoxSizingValues = ['box-border', 'box-content']

@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel, AlreadyVariants } from '../index'
-import { Property } from '.'
+import { Property } from './controlles'
 
 export interface SpacingModel {
   paddingValues: Computed<SpacingModel, Array<string>, StoreModel>

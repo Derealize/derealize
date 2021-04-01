@@ -276,10 +276,8 @@ const projectModel: ProjectModel = {
       project.config = status.config
 
       if (frontProject === project) {
-        // if (project.stage) console.log('project.stage', ProjectStage[project.stage])
-        actions.setStartLoading(project.stage === ProjectStage.Starting)
-
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
+          actions.setStartLoading(false)
           actions.setFrontProjectView(ProjectView.BrowserView)
         }
       }
@@ -322,6 +320,8 @@ const projectModel: ProjectModel = {
 
     listen(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
+        actions.setStartLoading(false)
+        actions.setFrontProjectView(ProjectView.Debugging)
         toast({
           title: `Starting error:${payload.error}`,
           status: 'error',
@@ -343,6 +343,8 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`stderr:${payload.stderr}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
+        actions.setStartLoading(false)
+        actions.setFrontProjectView(ProjectView.Debugging)
       }
     })
   }),
