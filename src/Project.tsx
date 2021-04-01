@@ -7,7 +7,7 @@ import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project, ProjectView } from './models/project'
-import type { CommitLog, BoolReply } from './backend/backend.interface'
+import type { CommitLog, BoolReply, ElementPayload } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
 import Controllers from './components/controllers/Controllers'
@@ -25,6 +25,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const toast = useToast()
   const loading = useStoreState<boolean>((state) => state.project.startloading)
 
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
   const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
@@ -53,7 +54,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
     <>
       <TopBar project={project} />
       <div className={style.main}>
-        {frontProjectView === ProjectView.BrowserView && (
+        {frontProjectView === ProjectView.BrowserView && !!element && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
             <Controllers />
           </div>

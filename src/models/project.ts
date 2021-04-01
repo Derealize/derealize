@@ -278,6 +278,7 @@ const projectModel: ProjectModel = {
       if (frontProject === project) {
         // if (project.stage) console.log('project.stage', ProjectStage[project.stage])
         actions.setStartLoading(project.stage === ProjectStage.Starting)
+
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
           actions.setFrontProjectView(ProjectView.BrowserView)
         }

@@ -20,7 +20,7 @@ import style from './Controllers.module.scss'
 const Controllers: React.FC = (): JSX.Element => {
   return (
     <div className={style.controllers}>
-      <Tabs orientation="vertical" colorScheme="teal">
+      <Tabs orientation="vertical" colorScheme="teal" defaultIndex={1}>
         <TabList>
           <Tab p={3}>
             <Tooltip label="(F1) Already">
