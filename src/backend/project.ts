@@ -20,7 +20,7 @@ import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['compiled', 'successfully']
-const debugEmitStatus = false
+const debugEmitStatus = true
 
 export enum Broadcast {
   Status = 'Status',
@@ -197,13 +197,16 @@ class Project {
     await killPort(this.config.port)
 
     this.runningProcess = npmStart(this.path, this.config.npmScript)
+    this.stage = ProjectStage.Starting
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
       if (!message) return
       emit(Broadcast.Starting, { id: this.url, stdout: message } as ProcessPayload)
 
-      this.stage = compiledMessage.some((m) => message.includes(m)) ? ProjectStage.Running : ProjectStage.Starting
+      if (this.stage !== ProjectStage.Running && compiledMessage.some((m) => message.includes(m))) {
+        this.stage = ProjectStage.Running
+      }
       if (debugEmitStatus) log(`Start data EmitStatus ${this.stage}`)
       this.EmitStatus()
     })

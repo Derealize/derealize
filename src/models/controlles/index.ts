@@ -44,8 +44,8 @@ export interface AlreadyVariants {
 }
 
 export interface ControllesModel {
-  elementPayload: ElementPayload | undefined
-  setElementPayload: Action<ControllesModel, ElementPayload | undefined>
+  element: ElementPayload | undefined
+  setElement: Action<ControllesModel, ElementPayload | undefined>
 
   listen: Thunk<ControllesModel, void, void, StoreModel>
   unlisten: Action<ControllesModel>
@@ -79,14 +79,14 @@ export interface ControllesModel {
 }
 
 const controllesModel: ControllesModel = {
-  elementPayload: undefined,
-  setElementPayload: action((state, payload) => {
-    state.elementPayload = payload
+  element: undefined,
+  setElement: action((state, payload) => {
+    state.element = payload
   }),
 
   listen: thunk(async (actions) => {
     listen(Broadcast.FocusElement, (payload: ElementPayload) => {
-      actions.setElementPayload(payload)
+      actions.setElement(payload)
       actions.computePropertys()
     })
   }),
@@ -98,7 +98,7 @@ const controllesModel: ControllesModel = {
   onFrontProject: thunkOn(
     (actions, storeActions) => storeActions.project.setFrontProject,
     (actions, target) => {
-      actions.setElementPayload(undefined)
+      actions.setElement(undefined)
       actions.computePropertys()
     },
   ),
@@ -106,7 +106,7 @@ const controllesModel: ControllesModel = {
   propertys: [],
   computePropertys: action((state) => {
     state.propertys = []
-    state.elementPayload?.className?.split(/\s+/).forEach((name) => {
+    state.element?.className?.split(/\s+/).forEach((name) => {
       const names = name.split(':')
       const property: Property = {
         id: nanoid(),
@@ -142,8 +142,8 @@ const controllesModel: ControllesModel = {
   }),
 
   updateClassName: thunk(async (actions, none, { getState }) => {
-    const { propertys, elementPayload } = getState()
-    if (!elementPayload) return
+    const { propertys, element } = getState()
+    if (!element) return
 
     let className = ''
     propertys.forEach((property) => {
@@ -166,7 +166,7 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
-    send(Handler.UpdateClass, { ...elementPayload, className })
+    send(Handler.UpdateClass, { ...element, className })
   }),
 
   screenVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
