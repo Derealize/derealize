@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Property, AlreadyVariants } from '.'
+import { Property, AlreadyVariants } from './controlles'
 
 export interface SizeModel {
   widthValues: Computed<SizeModel, Array<string>, StoreModel>

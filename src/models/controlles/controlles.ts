@@ -106,7 +106,8 @@ const controllesModel: ControllesModel = {
   propertys: [],
   computePropertys: action((state) => {
     state.propertys = []
-    state.element?.className?.split(/\s+/).forEach((name) => {
+    if (!state.element?.className) return
+    state.element.className.split(/\s+/).forEach((name) => {
       const names = name.split(':')
       const property: Property = {
         id: nanoid(),
