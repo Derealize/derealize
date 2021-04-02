@@ -6,15 +6,15 @@ import log from './log'
 
 const { builders, namedTypes } = types
 
-const JsxSubKeys = ['expression', 'body', 'argument', 'init', 'openingElement']
+const JsxSubKeys = ['expression', 'body', 'argument', 'init', 'declaration']
 
 export default async (projectPath: string, codePosition: string, className: string) => {
-  log(`shift: ${projectPath} ${codePosition} ${className}`)
   const position = codePosition.split(':')
   const filePath = path.resolve(projectPath, position[0])
   log(`filePath: ${filePath}`)
   const targetLine = parseInt(position[1], 10)
   const targetColumn = parseInt(position[2], 10)
+  log(`targetLine: ${targetLine} targetColumn: ${targetColumn}`)
 
   const content = fs.readFileSync(filePath, 'utf8')
   const ast = parse(content, {
@@ -22,8 +22,12 @@ export default async (projectPath: string, codePosition: string, className: stri
   })
 
   const reduceAstNode = (node: any) => {
-    if (namedTypes.JSXOpeningElement.check(node) && node.loc && node.attributes) {
+    log(`node keys: ${JSON.stringify(Object.keys(node))} ${node.loc?.start.line}`)
+
+    if (namedTypes.JSXElement.check(node) && node.loc && node.attributes) {
       const { line, column } = node.loc.start
+      log(`${node.type} line: ${line} column: ${column}`)
+
       if (line === targetLine && column === targetColumn) {
         log(`bingo! ${node.type}`)
         const attr = node.attributes.find((a) => namedTypes.JSXAttribute.check(a) && a.name.name === 'className')
