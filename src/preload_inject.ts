@@ -30,6 +30,8 @@ listen(Broadcast.LiveUpdateClass, ({ id, className }: ElementPayload) => {
 const derealizeListener = async (e: Event) => {
   if (!e.target || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
+
+  activeElement?.removeAttribute('data-active')
   activeElement = e.target as HTMLElement
 
   const codePosition = activeElement.getAttribute('data-code')
