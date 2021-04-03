@@ -21,7 +21,8 @@ export default async (projectPath: string, codePosition: string, className: stri
     parser,
   })
 
-  const reduceAstNode = (cnode: any) => {
+  const reduceAstNode = (cnode: any): boolean => {
+    // log(`reduceAstNode! ${cnode.type}`)
     if (namedTypes.JSXElement.check(cnode) && cnode.loc) {
       const { line, column } = cnode.loc.start
       const node = cnode.openingElement
@@ -52,17 +53,21 @@ export default async (projectPath: string, codePosition: string, className: stri
 
         const output = print(ast)
         fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
-        return
+        return false
       }
     }
 
-    Object.keys(cnode).forEach((key) => {
+    Object.keys(cnode).every((key): boolean => {
       if (Array.isArray(cnode[key])) {
-        cnode[key].forEach((n: any) => reduceAstNode(n))
-      } else if (JsxSubKeys.includes(key)) {
-        reduceAstNode(cnode[key])
+        return cnode[key].every((n: any) => reduceAstNode(n))
       }
+      if (JsxSubKeys.includes(key)) {
+        return reduceAstNode(cnode[key])
+      }
+      return true
     })
+
+    return true
   }
 
   reduceAstNode(ast.program)

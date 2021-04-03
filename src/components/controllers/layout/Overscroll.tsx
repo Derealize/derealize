@@ -34,7 +34,7 @@ const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.floatPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.overscrollPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
