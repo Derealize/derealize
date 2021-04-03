@@ -134,7 +134,15 @@ const controllesModel: ControllesModel = {
     const property = state.propertys.find((p) => payload.id === p.id)
     if (property) {
       property.classname = payload.classname
+      property.screen = state.selectScreenVariant
+      property.state = state.selectStateVariant
+      property.list = state.selectListVariant
+      property.custom = state.selectCustomVariant
     } else {
+      payload.screen = state.selectScreenVariant
+      payload.state = state.selectStateVariant
+      payload.list = state.selectListVariant
+      payload.custom = state.selectCustomVariant
       state.propertys.push(payload)
     }
   }),
@@ -176,17 +184,17 @@ const controllesModel: ControllesModel = {
   }),
   selectScreenVariant: undefined,
   setSelectScreenVariant: action((state, payload) => {
-    state.selectScreenVariant = payload
+    state.selectScreenVariant = state.selectScreenVariant === payload ? undefined : payload
   }),
 
   selectStateVariant: undefined,
   setSelectStateVariant: action((state, payload) => {
-    state.selectStateVariant = payload
+    state.selectStateVariant = state.selectStateVariant === payload ? undefined : payload
   }),
 
   selectListVariant: undefined,
   setSelectListVariant: action((state, payload) => {
-    state.selectListVariant = payload
+    state.selectListVariant = state.selectListVariant === payload ? undefined : payload
   }),
 
   customVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -202,7 +210,7 @@ const controllesModel: ControllesModel = {
   }),
   selectCustomVariant: undefined,
   setSelectCustomVariant: action((state, payload) => {
-    state.selectCustomVariant = payload
+    state.selectCustomVariant = state.selectCustomVariant === payload ? undefined : payload
   }),
 
   dark: false,

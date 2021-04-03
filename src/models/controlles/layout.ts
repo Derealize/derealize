@@ -20,7 +20,7 @@ export const DisplayValues = [
   'table-row-group',
   'table-row',
 ]
-export const FloatValues = ['right', 'left', 'none']
+export const FloatValues = ['float-right', 'float-left', 'float-none']
 export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
 export const ObjectFitValues = ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down']
 export const OverflowValues = [
@@ -72,6 +72,7 @@ export interface LayoutModel {
   objectPositionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   overflowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  overscrollPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
@@ -124,6 +125,9 @@ const layoutModel: LayoutModel = {
 
   overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => OverflowValues.includes(classname)),
+  ),
+  overscrollPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
   ),
 
   positionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
