@@ -10,11 +10,11 @@ import { GiResize } from 'react-icons/gi'
 import { GrThreeDEffects } from 'react-icons/gr'
 import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-icons/ri'
 import { MdBorderStyle, MdGridOn } from 'react-icons/md'
-import type { Project } from '../../models/project'
-import { useStoreActions, useStoreState } from '../../reduxStore'
 import Already from './Already'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
+import SizeSection from './size/SizeSection'
+import SpacingSection from './spacing/SpacingSection'
 import style from './Controllers.module.scss'
 
 const Controllers: React.FC = (): JSX.Element => {
@@ -118,10 +118,10 @@ const Controllers: React.FC = (): JSX.Element => {
             <FlexSection />
           </TabPanel>
           <TabPanel>
-            <p>Grid!</p>
+            <SizeSection />
           </TabPanel>
           <TabPanel>
-            <p>Spacing!</p>
+            <SpacingSection />
           </TabPanel>
           <TabPanel>
             <p>Size!</p>
