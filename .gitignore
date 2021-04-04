@@ -42,6 +42,7 @@ src/yarn.lock
 **/yarn
 
 assets/node-win
+assets/node-mac
 theme.default.json
 
 **/*.node

@@ -12,6 +12,16 @@ yarn
 yarn electron-rebuild
 yarn start
 
+./node_modules/recast/parsers/babel.js 因为有动态加载，webpack无法打包，需要把：
+try {
+    return require("@babel/parser");
+}
+catch (e) {
+    return require("babylon");
+}
+替换为：
+__non_webpack_require__("@babel/parser");
+
 webpack 配置文件关于 NODE_ENV 的原则：
 
 - .dev 文件必然是 'development'
