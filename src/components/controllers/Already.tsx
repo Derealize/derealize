@@ -8,7 +8,6 @@ import style from './Already.module.scss'
 import Variants from './Variants'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
-import SizeSection from './size/SizeSection'
 import SpacingSection from './spacing/SpacingSection'
 
 const Already: React.FC = (): JSX.Element => {
@@ -19,7 +18,6 @@ const Already: React.FC = (): JSX.Element => {
       <Variants alreadyVariants={alreadyVariants} />
       <LayoutSection already />
       <FlexSection already />
-      <SizeSection already />
       <SpacingSection already />
     </VStack>
   )

@@ -51,12 +51,12 @@ const Marging: React.FC<Props> = ({ already }: Props): JSX.Element => {
           deleteProperty(property.id)
         } else if (action === 'select-option' && cvalue) {
           if (property) {
-            property.classname = (cvalue as OptionType).value
+            property.classname = `m-${(cvalue as OptionType).value}`
             setProperty(property)
           } else {
             setProperty({
               id: nanoid(),
-              classname: (cvalue as OptionType).value,
+              classname: `m-${(cvalue as OptionType).value}`,
             } as Property)
           }
         }

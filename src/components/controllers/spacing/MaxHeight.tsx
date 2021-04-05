@@ -20,8 +20,8 @@ const MaxHeight: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.size.maxHeightValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.size.maxHeightPropertys)
+  const values = useStoreState<Array<string>>((state) => state.spacing.maxHeightValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.spacing.maxHeightPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -51,7 +51,7 @@ const MaxHeight: React.FC<Props> = ({ already }: Props): JSX.Element => {
           deleteProperty(property.id)
         } else if (action === 'select-option' && cvalue) {
           if (property) {
-            property.classname = (cvalue as OptionType).value
+            property.classname = `max-h-${(cvalue as OptionType).value}`
             setProperty(property)
           } else {
             setProperty({

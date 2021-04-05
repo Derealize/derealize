@@ -10,7 +10,7 @@ type Props = {
   already?: boolean
 }
 
-const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const MinWidth: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -20,8 +20,8 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.size.widthValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.size.widthPropertys)
+  const values = useStoreState<Array<string>>((state) => state.spacing.minWidthValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.spacing.minWidthPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -43,7 +43,7 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <SelectController
-      placeholder="width"
+      placeholder="min-height"
       options={values.map((value) => ({ value, label: value }))}
       value={value}
       onChange={(cvalue, { action }) => {
@@ -51,12 +51,12 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
           deleteProperty(property.id)
         } else if (action === 'select-option' && cvalue) {
           if (property) {
-            property.classname = (cvalue as OptionType).value
+            property.classname = `min-h-${(cvalue as OptionType).value}`
             setProperty(property)
           } else {
             setProperty({
               id: nanoid(),
-              classname: (cvalue as OptionType).value,
+              classname: `min-h-${(cvalue as OptionType).value}`,
             } as Property)
           }
         }
@@ -66,8 +66,8 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
   )
 }
 
-Width.defaultProps = {
+MinWidth.defaultProps = {
   already: false,
 }
 
-export default Width
+export default MinWidth
