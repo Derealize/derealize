@@ -3,6 +3,24 @@ import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
 export interface SpacingModel {
+  widthValues: Computed<SpacingModel, Array<string>, StoreModel>
+  widthPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
+  minWidthValues: Computed<SpacingModel, Array<string>, StoreModel>
+  minWidthPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
+  maxWidthValues: Computed<SpacingModel, Array<string>, StoreModel>
+  maxWidthPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
+  heightValues: Computed<SpacingModel, Array<string>, StoreModel>
+  heightPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
+  minHeightValues: Computed<SpacingModel, Array<string>, StoreModel>
+  minHeightPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
+  maxHeightValues: Computed<SpacingModel, Array<string>, StoreModel>
+  maxHeightPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
+
   paddingValues: Computed<SpacingModel, Array<string>, StoreModel>
   paddingPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
 
@@ -17,6 +35,60 @@ export interface SpacingModel {
 }
 
 const spacingModel: SpacingModel = {
+  widthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, width } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(width, spacing))
+  }),
+  widthPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('w-')),
+  ),
+
+  minWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, minWidth } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(minWidth, spacing))
+  }),
+  minWidthPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('min-w-')),
+  ),
+
+  maxWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, maxWidth } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(maxWidth, spacing))
+  }),
+  maxWidthPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('max-w-')),
+  ),
+
+  heightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, height } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(height, spacing))
+  }),
+  heightPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('h-')),
+  ),
+
+  minHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, minHeight } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(minHeight, spacing))
+  }),
+  minHeightPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('min-h-')),
+  ),
+
+  maxHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, maxHeight } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(maxHeight, spacing))
+  }),
+  maxHeightPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => classname.startsWith('max-h-')),
+  ),
+
   paddingValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     const { spacing, padding } = project.tailwindConfig.theme
@@ -44,9 +116,30 @@ const spacingModel: SpacingModel = {
     propertys.filter(({ classname }) => classname.startsWith('space-')),
   ),
 
-  allPropertys: computed(({ paddingPropertys, marginPropertys, spaceBetweenPropertys }) => {
-    return paddingPropertys.concat(marginPropertys, spaceBetweenPropertys)
-  }),
+  allPropertys: computed(
+    ({
+      widthPropertys,
+      minWidthPropertys,
+      maxWidthPropertys,
+      heightPropertys,
+      minHeightPropertys,
+      maxHeightPropertys,
+      paddingPropertys,
+      marginPropertys,
+      spaceBetweenPropertys
+    }) => {
+      return paddingPropertys.concat(
+        widthPropertys,
+        minWidthPropertys,
+        maxWidthPropertys,
+        heightPropertys,
+        minHeightPropertys,
+        maxHeightPropertys,
+        marginPropertys,
+        spaceBetweenPropertys
+      )
+    }
+  ),
   alreadyVariants: computed(({ allPropertys }) => {
     const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
     const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)

@@ -193,6 +193,7 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     actions.setStartLoading(true)
+    actions.setFrontProjectView(ProjectView.Debugging)
     const reply = (await send(Handler.Start, { url: project.url })) as BoolReply
     if (reply.result) {
       project.runningOutput = []

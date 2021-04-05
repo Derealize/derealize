@@ -5,7 +5,6 @@ import workspaceModel, { WorkspaceModel } from './workspace'
 import controllesModel, { ControllesModel } from './controlles/controlles'
 import layoutModel, { LayoutModel } from './controlles/layout'
 import flexModel, { FlexModel } from './controlles/flex'
-import sizeModel, { SizeModel } from './controlles/size'
 import spacingModel, { SpacingModel } from './controlles/spacing'
 
 export interface StoreModel {
@@ -16,7 +15,6 @@ export interface StoreModel {
   controlles: ControllesModel
   layout: LayoutModel
   flex: FlexModel
-  size: SizeModel
   spacing: SpacingModel
 }
 
@@ -28,7 +26,6 @@ const storeModel: StoreModel = {
   controlles: controllesModel,
   layout: layoutModel,
   flex: flexModel,
-  size: sizeModel,
   spacing: spacingModel,
 }
 

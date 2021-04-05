@@ -13,7 +13,6 @@ import { MdBorderStyle, MdGridOn } from 'react-icons/md'
 import Already from './Already'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
-import SizeSection from './size/SizeSection'
 import SpacingSection from './spacing/SpacingSection'
 import style from './Controllers.module.scss'
 
@@ -30,77 +29,56 @@ const Controllers: React.FC = (): JSX.Element => {
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F2) Layout">
-              <Box>
-                <Icon as={RiLayoutMasonryLine} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="(F3) Flex">
+            <Tooltip label="(F2) Layout/Flex/Grid">
               <Box>
                 <Icon as={IoGridOutline} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F4) Grid">
-              <Box>
-                <Icon as={MdGridOn} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="(F5) Spacing">
+            <Tooltip label="(F3) Spacing">
               <Box>
                 <Icon as={CgSpaceBetweenV} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F6) Size">
-              <Box>
-                <Icon as={GiResize} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="(F7) Typography">
-              <Box>
-                <Icon as={BsType} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="(F8) Background">
-              <Box>
-                <Icon as={IoImageOutline} boxSize={6} />
-              </Box>
-            </Tooltip>
-          </Tab>
-          <Tab p={3}>
-            <Tooltip label="(F9) Border">
+            <Tooltip label="(F4) Border">
               <Box>
                 <Icon as={MdBorderStyle} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F10) Effects Transition Transform">
+            <Tooltip label="(F5) Background">
+              <Box>
+                <Icon as={IoImageOutline} boxSize={6} />
+              </Box>
+            </Tooltip>
+          </Tab>
+          <Tab p={3}>
+            <Tooltip label="(F6) Typography">
+              <Box>
+                <Icon as={BsType} boxSize={6} />
+              </Box>
+            </Tooltip>
+          </Tab>
+          <Tab p={3}>
+            <Tooltip label="(F7) Effects/Transition/Transform">
               <Box>
                 <Icon as={GrThreeDEffects} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F11) Components">
+            <Tooltip label="(F8) Components/Table">
               <Box>
                 <Icon as={CgComponents} boxSize={6} />
               </Box>
             </Tooltip>
           </Tab>
           <Tab p={3}>
-            <Tooltip label="(F10) Interactivity">
+            <Tooltip label="(F9) Interactivity">
               <Box>
                 <Icon as={AiOutlineInteraction} boxSize={6} />
               </Box>
@@ -113,36 +91,28 @@ const Controllers: React.FC = (): JSX.Element => {
           </TabPanel>
           <TabPanel>
             <LayoutSection />
-          </TabPanel>
-          <TabPanel>
             <FlexSection />
-          </TabPanel>
-          <TabPanel>
-            <SizeSection />
           </TabPanel>
           <TabPanel>
             <SpacingSection />
           </TabPanel>
           <TabPanel>
-            <p>Size!</p>
-          </TabPanel>
-          <TabPanel>
-            <p>Typography!</p>
+            <p>Border!</p>
           </TabPanel>
           <TabPanel>
             <p>Background!</p>
           </TabPanel>
           <TabPanel>
-            <p>Border!</p>
+            <p>Typography!</p>
           </TabPanel>
           <TabPanel>
-            <p>Effects! transitions,animation,transforms,</p>
+            <p>Effects/Transition/Animation/Transform</p>
           </TabPanel>
           <TabPanel>
-            <p>Components! Table</p>
+            <p>Components/Table</p>
           </TabPanel>
           <TabPanel>
-            <p>Interactivity!</p>
+            <p>Interactivity</p>
           </TabPanel>
         </TabPanels>
       </Tabs>

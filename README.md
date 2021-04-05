@@ -20,7 +20,7 @@ catch (e) {
     return require("babylon");
 }
 替换为：
-__non_webpack_require__("@babel/parser");
+return __non_webpack_require__("@babel/parser");
 
 webpack 配置文件关于 NODE_ENV 的原则：
 

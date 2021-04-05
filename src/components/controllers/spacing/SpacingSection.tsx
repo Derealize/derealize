@@ -8,6 +8,12 @@ import Variants from '../Variants'
 import Marging from './Marging'
 import Padding from './Padding'
 import SpaceBetween from './SpaceBetween'
+import Width from './Width'
+import MaxWidth from './MaxWidth'
+import MinWidth from './MinWidth'
+import Height from './Height'
+import MaxHeight from './MaxHeight'
+import MinHeight from './MinHeight'
 
 type Props = {
   already?: boolean
@@ -19,6 +25,13 @@ const SpacingSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
+      <Width already={already} />
+      <MaxWidth already={already} />
+      <MinWidth already={already} />
+      <Height already={already} />
+      <MaxHeight already={already} />
+      <MinHeight already={already} />
+
       <Marging already={already} />
       <Padding already={already} />
       <SpaceBetween already={already} />
