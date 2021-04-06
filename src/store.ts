@@ -42,6 +42,9 @@ const store = new Store({
           productName: {
             type: 'string',
           },
+          page: {
+            type: 'string',
+          },
           lunchUrl: {
             type: 'string',
           },

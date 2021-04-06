@@ -18,7 +18,17 @@ import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { setStore, getStore, send, listen, unlisten, frontMain, frontProjectWeb, closeProjectView } = window.derealize
+const {
+  setStore,
+  getStore,
+  send,
+  listen,
+  unlisten,
+  frontMain,
+  frontProjectWeb,
+  closeProjectView,
+  loadURL,
+} = window.derealize
 
 export interface Project {
   url: string
@@ -30,6 +40,7 @@ export interface Project {
   stage?: ProjectStage
   changes?: Array<GitFileChanges>
   config?: ProjectConfig
+  page?: string
   installOutput?: Array<string>
   runningOutput?: Array<string>
   tailwindVersion?: string
@@ -102,6 +113,8 @@ export interface ProjectModel {
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
   callHistory: Thunk<ProjectModel>
+
+  setPage: Action<ProjectModel, { projectId: string; page: string }>
 }
 
 const projectModel: ProjectModel = {
@@ -275,6 +288,9 @@ const projectModel: ProjectModel = {
 
       const status = payload as StatusPayload
       project.config = status.config
+      if (!project.page && status.config.pages.length) {
+        project.page = status.config.pages[0]
+      }
 
       if (frontProject === project) {
         if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
@@ -383,6 +399,14 @@ const projectModel: ProjectModel = {
       })
     } else {
       actions.setHistorys(reply.result)
+    }
+  }),
+
+  setPage: action((state, { projectId, page }) => {
+    const project = state.projects.find((p) => p.url === projectId)
+    if (project && project.config) {
+      project.page = page
+      loadURL(project.url, project.config.lunchUrl + page)
     }
   }),
 }

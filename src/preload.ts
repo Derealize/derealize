@@ -73,6 +73,9 @@ contextBridge.exposeInMainWorld('derealize', {
   closeProjectView: (id: string) => {
     ipcRenderer.send('closeProjectView', id)
   },
+  loadURL: (projectId: string, url: string) => {
+    ipcRenderer.send('loadURL', projectId, url)
+  },
 })
 
 ipcRenderer.on('setParams', (event: Event, { socketId }: Record<string, string>) => {
@@ -100,5 +103,6 @@ export interface PreloadWindow extends Window {
     frontProjectWeb: (project: Project) => void
     frontMain: () => void
     closeProjectView: (id: string) => void
+    loadURL: (projectId: string, url: string) => void
   }
 }

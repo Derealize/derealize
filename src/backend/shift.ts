@@ -27,7 +27,7 @@ export default async (projectPath: string, codePosition: string, className: stri
       const { line, column } = cnode.loc.start
       const node = cnode.openingElement
       if (line === targetLine && column === targetColumn && node.attributes) {
-        log(`bingo! ${node.type} ${node.loc?.start.line}`)
+        // log(`bingo! ${node.type} ${node.loc?.start.line}`)
         const attr = node.attributes.find((a) => namedTypes.JSXAttribute.check(a) && a.name.name === 'className')
 
         if (!attr) {
