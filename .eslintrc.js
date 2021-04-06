@@ -7,6 +7,7 @@ module.exports = {
     'jsx-a11y/interactive-supports-focus': 'off',
     'jsx-a11y/control-has-associated-label': 'off',
     'react/display-name': ['off', { ignoreTranspilerName: true }],
+    'prefer-destructuring': ['error', { object: true, array: false }],
   },
   parserOptions: {
     ecmaVersion: 2020,

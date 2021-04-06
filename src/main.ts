@@ -120,12 +120,20 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
       view.webContents.openDevTools()
     }
 
-    console.log(`lunchUrl:${lunchUrl}`)
+    // console.log(`lunchUrl:${lunchUrl}`)
     view.webContents.loadURL(lunchUrl)
 
     view.webContents.on('did-finish-load', () => {
       view.webContents.send('setParams', { socketId, projectId })
     })
+  }
+})
+
+ipcMain.on('loadURL', (event, projectId: string, url: string) => {
+  if (!mainWindow) return
+  const view = projectViews.get(projectId)
+  if (view) {
+    view.webContents.loadURL(url)
   }
 })
 
