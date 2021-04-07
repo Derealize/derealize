@@ -18,3 +18,15 @@ export const IntEnumObjects = (enumme: any, prefix?: string): Array<{ label: str
     .filter((value) => !Number.isNaN(Number(value)))
     .map((key, i) => ({ label: i === 0 && prefix ? prefix + enumme[key] : enumme[key], value: parseInt(key, 10) }))
 }
+
+export const ReplacedElementTagName = [
+  'IMG',
+  'IFRAME',
+  'VIDEO',
+  'EMBED',
+  'OPTION',
+  'AUDIO',
+  'CANVAS',
+  'OBJECT',
+  'APPLET',
+]

@@ -3,7 +3,6 @@ import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
 export const ContainerValue = 'container'
-export const BoxSizingValues = ['box-border', 'box-content']
 export const DisplayValues = [
   'block',
   'inline-block',
@@ -20,8 +19,6 @@ export const DisplayValues = [
   'table-row-group',
   'table-row',
 ]
-export const FloatValues = ['float-right', 'float-left', 'float-none']
-export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
 export const ObjectFitValues = ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down']
 export const OverflowValues = [
   'overflow-auto',
@@ -38,18 +35,6 @@ export const OverflowValues = [
   'overflow-y-scroll',
 ]
 
-export const OverscrollValues = [
-  'overscroll-auto',
-  'overscroll-contain',
-  'overscroll-none',
-  'overscroll-y-auto',
-  'overscroll-y-contain',
-  'overscroll-y-none',
-  'overscroll-x-auto',
-  'overscroll-x-contain',
-  'overscroll-x-none',
-]
-
 export const PositionValues = ['static', 'fixed', 'absolute', 'relative', 'sticky']
 export const InsetPrefixs = ['inset', 'inset-y', 'inset-x', 'top', 'right', 'bottom', 'left']
 
@@ -58,13 +43,7 @@ export const VisibilityValues = ['visible', 'invisible']
 export interface LayoutModel {
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  boxSizingPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-
   displayPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-
-  floatPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-
-  clearPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   objectFitPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
@@ -72,7 +51,6 @@ export interface LayoutModel {
   objectPositionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   overflowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-  overscrollPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
@@ -93,20 +71,8 @@ const layoutModel: LayoutModel = {
     propertys.filter((property) => property.classname === ContainerValue),
   ),
 
-  boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
-  ),
-
   displayPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => DisplayValues.includes(classname)),
-  ),
-
-  floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => FloatValues.includes(classname)),
-  ),
-
-  clearPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ClearValues.includes(classname)),
   ),
 
   objectFitPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
@@ -125,9 +91,6 @@ const layoutModel: LayoutModel = {
 
   overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => OverflowValues.includes(classname)),
-  ),
-  overscrollPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
   ),
 
   positionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
@@ -159,9 +122,7 @@ const layoutModel: LayoutModel = {
   allPropertys: computed(
     ({
       containerPropertys,
-      boxSizingPropertys,
       displayPropertys,
-      floatPropertys,
       objectFitPropertys,
       objectPositionPropertys,
       overflowPropertys,
@@ -171,9 +132,7 @@ const layoutModel: LayoutModel = {
       zindexPropertys,
     }) => {
       return containerPropertys.concat(
-        boxSizingPropertys,
         displayPropertys,
-        floatPropertys,
         objectFitPropertys,
         objectPositionPropertys,
         overflowPropertys,
