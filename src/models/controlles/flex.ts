@@ -60,34 +60,42 @@ const flexModel: FlexModel = {
 
   flexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.flex)
+    return Object.keys(project.tailwindConfig.theme.flex).map((v) => `flex-${v}`)
   }),
-  flexPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => classname.startsWith('flex-')),
+  flexPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   flexGrowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.flexGrow)
+    return Object.keys(project.tailwindConfig.theme.flexGrow).map((v) =>
+      v === 'DEFAULT' ? 'flex-grow' : `flex-grow-${v}`,
+    )
   }),
-  flexGrowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => classname.startsWith('flex-grow-')),
+  flexGrowPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexGrowValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   flexShrinkValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.flexShrink)
+    return Object.keys(project.tailwindConfig.theme.flexShrink).map((v) =>
+      v === 'DEFAULT' ? 'flex-shrink' : `flex-shrink-${v}`,
+    )
   }),
-  flexShrinkPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => classname.startsWith('flex-shrink-')),
+  flexShrinkPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexShrinkValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   orderValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.order)
+    return Object.keys(project.tailwindConfig.theme.order).map((v) => `order-${v}`)
   }),
-  orderPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => classname.startsWith('order-')),
+  orderPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.orderValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   justifyContentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
