@@ -10,9 +10,12 @@ export default class MenuBuilder {
 
   frontMainView: () => void
 
-  constructor(mainWindow: BrowserWindow, frontMainView: () => void) {
+  loadURL: (projectId: string, url: string) => void
+
+  constructor(mainWindow: BrowserWindow, frontMainView: () => void, loadURL: (projectId: string, url: string) => void) {
     this.mainWindow = mainWindow
     this.frontMainView = frontMainView
+    this.loadURL = loadURL
   }
 
   buildMenu(): Menu {
@@ -28,16 +31,27 @@ export default class MenuBuilder {
     return menu
   }
 
-  buildProjectMenu(): Menu {
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-      this.setupDevelopmentEnvironment()
-    }
-
+  buildProjectMenu(projectId: string): Menu {
     const template = process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate()
 
     const menu = Menu.buildFromTemplate(template)
     Menu.setApplicationMenu(menu)
 
+    return menu
+  }
+
+  buildPagesMenu(projectId: string, pages: Array<string>): Menu {
+    const template = pages.map((page) => {
+      return {
+        label: page,
+        click: () => {
+          this.loadURL(projectId, page)
+        },
+      }
+    })
+
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
     return menu
   }
 

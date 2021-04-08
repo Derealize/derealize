@@ -11,7 +11,7 @@ import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/backgroun
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { controls, popupMenu } = window.derealize
+const { controls, mainMenu } = window.derealize
 
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
@@ -73,7 +73,7 @@ const TabBar = (): JSX.Element => {
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
-                    popupMenu()
+                    mainMenu()
                   }}
                 />
               )}

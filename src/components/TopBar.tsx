@@ -8,7 +8,6 @@ import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
-import { FiLink2 } from 'react-icons/fi'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStage, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
@@ -18,7 +17,7 @@ import Breadcrumb from './Breadcrumb'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { send, popupMenu } = window.derealize
+const { send, projectMenu } = window.derealize
 
 const BarIconButton = React.forwardRef(
   (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
@@ -122,7 +121,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         </Tooltip>
       </Flex>
 
-      <Breadcrumb />
+      <Breadcrumb project={project} />
 
       <Flex align="center" justify="right">
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
@@ -156,7 +155,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
           />
         </Tooltip>
 
-        <BarIconButton aria-label="Project Menu" icon={<CgMenu />} onClick={() => popupMenu(project.url)} />
+        <BarIconButton aria-label="Project Menu" icon={<CgMenu />} onClick={() => projectMenu()} />
       </Flex>
     </Flex>
   )
