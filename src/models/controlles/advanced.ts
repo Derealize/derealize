@@ -21,7 +21,6 @@ export const DisplayValues = [
 ]
 export const FloatValues = ['float-right', 'float-left', 'float-none']
 export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
-
 export const OverscrollValues = [
   'overscroll-auto',
   'overscroll-contain',
@@ -43,11 +42,9 @@ export interface AdvancedModel {
   overscrollPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
   autoColsValues: Computed<AdvancedModel, Array<string>, StoreModel>
-  autoColsVariants: Computed<AdvancedModel, Array<string>, StoreModel>
   autoColsPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
   autoRowsValues: Computed<AdvancedModel, Array<string>, StoreModel>
-  autoRowsVariants: Computed<AdvancedModel, Array<string>, StoreModel>
   autoRowsPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
   allPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
@@ -73,11 +70,7 @@ const advancedModel: AdvancedModel = {
 
   autoColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.gridAutoColumns)
-  }),
-  autoColsVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.variants.gridAutoColumns)
+    return Object.keys(project.tailwindConfig.theme.gridAutoColumns).map((v) => `auto-cols-${v}`)
   }),
   autoColsPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.autoColsValues],
@@ -86,11 +79,7 @@ const advancedModel: AdvancedModel = {
 
   autoRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.gridAutoRows)
-  }),
-  autoRowsVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.variants.gridAutoRows)
+    return Object.keys(project.tailwindConfig.theme.gridAutoRows).map((v) => `auto-rows-${v}`)
   }),
   autoRowsPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.autoRowsValues],
