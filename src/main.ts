@@ -68,9 +68,11 @@ const installExtensions = async () => {
     .catch(log.error)
 }
 
+let menuBuilder: MenuBuilder | null = null
 let mainWindow: BrowserWindow | null = null
-let menu: Menu | null = null
-let projectMenu: Menu | null = null
+let mainMenu: Menu | null = null
+let projectMenu: Menu | undefined
+let pagesMenu: Menu | undefined
 
 const topbarHeight = 42
 const setBrowserViewBounds = (mainwin: BrowserWindow) => {
@@ -95,7 +97,7 @@ ipcMain.on('frontMain', (event: any) => {
   frontMain()
 })
 
-ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: string) => {
+ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
   if (!mainWindow || !projectId) return
 
   const projectView = projectViews.get(projectId)
@@ -127,14 +129,24 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
       view.webContents.send('setParams', { socketId, projectId })
     })
   }
+
+  projectMenu = menuBuilder?.buildProjectMenu(projectId)
+  pagesMenu = menuBuilder?.buildPagesMenu(
+    projectId,
+    pages.map((p) => lunchUrl + p),
+  )
 })
 
-ipcMain.on('loadURL', (event, projectId: string, url: string) => {
+const loadURL = (projectId: string, url: string) => {
   if (!mainWindow) return
   const view = projectViews.get(projectId)
   if (view) {
     view.webContents.loadURL(url)
   }
+}
+
+ipcMain.on('loadUrl', (event, projectId: string, url: string) => {
+  loadURL(projectId, url)
 })
 
 ipcMain.on('closeProjectView', (event, projectId: string) => {
@@ -206,9 +218,8 @@ const createWindow = async () => {
     mainWindow = null
   })
 
-  const menuBuilder = new MenuBuilder(mainWindow, frontMain)
-  menu = menuBuilder.buildMenu()
-  projectMenu = menuBuilder.buildProjectMenu()
+  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL)
+  mainMenu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
@@ -343,14 +354,20 @@ ipcMain.on('controls', (event, payload: string) => {
   }
 })
 
-ipcMain.on('popupMenu', (event, id: string) => {
-  if (!mainWindow) return
-  if (id && projectMenu) {
-    const rectangle = mainWindow.getBounds()
-    projectMenu.popup({ window: mainWindow, x: rectangle.width - 42, y: 80 })
-  } else if (menu) {
-    menu.popup({ window: mainWindow, x: 228, y: 38 })
-  }
+ipcMain.on('mainMenu', () => {
+  if (!mainWindow || !mainMenu) return
+  mainMenu.popup({ window: mainWindow, x: 228, y: 38 })
+})
+
+ipcMain.on('projectMenu', () => {
+  if (!mainWindow || !projectMenu) return
+  const rectangle = mainWindow.getBounds()
+  projectMenu.popup({ window: mainWindow, x: rectangle.width - 42, y: 80 })
+})
+
+ipcMain.on('pagesMenu', () => {
+  if (!mainWindow || !pagesMenu) return
+  pagesMenu.popup({ window: mainWindow, x: 42, y: 80 })
 })
 
 // https://jaketrent.com/post/select-directory-in-electron

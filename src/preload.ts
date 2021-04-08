@@ -52,8 +52,14 @@ contextBridge.exposeInMainWorld('derealize', {
   controls: (payload: string) => {
     ipcRenderer.send('controls', payload)
   },
-  popupMenu: (prijectId?: string) => {
-    ipcRenderer.send('popupMenu', prijectId)
+  mainMenu: () => {
+    ipcRenderer.send('mainMenu')
+  },
+  projectMenu: () => {
+    ipcRenderer.send('projectMenu')
+  },
+  pagesMenu: () => {
+    ipcRenderer.send('pagesMenu')
   },
   selectDirs: () => {
     const filePaths = ipcRenderer.sendSync('selectDirs')
@@ -64,7 +70,7 @@ contextBridge.exposeInMainWorld('derealize', {
   },
   frontProjectWeb: (project: Project) => {
     if (project && project.config) {
-      ipcRenderer.send('frontProjectWeb', project.url, project.config.lunchUrl)
+      ipcRenderer.send('frontProjectWeb', project.url, project.config.lunchUrl, project.config.pages)
     }
   },
   frontMain: () => {
@@ -97,7 +103,9 @@ export interface PreloadWindow extends Window {
     getStore: (key: string) => unknown | undefined
     setStore: (payload: Record<string, unknown>) => void
     controls: (payload: string) => void
-    popupMenu: (prijectId?: string) => void
+    mainMenu: () => void
+    projectMenu: () => void
+    pagesMenu: () => void
     selectDirs: () => string
     openDirs: (payload: string) => void
     frontProjectWeb: (project: Project) => void
