@@ -362,12 +362,12 @@ ipcMain.on('mainMenu', () => {
 ipcMain.on('projectMenu', () => {
   if (!mainWindow || !projectMenu) return
   const rectangle = mainWindow.getBounds()
-  projectMenu.popup({ window: mainWindow, x: rectangle.width - 42, y: 80 })
+  projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: 80 })
 })
 
 ipcMain.on('pagesMenu', () => {
   if (!mainWindow || !pagesMenu) return
-  pagesMenu.popup({ window: mainWindow, x: 42, y: 80 })
+  pagesMenu.popup({ window: mainWindow, x: 130, y: 80 })
 })
 
 // https://jaketrent.com/post/select-directory-in-electron

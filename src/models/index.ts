@@ -7,6 +7,7 @@ import layoutModel, { LayoutModel } from './controlles/layout'
 import flexModel, { FlexModel } from './controlles/flex'
 import spacingModel, { SpacingModel } from './controlles/spacing'
 import gridModel, { GridModel } from './controlles/grid'
+import advancedModel, { AdvancedModel } from './controlles/advanced'
 
 export interface StoreModel {
   profile: ProfileModel
@@ -18,6 +19,7 @@ export interface StoreModel {
   flex: FlexModel
   spacing: SpacingModel
   grid: GridModel
+  advanced: AdvancedModel
 }
 
 const storeModel: StoreModel = {
@@ -30,6 +32,7 @@ const storeModel: StoreModel = {
   flex: flexModel,
   spacing: spacingModel,
   grid: gridModel,
+  advanced: advancedModel,
 }
 
 export default storeModel
