@@ -21,7 +21,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.boxSizingPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.advanced.boxSizingPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(

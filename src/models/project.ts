@@ -83,6 +83,12 @@ export interface ProjectModel {
   importloading: boolean
   setImportLoading: Action<ProjectModel, boolean>
 
+  runningOutput: Array<string>
+  setRunningOutput: Action<ProjectModel, Array<string>>
+
+  installOutput: Array<string>
+  setInstallOutput: Action<ProjectModel, Array<string>>
+
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   setProjects: Action<ProjectModel, Array<Project>>
@@ -126,6 +132,16 @@ const projectModel: ProjectModel = {
   importloading: false,
   setImportLoading: action((state, payload) => {
     state.importloading = payload
+  }),
+
+  runningOutput: [],
+  setRunningOutput: action((state, payload) => {
+    state.runningOutput = [...payload]
+  }),
+
+  installOutput: [],
+  setInstallOutput: action((state, payload) => {
+    state.installOutput = [...payload]
   }),
 
   projects: [],
@@ -206,11 +222,11 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     actions.setStartLoading(true)
+    project.runningOutput = []
+    actions.setRunningOutput([])
     actions.setFrontProjectView(ProjectView.Debugging)
     const reply = (await send(Handler.Start, { url: project.url })) as BoolReply
-    if (reply.result) {
-      project.runningOutput = []
-    } else {
+    if (!reply.result) {
       actions.setStartLoading(false)
       toast({
         title: reply.error,
@@ -299,6 +315,7 @@ const projectModel: ProjectModel = {
         }
       }
 
+      console.log('project.stage = status.stage', project.url, status.stage)
       project.stage = status.stage
       project.changes = status.changes
       project.productName = status.productName
@@ -333,6 +350,7 @@ const projectModel: ProjectModel = {
         project.installOutput.push(`exit:${payload.error}`)
         actions.setImportLoading(false)
       }
+      actions.setInstallOutput(project.installOutput)
     })
 
     listen(Broadcast.Starting, (payload: ProcessPayload) => {
@@ -361,8 +379,8 @@ const projectModel: ProjectModel = {
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
         actions.setStartLoading(false)
-        actions.setFrontProjectView(ProjectView.Debugging)
       }
+      actions.setRunningOutput(project.runningOutput)
     })
   }),
 
@@ -375,6 +393,7 @@ const projectModel: ProjectModel = {
   modalDisclosure: false,
   setModalOpen: action((state) => {
     state.modalDisclosure = true
+    state.installOutput = []
   }),
   setModalClose: action((state) => {
     state.modalDisclosure = false

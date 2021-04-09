@@ -179,6 +179,7 @@ class Project {
     this.installProcess.on('exit', (exit) => {
       emit(Broadcast.Installing, { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
+        log('stage = ProjectStage.Ready')
         this.stage = ProjectStage.Ready
         if (debugEmitStatus) log('Install EmitStatus')
         this.EmitStatus()

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useReducer } from 'react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import dayjs from 'dayjs'
@@ -31,6 +31,8 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
+
+  const runningOutput = useStoreState<Array<string>>((state) => state.project.runningOutput)
 
   const callPush = useCallback(async () => {
     if (!project) return null
@@ -80,7 +82,7 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
 
           {frontProjectView === ProjectView.Debugging && (
             <div className={style.output}>
-              {project.runningOutput?.map((o, i) => (
+              {runningOutput.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <Text key={i} color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'}>
                   {o}

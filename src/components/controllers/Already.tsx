@@ -8,16 +8,16 @@ import Variants from './Variants'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
 import SpacingSection from './spacing/SpacingSection'
-import { Project } from '../../models/project'
+// import { Project } from '../../models/project'
 
 const Already: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.controlles.alreadyVariants)
-  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
-  const setPage = useStoreActions((actions) => actions.project.setPage)
+  // const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
+  // const setPage = useStoreActions((actions) => actions.project.setPage)
 
   return (
     <VStack alignItems="flex-start">
-      {!!frontProject && !!frontProject.config && (
+      {/* {!!frontProject && !!frontProject.config && (
         <Select
           variant="unstyled"
           value={frontProject.page}
@@ -31,7 +31,7 @@ const Already: React.FC = (): JSX.Element => {
             </option>
           ))}
         </Select>
-      )}
+      )} */}
       <Variants alreadyVariants={alreadyVariants} />
       <LayoutSection already />
       <FlexSection already />

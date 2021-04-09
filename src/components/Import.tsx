@@ -67,6 +67,9 @@ const ImportProject = (): JSX.Element => {
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
+  const installOutput = useStoreState<Array<string>>((state) => state.project.installOutput)
+  const setInstallOutput = useStoreActions((actions) => actions.project.setInstallOutput)
+
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [branch, setBranch] = useState('derealize')
@@ -142,8 +145,9 @@ const ImportProject = (): JSX.Element => {
       newProject.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
     } else {
       newProject.installOutput?.push(`import error: ${error}`)
+      setInstallOutput(newProject.installOutput || [])
     }
-  }, [projects, url, path, name, addProject, setLoading, branch, onOpenExistsAlert])
+  }, [projects, url, path, name, addProject, setInstallOutput, setLoading, branch, onOpenExistsAlert])
 
   const open = useCallback(() => {
     if (readyOpen) {
@@ -278,7 +282,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p className={style.output}>{project?.installOutput?.join('\n')}</p>
+                <p className={style.output}>{installOutput.join('\n')}</p>
                 {loading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />

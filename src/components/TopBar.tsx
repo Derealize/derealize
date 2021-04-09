@@ -6,6 +6,7 @@ import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from
 import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
+import { IoBookmarksOutline } from 'react-icons/io5'
 import { RiInputMethodLine } from 'react-icons/ri'
 import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import type { BoolReply } from '../backend/backend.interface'
@@ -17,7 +18,7 @@ import Breadcrumb from './Breadcrumb'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { send, projectMenu } = window.derealize
+const { send, projectMenu, pagesMenu } = window.derealize
 
 const BarIconButton = React.forwardRef(
   (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
@@ -119,27 +120,26 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
             onClick={() => callPush()}
           />
         </Tooltip>
+
+        <BarIconButton aria-label="Pages" icon={<IoBookmarksOutline />} onClick={() => pagesMenu()} />
       </Flex>
 
       <Breadcrumb project={project} />
 
       <Flex align="center" justify="right">
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
-
         {project.stage === ProjectStage.Ready && (
           <Tooltip label="start">
             <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.url)} />
           </Tooltip>
         )}
-
         {(project.stage === ProjectStage.Running || project.stage === ProjectStage.Starting) && (
           <Tooltip label="stop">
             <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.url)} />
           </Tooltip>
         )}
-
+        {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} />
-
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"
@@ -154,7 +154,6 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
             }}
           />
         </Tooltip>
-
         <BarIconButton aria-label="Project Menu" icon={<CgMenu />} onClick={() => projectMenu()} />
       </Flex>
     </Flex>
