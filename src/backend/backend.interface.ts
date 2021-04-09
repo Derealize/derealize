@@ -1,5 +1,6 @@
 export enum Handler {
   Import = 'Import',
+  Remove = 'Remove',
   Install = 'Install',
   CheckStatus = 'CheckStatus',
   Start = 'Start',
