@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo, useReducer } from 'react'
+import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo } from 'react'
 import dayjs from 'dayjs'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { useForm } from 'react-hook-form'
@@ -63,7 +63,6 @@ const ImportProject = (): JSX.Element => {
   const setLoading = useStoreActions((actions) => actions.project.setImportLoading)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
-  const setProject = useStoreActions((actions) => actions.project.setProject)
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
@@ -82,11 +81,8 @@ const ImportProject = (): JSX.Element => {
   const readyOpen = project?.stage === ProjectStage.Ready
 
   useEffect(() => {
-    if (project) {
-      setProject({ ...project, stage: ProjectStage.Initialized })
-    }
-
     if (!url) return
+    setInstallOutput([])
 
     try {
       const parseURL = new URL(url)
@@ -101,7 +97,7 @@ const ImportProject = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [project, setProject, toast, url])
+  }, [setInstallOutput, toast, url])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
@@ -146,6 +142,7 @@ const ImportProject = (): JSX.Element => {
     } else {
       newProject.installOutput?.push(`import error: ${error}`)
       setInstallOutput(newProject.installOutput || [])
+      setLoading(false)
     }
   }, [projects, url, path, name, addProject, setInstallOutput, setLoading, branch, onOpenExistsAlert])
 

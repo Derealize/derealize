@@ -171,22 +171,20 @@ const projectModel: ProjectModel = {
     state.projects.push(project)
     storeProject(state.projects)
   }),
-  removeProject: thunk((actions, id, { getState }) => {
-    actions.closeProject(id)
-    const projects = getState().projects.filter((p) => p.url !== id)
+  removeProject: thunk((actions, url, { getState }) => {
+    actions.closeProject(url)
+    const projects = getState().projects.filter((p) => p.url !== url)
     actions.setProjects(projects)
+    send(Handler.Remove, { url })
   }),
   setProject: action((state, payload) => {
     const project = state.projects.find((p) => p.url === payload.url)
     if (!project) {
-      toast({
-        title: "project don't exist",
-        status: 'error',
-      })
-      return
+      throw new Error("project don't exist")
     }
 
     Object.assign(project, payload)
+    state.projects = [...state.projects]
     storeProject(state.projects)
   }),
 

@@ -27,6 +27,11 @@ export const Import = async ({ url, path, branch }: Record<string, string>): Pro
   return result
 }
 
+export const Remove = async ({ url }: Record<string, string>): Promise<BoolReply> => {
+  const result = projectsMap.delete(url)
+  return { result }
+}
+
 export const Install = async ({ url }: IdParam): Promise<BoolReply> => {
   const project = getProject(url)
   const result = project.Install()
