@@ -1,6 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import { connectSocket, send, listen } from './client-ipc'
 import { Handler, Broadcast, ElementPayload } from './backend/backend.interface'
+import getQuerySelector from './utils/getQuerySelector'
 
 let PROJECTID: string | null = null
 
@@ -19,10 +20,11 @@ const css = `
 `
 
 let activeElement: HTMLElement | null = null
+let activeQueryString: string
 
 listen(Broadcast.LiveUpdateClass, ({ id, className }: ElementPayload) => {
-  console.log('LiveUpdateClass', JSON.stringify(className))
   if (id === PROJECTID && activeElement) {
+    console.log('LiveUpdateClass', className)
     activeElement.className = className
   }
 })
@@ -33,6 +35,7 @@ const derealizeListener = async (e: Event) => {
 
   activeElement?.removeAttribute('data-active')
   activeElement = e.target as HTMLElement
+  activeQueryString = getQuerySelector(activeElement)
 
   const codePosition = activeElement.getAttribute('data-code')
   if (codePosition) {
@@ -43,6 +46,8 @@ const derealizeListener = async (e: Event) => {
 }
 
 const listenElement = () => {
+  console.log('listenElement')
+
   document.querySelectorAll('[data-code]').forEach((el) => {
     el.removeEventListener('click', derealizeListener)
     el.addEventListener('click', derealizeListener)
@@ -52,6 +57,11 @@ const listenElement = () => {
   })
 
   activeElement = document.querySelector('[data-active]')
+  if (!activeElement && activeQueryString) {
+    console.log('querySelector', activeQueryString)
+    activeElement = document.querySelector(activeQueryString)
+  }
+
   if (activeElement) {
     const code = activeElement.getAttribute('data-code')
     if (code) {
