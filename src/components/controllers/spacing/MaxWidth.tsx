@@ -1,7 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import cs from 'classnames'
-import { nanoid } from 'nanoid'
-import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController, { OptionType } from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -11,10 +9,6 @@ type Props = {
 }
 
 const MaxWidth: React.FC<Props> = ({ already }: Props): JSX.Element => {
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
-
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
@@ -45,23 +39,8 @@ const MaxWidth: React.FC<Props> = ({ already }: Props): JSX.Element => {
     <SelectController
       placeholder="max-width"
       options={values.map((v) => ({ value: v, label: v }))}
-      value={value}
-      onChange={(cvalue, { action }) => {
-        if (action === 'clear' && property) {
-          deleteProperty(property.id)
-        } else if (action === 'select-option' && cvalue) {
-          if (property) {
-            property.classname = `max-w-${(cvalue as OptionType).value}`
-            setProperty(property)
-          } else {
-            setProperty({
-              id: nanoid(),
-              classname: `max-w-${(cvalue as OptionType).value}`,
-            } as Property)
-          }
-        }
-        updateClassName()
-      }}
+      currentValue={value}
+      property={property}
     />
   )
 }

@@ -38,7 +38,7 @@ const JustifyContent: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Justify Content"
+      placeholder="justify-content"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}

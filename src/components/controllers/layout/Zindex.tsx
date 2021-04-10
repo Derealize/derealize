@@ -20,8 +20,8 @@ const Zindex: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const zindexValues = useStoreState<Array<string>>((state) => state.layout.zindexValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.zindexPropertys)
+  const values = useStoreState<Array<string>>((state) => state.layout.zIndexValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.zIndexPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -46,18 +46,18 @@ const Zindex: React.FC<Props> = ({ already }: Props): JSX.Element => {
         if (!e.target.value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `z-${e.target.value}`
+          property.classname = e.target.value
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `z-${e.target.value}`,
+            classname: e.target.value,
           } as Property)
         }
         updateClassName()
       }}
     >
-      {zindexValues.map((value) => (
+      {values.map((value) => (
         <option key={value} value={value}>
           {value}
         </option>

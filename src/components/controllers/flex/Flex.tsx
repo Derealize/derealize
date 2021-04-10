@@ -38,7 +38,7 @@ const Flex: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Flex"
+      placeholder="flex"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
@@ -46,12 +46,12 @@ const Flex: React.FC<Props> = ({ already }: Props): JSX.Element => {
         if (!value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `flex-${value.toString()}`
+          property.classname = value.toString()
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `flex-${value.toString()}`,
+            classname: value.toString(),
           } as Property)
         }
         updateClassName()
