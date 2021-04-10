@@ -86,11 +86,11 @@ const setBrowserViewBounds = (mainwin: BrowserWindow) => {
   browserView.setBounds({ x: xaxis, y: yaxis, width: rectangle.width - xaxis, height: rectangle.height - yaxis })
 }
 
-const projectViews = new Map<string, BrowserView>()
+const projects = new Map<string, { view: BrowserView; lunchUrl: string; pages: Array<string> }>()
 
 const frontMain = () => {
   if (!mainWindow) return
-  projectViews.forEach((v) => mainWindow?.removeBrowserView(v))
+  projects.forEach((p) => mainWindow?.removeBrowserView(p.view))
 }
 
 ipcMain.on('frontMain', (event: any) => {
@@ -100,9 +100,9 @@ ipcMain.on('frontMain', (event: any) => {
 ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
   if (!mainWindow || !projectId) return
 
-  const projectView = projectViews.get(projectId)
-  if (projectView) {
-    mainWindow.setBrowserView(projectView)
+  const project = projects.get(projectId)
+  if (project) {
+    mainWindow.setBrowserView(project.view)
   } else {
     const view = new BrowserView({
       webPreferences: {
@@ -115,7 +115,7 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
     })
     view.setBackgroundColor('#fff') // todo: invalid
 
-    projectViews.set(projectId, view)
+    projects.set(projectId, { view, lunchUrl, pages })
     mainWindow.setBrowserView(view)
     setBrowserViewBounds(mainWindow)
     if (isDebug) {
@@ -131,17 +131,14 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
   }
 
   projectMenu = menuBuilder?.buildProjectMenu(projectId)
-  pagesMenu = menuBuilder?.buildPagesMenu(
-    projectId,
-    pages.map((p) => lunchUrl + p),
-  )
+  pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
 })
 
 const loadURL = (projectId: string, url: string) => {
   if (!mainWindow) return
-  const view = projectViews.get(projectId)
-  if (view) {
-    view.webContents.loadURL(url)
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.loadURL(project.lunchUrl + url)
   }
 }
 
@@ -153,12 +150,12 @@ ipcMain.on('closeProjectView', (event, projectId: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578
-  const view = projectViews.get(projectId)
-  if (view) {
-    mainWindow.removeBrowserView(view)
-    ;(view.webContents as any).destroy()
+  const project = projects.get(projectId)
+  if (project) {
+    mainWindow.removeBrowserView(project.view)
+    ;(project.view.webContents as any).destroy()
   }
-  projectViews.delete(projectId)
+  projects.delete(projectId)
 })
 
 const sendIsMaximized = () => {
@@ -356,18 +353,18 @@ ipcMain.on('controls', (event, payload: string) => {
 
 ipcMain.on('mainMenu', () => {
   if (!mainWindow || !mainMenu) return
-  mainMenu.popup({ window: mainWindow, x: 228, y: 38 })
+  mainMenu.popup({ window: mainWindow, x: 228, y: mainWindow.isMaximized() ? 34 : 38 })
 })
 
 ipcMain.on('projectMenu', () => {
   if (!mainWindow || !projectMenu) return
   const rectangle = mainWindow.getBounds()
-  projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: 80 })
+  projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: mainWindow.isMaximized() ? 76 : 80 })
 })
 
 ipcMain.on('pagesMenu', () => {
   if (!mainWindow || !pagesMenu) return
-  pagesMenu.popup({ window: mainWindow, x: 130, y: 80 })
+  pagesMenu.popup({ window: mainWindow, x: 130, y: mainWindow.isMaximized() ? 76 : 80 })
 })
 
 // https://jaketrent.com/post/select-directory-in-electron

@@ -44,7 +44,7 @@ const SpaceBetween: React.FC<Props> = ({ already }: Props): JSX.Element => {
   return (
     <SelectController
       placeholder="space-between"
-      options={values.map((value) => ({ value, label: value }))}
+      options={values.map((v) => ({ value: v, label: v }))}
       value={value}
       onChange={(cvalue, { action }) => {
         if (action === 'clear' && property) {

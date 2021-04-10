@@ -1,17 +1,30 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { Select, Box, Text } from '@chakra-ui/react'
+import groupBy from 'lodash.groupBy'
+import { Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
-import { FloatValues } from '../../../models/controlles/layout'
+import { OverscrollValues } from '../../../models/controlles/advanced'
+import SelectController, { OptionType } from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+
+const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
+  const array = value.split('-')
+  array.splice(-1)
+  return array.join('-')
+})
+
+const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values]) => ({
+  label,
+  options: values.map((value) => ({ value, label: value })),
+}))
 
 type Props = {
   already?: boolean
 }
 
-const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -21,7 +34,7 @@ const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.floatPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.advanced.overscrollPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -34,40 +47,40 @@ const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
+  const value = useMemo<OptionType | null>(
+    () => (property ? { value: property.classname, label: property.classname } : null),
+    [property],
+  )
+
   if (already && !property) return <></>
 
   return (
-    <Select
-      placeholder="Float"
-      variant="flushed"
-      colorScheme={property ? 'teal' : 'gray'}
-      value={property?.classname}
-      onChange={(e) => {
-        if (!e.target.value && property) {
+    <SelectController
+      placeholder="Overscroll"
+      options={OverscrollOptions}
+      value={value}
+      onChange={(cvalue, { action }) => {
+        if (action === 'clear' && property) {
           deleteProperty(property.id)
-        } else if (property) {
-          property.classname = e.target.value
-          setProperty(property)
-        } else {
-          setProperty({
-            id: nanoid(),
-            classname: e.target.value,
-          } as Property)
+        } else if (action === 'select-option' && cvalue) {
+          if (property) {
+            property.classname = (cvalue as OptionType).value
+            setProperty(property)
+          } else {
+            setProperty({
+              id: nanoid(),
+              classname: (cvalue as OptionType).value,
+            } as Property)
+          }
         }
         updateClassName()
       }}
-    >
-      {FloatValues.map((value) => (
-        <option key={value} value={value}>
-          {value}
-        </option>
-      ))}
-    </Select>
+    />
   )
 }
 
-Float.defaultProps = {
+Overscroll.defaultProps = {
   already: false,
 }
 
-export default Float
+export default Overscroll
