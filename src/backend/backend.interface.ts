@@ -26,6 +26,7 @@ export interface ElementPayload {
   className: string
   codePosition: string
   tagName?: string
+  useShift?: boolean
 }
 
 export interface ProjectConfig {
