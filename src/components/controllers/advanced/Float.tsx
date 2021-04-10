@@ -1,17 +1,17 @@
-import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
-import { BoxSizingValues } from '../../../models/controlles/layout'
+import { FloatValues } from '../../../models/controlles/advanced'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
   already?: boolean
 }
 
-const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const Float: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -21,7 +21,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.advanced.boxSizingPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.advanced.floatPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -38,7 +38,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Box Sizing"
+      placeholder="Float"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
@@ -57,7 +57,7 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
         updateClassName()
       }}
     >
-      {BoxSizingValues.map((value) => (
+      {FloatValues.map((value) => (
         <option key={value} value={value}>
           {value}
         </option>
@@ -66,8 +66,8 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
   )
 }
 
-BoxSizing.defaultProps = {
+Float.defaultProps = {
   already: false,
 }
 
-export default BoxSizing
+export default Float

@@ -1,30 +1,17 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import groupBy from 'lodash.groupBy'
-import { Box, Text } from '@chakra-ui/react'
+import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
-import { OverscrollValues } from '../../../models/controlles/layout'
-import SelectController, { OptionType } from '../../SelectController'
+import { ClearValues } from '../../../models/controlles/advanced'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
-
-const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
-  const array = value.split('-')
-  array.splice(-1)
-  return array.join('-')
-})
-
-const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values]) => ({
-  label,
-  options: values.map((value) => ({ value, label: value })),
-}))
 
 type Props = {
   already?: boolean
 }
 
-const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const Clear: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -34,7 +21,7 @@ const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.overscrollPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.advanced.clearPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -47,40 +34,40 @@ const Overscroll: React.FC<Props> = ({ already }: Props): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
-  const value = useMemo<OptionType | null>(
-    () => (property ? { value: property.classname, label: property.classname } : null),
-    [property],
-  )
-
   if (already && !property) return <></>
 
   return (
-    <SelectController
-      placeholder="Overscroll"
-      options={OverscrollOptions}
-      value={value}
-      onChange={(cvalue, { action }) => {
-        if (action === 'clear' && property) {
+    <Select
+      placeholder="Clear"
+      variant="flushed"
+      colorScheme={property ? 'teal' : 'gray'}
+      value={property?.classname}
+      onChange={(e) => {
+        if (!e.target.value && property) {
           deleteProperty(property.id)
-        } else if (action === 'select-option' && cvalue) {
-          if (property) {
-            property.classname = (cvalue as OptionType).value
-            setProperty(property)
-          } else {
-            setProperty({
-              id: nanoid(),
-              classname: (cvalue as OptionType).value,
-            } as Property)
-          }
+        } else if (property) {
+          property.classname = e.target.value
+          setProperty(property)
+        } else {
+          setProperty({
+            id: nanoid(),
+            classname: e.target.value,
+          } as Property)
         }
         updateClassName()
       }}
-    />
+    >
+      {ClearValues.map((value) => (
+        <option key={value} value={value}>
+          {value}
+        </option>
+      ))}
+    </Select>
   )
 }
 
-Overscroll.defaultProps = {
+Clear.defaultProps = {
   already: false,
 }
 
-export default Overscroll
+export default Clear

@@ -10,7 +10,9 @@ import { GiResize } from 'react-icons/gi'
 import { GrThreeDEffects } from 'react-icons/gr'
 import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-icons/ri'
 import { MdBorderStyle, MdGridOn } from 'react-icons/md'
+import { FcAdvance } from 'react-icons/fc'
 import Already from './Already'
+import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
 import FlexSection from './flex/FlexSection'
 import SpacingSection from './spacing/SpacingSection'
@@ -84,6 +86,13 @@ const Controllers: React.FC = (): JSX.Element => {
               </Box>
             </Tooltip>
           </Tab>
+          <Tab p={3}>
+            <Tooltip label="(F9) Advanced">
+              <Box>
+                <Icon as={FcAdvance} boxSize={6} />
+              </Box>
+            </Tooltip>
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -113,6 +122,9 @@ const Controllers: React.FC = (): JSX.Element => {
           </TabPanel>
           <TabPanel>
             <p>Interactivity</p>
+          </TabPanel>
+          <TabPanel>
+            <AdvancedSection />
           </TabPanel>
         </TabPanels>
       </Tabs>
