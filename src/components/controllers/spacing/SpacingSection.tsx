@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Tooltip, VStack, Box, Text, List, ListItem, ListIcon, Icon } from '@chakra-ui/react'
+import { Tooltip, VStack } from '@chakra-ui/react'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
@@ -7,7 +7,8 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
 import Marging from './Marging'
 import Padding from './Padding'
-import SpaceBetween from './SpaceBetween'
+import SpaceBetweenY from './SpaceBetweenY'
+import SpaceBetweenX from './SpaceBetweenX'
 import Width from './Width'
 import MaxWidth from './MaxWidth'
 import MinWidth from './MinWidth'
@@ -34,7 +35,8 @@ const SpacingSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
       <Marging already={already} />
       <Padding already={already} />
-      <SpaceBetween already={already} />
+      <SpaceBetweenY already={already} />
+      <SpaceBetweenX already={already} />
     </VStack>
   )
 }

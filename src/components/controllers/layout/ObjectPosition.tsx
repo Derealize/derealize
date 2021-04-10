@@ -20,8 +20,8 @@ const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.clearPropertys)
-  const objectPositionValues = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.objectPositionPropertys)
+  const values = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -38,7 +38,7 @@ const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Object Position"
+      placeholder="object-position"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
@@ -46,18 +46,18 @@ const ObjectPosition: React.FC<Props> = ({ already }: Props): JSX.Element => {
         if (!e.target.value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `object-${e.target.value}`
+          property.classname = e.target.value
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `object-${e.target.value}`,
+            classname: e.target.value,
           } as Property)
         }
         updateClassName()
       }}
     >
-      {objectPositionValues.map((name) => (
+      {values.map((name) => (
         <option key={name} value={name}>
           {name}
         </option>

@@ -1,9 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import groupBy from 'lodash.groupBy'
-import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
-import { nanoid } from 'nanoid'
-import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
 import { OverflowValues } from '../../../models/controlles/layout'
 import SelectController, { OptionType } from '../../SelectController'
@@ -25,10 +22,6 @@ type Props = {
 }
 
 const Overflow: React.FC<Props> = ({ already }: Props): JSX.Element => {
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
-
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
@@ -55,27 +48,7 @@ const Overflow: React.FC<Props> = ({ already }: Props): JSX.Element => {
   if (already && !property) return <></>
 
   return (
-    <SelectController
-      placeholder="Overscroll"
-      options={OverflowOptions}
-      value={value}
-      onChange={(cvalue, { action }) => {
-        if (action === 'clear' && property) {
-          deleteProperty(property.id)
-        } else if (action === 'select-option' && cvalue) {
-          if (property) {
-            property.classname = (cvalue as OptionType).value
-            setProperty(property)
-          } else {
-            setProperty({
-              id: nanoid(),
-              classname: (cvalue as OptionType).value,
-            } as Property)
-          }
-        }
-        updateClassName()
-      }}
-    />
+    <SelectController placeholder="Overscroll" options={OverflowOptions} currentValue={value} property={property} />
   )
 }
 
