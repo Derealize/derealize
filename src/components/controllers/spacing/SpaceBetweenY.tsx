@@ -8,14 +8,14 @@ type Props = {
   already?: boolean
 }
 
-const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const SpaceBetween: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.widthValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.widthPropertys)
+  const values = useStoreState<Array<string>>((state) => state.spacing.spaceYValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.spacing.spaceYPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -37,7 +37,7 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <SelectController
-      placeholder="width"
+      placeholder="space-between"
       options={values.map((v) => ({ value: v, label: v }))}
       currentValue={value}
       property={property}
@@ -45,8 +45,8 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
   )
 }
 
-Width.defaultProps = {
+SpaceBetween.defaultProps = {
   already: false,
 }
 
-export default Width
+export default SpaceBetween

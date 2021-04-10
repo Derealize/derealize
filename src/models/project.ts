@@ -313,7 +313,7 @@ const projectModel: ProjectModel = {
         }
       }
 
-      console.log('project.stage = status.stage', project.url, status.stage)
+      // console.log('project.stage = status.stage', project.url, status.stage)
       project.stage = status.stage
       project.changes = status.changes
       project.productName = status.productName

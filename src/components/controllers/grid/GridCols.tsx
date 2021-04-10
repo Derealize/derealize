@@ -8,14 +8,14 @@ type Props = {
   already?: boolean
 }
 
-const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const GridCols: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.widthValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.widthPropertys)
+  const values = useStoreState<Array<string>>((state) => state.grid.gridColsValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.grid.gridColsPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -37,7 +37,7 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <SelectController
-      placeholder="width"
+      placeholder="grid-cols"
       options={values.map((v) => ({ value: v, label: v }))}
       currentValue={value}
       property={property}
@@ -45,8 +45,8 @@ const Width: React.FC<Props> = ({ already }: Props): JSX.Element => {
   )
 }
 
-Width.defaultProps = {
+GridCols.defaultProps = {
   already: false,
 }
 
-export default Width
+export default GridCols

@@ -38,7 +38,7 @@ const FlexGrow: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Flex Grow"
+      placeholder="flex-grow"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
@@ -46,12 +46,12 @@ const FlexGrow: React.FC<Props> = ({ already }: Props): JSX.Element => {
         if (!value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `flex-grow-${value.toString()}`
+          property.classname = value.toString()
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `flex-grow-${value.toString()}`,
+            classname: value.toString(),
           } as Property)
         }
         updateClassName()

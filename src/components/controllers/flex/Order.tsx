@@ -38,7 +38,7 @@ const Order: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <Select
-      placeholder="Order"
+      placeholder="order"
       variant="flushed"
       colorScheme={property ? 'teal' : 'gray'}
       value={property?.classname}
@@ -46,12 +46,12 @@ const Order: React.FC<Props> = ({ already }: Props): JSX.Element => {
         if (!value && property) {
           deleteProperty(property.id)
         } else if (property) {
-          property.classname = `order-${value.toString()}`
+          property.classname = value.toString()
           setProperty(property)
         } else {
           setProperty({
             id: nanoid(),
-            classname: `order-${value.toString()}`,
+            classname: value.toString(),
           } as Property)
         }
         updateClassName()
