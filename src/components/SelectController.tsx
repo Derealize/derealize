@@ -1,4 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useEffect } from 'react'
+import { nanoid } from 'nanoid'
 import Select, {
   GroupTypeBase,
   OptionTypeBase,
@@ -10,11 +12,13 @@ import Select, {
   InputProps,
   PlaceholderProps,
   IndicatorProps,
+  components,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
 import cs from 'classnames'
-import { css } from '@emotion/react'
 import styles from './SelectController.module.scss'
+import { useStoreActions } from '../reduxStore'
+import type { Property } from '../models/controlles/controlles'
 
 export interface OptionType extends OptionTypeBase {
   label: string
@@ -26,8 +30,9 @@ export type GroupType = GroupTypeBase<OptionType>
 type Props = {
   placeholder: string
   options: ReadonlyArray<OptionType | GroupType>
-  value: OptionType | null
-  onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
+  currentValue: OptionType | null
+  property: Property | undefined
+  // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
 const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
@@ -75,17 +80,62 @@ const customStyles = {
   }),
 }
 
-const SelectController: React.FC<Props> = ({ placeholder, options, value, onChange }: Props): JSX.Element => {
+const SelectController: React.FC<Props> = ({ placeholder, options, currentValue, property }: Props): JSX.Element => {
+  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
+  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
+  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
+
+  const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
+    return (
+      <div
+        onMouseEnter={() => {
+          console.log('onMouseEnter', props.data.value)
+          if (property) {
+            property.classname = props.data.value
+            setProperty(property)
+          } else {
+            setProperty({
+              id: nanoid(),
+              classname: props.data.value,
+            } as Property)
+          }
+          updateClassName()
+        }}
+      >
+        <components.Option {...props} />
+      </div>
+    )
+  }
+
   return (
     <Select
       className={styles.select}
       styles={customStyles}
+      components={{ Option }}
       placeholder={placeholder}
       isClearable
       options={options}
-      value={value}
+      value={currentValue}
       formatGroupLabel={formatGroupLabel}
-      onChange={onChange}
+      onChange={(ovalue, { action }) => {
+        console.log('onChange', action, (ovalue as OptionType).value)
+        if (action === 'clear' && property) {
+          deleteProperty(property.id)
+        } else if (action === 'select-option') {
+          if (!ovalue && property) {
+            deleteProperty(property.id)
+          } else if (property) {
+            property.classname = (ovalue as OptionType).value
+            setProperty(property)
+          } else {
+            setProperty({
+              id: nanoid(),
+              classname: (ovalue as OptionType).value,
+            } as Property)
+          }
+        }
+        updateClassName(true)
+      }}
     />
   )
 }

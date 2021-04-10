@@ -100,9 +100,9 @@ export const FocusElement = async (payload: ElementPayload) => {
 }
 
 export const UpdateClass = async (payload: ElementPayload) => {
-  const { id, codePosition, className } = payload
+  const { id, codePosition, className, useShift } = payload
   const project = getProject(id)
 
   emit(Broadcast.LiveUpdateClass, payload)
-  shift(project.path, codePosition, className)
+  if (useShift) shift(project.path, codePosition, className)
 }

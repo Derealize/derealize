@@ -123,26 +123,24 @@ const ImportProject = (): JSX.Element => {
       return
     }
 
-    const newProject: Project = {
-      url,
-      path,
-      name,
-      editedTime: dayjs().toString(),
-      stage: ProjectStage.Initialized,
-      installOutput: [],
-    }
-    addProject(newProject)
-
     setLoading(true)
     const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
 
     if (result) {
-      send(Handler.Install, { url, path, branch })
+      const newProject: Project = {
+        url,
+        path,
+        name,
+        editedTime: dayjs().toString(),
+        stage: ProjectStage.Initialized,
+        installOutput: [],
+      }
+      addProject(newProject)
+      await send(Handler.Install, { url, path, branch })
       newProject.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
     } else {
-      newProject.installOutput?.push(`import error: ${error}`)
-      setInstallOutput(newProject.installOutput || [])
       setLoading(false)
+      setInstallOutput([`import error: ${error}`])
     }
   }, [projects, url, path, name, addProject, setInstallOutput, setLoading, branch, onOpenExistsAlert])
 
