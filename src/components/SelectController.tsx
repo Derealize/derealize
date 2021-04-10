@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useEffect } from 'react'
 import { nanoid } from 'nanoid'
 import Select, {
@@ -11,10 +12,10 @@ import Select, {
   InputProps,
   PlaceholderProps,
   IndicatorProps,
+  components,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
 import cs from 'classnames'
-import { css } from '@emotion/react'
 import styles from './SelectController.module.scss'
 import { useStoreActions } from '../reduxStore'
 import type { Property } from '../models/controlles/controlles'
@@ -84,16 +85,40 @@ const SelectController: React.FC<Props> = ({ placeholder, options, currentValue,
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
 
+  const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
+    return (
+      <div
+        onMouseEnter={() => {
+          console.log('onMouseEnter', props.data.value)
+          if (property) {
+            property.classname = props.data.value
+            setProperty(property)
+          } else {
+            setProperty({
+              id: nanoid(),
+              classname: props.data.value,
+            } as Property)
+          }
+          updateClassName()
+        }}
+      >
+        <components.Option {...props} />
+      </div>
+    )
+  }
+
   return (
     <Select
       className={styles.select}
       styles={customStyles}
+      components={{ Option }}
       placeholder={placeholder}
       isClearable
       options={options}
       value={currentValue}
       formatGroupLabel={formatGroupLabel}
       onChange={(ovalue, { action }) => {
+        console.log('onChange', action, (ovalue as OptionType).value)
         if (action === 'clear' && property) {
           deleteProperty(property.id)
         } else if (action === 'select-option') {
@@ -109,7 +134,7 @@ const SelectController: React.FC<Props> = ({ placeholder, options, currentValue,
             } as Property)
           }
         }
-        updateClassName()
+        updateClassName(true)
       }}
     />
   )

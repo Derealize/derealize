@@ -56,7 +56,7 @@ export interface ControllesModel {
   setProperty: Action<ControllesModel, Property>
   deleteProperty: Action<ControllesModel, string>
 
-  updateClassName: Thunk<ControllesModel, void, void, StoreModel>
+  updateClassName: Thunk<ControllesModel, boolean | undefined, void, StoreModel>
 
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
   selectScreenVariant: string | undefined
@@ -150,7 +150,7 @@ const controllesModel: ControllesModel = {
     state.propertys = state.propertys.filter((p) => payload !== p.id)
   }),
 
-  updateClassName: thunk(async (actions, none, { getState }) => {
+  updateClassName: thunk(async (actions, useShift, { getState }) => {
     const { propertys, element } = getState()
     if (!element) return
 
@@ -175,7 +175,7 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
-    send(Handler.UpdateClass, { ...element, className })
+    send(Handler.UpdateClass, { ...element, className, useShift })
   }),
 
   screenVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {
