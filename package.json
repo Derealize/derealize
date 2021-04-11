@@ -287,6 +287,7 @@
     "react-spinners": "^0.10.4",
     "recast": "^0.20.4",
     "regenerator-runtime": "^0.13.5",
+    "selector-generator": "^0.3.1",
     "shelljs": "^0.8.4",
     "source-map-support": "^0.5.19",
     "tailwindcss": "^2.0.3",
