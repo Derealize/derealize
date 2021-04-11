@@ -20,8 +20,8 @@ const Flex: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const flexValues = useStoreState<Array<string>>((state) => state.flex.flexValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.flexPropertys)
+  const flexValues = useStoreState<Array<string>>((state) => state.layout.flexValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.flexPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(

@@ -4,7 +4,7 @@ import cs from 'classnames'
 import { nanoid } from 'nanoid'
 import { css } from '@emotion/react'
 import type { Property } from '../../../models/controlles/controlles'
-import { AlignContentValues } from '../../../models/controlles/flex'
+import { AlignContentValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
@@ -21,7 +21,7 @@ const AlignContent: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.alignContentPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.alignContentPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(

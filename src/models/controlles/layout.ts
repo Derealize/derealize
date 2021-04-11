@@ -38,7 +38,31 @@ export const OverflowValues = [
 export const PositionValues = ['static', 'fixed', 'absolute', 'relative', 'sticky']
 export const VisibilityValues = ['visible', 'invisible']
 
+export const FlexDirectionValues = ['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']
+export const FlexWrapValues = ['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap']
+export const JustifyContentValues = [
+  'justify-start',
+  'justify-end',
+  'justify-center',
+  'justify-between',
+  'justify-around',
+  'justify-evenly',
+]
+export const AlignItemsValues = ['items-start', 'items-end', 'items-center', 'items-baseline', 'items-stretch']
+export const AlignContentValues = [
+  'content-center',
+  'content-start',
+  'content-end',
+  'content-between',
+  'content-around',
+  'content-evenly',
+]
+export const AlignSelfValues = ['self-auto', 'self-start', 'self-end', 'self-center', 'self-stretch']
+
+export const GridFlowValues = ['grid-flow-row', 'grid-flow-col', 'grid-flow-row-dense', 'grid-flow-col-dense']
+
 export interface LayoutModel {
+  // #region layout
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   displayPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -69,15 +93,68 @@ export interface LayoutModel {
   leftPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   visibilityPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // #endregion
 
+  // #region flex
+  flexDirectionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  flexWrapPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  flexValues: Computed<LayoutModel, Array<string>, StoreModel>
+  flexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  flexGrowValues: Computed<LayoutModel, Array<string>, StoreModel>
+  flexGrowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  flexShrinkValues: Computed<LayoutModel, Array<string>, StoreModel>
+  flexShrinkPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  orderValues: Computed<LayoutModel, Array<string>, StoreModel>
+  orderPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  justifyContentPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  alignItemsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  alignContentPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  alignSelfPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // #endregion
+
+  // #region grid
   zIndexValues: Computed<LayoutModel, Array<string>, StoreModel>
   zIndexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  gridColsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  gridColsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  gridRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  gridRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  colValues: Computed<LayoutModel, Array<string>, StoreModel>
+  colPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  colStartValues: Computed<LayoutModel, Array<string>, StoreModel>
+  colStartPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  colEndValues: Computed<LayoutModel, Array<string>, StoreModel>
+  colEndPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  rowValues: Computed<LayoutModel, Array<string>, StoreModel>
+  rowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  rowStartValues: Computed<LayoutModel, Array<string>, StoreModel>
+  rowStartPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  rowEndValues: Computed<LayoutModel, Array<string>, StoreModel>
+  rowEndPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  gridFlowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // #endregion
 
   allPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
 }
 
 const layoutModel: LayoutModel = {
+  // #region layout
   containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter((property) => property.classname === ContainerValue),
   ),
@@ -173,6 +250,148 @@ const layoutModel: LayoutModel = {
     [(state, storeState) => storeState.controlles.propertys, (state) => state.zIndexValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
+  // #endregion
+
+  // #region flex
+  flexDirectionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FlexDirectionValues.includes(classname)),
+  ),
+
+  flexWrapPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FlexWrapValues.includes(classname)),
+  ),
+
+  flexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.flex).map((v) => `flex-${v}`)
+  }),
+  flexPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  flexGrowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.flexGrow).map((v) =>
+      v === 'DEFAULT' ? 'flex-grow' : `flex-grow-${v}`,
+    )
+  }),
+  flexGrowPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexGrowValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  flexShrinkValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.flexShrink).map((v) =>
+      v === 'DEFAULT' ? 'flex-shrink' : `flex-shrink-${v}`,
+    )
+  }),
+  flexShrinkPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.flexShrinkValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  orderValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.order).map((v) => `order-${v}`)
+  }),
+  orderPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.orderValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  justifyContentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => JustifyContentValues.includes(classname)),
+  ),
+  alignItemsPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => AlignItemsValues.includes(classname)),
+  ),
+  alignContentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => AlignContentValues.includes(classname)),
+  ),
+  alignSelfPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => AlignSelfValues.includes(classname)),
+  ),
+  // #endregion
+
+  // #region grid
+  gridColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridTemplateColumns).map((v) => `grid-cols-${v}`)
+  }),
+  gridColsPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.gridColsValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  gridRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridTemplateRows).map((v) => `grid-rows-${v}`)
+  }),
+  gridRowsPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.gridColsValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  colValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridColumn).map((v) => `col-span-${v}`)
+  }),
+  colPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.colValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  colStartValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridColumnStart).map((v) => `col-start-${v}`)
+  }),
+  colStartPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.colStartValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  colEndValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridColumnEnd).map((v) => `col-end-${v}`)
+  }),
+  colEndPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.colStartValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  rowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridRow).map((v) => `row-span-${v}`)
+  }),
+  rowPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.rowValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  rowStartValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridRowStart).map((v) => `row-start-${v}`)
+  }),
+  rowStartPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.rowStartValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  rowEndValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridRowEnd).map((v) => `row-end-${v}`)
+  }),
+  rowEndPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.rowEndValues],
+    (propertys, vlaues) => propertys.filter(({ classname }) => vlaues.includes(classname)),
+  ),
+
+  gridFlowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => GridFlowValues.includes(classname)),
+  ),
+  // #endregion
 
   allPropertys: computed(
     ({
@@ -191,6 +410,27 @@ const layoutModel: LayoutModel = {
       rightPropertys,
       visibilityPropertys,
       zIndexPropertys,
+
+      flexDirectionPropertys,
+      flexWrapPropertys,
+      flexPropertys,
+      flexGrowPropertys,
+      flexShrinkPropertys,
+      orderPropertys,
+      justifyContentPropertys,
+      alignItemsPropertys,
+      alignContentPropertys,
+      alignSelfPropertys,
+
+      gridColsPropertys,
+      gridRowsPropertys,
+      colPropertys,
+      colStartPropertys,
+      colEndPropertys,
+      rowPropertys,
+      rowStartPropertys,
+      rowEndPropertys,
+      gridFlowPropertys,
     }) => {
       return containerPropertys.concat(
         displayPropertys,
@@ -207,6 +447,27 @@ const layoutModel: LayoutModel = {
         rightPropertys,
         visibilityPropertys,
         zIndexPropertys,
+
+        flexDirectionPropertys,
+        flexWrapPropertys,
+        flexPropertys,
+        flexGrowPropertys,
+        flexShrinkPropertys,
+        orderPropertys,
+        justifyContentPropertys,
+        alignItemsPropertys,
+        alignContentPropertys,
+        alignSelfPropertys,
+
+        gridColsPropertys,
+        gridRowsPropertys,
+        colPropertys,
+        colStartPropertys,
+        colEndPropertys,
+        rowPropertys,
+        rowStartPropertys,
+        rowEndPropertys,
+        gridFlowPropertys,
       )
     },
   ),

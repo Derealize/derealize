@@ -14,9 +14,7 @@ import { FcAdvance } from 'react-icons/fc'
 import Already from './Already'
 import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
-import FlexSection from './flex/FlexSection'
 import SpacingSection from './spacing/SpacingSection'
-import GridSection from './grid/GridSection'
 import style from './Controllers.module.scss'
 
 const Controllers: React.FC = (): JSX.Element => {
@@ -101,8 +99,6 @@ const Controllers: React.FC = (): JSX.Element => {
           </TabPanel>
           <TabPanel>
             <LayoutSection />
-            <FlexSection />
-            <GridSection />
           </TabPanel>
           <TabPanel>
             <SpacingSection />
