@@ -3,7 +3,7 @@ import groupBy from 'lodash.groupBy'
 import cs from 'classnames'
 import type { Property } from '../../../models/controlles/controlles'
 import { OverflowValues } from '../../../models/controlles/layout'
-import SelectController, { OptionType } from '../../SelectController'
+import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 const OverflowGroups = groupBy<string>(OverflowValues, (value) => {
@@ -40,16 +40,9 @@ const Overflow: React.FC<Props> = ({ already }: Props): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
-  const value = useMemo<OptionType | null>(
-    () => (property ? { value: property.classname, label: property.classname } : null),
-    [property],
-  )
-
   if (already && !property) return <></>
 
-  return (
-    <SelectController placeholder="Overscroll" options={OverflowOptions} currentValue={value} property={property} />
-  )
+  return <SelectController placeholder="Overscroll" options={OverflowOptions} property={property} />
 }
 
 Overflow.defaultProps = {

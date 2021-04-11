@@ -30,7 +30,6 @@ export type GroupType = GroupTypeBase<OptionType>
 type Props = {
   placeholder: string
   options: ReadonlyArray<OptionType | GroupType>
-  currentValue: OptionType | null
   property: Property | undefined
   // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
@@ -80,7 +79,7 @@ const customStyles = {
   }),
 }
 
-const SelectController: React.FC<Props> = ({ placeholder, options, currentValue, property }: Props): JSX.Element => {
+const SelectController: React.FC<Props> = ({ placeholder, options, property }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -115,10 +114,9 @@ const SelectController: React.FC<Props> = ({ placeholder, options, currentValue,
       placeholder={placeholder}
       isClearable
       options={options}
-      value={currentValue}
+      value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onChange={(ovalue, { action }) => {
-        console.log('onChange', action, (ovalue as OptionType).value)
         if (action === 'clear' && property) {
           deleteProperty(property.id)
         } else if (action === 'select-option') {
