@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import cs from 'classnames'
 import type { Property } from '../../../models/controlles/controlles'
-import SelectController, { OptionType } from '../../SelectController'
+import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
 type Props = {
@@ -28,18 +28,12 @@ const MinWidth: React.FC<Props> = ({ already }: Props): JSX.Element => {
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
 
-  const value = useMemo<OptionType | null>(
-    () => (property ? { value: property.classname, label: property.classname } : null),
-    [property],
-  )
-
   if (already && !property) return <></>
 
   return (
     <SelectController
       placeholder="min-height"
       options={values.map((v) => ({ value: v, label: v }))}
-      currentValue={value}
       property={property}
     />
   )
