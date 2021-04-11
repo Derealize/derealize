@@ -86,7 +86,14 @@ const setBrowserViewBounds = (mainwin: BrowserWindow) => {
   browserView.setBounds({ x: xaxis, y: yaxis, width: rectangle.width - xaxis, height: rectangle.height - yaxis })
 }
 
-const projects = new Map<string, { view: BrowserView; lunchUrl: string; pages: Array<string> }>()
+interface ProjectHost {
+  view: BrowserView
+  lunchUrl: string
+  pages: Array<string>
+  activeSelector?: string
+}
+
+const projects = new Map<string, ProjectHost>()
 
 const frontMain = () => {
   if (!mainWindow) return
@@ -126,7 +133,10 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
     view.webContents.loadURL(lunchUrl)
 
     view.webContents.on('did-finish-load', () => {
-      view.webContents.send('setParams', { socketId, projectId })
+      const loadedProject = projects.get(projectId)
+      if (loadedProject) {
+        view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
+      }
     })
   }
 
@@ -383,4 +393,11 @@ ipcMain.on('openDirs', async (event, folderpath: string) => {
 ipcMain.on('focusElement', async (event, payload) => {
   if (!mainWindow) return
   mainWindow.webContents.send('focusElement', payload)
+})
+
+ipcMain.on('setActiveSelector', async (event, projectId, activeSelector) => {
+  const project = projects.get(projectId)
+  if (project) {
+    project.activeSelector = activeSelector
+  }
 })
