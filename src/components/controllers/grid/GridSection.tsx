@@ -6,6 +6,7 @@ import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
 import GridCols from './GridCols'
+import GridRows from './GridRows'
 
 type Props = {
   already?: boolean
@@ -18,6 +19,7 @@ const GridSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
     <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <GridCols already={already} />
+      <GridRows already={already} />
     </VStack>
   )
 }

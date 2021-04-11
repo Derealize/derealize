@@ -20,8 +20,8 @@ const FlexShrink: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const flexShrinkValues = useStoreState<Array<string>>((state) => state.flex.flexShrinkValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.flexShrinkPropertys)
+  const flexShrinkValues = useStoreState<Array<string>>((state) => state.layout.flexShrinkValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.flexShrinkPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(

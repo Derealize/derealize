@@ -21,7 +21,7 @@ type Props = {
 }
 
 const FlexSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
-  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.flex.alreadyVariants)
+  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
     <VStack>

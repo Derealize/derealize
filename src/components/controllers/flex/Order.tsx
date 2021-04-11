@@ -20,8 +20,8 @@ const Order: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const orderValues = useStoreState<Array<string>>((state) => state.flex.orderValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.orderPropertys)
+  const orderValues = useStoreState<Array<string>>((state) => state.layout.orderValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.orderPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(

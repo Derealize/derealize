@@ -8,14 +8,14 @@ type Props = {
   already?: boolean
 }
 
-const GridCols: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const GridRows: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.layout.gridColsValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.gridColsPropertys)
+  const values = useStoreState<Array<string>>((state) => state.layout.gridRowsValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.gridRowsPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -32,15 +32,15 @@ const GridCols: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
   return (
     <SelectController
-      placeholder="grid-cols"
+      placeholder="grid-rows"
       options={values.map((v) => ({ value: v, label: v }))}
       property={property}
     />
   )
 }
 
-GridCols.defaultProps = {
+GridRows.defaultProps = {
   already: false,
 }
 
-export default GridCols
+export default GridRows

@@ -20,8 +20,8 @@ const FlexGrow: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const flexGrowValues = useStoreState<Array<string>>((state) => state.flex.flexGrowValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.flex.flexGrowPropertys)
+  const flexGrowValues = useStoreState<Array<string>>((state) => state.layout.flexGrowValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.flexGrowPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
