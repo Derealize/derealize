@@ -82,6 +82,9 @@ contextBridge.exposeInMainWorld('derealize', {
   loadURL: (projectId: string, url: string) => {
     ipcRenderer.send('loadURL', projectId, url)
   },
+  deviceEmulation: (projectId: string, width: number) => {
+    ipcRenderer.send('deviceEmulation', projectId, width)
+  },
 })
 
 ipcRenderer.on('setParams', (event: Event, { socketId }: Record<string, string>) => {
@@ -112,5 +115,6 @@ export interface PreloadWindow extends Window {
     frontMain: () => void
     closeProjectView: (id: string) => void
     loadURL: (projectId: string, url: string) => void
+    deviceEmulation: (projectId: string, width: number) => void
   }
 }
