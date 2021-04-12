@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { VStack, Stack, RadioGroup, Radio } from '@chakra-ui/react'
 import { StringOrNumber } from '@chakra-ui/utils'
 import cs from 'classnames'
 import { css } from '@emotion/react'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import ControllersContext from '../../ControllersContext'
+
 import Variants from '../Variants'
 import Container from './Container'
 import Display from './Display'
@@ -34,25 +36,22 @@ enum LayoutMode {
   Grid = 'grid',
 }
 
-type Props = {
-  already?: boolean
-}
-
-const LayoutSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const LayoutSection: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
   const [layoutMode, setLayoutMode] = React.useState<StringOrNumber>(LayoutMode.Flex)
 
   return (
     <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <Container already={already} />
-      <Display already={already} />
-      <ObjectFit already={already} />
-      <ObjectPosition already={already} />
-      <Overflow already={already} />
-      <Position already={already} />
-      <Visibility already={already} />
-      <Zindex already={already} />
+      <Container />
+      <Display />
+      <ObjectFit />
+      <ObjectPosition />
+      <Overflow />
+      <Position />
+      <Visibility />
+      <Zindex />
 
       <RadioGroup onChange={(v) => setLayoutMode(v)} value={layoutMode}>
         <Stack direction="row">
@@ -63,23 +62,23 @@ const LayoutSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
 
       {layoutMode === LayoutMode.Flex && (
         <>
-          <FlexController already={already} />
-          <FlexDirection already={already} />
-          <FlexGrow already={already} />
-          <FlexShrink already={already} />
-          <FlexWrap already={already} />
-          <JustifyContent already={already} />
-          <Order already={already} />
-          <AlignContent already={already} />
-          <AlignItems already={already} />
-          <AlignSelf already={already} />
+          <FlexController />
+          <FlexDirection />
+          <FlexGrow />
+          <FlexShrink />
+          <FlexWrap />
+          <JustifyContent />
+          <Order />
+          <AlignContent />
+          <AlignItems />
+          <AlignSelf />
         </>
       )}
 
       {layoutMode === LayoutMode.Grid && (
         <>
-          <GridCols already={already} />
-          <GridRows already={already} />
+          <GridCols />
+          <GridRows />
         </>
       )}
     </VStack>

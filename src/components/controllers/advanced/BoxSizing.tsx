@@ -1,17 +1,14 @@
-import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
+import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { Select, Box, Text } from '@chakra-ui/react'
 import cs from 'classnames'
 import { nanoid } from 'nanoid'
-import { css } from '@emotion/react'
+import ControllersContext from '../../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { BoxSizingValues } from '../../../models/controlles/advanced'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-type Props = {
-  already?: boolean
-}
-
-const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const BoxSizing: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -64,10 +61,6 @@ const BoxSizing: React.FC<Props> = ({ already }: Props): JSX.Element => {
       ))}
     </Select>
   )
-}
-
-BoxSizing.defaultProps = {
-  already: false,
 }
 
 export default BoxSizing

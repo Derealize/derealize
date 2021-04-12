@@ -20,11 +20,7 @@ try {
 } catch (e) {
   return require('babylon')
 }
-```
-
-替换为:
-
-```js
+// 替换为:
 return __non_webpack_require__('@babel/parser')
 ```
 
