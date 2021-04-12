@@ -12,15 +12,14 @@ yarn
 yarn electron-rebuild
 yarn start
 
-node_modules/recast/parsers/babel.js 因为有动态加载，webpack 无法打包，需要把：
+node_modules/recast/parsers/babel.js 因为有动态加载，webpack 无法打包，需要：
 
 ```js
-try {
-  return require('@babel/parser')
-} catch (e) {
-  return require('babylon')
-}
-// 替换为:
+// try {
+//   return require('@babel/parser')
+// } catch (e) {
+//   return require('babylon')
+// }
 return __non_webpack_require__('@babel/parser')
 ```
 

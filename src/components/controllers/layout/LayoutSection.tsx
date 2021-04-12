@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react'
-import { VStack, Stack, RadioGroup, Radio } from '@chakra-ui/react'
+import { VStack, HStack, Stack, RadioGroup, Radio } from '@chakra-ui/react'
 import { StringOrNumber } from '@chakra-ui/utils'
 import cs from 'classnames'
-import { css } from '@emotion/react'
+import Switch from 'react-switch'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import ControllersContext from '../../ControllersContext'
+import theme from '../../../theme'
 
 import Variants from '../Variants'
 import Container from './Container'
@@ -53,12 +54,32 @@ const LayoutSection: React.FC = (): JSX.Element => {
       <Visibility />
       <Zindex />
 
-      <RadioGroup onChange={(v) => setLayoutMode(v)} value={layoutMode}>
+      <HStack alignItems="center">
+        <span>Flex</span>
+        <Switch
+          checked={layoutMode === LayoutMode.Grid}
+          onChange={(check) => setLayoutMode(check ? LayoutMode.Grid : LayoutMode.Flex)}
+          offColor={theme.colors.gray['300']}
+          onColor={theme.colors.gray['300']}
+          onHandleColor={theme.colors.teal['400']}
+          offHandleColor={theme.colors.teal['400']}
+          handleDiameter={26}
+          uncheckedIcon={false}
+          checkedIcon={false}
+          boxShadow="0px 1px 4px rgba(0, 0, 0, 0.6)"
+          activeBoxShadow="0px 0px 1px 6px rgba(0, 0, 0, 0.2)"
+          height={20}
+          width={48}
+          className="react-switch"
+        />
+        <span>Grid</span>
+      </HStack>
+      {/* <RadioGroup onChange={(v) => setLayoutMode(v)} value={layoutMode}>
         <Stack direction="row">
           <Radio value={LayoutMode.Flex}>Flex</Radio>
           <Radio value={LayoutMode.Grid}>Grid</Radio>
         </Stack>
-      </RadioGroup>
+      </RadioGroup> */}
 
       {layoutMode === LayoutMode.Flex && (
         <>
