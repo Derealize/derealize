@@ -11,7 +11,7 @@ import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-ic
 import { MdBorderStyle, MdGridOn } from 'react-icons/md'
 import { FcAdvance } from 'react-icons/fc'
 import { useStoreActions, useStoreState } from '../../reduxStore'
-import ControllersContext from '../ControllersContext'
+import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
 import Already from './Already'
 import AdvancedSection from './advanced/AdvancedSection'

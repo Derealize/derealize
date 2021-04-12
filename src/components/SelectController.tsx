@@ -19,6 +19,7 @@ import cs from 'classnames'
 import styles from './SelectController.module.scss'
 import { useStoreActions } from '../reduxStore'
 import type { Property } from '../models/controlles/controlles'
+import theme from '../theme'
 
 export interface OptionType extends OptionTypeBase {
   label: string
@@ -27,13 +28,6 @@ export interface OptionType extends OptionTypeBase {
 
 export type GroupType = GroupTypeBase<OptionType>
 
-type Props = {
-  placeholder: string
-  options: ReadonlyArray<OptionType | GroupType>
-  property: Property | undefined
-  // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
-}
-
 const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
   <div className={styles.groupStyles}>
     <span>{data.label}</span>
@@ -41,45 +35,15 @@ const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
   </div>
 )
 
-const customStyles = {
-  // option: (provided: CSSObject, state: OptionProps<OptionType, boolean, GroupType>) => ({
-  //   ...provided,
-  //   borderBottom: '1px dotted pink',
-  //   color: state.isSelected ? 'red' : 'blue',
-  //   padding: 20,
-  // }),
-  dropdownIndicator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
-    display: 'none',
-  }),
-  indicatorSeparator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
-    display: 'none',
-  }),
-  control: (provided: CSSObject, state: ControlProps<OptionType, boolean, GroupType>) => {
-    const borderColor = state.isFocused ? '#3182CE' : '#E2E8F0'
-    return {
-      ...provided,
-      boxShadow: 'none',
-      borderRadius: 0,
-      border: 'none',
-      borderBottom: `1px solid ${borderColor}`,
-      cursor: 'pointer',
-    }
-  },
-  valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
-    ...provided,
-    padding: 0,
-  }),
-  placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
-    ...provided,
-    margin: 0,
-  }),
-  input: (provided: CSSObject, state: InputProps) => ({
-    ...provided,
-    margin: 0,
-  }),
+type Props = {
+  placeholder: string
+  options: ReadonlyArray<OptionType | GroupType>
+  property: Property | undefined
+  onMouseEnter?: boolean
+  // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
-const SelectController: React.FC<Props> = ({ placeholder, options, property }: Props): JSX.Element => {
+const SelectController: React.FC<Props> = ({ placeholder, options, property, onMouseEnter }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -88,7 +52,7 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property }: P
     return (
       <div
         onMouseEnter={() => {
-          console.log('onMouseEnter', props.data.value)
+          // console.log('onMouseEnter', props.data.value)
           if (property) {
             property.classname = props.data.value
             setProperty(property)
@@ -109,8 +73,39 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property }: P
   return (
     <Select
       className={styles.select}
-      styles={customStyles}
-      components={{ Option }}
+      styles={{
+        // https://react-select.com/styles#provided-styles-and-state
+        dropdownIndicator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
+          display: 'none',
+        }),
+        indicatorSeparator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
+          display: 'none',
+        }),
+        control: (provided: CSSObject, state: ControlProps<OptionType, boolean, GroupType>) => {
+          // state.isFocused
+          return {
+            ...provided,
+            boxShadow: 'none',
+            borderRadius: 0,
+            border: 'none',
+            borderBottom: `1px solid ${property ? theme.colors.teal['400'] : theme.colors.gray['200']}`,
+            cursor: 'pointer',
+          }
+        },
+        valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
+          ...provided,
+          padding: 0,
+        }),
+        placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
+          ...provided,
+          margin: 0,
+        }),
+        input: (provided: CSSObject, state: InputProps) => ({
+          ...provided,
+          margin: 0,
+        }),
+      }}
+      components={onMouseEnter ? { Option } : {}}
       placeholder={placeholder}
       isClearable
       options={options}
@@ -136,6 +131,10 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property }: P
       }}
     />
   )
+}
+
+SelectController.defaultProps = {
+  onMouseEnter: true,
 }
 
 export default SelectController

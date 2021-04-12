@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useContext } from 'react'
 import groupBy from 'lodash.groupBy'
 import cs from 'classnames'
-import ControllersContext from '../../ControllersContext'
+import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { OverscrollValues } from '../../../models/controlles/advanced'
 import SelectController from '../../SelectController'

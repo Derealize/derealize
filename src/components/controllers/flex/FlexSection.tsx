@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { Tooltip, VStack } from '@chakra-ui/react'
 import cs from 'classnames'
-import ControllersContext from '../../ControllersContext'
+import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
