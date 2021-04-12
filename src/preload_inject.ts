@@ -49,13 +49,18 @@ const derealizeListener = async (e: Event) => {
 
   const activeSelector = getSelectorString(activeElement)
   ipcRenderer.send('setActiveSelector', PROJECTID, activeSelector)
-  console.log('setActiveSelector', activeSelector)
+  // console.log('setActiveSelector', activeSelector)
 
   const codePosition = activeElement.getAttribute('data-code')
-  if (codePosition) {
-    const { tagName, className } = activeElement
-    await send(Handler.FocusElement, { id: PROJECTID, codePosition, className, tagName })
+  if (!codePosition) return
+  const { tagName, className } = activeElement
+  const payload = { id: PROJECTID, codePosition, className, tagName } as ElementPayload
+  if (activeElement.parentElement) {
+    payload.parentTagName = activeElement.parentElement.tagName
+    const styleDeclaration = getComputedStyle(activeElement.parentElement)
+    payload.parentDisplay = styleDeclaration.getPropertyValue('display')
   }
+  await send(Handler.FocusElement, payload as any)
 }
 
 const listenElement = async () => {

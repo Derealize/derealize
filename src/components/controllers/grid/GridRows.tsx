@@ -4,29 +4,20 @@ import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import useComputeProperty from '../useComputeProperty'
+import { ElementPayload } from '../../../backend/backend.interface'
+import { GridTagNames } from './GridCols'
 
 const GridRows: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
-  const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
-  const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
-  const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
   const values = useStoreState<Array<string>>((state) => state.layout.gridRowsValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.gridRowsPropertys)
-  const property = useMemo<Property | undefined>(
-    () =>
-      propertys.find(
-        (p) =>
-          p.screen === selectScreenVariant &&
-          p.state === selectStateVariant &&
-          p.list === selectListVariant &&
-          p.custom === selectCustomVariant,
-      ),
-    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
-  )
+  const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
+  if (!element || !GridTagNames.includes(element.tagName || '')) return <></>
 
   return (
     <SelectController

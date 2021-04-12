@@ -7,6 +7,12 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
 import GridCols from './GridCols'
 import GridRows from './GridRows'
+import ColSpan from './ColSpan'
+import ColStart from './ColStart'
+import ColEnd from './ColEnd'
+import RowSpan from './RowSpan'
+import RowStart from './RowStart'
+import RowEnd from './RowEnd'
 
 const GridSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -17,6 +23,12 @@ const GridSection: React.FC = (): JSX.Element => {
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <GridCols />
       <GridRows />
+      <ColSpan />
+      <ColStart />
+      <ColEnd />
+      <RowSpan />
+      <RowStart />
+      <RowEnd />
     </VStack>
   )
 }
