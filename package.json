@@ -16,7 +16,6 @@
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
-    "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "prepare": "husky install"
   },

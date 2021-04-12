@@ -1,17 +1,15 @@
-import React, { useMemo, useState, useEffect, ChangeEvent } from 'react'
-import { Tooltip, VStack, Checkbox, Box, Text } from '@chakra-ui/react'
+import React, { useMemo, useState, useContext, ChangeEvent } from 'react'
+import { Tooltip, VStack, Checkbox } from '@chakra-ui/react'
 import { nanoid } from 'nanoid'
 import cs from 'classnames'
-import { css } from '@emotion/react'
+import ControllersContext from '../../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-type Props = {
-  already?: boolean
-}
+const Container: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
 
-const Container: React.FC<Props> = ({ already }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -55,10 +53,6 @@ const Container: React.FC<Props> = ({ already }: Props): JSX.Element => {
       Container
     </Checkbox>
   )
-}
-
-Container.defaultProps = {
-  already: false,
 }
 
 export default Container

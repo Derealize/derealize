@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Select, VStack, Box, Text, Icon } from '@chakra-ui/react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
 import type { AlreadyVariants } from '../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import Variants from './Variants'
-import LayoutSection from './advanced/AdvancedSection'
-import FlexSection from './flex/FlexSection'
+import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
+import AdvancedSection from './advanced/AdvancedSection'
 // import { Project } from '../../models/project'
 
 const Already: React.FC = (): JSX.Element => {
@@ -33,9 +32,9 @@ const Already: React.FC = (): JSX.Element => {
         </Select>
       )} */}
       <Variants alreadyVariants={alreadyVariants} />
-      <LayoutSection already />
-      <FlexSection already />
-      <SpacingSection already />
+      <LayoutSection />
+      <SpacingSection />
+      <AdvancedSection />
     </VStack>
   )
 }

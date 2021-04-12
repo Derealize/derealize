@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import { Tooltip, VStack } from '@chakra-ui/react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
+import ControllersContext from '../../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
@@ -16,33 +16,26 @@ import Height from './Height'
 import MaxHeight from './MaxHeight'
 import MinHeight from './MinHeight'
 
-type Props = {
-  already?: boolean
-}
-
-const SpacingSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const SpacingSection: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
     <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <Width already={already} />
-      <MaxWidth already={already} />
-      <MinWidth already={already} />
-      <Height already={already} />
-      <MaxHeight already={already} />
-      <MinHeight already={already} />
+      <Width />
+      <MaxWidth />
+      <MinWidth />
+      <Height />
+      <MaxHeight />
+      <MinHeight />
 
-      <Marging already={already} />
-      <Padding already={already} />
-      <SpaceBetweenY already={already} />
-      <SpaceBetweenX already={already} />
+      <Marging />
+      <Padding />
+      <SpaceBetweenY />
+      <SpaceBetweenX />
     </VStack>
   )
-}
-
-SpacingSection.defaultProps = {
-  already: false,
 }
 
 export default SpacingSection

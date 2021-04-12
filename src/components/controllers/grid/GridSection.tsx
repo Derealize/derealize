@@ -1,31 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import { Tooltip, VStack, Box, Text, List, ListItem, ListIcon, Icon } from '@chakra-ui/react'
+import React, { useState, useContext } from 'react'
+import { Tooltip, VStack } from '@chakra-ui/react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
+import ControllersContext from '../../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
 import GridCols from './GridCols'
 import GridRows from './GridRows'
 
-type Props = {
-  already?: boolean
-}
-
-const GridSection: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const GridSection: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
     <VStack alignItems="flex-start">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <GridCols already={already} />
-      <GridRows already={already} />
+      <GridCols />
+      <GridRows />
     </VStack>
   )
-}
-
-GridSection.defaultProps = {
-  already: false,
 }
 
 export default GridSection

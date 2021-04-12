@@ -1,6 +1,7 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useContext } from 'react'
 import groupBy from 'lodash.groupBy'
 import cs from 'classnames'
+import ControllersContext from '../../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { OverflowValues } from '../../../models/controlles/layout'
 import SelectController from '../../SelectController'
@@ -17,11 +18,8 @@ const OverflowOptions = Object.entries(OverflowGroups).map(([label, values]) => 
   options: values.map((value) => ({ value, label: value })),
 }))
 
-type Props = {
-  already?: boolean
-}
-
-const Overflow: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const Overflow: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
@@ -43,10 +41,6 @@ const Overflow: React.FC<Props> = ({ already }: Props): JSX.Element => {
   if (already && !property) return <></>
 
   return <SelectController placeholder="Overscroll" options={OverflowOptions} property={property} />
-}
-
-Overflow.defaultProps = {
-  already: false,
 }
 
 export default Overflow

@@ -1,6 +1,4 @@
-.controllers {
-  background-color: white;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.panels > div {
+  height: calc(100vh - 89px); // 46 + 42 + 1
+  overflow-y: auto;
 }

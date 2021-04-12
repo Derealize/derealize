@@ -1,15 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useContext } from 'react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
+import ControllersContext from '../../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 
-type Props = {
-  already?: boolean
-}
-
-const Padding: React.FC<Props> = ({ already }: Props): JSX.Element => {
+const Padding: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
@@ -154,10 +151,6 @@ const Padding: React.FC<Props> = ({ already }: Props): JSX.Element => {
       />
     </>
   )
-}
-
-Padding.defaultProps = {
-  already: false,
 }
 
 export default Padding
