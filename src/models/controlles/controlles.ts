@@ -6,7 +6,7 @@ import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interf
 import type { PreloadWindow } from '../../preload'
 
 declare const window: PreloadWindow
-const { send, listen, unlisten } = window.derealize
+const { send, listen, unlisten, deviceEmulation } = window.derealize
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
@@ -59,8 +59,10 @@ export interface ControllesModel {
   updateClassName: Thunk<ControllesModel, boolean | undefined, void, StoreModel>
 
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
+  screenWidth: Computed<ControllesModel, number, StoreModel>
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
+  setSelectScreenVariantWithDevice: Thunk<ControllesModel, string | undefined, void, StoreModel>
 
   selectStateVariant: string | undefined
   setSelectStateVariant: Action<ControllesModel, string | undefined>
@@ -186,7 +188,20 @@ const controllesModel: ControllesModel = {
   setSelectScreenVariant: action((state, payload) => {
     state.selectScreenVariant = state.selectScreenVariant === payload ? undefined : payload
   }),
-
+  setSelectScreenVariantWithDevice: thunk(async (actions, payload, { getStoreState }) => {
+    actions.setSelectScreenVariant(payload)
+    const { frontProject } = getStoreState().project
+    if (frontProject && frontProject.tailwindConfig) {
+      let width = 0
+      if (payload !== undefined) {
+        const screen = frontProject.tailwindConfig.theme.screens[payload]
+        if (screen.includes('px')) {
+          width = parseInt(screen.replace('px', ''), 10)
+        }
+      }
+      deviceEmulation(frontProject.url, width)
+    }
+  }),
   selectStateVariant: undefined,
   setSelectStateVariant: action((state, payload) => {
     state.selectStateVariant = state.selectStateVariant === payload ? undefined : payload

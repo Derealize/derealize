@@ -144,8 +144,23 @@ ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: s
   pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
 })
 
+ipcMain.on('deviceEmulation', (event, projectId: string, swidth: number) => {
+  const project = projects.get(projectId)
+  if (project) {
+    const rectangle = project.view.getBounds()
+    const width = swidth === 0 ? rectangle.width : swidth
+    project.view.webContents.enableDeviceEmulation({
+      screenPosition: swidth === 0 ? 'desktop' : 'mobile',
+      screenSize: { width, height: rectangle.height },
+      viewSize: { width, height: rectangle.height },
+      viewPosition: { x: 0, y: 0 },
+      deviceScaleFactor: 0,
+      scale: 1,
+    })
+  }
+})
+
 const loadURL = (projectId: string, url: string) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.loadURL(project.lunchUrl + url)
