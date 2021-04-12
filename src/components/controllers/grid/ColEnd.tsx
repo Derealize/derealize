@@ -7,38 +7,20 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../backend/backend.interface'
 
-export const GridTagNames = [
-  'body',
-  'div',
-  'main',
-  'section',
-  'aside',
-  'nav',
-  'menu',
-  'footer',
-  'header',
-  'article',
-  'details',
-]
-
-const GridCols: React.FC = (): JSX.Element => {
+const ColEnd: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const values = useStoreState<Array<string>>((state) => state.layout.gridColsValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.gridColsPropertys)
+  const values = useStoreState<Array<string>>((state) => state.layout.colEndValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.colEndPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || !GridTagNames.includes(element.tagName || '')) return <></>
+  if (!element || element.parentDisplay !== 'grid') return <></>
 
   return (
-    <SelectController
-      placeholder="grid-cols"
-      options={values.map((v) => ({ value: v, label: v }))}
-      property={property}
-    />
+    <SelectController placeholder="col-end" options={values.map((v) => ({ value: v, label: v }))} property={property} />
   )
 }
 
-export default GridCols
+export default ColEnd

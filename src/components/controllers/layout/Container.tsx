@@ -8,7 +8,7 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../backend/backend.interface'
 
-const TagNames = [
+const ContainerTagNames = [
   'div',
   'main',
   'section',
@@ -23,6 +23,7 @@ const TagNames = [
   'object',
   'map',
 ]
+
 const Container: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
@@ -35,7 +36,7 @@ const Container: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || TagNames.includes(element.tagName || '')) return <></>
+  if (!element || !ContainerTagNames.includes(element.tagName || '')) return <></>
 
   return (
     <Checkbox

@@ -93,6 +93,9 @@ export interface LayoutModel {
   leftPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   visibilityPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  zIndexValues: Computed<LayoutModel, Array<string>, StoreModel>
+  zIndexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   // #endregion
 
   // #region flex
@@ -119,17 +122,14 @@ export interface LayoutModel {
   // #endregion
 
   // #region grid
-  zIndexValues: Computed<LayoutModel, Array<string>, StoreModel>
-  zIndexPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-
   gridColsValues: Computed<LayoutModel, Array<string>, StoreModel>
   gridColsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   gridRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
   gridRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  colValues: Computed<LayoutModel, Array<string>, StoreModel>
-  colPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  colSpanValues: Computed<LayoutModel, Array<string>, StoreModel>
+  colSpanPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   colStartValues: Computed<LayoutModel, Array<string>, StoreModel>
   colStartPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -137,8 +137,8 @@ export interface LayoutModel {
   colEndValues: Computed<LayoutModel, Array<string>, StoreModel>
   colEndPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  rowValues: Computed<LayoutModel, Array<string>, StoreModel>
-  rowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  rowSpanValues: Computed<LayoutModel, Array<string>, StoreModel>
+  rowSpanPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   rowStartValues: Computed<LayoutModel, Array<string>, StoreModel>
   rowStartPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -334,12 +334,12 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  colValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  colSpanValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.gridColumn).map((v) => `col-span-${v}`)
   }),
-  colPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.colValues],
+  colSpanPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.colSpanValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -361,12 +361,12 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  rowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  rowSpanValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.gridRow).map((v) => `row-span-${v}`)
   }),
-  rowPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.rowValues],
+  rowSpanPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.rowSpanValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -424,10 +424,10 @@ const layoutModel: LayoutModel = {
 
       gridColsPropertys,
       gridRowsPropertys,
-      colPropertys,
+      colSpanPropertys,
       colStartPropertys,
       colEndPropertys,
-      rowPropertys,
+      rowSpanPropertys,
       rowStartPropertys,
       rowEndPropertys,
       gridFlowPropertys,
@@ -461,10 +461,10 @@ const layoutModel: LayoutModel = {
 
         gridColsPropertys,
         gridRowsPropertys,
-        colPropertys,
+        colSpanPropertys,
         colStartPropertys,
         colEndPropertys,
-        rowPropertys,
+        rowSpanPropertys,
         rowStartPropertys,
         rowEndPropertys,
         gridFlowPropertys,
