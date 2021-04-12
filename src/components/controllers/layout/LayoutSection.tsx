@@ -5,7 +5,7 @@ import cs from 'classnames'
 import Switch from 'react-switch'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
-import ControllersContext from '../../ControllersContext'
+import ControllersContext from '../ControllersContext'
 import theme from '../../../theme'
 
 import Variants from '../Variants'

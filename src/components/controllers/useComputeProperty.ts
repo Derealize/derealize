@@ -1,19 +1,13 @@
-import React, { useMemo, useState, useContext } from 'react'
-import cs from 'classnames'
-import ControllersContext from '../ControllersContext'
-import type { Property } from '../../../models/controlles/controlles'
-import SelectController from '../../SelectController'
-import { useStoreActions, useStoreState } from '../../../reduxStore'
+import React, { useMemo } from 'react'
+import { Property } from '../../models/controlles/controlles'
+import { useStoreState } from '../../reduxStore'
 
-const Height: React.FC = (): JSX.Element => {
-  const { already } = useContext(ControllersContext)
+const useComputeProperty = (propertys: Array<Property>) => {
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.heightValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.heightPropertys)
   const property = useMemo<Property | undefined>(
     () =>
       propertys.find(
@@ -25,12 +19,7 @@ const Height: React.FC = (): JSX.Element => {
       ),
     [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
   )
-
-  if (already && !property) return <></>
-
-  return (
-    <SelectController placeholder="height" options={values.map((v) => ({ value: v, label: v }))} property={property} />
-  )
+  return property
 }
 
-export default Height
+export default useComputeProperty
