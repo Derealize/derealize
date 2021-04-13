@@ -17,7 +17,7 @@ import MinHeight from './MinHeight'
 
 const SpacingSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
+  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.spacing.alreadyVariants)
 
   return (
     <VStack alignItems="stretch">

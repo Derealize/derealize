@@ -57,6 +57,9 @@ const LayoutSection: React.FC = (): JSX.Element => {
   return (
     <VStack alignItems="stretch">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
+
+      <Display />
+
       <HStack align="center" justify="space-between">
         <span>Flex</span>
         <Switch
@@ -126,8 +129,6 @@ const LayoutSection: React.FC = (): JSX.Element => {
           className="react-switch"
         />
       </HStack>
-
-      <Display />
 
       {displayProperty?.classname === 'flex' && (
         <>

@@ -69,8 +69,8 @@ export interface ControllesModel {
   selectCustomVariant: string | undefined
   setSelectCustomVariant: Action<ControllesModel, string | undefined>
 
-  dark: boolean
-  setDark: Action<ControllesModel, boolean>
+  selectDark: boolean
+  setSelectDark: Action<ControllesModel, boolean>
 
   alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
 }
@@ -116,11 +116,13 @@ const controllesModel: ControllesModel = {
       property.state = state.selectStateVariant
       property.list = state.selectListVariant
       property.custom = state.selectCustomVariant
+      property.dark = state.selectDark ? true : undefined
     } else {
       payload.screen = state.selectScreenVariant
       payload.state = state.selectStateVariant
       payload.list = state.selectListVariant
       payload.custom = state.selectCustomVariant
+      payload.dark = state.selectDark ? true : undefined
       state.propertys.push(payload)
     }
   }),
@@ -134,7 +136,7 @@ const controllesModel: ControllesModel = {
 
     let className = ''
     propertys.forEach((property) => {
-      const { screen, state, list, custom, classname: name } = property
+      const { screen, state, list, custom, dark, classname: name } = property
       if (!name) return
 
       let variants = ''
@@ -149,6 +151,9 @@ const controllesModel: ControllesModel = {
       }
       if (custom) {
         variants += `${custom}:`
+      }
+      if (dark) {
+        variants += `dark:`
       }
       className += `${variants + name} `
     })
@@ -204,9 +209,9 @@ const controllesModel: ControllesModel = {
     state.selectCustomVariant = state.selectCustomVariant === payload ? undefined : payload
   }),
 
-  dark: false,
-  setDark: action((state, payload) => {
-    state.dark = payload
+  selectDark: false,
+  setSelectDark: action((state, payload) => {
+    state.selectDark = payload
   }),
 
   alreadyVariants: computed([(state) => state.propertys], (propertys) => {

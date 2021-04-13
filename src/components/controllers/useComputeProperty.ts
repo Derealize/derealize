@@ -7,6 +7,7 @@ const useComputeProperty = (propertys: Array<Property>) => {
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
+  const selectDark = useStoreState<boolean>((state) => state.controlles.selectDark)
 
   const property = useMemo<Property | undefined>(
     () =>
@@ -15,9 +16,10 @@ const useComputeProperty = (propertys: Array<Property>) => {
           p.screen === selectScreenVariant &&
           p.state === selectStateVariant &&
           p.list === selectListVariant &&
-          p.custom === selectCustomVariant,
+          p.custom === selectCustomVariant &&
+          (p.dark === true) === selectDark,
       ),
-    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
+    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark],
   )
   return property
 }

@@ -11,7 +11,7 @@ import Overscroll from './Overscroll'
 
 const AdvancedSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
+  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.advanced.alreadyVariants)
 
   return (
     <VStack alignItems="stretch">
