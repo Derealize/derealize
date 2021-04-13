@@ -4,12 +4,10 @@ import cs from 'classnames'
 import { IoImageOutline, IoGridOutline } from 'react-icons/io5'
 import { BsType } from 'react-icons/bs'
 import { AiOutlineAlignCenter, AiOutlineInteraction } from 'react-icons/ai'
-import { CgSpaceBetweenV, CgComponents } from 'react-icons/cg'
-import { GiResize } from 'react-icons/gi'
+import { CgSpaceBetweenV, CgComponents, CgMoreAlt } from 'react-icons/cg'
 import { GrThreeDEffects } from 'react-icons/gr'
 import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-icons/ri'
 import { MdBorderStyle, MdGridOn } from 'react-icons/md'
-import { FcAdvance } from 'react-icons/fc'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
@@ -91,7 +89,7 @@ const Controllers: React.FC = (): JSX.Element => {
         <Tab p={3}>
           <Tooltip label="(F9) Advanced">
             <Box>
-              <Icon as={FcAdvance} boxSize={6} />
+              <Icon as={CgMoreAlt} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>

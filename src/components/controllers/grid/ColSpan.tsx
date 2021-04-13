@@ -18,13 +18,7 @@ const ColSpan: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element || element.parentDisplay !== 'grid') return <></>
 
-  return (
-    <SelectController
-      placeholder="col-span"
-      options={values.map((v) => ({ value: v, label: v }))}
-      property={property}
-    />
-  )
+  return <SelectController placeholder="col-span" values={values} property={property} />
 }
 
 export default ColSpan

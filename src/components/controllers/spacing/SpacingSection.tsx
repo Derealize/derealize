@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react'
 import { Tooltip, VStack } from '@chakra-ui/react'
-import cs from 'classnames'
 import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -21,7 +20,7 @@ const SpacingSection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
-    <VStack alignItems="flex-start">
+    <VStack alignItems="stretch">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <Width />
       <MaxWidth />

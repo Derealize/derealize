@@ -4,6 +4,7 @@ import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
 import dayjs from 'dayjs'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import type { StoreModel } from './index'
 import type {
   ProjectConfig,
   ProcessPayload,
@@ -14,7 +15,7 @@ import type {
   BoolReply,
   GitFileChanges,
 } from '../backend/backend.interface'
-import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
+import { Broadcast, Handler, ProjectStage, ElementPayload } from '../backend/backend.interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -45,6 +46,7 @@ export interface Project {
   runningOutput?: Array<string>
   tailwindVersion?: string
   tailwindConfig?: TailwindConfig
+  element?: ElementPayload
 }
 
 export enum ProjectView {
@@ -100,6 +102,7 @@ export interface ProjectModel {
 
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
+  setFrontProjectThunk: Thunk<ProjectModel, Project | null, void, StoreModel>
   frontProjectView: ProjectView
   setFrontProjectView: Action<ProjectModel, ProjectView>
 
@@ -109,7 +112,7 @@ export interface ProjectModel {
   closeProject: Thunk<ProjectModel, string>
 
   loadStore: Thunk<ProjectModel>
-  listen: Thunk<ProjectModel>
+  listen: Thunk<ProjectModel, void, void, StoreModel>
   unlisten: Action<ProjectModel>
 
   modalDisclosure: boolean
@@ -191,12 +194,19 @@ const projectModel: ProjectModel = {
   frontProject: null,
   setFrontProject: action((state, project) => {
     state.frontProject = project
-    if (!project) {
+  }),
+  setFrontProjectThunk: thunk(async (actions, payload, { getStoreActions }) => {
+    actions.setFrontProject(payload)
+    if (!payload) {
       frontMain()
       return
     }
-    send(Handler.CheckStatus, { url: project.url })
+    const { controlles } = getStoreActions()
+    controlles.setElement(payload.element)
+    controlles.computePropertys()
+    await send(Handler.CheckStatus, { url: payload.url })
   }),
+
   frontProjectView: ProjectView.BrowserView,
   setFrontProjectView: action((state, payload) => {
     state.frontProjectView = payload
@@ -213,7 +223,7 @@ const projectModel: ProjectModel = {
 
     project.isOpened = true
     await actions.startProject(project.url)
-    actions.setFrontProject(project)
+    actions.setFrontProjectThunk(project)
   }),
   startProject: thunk(async (actions, url, { getState }) => {
     const project = getState().projects.find((p) => p.url === url)
@@ -249,11 +259,11 @@ const projectModel: ProjectModel = {
       const oindex = openedProjects.findIndex((p) => p.url === project.url)
       if (oindex >= 0) {
         if (oindex + 1 < openedProjects.length) {
-          actions.setFrontProject(openedProjects[oindex + 1])
+          actions.setFrontProjectThunk(openedProjects[oindex + 1])
         } else if (oindex - 1 >= 0) {
-          actions.setFrontProject(openedProjects[oindex - 1])
+          actions.setFrontProjectThunk(openedProjects[oindex - 1])
         } else {
-          actions.setFrontProject(null)
+          actions.setFrontProjectThunk(null)
         }
       }
     }
@@ -284,7 +294,7 @@ const projectModel: ProjectModel = {
     })
   }),
 
-  listen: thunk(async (actions, none, { getState }) => {
+  listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
     listen(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
@@ -380,12 +390,26 @@ const projectModel: ProjectModel = {
       }
       actions.setRunningOutput(project.runningOutput)
     })
+
+    listen(Broadcast.FocusElement, (payload: ElementPayload) => {
+      const { openedProjects, frontProject } = getState()
+      const project = openedProjects.find((p) => p.url === payload.id)
+      if (!project) return
+
+      project.element = payload.tagName ? payload : undefined
+      if (project === frontProject) {
+        const { controlles } = getStoreActions()
+        controlles.setElement(project.element)
+        controlles.computePropertys()
+      }
+    })
   }),
 
   unlisten: action(() => {
     unlisten(Broadcast.Status)
     unlisten(Broadcast.Installing)
     unlisten(Broadcast.Starting)
+    unlisten(Broadcast.FocusElement)
   }),
 
   modalDisclosure: false,

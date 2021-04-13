@@ -17,7 +17,7 @@ const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
   const openedProjects = useStoreState<Array<Project>>((state) => state.project.openedProjects)
   const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
-  const setFrontProject = useStoreActions((actions) => actions.project.setFrontProject)
+  const setFrontProject = useStoreActions((actions) => actions.project.setFrontProjectThunk)
   const closeProject = useStoreActions((actions) => actions.project.closeProject)
 
   useEffect(() => {

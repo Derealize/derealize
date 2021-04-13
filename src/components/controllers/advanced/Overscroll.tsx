@@ -1,11 +1,12 @@
 import React, { useMemo, useState, useContext } from 'react'
 import groupBy from 'lodash.groupBy'
-import cs from 'classnames'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { OverscrollValues } from '../../../models/controlles/advanced'
-import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import SelectController from '../../SelectController'
+import useComputeProperty from '../useComputeProperty'
+import { ElementPayload } from '../../../backend/backend.interface'
 
 const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
   const array = value.split('-')
@@ -20,27 +21,15 @@ const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values])
 
 const Overscroll: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
-  const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
-  const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
-  const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
   const propertys = useStoreState<Array<Property>>((state) => state.advanced.overscrollPropertys)
-  const property = useMemo<Property | undefined>(
-    () =>
-      propertys.find(
-        (p) =>
-          p.screen === selectScreenVariant &&
-          p.state === selectStateVariant &&
-          p.list === selectListVariant &&
-          p.custom === selectCustomVariant,
-      ),
-    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
-  )
+  const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
+  if (!element || element.display?.includes('inline')) return <></>
 
-  return <SelectController placeholder="overscroll" options={OverscrollOptions} property={property} />
+  return <SelectController placeholder="overscroll" values={OverscrollOptions} property={property} />
 }
 
 export default Overscroll

@@ -41,12 +41,6 @@ export interface AdvancedModel {
 
   overscrollPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
-  autoColsValues: Computed<AdvancedModel, Array<string>, StoreModel>
-  autoColsPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
-
-  autoRowsValues: Computed<AdvancedModel, Array<string>, StoreModel>
-  autoRowsPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
-
   allPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<AdvancedModel, AlreadyVariants, StoreModel>
 }
@@ -68,29 +62,9 @@ const advancedModel: AdvancedModel = {
     propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
   ),
 
-  autoColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.gridAutoColumns).map((v) => `auto-cols-${v}`)
+  allPropertys: computed(({ boxSizingPropertys, floatPropertys, clearPropertys, overscrollPropertys }) => {
+    return boxSizingPropertys.concat(floatPropertys, clearPropertys, overscrollPropertys)
   }),
-  autoColsPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.autoColsValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  autoRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.gridAutoRows).map((v) => `auto-rows-${v}`)
-  }),
-  autoRowsPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.autoRowsValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  allPropertys: computed(
-    ({ boxSizingPropertys, floatPropertys, clearPropertys, overscrollPropertys, autoColsPropertys }) => {
-      return boxSizingPropertys.concat(floatPropertys, clearPropertys, overscrollPropertys, autoColsPropertys)
-    },
-  ),
 
   alreadyVariants: computed(({ allPropertys }) => {
     const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)

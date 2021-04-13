@@ -180,50 +180,50 @@ const spacingModel: SpacingModel = {
     const { spacing, margin } = project.tailwindConfig.theme
     return Object.keys(Object.assign(margin, spacing))
   }),
-  marginValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `m-${v}`)
+  marginValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `m-${v}`)
   }),
   marginPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginYValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `my-${v}`)
+  marginYValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `my-${v}`)
   }),
   marginYPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginXValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `mx-${v}`)
+  marginXValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `mx-${v}`)
   }),
   marginXPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginTopValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `mt-${v}`)
+  marginTopValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `mt-${v}`)
   }),
   marginTopPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginTopValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginBottomValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `mb-${v}`)
+  marginBottomValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `mb-${v}`)
   }),
   marginBottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginBottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginLeftValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `ml-${v}`)
+  marginLeftValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `ml-${v}`)
   }),
   marginLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginRightValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `mr-${v}`)
+  marginRightValues: computed(({ marginSuffix }) => {
+    return marginSuffix.map((v) => `mr-${v}`)
   }),
   marginRightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginRightValues],
