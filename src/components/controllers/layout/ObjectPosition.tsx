@@ -1,66 +1,24 @@
 import React, { useMemo, useState, useContext } from 'react'
-import { Select, Box, Text } from '@chakra-ui/react'
-import cs from 'classnames'
-import { nanoid } from 'nanoid'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import SelectController from '../../SelectController'
+import useComputeProperty from '../useComputeProperty'
+import { ElementPayload } from '../../../backend/backend.interface'
+import { ReplacedElementTags } from '../LimitedTags'
 
 const ObjectPosition: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
-
-  const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
-  const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
-  const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
-  const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.objectPositionPropertys)
   const values = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)
-  const property = useMemo<Property | undefined>(
-    () =>
-      propertys.find(
-        (p) =>
-          p.screen === selectScreenVariant &&
-          p.state === selectStateVariant &&
-          p.list === selectListVariant &&
-          p.custom === selectCustomVariant,
-      ),
-    [propertys, selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant],
-  )
+  const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
+  if (!element || !ReplacedElementTags.includes(element.tagName)) return <></>
 
-  return (
-    <Select
-      placeholder="object-position"
-      variant="flushed"
-      colorScheme={property ? 'teal' : 'gray'}
-      value={property?.classname}
-      onChange={(e) => {
-        if (!e.target.value && property) {
-          deleteProperty(property.id)
-        } else if (property) {
-          property.classname = e.target.value
-          setProperty(property)
-        } else {
-          setProperty({
-            id: nanoid(),
-            classname: e.target.value,
-          } as Property)
-        }
-        updateClassName()
-      }}
-    >
-      {values.map((name) => (
-        <option key={name} value={name}>
-          {name}
-        </option>
-      ))}
-    </Select>
-  )
+  return <SelectController placeholder="object-position" values={values} property={property} onMouseEnter={false} />
 }
 
 export default ObjectPosition

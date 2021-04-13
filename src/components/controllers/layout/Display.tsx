@@ -13,14 +13,7 @@ const Display: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return (
-    <SelectController
-      placeholder="display"
-      options={DisplayValues.map((v) => ({ value: v, label: v }))}
-      property={property}
-      onMouseEnter={false}
-    />
-  )
+  return <SelectController placeholder="display" values={DisplayValues} property={property} onMouseEnter={false} />
 }
 
 export default Display

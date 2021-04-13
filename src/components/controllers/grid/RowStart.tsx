@@ -18,13 +18,7 @@ const RowStart: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element || element.parentDisplay !== 'grid') return <></>
 
-  return (
-    <SelectController
-      placeholder="row-start"
-      options={values.map((v) => ({ value: v, label: v }))}
-      property={property}
-    />
-  )
+  return <SelectController placeholder="row-start" values={values} property={property} />
 }
 
 export default RowStart

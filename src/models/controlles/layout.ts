@@ -10,6 +10,7 @@ export const DisplayValues = [
   'flex',
   'inline-flex',
   'table',
+  'inline-table',
   'table-caption',
   'table-cell',
   'table-column',
@@ -18,6 +19,12 @@ export const DisplayValues = [
   'table-header-group',
   'table-row-group',
   'table-row',
+  'flow-root',
+  'grid',
+  'inline-grid',
+  'contents',
+  'list-item',
+  'hidden',
 ]
 export const ObjectFitValues = ['object-contain', 'object-cover', 'object-fill', 'object-none', 'object-scale-down']
 export const OverflowValues = [
@@ -147,6 +154,15 @@ export interface LayoutModel {
   rowEndPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   gridFlowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  gapValues: Computed<LayoutModel, Array<string>, StoreModel>
+  gapPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  autoColsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  autoColsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+
+  autoRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  autoRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   // #endregion
 
   allPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -391,6 +407,34 @@ const layoutModel: LayoutModel = {
   gridFlowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => GridFlowValues.includes(classname)),
   ),
+
+  gapValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    const { spacing, gap } = project.tailwindConfig.theme
+    return Object.keys(Object.assign(gap, spacing)).map((v) => `gap-${v}`)
+  }),
+  gapPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.gapValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  autoColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridAutoColumns).map((v) => `auto-cols-${v}`)
+  }),
+  autoColsPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.autoColsValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+
+  autoRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.gridAutoRows).map((v) => `auto-rows-${v}`)
+  }),
+  autoRowsPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.autoRowsValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
   // #endregion
 
   allPropertys: computed(
@@ -431,6 +475,9 @@ const layoutModel: LayoutModel = {
       rowStartPropertys,
       rowEndPropertys,
       gridFlowPropertys,
+      gapPropertys,
+      autoColsPropertys,
+      autoRowsPropertys,
     }) => {
       return containerPropertys.concat(
         displayPropertys,
@@ -468,6 +515,9 @@ const layoutModel: LayoutModel = {
         rowStartPropertys,
         rowEndPropertys,
         gridFlowPropertys,
+        gapPropertys,
+        autoColsPropertys,
+        autoRowsPropertys,
       )
     },
   ),

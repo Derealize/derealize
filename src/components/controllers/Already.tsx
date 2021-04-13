@@ -15,7 +15,7 @@ const Already: React.FC = (): JSX.Element => {
   // const setPage = useStoreActions((actions) => actions.project.setPage)
 
   return (
-    <VStack alignItems="flex-start">
+    <VStack alignItems="stretch">
       {/* {!!frontProject && !!frontProject.config && (
         <Select
           variant="unstyled"

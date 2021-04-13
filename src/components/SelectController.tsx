@@ -15,7 +15,6 @@ import Select, {
   components,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
-import cs from 'classnames'
 import styles from './SelectController.module.scss'
 import { useStoreActions } from '../reduxStore'
 import type { Property } from '../models/controlles/controlles'
@@ -37,13 +36,13 @@ const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
 
 type Props = {
   placeholder: string
-  options: ReadonlyArray<OptionType | GroupType>
+  values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
   onMouseEnter?: boolean
   // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
-const SelectController: React.FC<Props> = ({ placeholder, options, property, onMouseEnter }: Props): JSX.Element => {
+const SelectController: React.FC<Props> = ({ placeholder, values, property, onMouseEnter }: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -52,6 +51,7 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property, onM
     return (
       <div
         onMouseEnter={() => {
+          if (!props.data.value) return
           // console.log('onMouseEnter', props.data.value)
           if (property) {
             property.classname = props.data.value
@@ -70,6 +70,12 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property, onM
     )
   }
 
+  const oo =
+    typeof values[0] === 'string'
+      ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v }))
+      : (values as ReadonlyArray<OptionType | GroupType>)
+
+  console.log('oo', oo)
   return (
     <Select
       className={styles.select}
@@ -108,7 +114,7 @@ const SelectController: React.FC<Props> = ({ placeholder, options, property, onM
       components={onMouseEnter ? { Option } : {}}
       placeholder={placeholder}
       isClearable
-      options={options}
+      options={oo}
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onChange={(ovalue, { action }) => {

@@ -18,13 +18,7 @@ const RowSpan: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element || element.parentDisplay !== 'grid') return <></>
 
-  return (
-    <SelectController
-      placeholder="row-span"
-      options={values.map((v) => ({ value: v, label: v }))}
-      property={property}
-    />
-  )
+  return <SelectController placeholder="row-span" values={values} property={property} />
 }
 
 export default RowSpan

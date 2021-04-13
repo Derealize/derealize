@@ -23,10 +23,12 @@ export enum Broadcast {
 
 export interface ElementPayload {
   id: string
-  className: string
   codePosition: string
-  tagName?: string
+  tagName: string
+  className: string
   useShift?: boolean
+  display?: string
+  position?: string
   parentTagName?: string
   parentDisplay?: string
 }

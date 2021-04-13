@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react'
 import { VStack } from '@chakra-ui/react'
-import cs from 'classnames'
 import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -15,7 +14,7 @@ const AdvancedSection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
   return (
-    <VStack alignItems="flex-start">
+    <VStack alignItems="stretch">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <BoxSizing />
       <Clear />

@@ -18,9 +18,7 @@ const RowEnd: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element || element.parentDisplay !== 'grid') return <></>
 
-  return (
-    <SelectController placeholder="row-end" options={values.map((v) => ({ value: v, label: v }))} property={property} />
-  )
+  return <SelectController placeholder="row-end" values={values} property={property} />
 }
 
 export default RowEnd

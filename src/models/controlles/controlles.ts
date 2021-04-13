@@ -47,10 +47,6 @@ export interface ControllesModel {
   element: ElementPayload | undefined
   setElement: Action<ControllesModel, ElementPayload | undefined>
 
-  listen: Thunk<ControllesModel, void, void, StoreModel>
-  unlisten: Action<ControllesModel>
-  onFrontProject: ThunkOn<ControllesModel, void, StoreModel>
-
   propertys: Array<Property>
   computePropertys: Action<ControllesModel>
   setProperty: Action<ControllesModel, Property>
@@ -59,7 +55,6 @@ export interface ControllesModel {
   updateClassName: Thunk<ControllesModel, boolean | undefined, void, StoreModel>
 
   screenVariants: Computed<ControllesModel, Array<string>, StoreModel>
-  screenWidth: Computed<ControllesModel, number, StoreModel>
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
   setSelectScreenVariantWithDevice: Thunk<ControllesModel, string | undefined, void, StoreModel>
@@ -85,25 +80,6 @@ const controllesModel: ControllesModel = {
   setElement: action((state, payload) => {
     state.element = payload
   }),
-
-  listen: thunk(async (actions) => {
-    listen(Broadcast.FocusElement, (payload: ElementPayload) => {
-      actions.setElement(payload)
-      actions.computePropertys()
-    })
-  }),
-
-  unlisten: action(() => {
-    unlisten(Broadcast.FocusElement)
-  }),
-
-  onFrontProject: thunkOn(
-    (actions, storeActions) => storeActions.project.setFrontProject,
-    (actions, target) => {
-      actions.setElement(undefined)
-      actions.computePropertys()
-    },
-  ),
 
   propertys: [],
   computePropertys: action((state) => {

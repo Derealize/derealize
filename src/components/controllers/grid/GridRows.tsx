@@ -6,7 +6,6 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../backend/backend.interface'
-import { GridTagNames } from './GridCols'
 
 const GridRows: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -17,15 +16,9 @@ const GridRows: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || !GridTagNames.includes(element.tagName || '')) return <></>
+  if (!element || element.display !== 'grid') return <></>
 
-  return (
-    <SelectController
-      placeholder="grid-rows"
-      options={values.map((v) => ({ value: v, label: v }))}
-      property={property}
-    />
-  )
+  return <SelectController placeholder="grid-rows" values={values} property={property} />
 }
 
 export default GridRows
