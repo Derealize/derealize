@@ -1,10 +1,13 @@
 import react from 'react'
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { useStoreState } from '../../reduxStore'
 import { Project } from '../../models/project'
 
-const useMatchVariants = (prop: string) => {
+export type VariantsPropertysName = keyof TailwindConfig['variants']
+
+const useMatchVariants = (prop: VariantsPropertysName) => {
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
-  const variants: Array<string> | undefined = (project?.tailwindConfig?.variants as any)[prop]
+  const variants: Array<string> | undefined = project?.tailwindConfig?.variants[prop]
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
