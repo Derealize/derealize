@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
-import type { Project } from '../../models/project'
 import { StateVariants, ListVariants, AlreadyVariants } from '../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import style from './Variants.module.scss'
-import type { PreloadWindow } from '../../preload'
-
-declare const window: PreloadWindow
 
 type Props = {
   alreadyVariants: AlreadyVariants
@@ -24,6 +19,9 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const setSelectListVariant = useStoreActions((actions) => actions.controlles.setSelectListVariant)
 
+  const selectDark = useStoreState<boolean | undefined>((state) => state.controlles.selectDark)
+  const setSelectDark = useStoreActions((actions) => actions.controlles.setSelectDark)
+
   const customVariants = useStoreState<Array<string>>((state) => state.controlles.customVariants)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const setSelectCustomVariant = useStoreActions((actions) => actions.controlles.setSelectCustomVariant)
@@ -31,6 +29,16 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   return (
     <div className={style.variants}>
       <div className={style.screenVariants}>
+        <span
+          className={cs(style.option, {
+            [style.active]: selectDark,
+            [style.already]: alreadyVariants.dark,
+          })}
+          onClick={() => setSelectDark(!selectDark)}
+          aria-hidden="true"
+        >
+          dark
+        </span>
         {screenVariants.map((variant) => (
           <span
             key={variant}

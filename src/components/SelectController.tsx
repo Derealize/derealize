@@ -70,12 +70,6 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
     )
   }
 
-  const oo =
-    typeof values[0] === 'string'
-      ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v }))
-      : (values as ReadonlyArray<OptionType | GroupType>)
-
-  console.log('oo', oo)
   return (
     <Select
       className={styles.select}
@@ -114,7 +108,11 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
       components={onMouseEnter ? { Option } : {}}
       placeholder={placeholder}
       isClearable
-      options={oo}
+      options={
+        typeof values[0] === 'string'
+          ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v }))
+          : (values as ReadonlyArray<OptionType | GroupType>)
+      }
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onChange={(ovalue, { action }) => {
