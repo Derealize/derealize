@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
 import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
+import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
 const { send, listen, unlisten, deviceEmulation } = window.derealize
@@ -84,9 +85,9 @@ const controllesModel: ControllesModel = {
   element: undefined,
   setElement: action((state, payload) => {
     state.element = payload
-
     state.propertys = []
     if (!state.element?.className) return
+
     state.element.className.split(/\s+/).forEach((name) => {
       const names = name.split(':')
       const property: Property = {
@@ -108,15 +109,8 @@ const controllesModel: ControllesModel = {
         }
       })
       state.propertys.push(property)
-
-      if (property.classname.startsWith('m-')) {
-        state.propertys.push({
-          ...property,
-          id: nanoid(),
-          classname: property.classname.replace('m-', 'mt-'),
-        })
-      }
     })
+    state.propertys = resolutionAll(state.propertys)
   }),
 
   setProperty: action((state, payload) => {
@@ -144,9 +138,10 @@ const controllesModel: ControllesModel = {
   updateClassName: thunk(async (actions, useShift, { getState }) => {
     const { propertys, element } = getState()
     if (!element) return
+    const compiledPropertys = compileAll(propertys)
 
     let className = ''
-    propertys.forEach((property) => {
+    compiledPropertys.forEach((property) => {
       const { screen, state, list, custom, dark, classname: name } = property
       if (!name) return
 

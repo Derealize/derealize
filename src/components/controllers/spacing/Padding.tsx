@@ -10,18 +10,6 @@ const Padding: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.paddingValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.paddingPropertys)
-  const property = useComputeProperty(propertys)
-
-  const valuesY = useStoreState<Array<string>>((state) => state.spacing.paddingYValues)
-  const propertysY = useStoreState<Array<Property>>((state) => state.spacing.paddingYPropertys)
-  const propertyY = useComputeProperty(propertysY)
-
-  const valuesX = useStoreState<Array<string>>((state) => state.spacing.paddingXValues)
-  const propertysX = useStoreState<Array<Property>>((state) => state.spacing.paddingXPropertys)
-  const propertyX = useComputeProperty(propertysX)
-
   const valuesTop = useStoreState<Array<string>>((state) => state.spacing.paddingTopValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.spacing.paddingTopPropertys)
   const propertyTop = useComputeProperty(propertysTop)
@@ -38,15 +26,10 @@ const Padding: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.spacing.paddingRightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  if ((already && !property) || !element) return <></>
+  if ((already && !propertyTop && !propertyBottom && !propertyLeft && !propertyRight) || !element) return <></>
 
   return (
     <>
-      <SelectController placeholder="padding" values={values} property={property} />
-      {!element.display?.includes('inline') && (
-        <SelectController placeholder="padding-y" values={valuesY} property={propertyY} />
-      )}
-      <SelectController placeholder="padding-x" values={valuesX} property={propertyX} />
       {!element.display?.includes('inline') && (
         <SelectController placeholder="padding-top" values={valuesTop} property={propertyTop} />
       )}

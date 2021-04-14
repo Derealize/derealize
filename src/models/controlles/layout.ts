@@ -84,12 +84,6 @@ export interface LayoutModel {
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   insetSuffix: Computed<LayoutModel, Array<string>, StoreModel>
-  insetValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-  insetYValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetYPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-  insetXValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetXPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   topValues: Computed<LayoutModel, Array<string>, StoreModel>
   topPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   bottomValues: Computed<LayoutModel, Array<string>, StoreModel>
@@ -204,27 +198,6 @@ const layoutModel: LayoutModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
-  insetValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `inset-${v}`).concat(insetSuffix.map((v) => `-inset-${v}`))
-  }),
-  insetPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  insetYValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `inset-y-${v}`).concat(insetSuffix.map((v) => `-inset-y-${v}`))
-  }),
-  insetYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  insetXValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `inset-x-${v}`).concat(insetSuffix.map((v) => `-inset-x-${v}`))
-  }),
-  insetXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
   topValues: computed(({ insetSuffix }) => {
     return insetSuffix.map((v) => `top-${v}`).concat(insetSuffix.map((v) => `-top-${v}`))
   }),
@@ -445,9 +418,6 @@ const layoutModel: LayoutModel = {
       objectPositionPropertys,
       overflowPropertys,
       positionPropertys,
-      insetPropertys,
-      insetYPropertys,
-      insetXPropertys,
       topPropertys,
       bottomPropertys,
       leftPropertys,
@@ -485,9 +455,6 @@ const layoutModel: LayoutModel = {
         objectPositionPropertys,
         overflowPropertys,
         positionPropertys,
-        insetPropertys,
-        insetYPropertys,
-        insetXPropertys,
         topPropertys,
         bottomPropertys,
         leftPropertys,

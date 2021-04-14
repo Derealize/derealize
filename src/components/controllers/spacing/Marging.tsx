@@ -10,18 +10,6 @@ const Marging: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.marginValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.marginPropertys)
-  const property = useComputeProperty(propertys)
-
-  const valuesY = useStoreState<Array<string>>((state) => state.spacing.marginYValues)
-  const propertysY = useStoreState<Array<Property>>((state) => state.spacing.marginYPropertys)
-  const propertyY = useComputeProperty(propertysY)
-
-  const valuesX = useStoreState<Array<string>>((state) => state.spacing.marginXValues)
-  const propertysX = useStoreState<Array<Property>>((state) => state.spacing.marginXPropertys)
-  const propertyX = useComputeProperty(propertysX)
-
   const valuesTop = useStoreState<Array<string>>((state) => state.spacing.marginTopValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.spacing.marginTopPropertys)
   const propertyTop = useComputeProperty(propertysTop)
@@ -38,15 +26,10 @@ const Marging: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.spacing.marginRightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  if ((already && !property) || !element) return <></>
+  if ((already && !propertyTop && !propertyBottom && !propertyLeft && !propertyRight) || !element) return <></>
 
   return (
     <>
-      <SelectController placeholder="margin" values={values} property={property} />
-      {!element.display?.includes('inline') && (
-        <SelectController placeholder="margin-y" values={valuesY} property={propertyY} />
-      )}
-      <SelectController placeholder="margin-x" values={valuesX} property={propertyX} />
       {!element.display?.includes('inline') && (
         <SelectController placeholder="margin-top" values={valuesTop} property={propertyTop} />
       )}
