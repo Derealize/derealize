@@ -21,16 +21,19 @@ export const StateVariants = [
   'group-focus',
   'focus-within',
   'focus-visible',
-]
-export const ListVariants = ['first', 'last', 'odd', 'even']
+] as const
+export type StateVariantsType = typeof StateVariants[number]
+
+export const ListVariants = ['first', 'last', 'odd', 'even'] as const
+export type ListVariantsType = typeof ListVariants[number]
 
 export interface Property {
   id: string
   classname: string
   value?: string
   screen?: string
-  state?: string
-  list?: string
+  state?: StateVariantsType
+  list?: ListVariantsType
   custom?: string
   dark?: boolean
 }
@@ -59,11 +62,11 @@ export interface ControllesModel {
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
   setSelectScreenVariantWithDevice: Thunk<ControllesModel, string | undefined, void, StoreModel>
 
-  selectStateVariant: string | undefined
-  setSelectStateVariant: Action<ControllesModel, string | undefined>
+  selectStateVariant: StateVariantsType | undefined
+  setSelectStateVariant: Action<ControllesModel, StateVariantsType | undefined>
 
-  selectListVariant: string | undefined
-  setSelectListVariant: Action<ControllesModel, string | undefined>
+  selectListVariant: ListVariantsType | undefined
+  setSelectListVariant: Action<ControllesModel, ListVariantsType | undefined>
 
   customVariants: Computed<ControllesModel, Array<string>, StoreModel>
   selectCustomVariant: string | undefined
@@ -95,11 +98,11 @@ const controllesModel: ControllesModel = {
         if (state.screenVariants.includes(variant)) {
           property.screen = variant
         }
-        if (StateVariants.includes(variant)) {
-          property.state = variant
+        if (StateVariants.includes(variant as StateVariantsType)) {
+          property.state = variant as StateVariantsType
         }
-        if (ListVariants.includes(variant)) {
-          property.list = variant
+        if (ListVariants.includes(variant as ListVariantsType)) {
+          property.list = variant as ListVariantsType
         }
         if (state.customVariants.includes(variant)) {
           property.custom = variant
