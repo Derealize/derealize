@@ -22,12 +22,6 @@ export interface SpacingModel {
   maxHeightPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
 
   paddingSuffix: Computed<SpacingModel, Array<string>, StoreModel>
-  paddingValues: Computed<SpacingModel, Array<string>, StoreModel>
-  paddingPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
-  paddingYValues: Computed<SpacingModel, Array<string>, StoreModel>
-  paddingYPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
-  paddingXValues: Computed<SpacingModel, Array<string>, StoreModel>
-  paddingXPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
   paddingTopValues: Computed<SpacingModel, Array<string>, StoreModel>
   paddingTopPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
   paddingBottomValues: Computed<SpacingModel, Array<string>, StoreModel>
@@ -38,12 +32,6 @@ export interface SpacingModel {
   paddingRightPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
 
   marginSuffix: Computed<SpacingModel, Array<string>, StoreModel>
-  marginValues: Computed<SpacingModel, Array<string>, StoreModel>
-  marginPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
-  marginYValues: Computed<SpacingModel, Array<string>, StoreModel>
-  marginYPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
-  marginXValues: Computed<SpacingModel, Array<string>, StoreModel>
-  marginXPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
   marginTopValues: Computed<SpacingModel, Array<string>, StoreModel>
   marginTopPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
   marginBottomValues: Computed<SpacingModel, Array<string>, StoreModel>
@@ -125,27 +113,6 @@ const spacingModel: SpacingModel = {
     const { spacing, padding } = project.tailwindConfig.theme
     return Object.keys(Object.assign(padding, spacing))
   }),
-  paddingValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `p-${v}`).concat(paddingSuffix.map((v) => `-p-${v}`))
-  }),
-  paddingPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  paddingYValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `py-${v}`).concat(paddingSuffix.map((v) => `-py-${v}`))
-  }),
-  paddingYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingYValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  paddingXValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => `px-${v}`).concat(paddingSuffix.map((v) => `-px-${v}`))
-  }),
-  paddingXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingXValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
   paddingTopValues: computed(({ paddingSuffix }) => {
     return paddingSuffix.map((v) => `pt-${v}`).concat(paddingSuffix.map((v) => `-pt-${v}`))
   }),
@@ -180,27 +147,6 @@ const spacingModel: SpacingModel = {
     const { spacing, margin } = project.tailwindConfig.theme
     return Object.keys(Object.assign(margin, spacing))
   }),
-  marginValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => `m-${v}`).concat(marginSuffix.map((v) => `-m-${v}`))
-  }),
-  marginPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.marginValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  marginYValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => `my-${v}`).concat(marginSuffix.map((v) => `-my-${v}`))
-  }),
-  marginYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.marginYValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  marginXValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => `mx-${v}`).concat(marginSuffix.map((v) => `-mx-${v}`))
-  }),
-  marginXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.marginXValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
   marginTopValues: computed(({ marginSuffix }) => {
     return marginSuffix.map((v) => `mt-${v}`).concat(marginSuffix.map((v) => `-mt-${v}`))
   }),
@@ -258,16 +204,10 @@ const spacingModel: SpacingModel = {
       heightPropertys,
       minHeightPropertys,
       maxHeightPropertys,
-      paddingPropertys,
-      paddingYPropertys,
-      paddingXPropertys,
       paddingTopPropertys,
       paddingBottomPropertys,
       paddingLeftPropertys,
       paddingRightPropertys,
-      marginPropertys,
-      marginYPropertys,
-      marginXPropertys,
       marginTopPropertys,
       marginBottomPropertys,
       marginLeftPropertys,
@@ -275,22 +215,16 @@ const spacingModel: SpacingModel = {
       spaceYPropertys,
       spaceXPropertys,
     }) => {
-      return paddingPropertys.concat(
-        widthPropertys,
+      return widthPropertys.concat(
         minWidthPropertys,
         maxWidthPropertys,
         heightPropertys,
         minHeightPropertys,
         maxHeightPropertys,
-        paddingYPropertys,
-        paddingXPropertys,
         paddingTopPropertys,
         paddingBottomPropertys,
         paddingLeftPropertys,
         paddingRightPropertys,
-        marginPropertys,
-        marginYPropertys,
-        marginXPropertys,
         marginTopPropertys,
         marginBottomPropertys,
         marginLeftPropertys,
