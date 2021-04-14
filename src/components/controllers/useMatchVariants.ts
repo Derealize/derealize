@@ -1,17 +1,20 @@
 import react from 'react'
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { useStoreState } from '../../reduxStore'
 import { Project } from '../../models/project'
+import { StateVariantsType, ListVariantsType } from '../../models/controlles/controlles'
 
-export type VariantsPropertysName = keyof TailwindConfig['variants']
+export type VariantsPropertyNames = keyof TailwindConfig['variants']
 
-const useMatchVariants = (prop: VariantsPropertysName) => {
+const useMatchVariants = (prop: VariantsPropertyNames) => {
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
-  const variants: Array<string> | undefined = project?.tailwindConfig?.variants[prop]
+  const variants: Variant[] | undefined = project?.tailwindConfig?.variants[prop]
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
-  const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
-  const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
+  const selectStateVariant = useStoreState<StateVariantsType | undefined>(
+    (state) => state.controlles.selectStateVariant,
+  )
+  const selectListVariant = useStoreState<ListVariantsType | undefined>((state) => state.controlles.selectListVariant)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const selectDark = useStoreState<boolean>((state) => state.controlles.selectDark)
 
@@ -20,7 +23,7 @@ const useMatchVariants = (prop: VariantsPropertysName) => {
   if (selectScreenVariant && !variants.includes('responsive')) return false
   if (selectStateVariant && !variants.includes(selectStateVariant)) return false
   if (selectListVariant && !variants.includes(selectListVariant)) return false
-  if (selectCustomVariant && !variants.includes(selectCustomVariant)) return false
+  if (selectCustomVariant && !(variants as string[]).includes(selectCustomVariant)) return false
   if (selectDark && !variants.includes('dark')) return false
 
   return true
