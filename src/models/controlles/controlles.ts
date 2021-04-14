@@ -47,11 +47,11 @@ export interface AlreadyVariants {
 }
 
 export interface ControllesModel {
+  propertys: Array<Property>
+
   element: ElementPayload | undefined
   setElement: Action<ControllesModel, ElementPayload | undefined>
 
-  propertys: Array<Property>
-  computePropertys: Action<ControllesModel>
   setProperty: Action<ControllesModel, Property>
   deleteProperty: Action<ControllesModel, string>
 
@@ -79,13 +79,12 @@ export interface ControllesModel {
 }
 
 const controllesModel: ControllesModel = {
+  propertys: [],
+
   element: undefined,
   setElement: action((state, payload) => {
     state.element = payload
-  }),
 
-  propertys: [],
-  computePropertys: action((state) => {
     state.propertys = []
     if (!state.element?.className) return
     state.element.className.split(/\s+/).forEach((name) => {
@@ -109,8 +108,17 @@ const controllesModel: ControllesModel = {
         }
       })
       state.propertys.push(property)
+
+      if (property.classname.startsWith('m-')) {
+        state.propertys.push({
+          ...property,
+          id: nanoid(),
+          classname: property.classname.replace('m-', 'mt-'),
+        })
+      }
     })
   }),
+
   setProperty: action((state, payload) => {
     const property = state.propertys.find((p) => payload.id === p.id)
     if (property) {

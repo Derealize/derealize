@@ -16,16 +16,20 @@ $teal500: #319795;
 }
 
 .option {
-  color: $gray400;
+  color: $gray-400;
   cursor: pointer;
   display: inline-block;
   &:hover {
-    @include linelink($gray400);
+    @include linelink($gray-400);
   }
   &.already {
-    color: $teal500;
+    color: $twc-cyan-700;
+    &:hover {
+      @include linelink($twc-cyan-700);
+    }
   }
   &.active {
-    color: $link;
+    color: $pink-500;
+    @include linelink($pink-500);
   }
 }
