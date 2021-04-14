@@ -201,9 +201,8 @@ const projectModel: ProjectModel = {
       frontMain()
       return
     }
-    const { controlles } = getStoreActions()
-    controlles.setElement(payload.element)
-    controlles.computePropertys()
+
+    getStoreActions().controlles.setElement(payload.element)
     await send(Handler.CheckStatus, { url: payload.url })
   }),
 
@@ -398,9 +397,7 @@ const projectModel: ProjectModel = {
 
       project.element = payload.tagName ? payload : undefined
       if (project === frontProject) {
-        const { controlles } = getStoreActions()
-        controlles.setElement(project.element)
-        controlles.computePropertys()
+        getStoreActions().controlles.setElement(project.element)
       }
     })
   }),

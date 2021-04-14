@@ -12,17 +12,17 @@ const Inset: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const values = useStoreState<Array<string>>((state) => state.layout.insetValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.insetPropertys)
-  const property = useComputeProperty(propertys)
+  // const values = useStoreState<Array<string>>((state) => state.layout.insetValues)
+  // const propertys = useStoreState<Array<Property>>((state) => state.layout.insetPropertys)
+  // const property = useComputeProperty(propertys)
 
-  const valuesY = useStoreState<Array<string>>((state) => state.layout.insetYValues)
-  const propertysY = useStoreState<Array<Property>>((state) => state.layout.insetYPropertys)
-  const propertyY = useComputeProperty(propertysY)
+  // const valuesY = useStoreState<Array<string>>((state) => state.layout.insetYValues)
+  // const propertysY = useStoreState<Array<Property>>((state) => state.layout.insetYPropertys)
+  // const propertyY = useComputeProperty(propertysY)
 
-  const valuesX = useStoreState<Array<string>>((state) => state.layout.insetXValues)
-  const propertysX = useStoreState<Array<Property>>((state) => state.layout.insetXPropertys)
-  const propertyX = useComputeProperty(propertysX)
+  // const valuesX = useStoreState<Array<string>>((state) => state.layout.insetXValues)
+  // const propertysX = useStoreState<Array<Property>>((state) => state.layout.insetXPropertys)
+  // const propertyX = useComputeProperty(propertysX)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.layout.topPropertys)
@@ -40,14 +40,14 @@ const Inset: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.layout.rightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  if (already && !property) return <></>
+  if (already && (!propertyTop || !propertyBottom || !propertyLeft || !propertyRight)) return <></>
   if (!element?.position || !InsetPositions.includes(element.position)) return <></>
 
   return (
     <>
-      <SelectController placeholder="inset" values={values} property={property} />
+      {/* <SelectController placeholder="inset" values={values} property={property} />
       <SelectController placeholder="inset-y" values={valuesY} property={propertyY} />
-      <SelectController placeholder="inset-x" values={valuesX} property={propertyX} />
+      <SelectController placeholder="inset-x" values={valuesX} property={propertyX} /> */}
       <SelectController placeholder="inset-top" values={valuesTop} property={propertyTop} />
       <SelectController placeholder="inset-bottom" values={valuesBottom} property={propertyBottom} />
       <SelectController placeholder="inset-left" values={valuesLeft} property={propertyLeft} />
