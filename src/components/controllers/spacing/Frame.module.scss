@@ -1,0 +1,85 @@
+@import '../../../styles/variable';
+
+.component {
+  border-top: 1px solid $gray-200;
+  padding: 0.25rem;
+}
+
+.frame {
+  position: relative;
+  grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 2fr 1fr 1fr;
+
+  .mt_column_span3,
+  .mb_column_span3 {
+    grid-column-start: span 3;
+  }
+  .ml_row_span3,
+  .mr_row_span3 {
+    grid-row-start: span 3;
+  }
+
+  .mtl,
+  .mt_column_span3,
+  .mtr,
+  .ml_row_span3,
+  .mr_row_span3,
+  .mbl,
+  .mb_column_span3,
+  .mbr {
+    background-color: $gray-100;
+    &:hover,
+    &.hover {
+      background-color: $blue-200;
+    }
+    &.active {
+      background-color: $blue-200;
+    }
+  }
+
+  .ptl,
+  .pt,
+  .ptr,
+  .pl,
+  .pr,
+  .pbl,
+  .pb,
+  .pbr {
+    background-color: $gray-200;
+    &:hover,
+    &.hover {
+      background-color: $blue-200;
+    }
+    &.active {
+      background-color: $blue-200;
+    }
+  }
+
+  .ptl,
+  .pt,
+  .ptr {
+    border-top: 1px solid $gray-400;
+  }
+
+  .ptl,
+  .pl,
+  .pbl {
+    border-left: 1px solid $gray-400;
+  }
+
+  .ptr,
+  .pr,
+  .pbr {
+    border-right: 1px solid $gray-400;
+  }
+
+  .pbl,
+  .pb,
+  .pbr {
+    border-bottom: 1px solid $gray-400;
+  }
+
+  .center {
+    border: 1px dashed $gray-400;
+  }
+}

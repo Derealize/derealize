@@ -31,24 +31,32 @@ const Marging: React.FC = (): JSX.Element => {
 
   return (
     <div className={style.component}>
-      {!element.display?.includes('inline') && (
-        <SelectController placeholder="margin-top" values={valuesTop} property={propertyTop} />
-      )}
-      <div className={style.middle}>
-        <div className={style.farm}>
-          <div className={style.borderTop} />
-          <div className={style.borderBottom} />
-          <div className={style.borderLeft} />
-          <div className={style.borderRight} />
-        </div>
-        <div className={style.fields}>
-          <SelectController placeholder="margin-right" values={valuesRight} property={propertyRight} />
-          <SelectController placeholder="margin-left" values={valuesLeft} property={propertyLeft} />
-        </div>
+      <div className={style.frame}>
+        <div className={style.mtl} />
+        <div className={style.mt_column_span3} />
+        <div className={style.mtr} />
+
+        <div className={style.ml_row_span3} />
+
+        <div className={style.ptl} />
+        <div className={style.pt} />
+        <div className={style.ptr} />
+
+        <div className={style.mr_row_span3} />
+
+        <div className={style.pl} />
+        <div className={style.center} />
+        <div className={style.pr} />
+
+        <div className={style.pbl} />
+        <div className={style.pb} />
+        <div className={style.pbr} />
+
+        <div className={style.mbl} />
+        <div className={style.mb_column_span3} />
+        <div className={style.mbr} />
       </div>
-      {!element.display?.includes('inline') && (
-        <SelectController placeholder="margin-bottom" values={valuesBottom} property={propertyBottom} />
-      )}
+      <SelectController placeholder="margin-left" values={valuesLeft} property={propertyLeft} />
     </div>
   )
 }
