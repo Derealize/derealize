@@ -17,30 +17,30 @@ export const resolution = (propertys: Array<Property>, prefix: string) => {
   const xValue = lProperty?.classname.split('-').splice(-1)[0]
   const allValue = rProperty?.classname.split('-').splice(-1)[0]
 
-  if (yProperty) {
-    if (!tProperty) {
+  if (!tProperty) {
+    if (yProperty) {
       result.push({
         ...yProperty,
         id: nanoid(),
         classname: `${prefix}t-${yValue}`,
       })
-    }
-    if (!bProperty) {
-      result.push({
-        ...yProperty,
-        id: nanoid(),
-        classname: `${prefix}b-${yValue}`,
-      })
-    }
-  } else if (allProperty) {
-    if (!tProperty) {
+    } else if (allProperty) {
       result.push({
         ...allProperty,
         id: nanoid(),
         classname: `${prefix}t-${allValue}`,
       })
     }
-    if (!bProperty) {
+  }
+
+  if (!bProperty) {
+    if (yProperty) {
+      result.push({
+        ...yProperty,
+        id: nanoid(),
+        classname: `${prefix}b-${yValue}`,
+      })
+    } else if (allProperty) {
       result.push({
         ...allProperty,
         id: nanoid(),
@@ -49,30 +49,30 @@ export const resolution = (propertys: Array<Property>, prefix: string) => {
     }
   }
 
-  if (xProperty) {
-    if (!lProperty) {
+  if (!lProperty) {
+    if (xProperty) {
       result.push({
-        ...yProperty,
+        ...xProperty,
         id: nanoid(),
         classname: `${prefix}l-${xValue}`,
       })
-    }
-    if (!rProperty) {
-      result.push({
-        ...yProperty,
-        id: nanoid(),
-        classname: `${prefix}r-${xValue}`,
-      })
-    }
-  } else if (allProperty) {
-    if (!lProperty) {
+    } else if (allProperty) {
       result.push({
         ...allProperty,
         id: nanoid(),
         classname: `${prefix}l-${allValue}`,
       })
     }
-    if (!rProperty) {
+  }
+
+  if (!rProperty) {
+    if (xProperty) {
+      result.push({
+        ...yProperty,
+        id: nanoid(),
+        classname: `${prefix}r-${xValue}`,
+      })
+    } else if (allProperty) {
       result.push({
         ...allProperty,
         id: nanoid(),
@@ -107,41 +107,33 @@ const compile = (propertys: Array<Property>, prefix: string): Array<Property> =>
   const lValue = lProperty?.classname.split('-').splice(-1)[0]
   const rValue = rProperty?.classname.split('-').splice(-1)[0]
 
-  let yProperty
-  let xProperty
-  if (tValue && tValue === bValue) {
-    yProperty = {
-      ...tProperty,
-      id: nanoid(),
-      classname: `${prefix}y-${tValue}`,
-    }
-  }
-  if (lValue && lValue === rValue) {
-    xProperty = {
-      ...lProperty,
-      id: nanoid(),
-      classname: `${prefix}x-${lValue}`,
-    }
-  }
-
-  if (yProperty && xProperty && tValue === lValue) {
+  if (tValue && tValue === bValue && tValue === lValue && tValue === rValue) {
     result.push({
-      ...yProperty,
+      ...tProperty,
       id: nanoid(),
       classname: `${prefix}-${tValue}`,
     })
-    result = result.filter(
+    return result.filter(
       (p) => p.id !== tProperty?.id && p.id !== bProperty?.id && p.id !== lProperty?.id && p.id !== rProperty?.id,
     )
-  } else {
-    if (yProperty) {
-      result.push(yProperty)
-      result = result.filter((p) => p.id !== tProperty?.id && p.id !== bProperty?.id)
-    }
-    if (xProperty) {
-      result.push(xProperty)
-      result = result.filter((p) => p.id !== lProperty?.id && p.id !== rProperty?.id)
-    }
+  }
+
+  if (tValue && tValue === bValue) {
+    result.push({
+      ...tProperty,
+      id: nanoid(),
+      classname: `${prefix}y-${tValue}`,
+    })
+    result = result.filter((p) => p.id !== tProperty?.id && p.id !== bProperty?.id)
+  }
+
+  if (lValue && lValue === rValue) {
+    result.push({
+      ...lProperty,
+      id: nanoid(),
+      classname: `${prefix}x-${lValue}`,
+    })
+    result = result.filter((p) => p.id !== lProperty?.id && p.id !== rProperty?.id)
   }
 
   return result
