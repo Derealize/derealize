@@ -2,11 +2,12 @@
 
 .component {
   border-top: 1px solid $gray-200;
-  padding: 0.25rem;
+  padding: 0.25rem 0;
 }
 
 .frame {
   display: grid;
+  height: 160px;
   grid-template-columns: 1fr 1fr 4fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 2fr 1fr 1fr;
 

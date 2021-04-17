@@ -4,8 +4,7 @@ import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
-import Marging from './Frame'
-import Padding from './Padding'
+import Frame from './Frame'
 import SpaceBetweenY from './SpaceBetweenY'
 import SpaceBetweenX from './SpaceBetweenX'
 import Width from './Width'
@@ -22,17 +21,17 @@ const SpacingSection: React.FC = (): JSX.Element => {
   return (
     <VStack alignItems="stretch">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
+
+      <Frame />
+      <SpaceBetweenY />
+      <SpaceBetweenX />
+
       <Width />
       <MaxWidth />
       <MinWidth />
       <Height />
       <MaxHeight />
       <MinHeight />
-
-      <Marging />
-      <Padding />
-      <SpaceBetweenY />
-      <SpaceBetweenX />
     </VStack>
   )
 }
