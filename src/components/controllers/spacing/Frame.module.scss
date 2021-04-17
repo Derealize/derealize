@@ -14,10 +14,22 @@
   .mt_column_span3,
   .mb_column_span3 {
     grid-column-start: span 3;
+    display: flex;
+    justify-content: center;
+    .stick {
+      height: 100%;
+      width: 10px;
+    }
   }
   .ml_row_span3,
   .mr_row_span3 {
     grid-row-start: span 3;
+    display: flex;
+    align-items: center;
+    .stick {
+      height: 10px;
+      width: 100%;
+    }
   }
 
   .mtl,
@@ -82,5 +94,24 @@
 
   .center {
     border: 1px dashed $gray-400;
+  }
+
+  .pt,
+  .pb {
+    display: flex;
+    justify-content: center;
+    .stick {
+      height: 100%;
+      width: 10px;
+    }
+  }
+  .pl,
+  .pr {
+    display: flex;
+    align-items: center;
+    .stick {
+      height: 10px;
+      width: 100%;
+    }
   }
 }

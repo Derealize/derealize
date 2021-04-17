@@ -233,9 +233,14 @@ const spacingModel: SpacingModel = {
   spaceSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     const { spacing, space } = project.tailwindConfig.theme
+    console.log('space', space)
+    console.log('spacing', spacing)
+
     return Object.keys(Object.assign(space, spacing))
   }),
   spaceYValues: computed(({ spaceSuffix }) => {
+    console.log('spaceSuffix', spaceSuffix)
+
     return spaceSuffix.map((v) => (v.startsWith('-') ? `-space-y-${v.replace('-', '')}` : `space-y-${v}`))
   }),
   spaceYPropertys: computed(
