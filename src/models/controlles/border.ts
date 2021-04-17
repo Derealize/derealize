@@ -158,7 +158,7 @@ const borderModel: BorderModel = {
   divideSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     const { divideWidth, borderWidth } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(borderWidth, divideWidth))
+    return Object.keys(Object.assign(divideWidth, borderWidth))
   }),
   divideYValues: computed(({ divideSuffix }) => {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-y' : `divide-y-${v}`))
