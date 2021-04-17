@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
 import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
-import { resolutionAll, compileAll } from './direction-polymorphism'
+// import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
 const { send, listen, unlisten, deviceEmulation } = window.derealize
@@ -31,7 +31,6 @@ export type ListVariantsType = typeof ListVariants[number]
 export interface Property {
   id: string
   classname: string
-  value?: string
   screen?: string
   state?: StateVariantsType
   list?: ListVariantsType
@@ -107,10 +106,13 @@ const controllesModel: ControllesModel = {
         if (state.customVariants.includes(variant)) {
           property.custom = variant
         }
+        if (variant === 'dark') {
+          property.dark = true
+        }
       })
       state.propertys.push(property)
     })
-    state.propertys = resolutionAll(state.propertys)
+    // state.propertys = resolutionAll(state.propertys)
   }),
 
   setProperty: action((state, payload) => {
@@ -138,10 +140,10 @@ const controllesModel: ControllesModel = {
   updateClassName: thunk(async (actions, useShift, { getState }) => {
     const { propertys, element } = getState()
     if (!element) return
-    const compiledPropertys = compileAll(propertys)
+    // const compiledPropertys = compileAll(propertys)
 
     let className = ''
-    compiledPropertys.forEach((property) => {
+    propertys.forEach((property) => {
       const { screen, state, list, custom, dark, classname: name } = property
       if (!name) return
 
