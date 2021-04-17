@@ -5,7 +5,7 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../backend/backend.interface'
-import style from './Marging.module.scss'
+import style from './Frame.module.scss'
 
 const Frame: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
