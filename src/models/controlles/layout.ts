@@ -84,6 +84,12 @@ export interface LayoutModel {
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   insetSuffix: Computed<LayoutModel, Array<string>, StoreModel>
+  insetValues: Computed<LayoutModel, Array<string>, StoreModel>
+  insetPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  insetYValues: Computed<LayoutModel, Array<string>, StoreModel>
+  insetYPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  insetXValues: Computed<LayoutModel, Array<string>, StoreModel>
+  insetXPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   topValues: Computed<LayoutModel, Array<string>, StoreModel>
   topPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   bottomValues: Computed<LayoutModel, Array<string>, StoreModel>
@@ -198,29 +204,50 @@ const layoutModel: LayoutModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
+  insetValues: computed(({ insetSuffix }) => {
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-${v.replace('-', '')}` : `inset-${v}`))
+  }),
+  insetPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  insetYValues: computed(({ insetSuffix }) => {
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.replace('-', '')}` : `inset-y-${v}`))
+  }),
+  insetYPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  insetXValues: computed(({ insetSuffix }) => {
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.replace('-', '')}` : `inset-x-${v}`))
+  }),
+  insetXPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
   topValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `top-${v}`).concat(insetSuffix.map((v) => `-top-${v}`))
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-top-${v.replace('-', '')}` : `top-${v}`))
   }),
   topPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.topValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   bottomValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `bottom-${v}`).concat(insetSuffix.map((v) => `-bottom-${v}`))
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-bottom-${v.replace('-', '')}` : `bottom-${v}`))
   }),
   bottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.bottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   rightValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `right-${v}`).concat(insetSuffix.map((v) => `-right-${v}`))
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-right-${v.replace('-', '')}` : `right-${v}`))
   }),
   rightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.rightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   leftValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => `left-${v}`).concat(insetSuffix.map((v) => `-left-${v}`))
+    return insetSuffix.map((v) => (v.startsWith('-') ? `-left-${v.replace('-', '')}` : `left-${v}`))
   }),
   leftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.leftValues],

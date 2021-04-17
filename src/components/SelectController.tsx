@@ -39,10 +39,17 @@ type Props = {
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
   onMouseEnter?: boolean
+  cleanPropertys?: Array<Property | undefined>
   // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
-const SelectController: React.FC<Props> = ({ placeholder, values, property, onMouseEnter }: Props): JSX.Element => {
+const SelectController: React.FC<Props> = ({
+  placeholder,
+  values,
+  property,
+  onMouseEnter,
+  cleanPropertys,
+}: Props): JSX.Element => {
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -51,9 +58,10 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
     return (
       <div
         onMouseEnter={() => {
-          if (!props.data.value) return
           // console.log('onMouseEnter', props.data.value)
-          if (property) {
+          if (!props.data.value && property) {
+            deleteProperty(property.id)
+          } else if (property) {
             property.classname = props.data.value
             setProperty(property)
           } else {
@@ -62,6 +70,8 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
               classname: props.data.value,
             } as Property)
           }
+
+          cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
           updateClassName()
         }}
       >
@@ -131,6 +141,7 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
             } as Property)
           }
         }
+        cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
         updateClassName(true)
       }}
     />
@@ -139,6 +150,7 @@ const SelectController: React.FC<Props> = ({ placeholder, values, property, onMo
 
 SelectController.defaultProps = {
   onMouseEnter: true,
+  cleanPropertys: [],
 }
 
 export default SelectController
