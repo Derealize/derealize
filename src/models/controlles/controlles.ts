@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import { nanoid } from 'nanoid'
+import type { Variant } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from '../index'
 import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
@@ -206,7 +207,8 @@ const controllesModel: ControllesModel = {
     let result: Array<string> = []
     for (const [, variants] of Object.entries(project.tailwindConfig.variants)) {
       const leftVariants = variants.filter(
-        (v) => v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v) && !ListVariants.includes(v),
+        (v) =>
+          v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v as any) && !ListVariants.includes(v as any),
       )
       result = result.concat(leftVariants)
     }

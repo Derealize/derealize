@@ -204,51 +204,51 @@ const layoutModel: LayoutModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
-  insetValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-${v.replace('-', '')}` : `inset-${v}`))
-  }),
+  insetValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-inset-${v.replace('-', '')}` : `inset-${v}`)),
+  ),
   insetPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  insetYValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.replace('-', '')}` : `inset-y-${v}`))
-  }),
+  insetYValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.replace('-', '')}` : `inset-y-${v}`)),
+  ),
   insetYPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  insetXValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.replace('-', '')}` : `inset-x-${v}`))
-  }),
+  insetXValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.replace('-', '')}` : `inset-x-${v}`)),
+  ),
   insetXPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  topValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-top-${v.replace('-', '')}` : `top-${v}`))
-  }),
+  topValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-top-${v.replace('-', '')}` : `top-${v}`)),
+  ),
   topPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.topValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  bottomValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-bottom-${v.replace('-', '')}` : `bottom-${v}`))
-  }),
+  bottomValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-bottom-${v.replace('-', '')}` : `bottom-${v}`)),
+  ),
   bottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.bottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  rightValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-right-${v.replace('-', '')}` : `right-${v}`))
-  }),
+  rightValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-right-${v.replace('-', '')}` : `right-${v}`)),
+  ),
   rightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.rightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  leftValues: computed(({ insetSuffix }) => {
-    return insetSuffix.map((v) => (v.startsWith('-') ? `-left-${v.replace('-', '')}` : `left-${v}`))
-  }),
+  leftValues: computed([(state) => state.insetSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-left-${v.replace('-', '')}` : `left-${v}`)),
+  ),
   leftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.leftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
