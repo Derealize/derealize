@@ -141,6 +141,7 @@ const SelectController: React.FC<Props> = ({
             } as Property)
           }
         }
+
         cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
         updateClassName(true)
       }}

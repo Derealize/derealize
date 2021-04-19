@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useContext } from 'react'
+import cs from 'classnames'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
@@ -39,16 +40,16 @@ const Frame: React.FC = (): JSX.Element => {
   const mrPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginRightPropertys)
   const mrProperty = useComputeProperty(mrPropertys)
 
-  const pValues = useStoreState<Array<string>>((state) => state.spacing.marginValues)
-  const pPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginPropertys)
+  const pValues = useStoreState<Array<string>>((state) => state.spacing.paddingValues)
+  const pPropertys = useStoreState<Array<Property>>((state) => state.spacing.paddingPropertys)
   const pProperty = useComputeProperty(pPropertys)
 
-  const pyValues = useStoreState<Array<string>>((state) => state.spacing.marginYValues)
-  const pyPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginYPropertys)
+  const pyValues = useStoreState<Array<string>>((state) => state.spacing.paddingYValues)
+  const pyPropertys = useStoreState<Array<Property>>((state) => state.spacing.paddingYPropertys)
   const pyProperty = useComputeProperty(pyPropertys)
 
-  const pxValues = useStoreState<Array<string>>((state) => state.spacing.marginXValues)
-  const pxPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginXPropertys)
+  const pxValues = useStoreState<Array<string>>((state) => state.spacing.paddingXValues)
+  const pxPropertys = useStoreState<Array<Property>>((state) => state.spacing.paddingXPropertys)
   const pxProperty = useComputeProperty(pxPropertys)
 
   const ptValues = useStoreState<Array<string>>((state) => state.spacing.paddingTopValues)
@@ -67,212 +68,301 @@ const Frame: React.FC = (): JSX.Element => {
   const prPropertys = useStoreState<Array<Property>>((state) => state.spacing.paddingRightPropertys)
   const prProperty = useComputeProperty(prPropertys)
 
-  const [targetValues, setTargetValues] = useState<Array<string>>([])
-  const [targetProperty, setTargetProperty] = useState<Property | undefined>()
+  const [selValues, setSelValues] = useState<Array<string>>([])
+  const [selProperty, setSelProperty] = useState<Property | undefined>()
   const [cleanPropertys, setCleanPropertys] = useState<Array<Property | undefined>>([])
+
+  const [mtHover, setMtHover] = useState(false)
+  const [mbHover, setMbHover] = useState(false)
+  const [mlHover, setMlHover] = useState(false)
+  const [mrHover, setMrHover] = useState(false)
+  const [ptHover, setPtHover] = useState(false)
+  const [pbHover, setPbHover] = useState(false)
+  const [plHover, setPlHover] = useState(false)
+  const [prHover, setPrHover] = useState(false)
 
   if (already || !element) return <></>
 
   return (
     <div className={style.component}>
       <div className={style.frame}>
-        <div className={style.mtl} />
         <div
-          className={style.mt_column_span3}
+          className={cs(style.mtl, {
+            [style.active]:
+              selValues === mtValues || selValues === mlValues || selValues === myValues || selValues === mxValues,
+            [style.hover]: mtHover || mlHover,
+          })}
+        />
+        <div
+          className={cs(style.mt_column_span3, { [style.active]: selValues === mtValues || selValues === myValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(mtValues)
-            setTargetProperty(mtProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(mtValues)
+            setSelProperty(mtProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setMtHover(true)}
+          onMouseLeave={() => setMtHover(false)}
         >
           <span>{mtProperty?.classname || myProperty?.classname || mProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(myValues)
-              setTargetProperty(myProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(myValues)
+              setSelProperty(myProperty)
               setCleanPropertys([mtProperty, mbProperty])
             }}
           />
         </div>
-        <div className={style.mtr} />
+        <div
+          className={cs(style.mtr, {
+            [style.active]:
+              selValues === mtValues || selValues === mrValues || selValues === myValues || selValues === mxValues,
+            [style.hover]: mtHover || mrHover,
+          })}
+        />
 
         <div
-          className={style.ml_row_span3}
+          className={cs(style.ml_row_span3, { [style.active]: selValues === mlValues || selValues === mxValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(mlValues)
-            setTargetProperty(mlProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(mlValues)
+            setSelProperty(mlProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setMlHover(true)}
+          onMouseLeave={() => setMlHover(false)}
         >
           <span>{mlProperty?.classname || mxProperty?.classname || mProperty?.classname}</span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.active]: selValues === mxValues })}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(mxValues)
-              setTargetProperty(mxProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(mxValues)
+              setSelProperty(mxProperty)
               setCleanPropertys([mlProperty, mrProperty])
             }}
           />
         </div>
 
-        <div className={style.ptl} />
         <div
-          className={style.pt}
+          className={cs(style.ptl, {
+            [style.active]:
+              selValues === ptValues || selValues === plValues || selValues === pyValues || selValues === pxValues,
+            [style.hover]: ptHover || plHover,
+          })}
+        />
+        <div
+          className={cs(style.pt, { [style.active]: selValues === ptValues || selValues === pyValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(ptValues)
-            setTargetProperty(ptProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(ptValues)
+            setSelProperty(ptProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setPtHover(true)}
+          onMouseLeave={() => setPtHover(false)}
         >
           <span>{ptProperty?.classname || pyProperty?.classname || pProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(pyValues)
-              setTargetProperty(pyProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pyValues)
+              setSelProperty(pyProperty)
               setCleanPropertys([ptProperty, pbProperty])
             }}
           />
         </div>
-        <div className={style.ptr} />
+        <div
+          className={cs(style.ptr, {
+            [style.active]:
+              selValues === ptValues || selValues === prValues || selValues === pyValues || selValues === pxValues,
+            [style.hover]: ptHover || prHover,
+          })}
+        />
 
         <div
-          className={style.mr_row_span3}
+          className={cs(style.mr_row_span3, { [style.active]: selValues === mrValues || selValues === mxValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(mrValues)
-            setTargetProperty(mrProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(mrValues)
+            setSelProperty(mrProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setMrHover(true)}
+          onMouseLeave={() => setMrHover(false)}
         >
           <span>{mrProperty?.classname || mxProperty?.classname || mProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(mxValues)
-              setTargetProperty(mxProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(mxValues)
+              setSelProperty(mxProperty)
               setCleanPropertys([mlProperty, mrProperty])
             }}
           />
         </div>
 
         <div
-          className={style.pl}
+          className={cs(style.pl, { [style.active]: selValues === plValues || selValues === pxValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(plValues)
-            setTargetProperty(plProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(plValues)
+            setSelProperty(plProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setPlHover(true)}
+          onMouseLeave={() => setPlHover(false)}
         >
           <span>{plProperty?.classname || pxProperty?.classname || pProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(pxValues)
-              setTargetProperty(pxProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pxValues)
+              setSelProperty(pxProperty)
               setCleanPropertys([plProperty, prProperty])
             }}
           />
         </div>
         <div className={style.center} />
         <div
-          className={style.pr}
+          className={cs(style.pr, { [style.active]: selValues === prValues || selValues === pxValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(prValues)
-            setTargetProperty(prProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(prValues)
+            setSelProperty(prProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setPrHover(true)}
+          onMouseLeave={() => setPrHover(false)}
         >
           <span>{prProperty?.classname || pxProperty?.classname || pProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(pxValues)
-              setTargetProperty(pxProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pxValues)
+              setSelProperty(pxProperty)
               setCleanPropertys([plProperty, prProperty])
             }}
           />
         </div>
 
-        <div className={style.pbl} />
         <div
-          className={style.pb}
+          className={cs(style.pbl, {
+            [style.active]:
+              selValues === pbValues || selValues === plValues || selValues === pyValues || selValues === pxValues,
+            [style.hover]: pbHover || plHover,
+          })}
+        />
+        <div
+          className={cs(style.pb, { [style.active]: selValues === pbValues || selValues === pyValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(pbValues)
-            setTargetProperty(pbProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(pbValues)
+            setSelProperty(pbProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setPbHover(true)}
+          onMouseLeave={() => setPbHover(false)}
         >
           <span>{pbProperty?.classname || pyProperty?.classname || pProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(pyValues)
-              setTargetProperty(pyProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pyValues)
+              setSelProperty(pyProperty)
               setCleanPropertys([ptProperty, pbProperty])
             }}
           />
         </div>
-        <div className={style.pbr} />
-
-        <div className={style.mbl} />
         <div
-          className={style.mb_column_span3}
+          className={cs(style.pbr, {
+            [style.active]:
+              selValues === pbValues || selValues === prValues || selValues === pyValues || selValues === pxValues,
+            [style.hover]: pbHover || prHover,
+          })}
+        />
+
+        <div
+          className={cs(style.mbl, {
+            [style.active]:
+              selValues === mbValues || selValues === mlValues || selValues === myValues || selValues === mxValues,
+            [style.hover]: mbHover || mlHover,
+          })}
+        />
+        <div
+          className={cs(style.mb_column_span3, { [style.active]: selValues === mbValues || selValues === myValues })}
           role="button"
           aria-hidden="true"
-          onClick={() => {
-            setTargetValues(mbValues)
-            setTargetProperty(mbProperty)
+          onClick={(e) => {
+            e.stopPropagation()
+            setSelValues(mbValues)
+            setSelProperty(mbProperty)
             setCleanPropertys([])
           }}
+          onMouseEnter={() => setMbHover(true)}
+          onMouseLeave={() => setMbHover(false)}
         >
           <span>{mbProperty?.classname || myProperty?.classname || mProperty?.classname}</span>
           <div
             className={style.stick}
             role="button"
             aria-hidden="true"
-            onClick={() => {
-              setTargetValues(mbValues)
-              setTargetProperty(mbProperty)
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(myValues)
+              setSelProperty(myProperty)
               setCleanPropertys([mtProperty, mbProperty])
             }}
           />
         </div>
-        <div className={style.mbr} />
+        <div
+          className={cs(style.mbr, {
+            [style.active]:
+              selValues === mbValues || selValues === mrValues || selValues === myValues || selValues === mxValues,
+            [style.hover]: mbHover || mrHover,
+          })}
+        />
       </div>
 
       <SelectController
-        placeholder="value"
-        values={targetValues}
-        property={targetProperty}
+        placeholder={selValues[0]?.split('-')[0]}
+        values={selValues}
+        property={selProperty}
         cleanPropertys={cleanPropertys}
       />
     </div>

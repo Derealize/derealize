@@ -125,51 +125,51 @@ const spacingModel: SpacingModel = {
     const { spacing, margin } = project.tailwindConfig.theme
     return Object.keys(Object.assign(margin, spacing))
   }),
-  marginValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-m-${v.replace('-', '')}` : `m-${v}`))
-  }),
+  marginValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-m-${v.replace('-', '')}` : `m-${v}`)),
+  ),
   marginPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginYValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-my-${v.replace('-', '')}` : `my-${v}`))
-  }),
+  marginYValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-my-${v.replace('-', '')}` : `my-${v}`)),
+  ),
   marginYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingYValues],
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.marginYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginXValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-mx-${v.replace('-', '')}` : `mx-${v}`))
-  }),
+  marginXValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-mx-${v.replace('-', '')}` : `mx-${v}`)),
+  ),
   marginXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingXValues],
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.marginXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginTopValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-mt-${v.replace('-', '')}` : `mt-${v}`))
-  }),
+  marginTopValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-mt-${v.replace('-', '')}` : `mt-${v}`)),
+  ),
   marginTopPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginTopValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginBottomValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-mb-${v.replace('-', '')}` : `mb-${v}`))
-  }),
+  marginBottomValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-mb-${v.replace('-', '')}` : `mb-${v}`)),
+  ),
   marginBottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginBottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginLeftValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-ml-${v.replace('-', '')}` : `ml-${v}`))
-  }),
+  marginLeftValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-ml-${v.replace('-', '')}` : `ml-${v}`)),
+  ),
   marginLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  marginRightValues: computed(({ marginSuffix }) => {
-    return marginSuffix.map((v) => (v.startsWith('-') ? `-mr-${v.replace('-', '')}` : `mr-${v}`))
-  }),
+  marginRightValues: computed([(state) => state.marginSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-mr-${v.replace('-', '')}` : `mr-${v}`)),
+  ),
   marginRightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.marginRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
@@ -180,51 +180,51 @@ const spacingModel: SpacingModel = {
     const { spacing, padding } = project.tailwindConfig.theme
     return Object.keys(Object.assign(padding, spacing))
   }),
-  paddingValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-p-${v.replace('-', '')}` : `p-${v}`))
-  }),
+  paddingValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-p-${v.replace('-', '')}` : `p-${v}`)),
+  ),
   paddingPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingYValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-py-${v.replace('-', '')}` : `py-${v}`))
-  }),
+  paddingYValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-py-${v.replace('-', '')}` : `py-${v}`)),
+  ),
   paddingYPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingXValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-px-${v.replace('-', '')}` : `px-${v}`))
-  }),
+  paddingXValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-px-${v.replace('-', '')}` : `px-${v}`)),
+  ),
   paddingXPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingTopValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-pt-${v.replace('-', '')}` : `pt-${v}`))
-  }),
+  paddingTopValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-pt-${v.replace('-', '')}` : `pt-${v}`)),
+  ),
   paddingTopPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingTopValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingBottomValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-pb-${v.replace('-', '')}` : `pb-${v}`))
-  }),
+  paddingBottomValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-pb-${v.replace('-', '')}` : `pb-${v}`)),
+  ),
   paddingBottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingBottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingLeftValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-pl-${v.replace('-', '')}` : `pl-${v}`))
-  }),
+  paddingLeftValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-pl-${v.replace('-', '')}` : `pl-${v}`)),
+  ),
   paddingLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  paddingRightValues: computed(({ paddingSuffix }) => {
-    return paddingSuffix.map((v) => (v.startsWith('-') ? `-pr-${v.replace('-', '')}` : `pr-${v}`))
-  }),
+  paddingRightValues: computed([(state) => state.paddingSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-pr-${v.replace('-', '')}` : `pr-${v}`)),
+  ),
   paddingRightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.paddingRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
@@ -233,23 +233,18 @@ const spacingModel: SpacingModel = {
   spaceSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     const { spacing, space } = project.tailwindConfig.theme
-    console.log('space', space)
-    console.log('spacing', spacing)
-
     return Object.keys(Object.assign(space, spacing))
   }),
-  spaceYValues: computed(({ spaceSuffix }) => {
-    console.log('spaceSuffix', spaceSuffix)
-
-    return spaceSuffix.map((v) => (v.startsWith('-') ? `-space-y-${v.replace('-', '')}` : `space-y-${v}`))
-  }),
+  spaceYValues: computed([(state) => state.spaceSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-space-y-${v.replace('-', '')}` : `space-y-${v}`)),
+  ),
   spaceYPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.spaceYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  spaceXValues: computed(({ spaceSuffix }) => {
-    return spaceSuffix.map((v) => (v.startsWith('-') ? `-space-x-${v.replace('-', '')}` : `space-x-${v}`))
-  }),
+  spaceXValues: computed([(state) => state.spaceSuffix], (suffix) =>
+    suffix.map((v) => (v.startsWith('-') ? `-space-x-${v.replace('-', '')}` : `space-x-${v}`)),
+  ),
   spaceXPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.spaceXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
