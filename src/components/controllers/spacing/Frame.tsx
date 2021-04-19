@@ -182,10 +182,16 @@ const Frame: React.FC = (): JSX.Element => {
     target,
   ])
 
+  const [mHover, setMHover] = useState(false)
+  const [myHover, setMyHover] = useState(false)
+  const [mxHover, setMxHover] = useState(false)
   const [mtHover, setMtHover] = useState(false)
   const [mbHover, setMbHover] = useState(false)
   const [mlHover, setMlHover] = useState(false)
   const [mrHover, setMrHover] = useState(false)
+  const [pHover, setPHover] = useState(false)
+  const [pyHover, setPyHover] = useState(false)
+  const [pxHover, setPxHover] = useState(false)
   const [ptHover, setPtHover] = useState(false)
   const [pbHover, setPbHover] = useState(false)
   const [plHover, setPlHover] = useState(false)
@@ -221,9 +227,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMtHover(true)}
           onMouseLeave={() => setMtHover(false)}
         >
-          <span>{mtProperty?.classname || myProperty?.classname || mProperty?.classname}</span>
+          <span className={cs(style.mt_value)}>
+            {mtProperty?.classname || myProperty?.classname || mProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: myHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -231,6 +239,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(myValues)
               setTarget(Target.my)
             }}
+            onMouseEnter={() => setMyHover(true)}
+            onMouseLeave={() => setMyHover(false)}
           />
         </div>
         <div
@@ -259,9 +269,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMlHover(true)}
           onMouseLeave={() => setMlHover(false)}
         >
-          <span>{mlProperty?.classname || mxProperty?.classname || mProperty?.classname}</span>
+          <span className={cs(style.ml_value)}>
+            {mlProperty?.classname || mxProperty?.classname || mProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: mxHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -269,6 +281,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(mxValues)
               setTarget(Target.mx)
             }}
+            onMouseEnter={() => setMxHover(true)}
+            onMouseLeave={() => setMxHover(false)}
           />
         </div>
 
@@ -297,9 +311,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setPtHover(true)}
           onMouseLeave={() => setPtHover(false)}
         >
-          <span>{ptProperty?.classname || pyProperty?.classname || pProperty?.classname}</span>
+          <span className={cs(style.pt_value)}>
+            {ptProperty?.classname || pyProperty?.classname || pProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: pyHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -307,6 +323,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(pyValues)
               setTarget(Target.py)
             }}
+            onMouseEnter={() => setPyHover(true)}
+            onMouseLeave={() => setPyHover(false)}
           />
         </div>
         <div
@@ -335,9 +353,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMrHover(true)}
           onMouseLeave={() => setMrHover(false)}
         >
-          <span>{mrProperty?.classname || mxProperty?.classname || mProperty?.classname}</span>
+          <span className={cs(style.mr_value)}>
+            {mrProperty?.classname || mxProperty?.classname || mProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: mxHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -345,6 +365,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(mxValues)
               setTarget(Target.mx)
             }}
+            onMouseEnter={() => setMxHover(true)}
+            onMouseLeave={() => setMxHover(false)}
           />
         </div>
 
@@ -362,9 +384,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setPlHover(true)}
           onMouseLeave={() => setPlHover(false)}
         >
-          <span>{plProperty?.classname || pxProperty?.classname || pProperty?.classname}</span>
+          <span className={cs(style.pl_value)}>
+            {plProperty?.classname || pxProperty?.classname || pProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: pxHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -372,9 +396,60 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(pxValues)
               setTarget(Target.px)
             }}
+            onMouseEnter={() => setPxHover(true)}
+            onMouseLeave={() => setPxHover(false)}
           />
         </div>
-        <div className={style.center} />
+        <div className={style.center}>
+          <div
+            className={cs(style.stick, style.stick_my, { [style.hover]: mHover })}
+            role="button"
+            aria-hidden="true"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(mValues)
+              setTarget(Target.m)
+            }}
+            onMouseEnter={() => setMHover(true)}
+            onMouseLeave={() => setMHover(false)}
+          />
+          <div
+            className={cs(style.stick, style.stick_mx, { [style.hover]: mHover })}
+            role="button"
+            aria-hidden="true"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(mValues)
+              setTarget(Target.m)
+            }}
+            onMouseEnter={() => setMHover(true)}
+            onMouseLeave={() => setMHover(false)}
+          />
+          <div
+            className={cs(style.stick, style.stick_py, { [style.hover]: pHover })}
+            role="button"
+            aria-hidden="true"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pValues)
+              setTarget(Target.p)
+            }}
+            onMouseEnter={() => setPHover(true)}
+            onMouseLeave={() => setPHover(false)}
+          />
+          <div
+            className={cs(style.stick, style.stick_px, { [style.hover]: pHover })}
+            role="button"
+            aria-hidden="true"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelValues(pValues)
+              setTarget(Target.p)
+            }}
+            onMouseEnter={() => setPHover(true)}
+            onMouseLeave={() => setPHover(false)}
+          />
+        </div>
         <div
           className={cs(style.pr, {
             [style.active]: target === Target.p || target === Target.px || target === Target.pr,
@@ -389,9 +464,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setPrHover(true)}
           onMouseLeave={() => setPrHover(false)}
         >
-          <span>{prProperty?.classname || pxProperty?.classname || pProperty?.classname}</span>
+          <span className={cs(style.pr_value)}>
+            {prProperty?.classname || pxProperty?.classname || pProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: pxHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -399,6 +476,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(pxValues)
               setTarget(Target.px)
             }}
+            onMouseEnter={() => setPxHover(true)}
+            onMouseLeave={() => setPxHover(false)}
           />
         </div>
 
@@ -427,9 +506,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setPbHover(true)}
           onMouseLeave={() => setPbHover(false)}
         >
-          <span>{pbProperty?.classname || pyProperty?.classname || pProperty?.classname}</span>
+          <span className={cs(style.pb_value)}>
+            {pbProperty?.classname || pyProperty?.classname || pProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: pyHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -437,6 +518,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(pyValues)
               setTarget(Target.py)
             }}
+            onMouseEnter={() => setPyHover(true)}
+            onMouseLeave={() => setPyHover(false)}
           />
         </div>
         <div
@@ -476,9 +559,11 @@ const Frame: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMbHover(true)}
           onMouseLeave={() => setMbHover(false)}
         >
-          <span>{mbProperty?.classname || myProperty?.classname || mProperty?.classname}</span>
+          <span className={cs(style.mb_value)}>
+            {mbProperty?.classname || myProperty?.classname || mProperty?.classname}
+          </span>
           <div
-            className={style.stick}
+            className={cs(style.stick, { [style.hover]: myHover })}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
@@ -486,6 +571,8 @@ const Frame: React.FC = (): JSX.Element => {
               setSelValues(myValues)
               setTarget(Target.my)
             }}
+            onMouseEnter={() => setMyHover(true)}
+            onMouseLeave={() => setMyHover(false)}
           />
         </div>
         <div
