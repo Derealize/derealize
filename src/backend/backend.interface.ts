@@ -26,6 +26,7 @@ export interface ElementPayload {
   codePosition: string
   tagName: string
   className: string
+  selector: string
   useShift?: boolean
   display?: string
   position?: string
