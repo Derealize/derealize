@@ -336,7 +336,7 @@ app
   .whenReady()
   .then(async () => {
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
-    console.log(`process.versions`, JSON.stringify(process.versions))
+    // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()
     createBackendProcess()
@@ -401,16 +401,16 @@ ipcMain.on('selectDirs', async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on('openDirs', async (event, folderpath: string) => {
+ipcMain.on('openDirs', (event, folderpath: string) => {
   shell.openPath(folderpath)
 })
 
-ipcMain.on('focusElement', async (event, payload) => {
+ipcMain.on('focusElement', (event, payload) => {
   if (!mainWindow) return
   mainWindow.webContents.send('focusElement', payload)
 })
 
-ipcMain.on('setActiveSelector', async (event, projectId, activeSelector) => {
+ipcMain.on('storeActiveSelector', (event, projectId, activeSelector) => {
   const project = projects.get(projectId)
   if (project) {
     project.activeSelector = activeSelector

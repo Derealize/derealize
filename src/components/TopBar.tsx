@@ -7,10 +7,8 @@ import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { IoBookmarksOutline } from 'react-icons/io5'
-import { RiInputMethodLine } from 'react-icons/ri'
-import { AiOutlineBorderHorizontal, AiOutlineBorder } from 'react-icons/ai'
 import type { BoolReply } from '../backend/backend.interface'
-import { ProjectStage, Handler } from '../backend/backend.interface'
+import { ProjectStage, Handler, ElementPayload } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
@@ -47,6 +45,7 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
   const callPull = useCallback(async () => {
     if (!project) return null

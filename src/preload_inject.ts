@@ -14,28 +14,39 @@ const css = `
   }
 `
 
-// eslint-disable-next-line new-cap
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
 }
 
-const InspectActiveElement = async (): Promise<void> => {
+const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   if (!PROJECTID) return
+
+  let selector = activeSelector
+  if (selector) {
+    activeElement = document.querySelector(selector)
+    activeElement?.setAttribute('data-active', 'true')
+  }
 
   if (!activeElement) {
     await send(Handler.FocusElement, { id: PROJECTID, tagName: '' })
+    ipcRenderer.send('storeActiveSelector', PROJECTID, undefined)
     return
   }
 
   const codePosition = activeElement.getAttribute('data-code')
   if (!codePosition) {
-    await send(Handler.FocusElement, { id: PROJECTID, tagName: '' })
+    alert('This element does not support deraelize update')
     return
   }
 
+  if (!selector) {
+    selector = getSelectorString(activeElement)
+    ipcRenderer.send('storeActiveSelector', PROJECTID, selector)
+  }
+
   const { tagName, className } = activeElement
-  const payload: ElementPayload = { id: PROJECTID, codePosition, className, tagName }
+  const payload: ElementPayload = { id: PROJECTID, codePosition, className, tagName, selector }
 
   const declaration = getComputedStyle(activeElement)
   payload.display = declaration.getPropertyValue('display')
@@ -51,16 +62,10 @@ const InspectActiveElement = async (): Promise<void> => {
 }
 
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
-  console.log('setParams', socketId, projectId, activeSelector)
+  // console.log('setParams', socketId, projectId, activeSelector)
   PROJECTID = projectId
   connectSocket(socketId)
-
-  if (activeSelector) {
-    activeElement = document.querySelector(activeSelector)
-    activeElement?.setAttribute('data-active', 'true')
-
-    await InspectActiveElement()
-  }
+  await InspectActiveElement(activeSelector)
 })
 
 const derealizeListener = async (e: Event) => {
@@ -70,10 +75,6 @@ const derealizeListener = async (e: Event) => {
   activeElement?.removeAttribute('data-active')
   activeElement = e.target as HTMLElement
   activeElement.setAttribute('data-active', 'true')
-
-  const activeSelector = getSelectorString(activeElement)
-  ipcRenderer.send('setActiveSelector', PROJECTID, activeSelector)
-  // console.log('setActiveSelector', activeSelector)
 
   await InspectActiveElement()
 }
