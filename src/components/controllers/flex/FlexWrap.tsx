@@ -11,7 +11,7 @@ const FlexWrap: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.layout.flexDirectionPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.flexWrapPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>

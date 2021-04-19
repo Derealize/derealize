@@ -1,12 +1,9 @@
 import React, { useState, useContext } from 'react'
-import { VStack, HStack, Stack } from '@chakra-ui/react'
-import { nanoid } from 'nanoid'
-import Switch from 'react-switch'
+import { VStack } from '@chakra-ui/react'
 import type { AlreadyVariants, Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import ControllersContext from '../ControllersContext'
 import useComputeProperty from '../useComputeProperty'
-import theme from '../../../theme'
 
 import Variants from '../Variants'
 import Container from './Container'
@@ -46,10 +43,6 @@ import AutoRows from '../grid/AutoRows'
 const LayoutSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
-
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
   const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
   const displayProperty = useComputeProperty(displayPropertys)
@@ -59,76 +52,6 @@ const LayoutSection: React.FC = (): JSX.Element => {
       {!already && <Variants alreadyVariants={alreadyVariants} />}
 
       <Display />
-
-      <HStack align="center" justify="space-between">
-        <span>Flex</span>
-        <Switch
-          checked={displayProperty?.classname === 'flex'}
-          onChange={(check) => {
-            if (check) {
-              if (displayProperty) {
-                displayProperty.classname = 'flex'
-                setProperty(displayProperty)
-              } else {
-                setProperty({
-                  id: nanoid(),
-                  classname: 'flex',
-                } as Property)
-              }
-            } else if (displayProperty) {
-              deleteProperty(displayProperty.id)
-            }
-            updateClassName(true)
-          }}
-          offColor={theme.colors.gray['300']}
-          onColor={theme.colors.gray['300']}
-          onHandleColor={theme.colors.teal['400']}
-          offHandleColor={theme.colors.gray['400']}
-          handleDiameter={26}
-          uncheckedIcon={false}
-          checkedIcon={false}
-          boxShadow="0px 1px 4px rgba(0, 0, 0, 0.6)"
-          activeBoxShadow="0px 0px 1px 6px rgba(0, 0, 0, 0.2)"
-          height={20}
-          width={48}
-          className="react-switch"
-        />
-      </HStack>
-
-      <HStack align="center" justify="space-between">
-        <span>Grid</span>
-        <Switch
-          checked={displayProperty?.classname === 'grid'}
-          onChange={(check) => {
-            if (check) {
-              if (displayProperty) {
-                displayProperty.classname = 'grid'
-                setProperty(displayProperty)
-              } else {
-                setProperty({
-                  id: nanoid(),
-                  classname: 'grid',
-                } as Property)
-              }
-            } else if (displayProperty) {
-              deleteProperty(displayProperty.id)
-            }
-            updateClassName(true)
-          }}
-          offColor={theme.colors.gray['300']}
-          onColor={theme.colors.gray['300']}
-          onHandleColor={theme.colors.teal['400']}
-          offHandleColor={theme.colors.gray['400']}
-          handleDiameter={26}
-          uncheckedIcon={false}
-          checkedIcon={false}
-          boxShadow="0px 1px 4px rgba(0, 0, 0, 0.6)"
-          activeBoxShadow="0px 0px 1px 6px rgba(0, 0, 0, 0.2)"
-          height={20}
-          width={48}
-          className="react-switch"
-        />
-      </HStack>
 
       {displayProperty?.classname === 'flex' && (
         <>
@@ -162,14 +85,16 @@ const LayoutSection: React.FC = (): JSX.Element => {
         </>
       )}
 
-      <Position />
-      <Inset />
-      <Container />
-      <ObjectFit />
-      <ObjectPosition />
-      <Overflow />
-      <Visibility />
-      <Zindex />
+      <div className="mgt2r">
+        <Position />
+        <Inset />
+        <Container />
+        <ObjectFit />
+        <ObjectPosition />
+        <Overflow />
+        <Visibility />
+        <Zindex />
+      </div>
     </VStack>
   )
 }
