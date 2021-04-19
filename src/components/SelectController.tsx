@@ -58,7 +58,6 @@ const SelectController: React.FC<Props> = ({
     return (
       <div
         onMouseEnter={() => {
-          // console.log('onMouseEnter', props.data.value)
           if (!props.data.value && property) {
             deleteProperty(property.id)
           } else if (property) {

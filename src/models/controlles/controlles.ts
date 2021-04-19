@@ -125,6 +125,7 @@ const controllesModel: ControllesModel = {
       property.list = state.selectListVariant
       property.custom = state.selectCustomVariant
       property.dark = state.selectDark ? true : undefined
+      state.propertys = [...state.propertys]
     } else {
       payload.screen = state.selectScreenVariant
       payload.state = state.selectStateVariant
