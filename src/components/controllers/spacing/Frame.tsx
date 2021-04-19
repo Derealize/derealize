@@ -8,6 +8,23 @@ import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../backend/backend.interface'
 import style from './Frame.module.scss'
 
+enum Target {
+  m,
+  my,
+  mx,
+  mt,
+  mb,
+  ml,
+  mr,
+  p,
+  py,
+  px,
+  pt,
+  pb,
+  pl,
+  pr,
+}
+
 const Frame: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
@@ -69,8 +86,101 @@ const Frame: React.FC = (): JSX.Element => {
   const prProperty = useComputeProperty(prPropertys)
 
   const [selValues, setSelValues] = useState<Array<string>>([])
-  const [selProperty, setSelProperty] = useState<Property | undefined>()
-  const [cleanPropertys, setCleanPropertys] = useState<Array<Property | undefined>>([])
+
+  const [target, setTarget] = useState<Target | undefined>()
+  const selProperty = useMemo<Property | undefined>(() => {
+    switch (target) {
+      case Target.m:
+        return mProperty
+      case Target.my:
+        return myProperty
+      case Target.mx:
+        return mxProperty
+      case Target.mt:
+        return mtProperty
+      case Target.ml:
+        return mlProperty
+      case Target.mr:
+        return mrProperty
+      case Target.mb:
+        return mbProperty
+      case Target.p:
+        return pProperty
+      case Target.py:
+        return pyProperty
+      case Target.px:
+        return pxProperty
+      case Target.pt:
+        return ptProperty
+      case Target.pl:
+        return plProperty
+      case Target.pr:
+        return prProperty
+      case Target.pb:
+        return pbProperty
+      default:
+        return undefined
+    }
+  }, [
+    mProperty,
+    mbProperty,
+    mlProperty,
+    mrProperty,
+    mtProperty,
+    mxProperty,
+    myProperty,
+    pProperty,
+    pbProperty,
+    plProperty,
+    prProperty,
+    ptProperty,
+    pxProperty,
+    pyProperty,
+    target,
+  ])
+
+  const cleanPropertys = useMemo<Array<Property | undefined>>(() => {
+    switch (target) {
+      case Target.m:
+        return [myProperty, mxProperty, mtProperty, mbProperty, mlProperty, mrProperty]
+      case Target.my:
+        return [mtProperty, mbProperty]
+      case Target.mx:
+        return [mlProperty, mrProperty]
+      case Target.mt:
+      case Target.mb:
+      case Target.ml:
+      case Target.mr:
+        return []
+      case Target.p:
+        return [pyProperty, pxProperty, ptProperty, pbProperty, plProperty, prProperty]
+      case Target.py:
+        return [ptProperty, pbProperty]
+      case Target.px:
+        return [plProperty, prProperty]
+      case Target.pt:
+      case Target.pl:
+      case Target.pr:
+      case Target.pb:
+        return []
+      default:
+        return []
+    }
+  }, [
+    mbProperty,
+    mlProperty,
+    mrProperty,
+    mtProperty,
+    mxProperty,
+    myProperty,
+    pbProperty,
+    plProperty,
+    prProperty,
+    ptProperty,
+    pxProperty,
+    pyProperty,
+    target,
+  ])
 
   const [mtHover, setMtHover] = useState(false)
   const [mbHover, setMbHover] = useState(false)
@@ -89,19 +199,24 @@ const Frame: React.FC = (): JSX.Element => {
         <div
           className={cs(style.mtl, {
             [style.active]:
-              selValues === mtValues || selValues === mlValues || selValues === myValues || selValues === mxValues,
+              target === Target.m ||
+              target === Target.my ||
+              target === Target.mx ||
+              target === Target.mt ||
+              target === Target.ml,
             [style.hover]: mtHover || mlHover,
           })}
         />
         <div
-          className={cs(style.mt_column_span3, { [style.active]: selValues === mtValues || selValues === myValues })}
+          className={cs(style.mt_column_span3, {
+            [style.active]: target === Target.m || target === Target.my || target === Target.mt,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(mtValues)
-            setSelProperty(mtProperty)
-            setCleanPropertys([])
+            setTarget(Target.mt)
           }}
           onMouseEnter={() => setMtHover(true)}
           onMouseLeave={() => setMtHover(false)}
@@ -114,42 +229,45 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(myValues)
-              setSelProperty(myProperty)
-              setCleanPropertys([mtProperty, mbProperty])
+              setTarget(Target.my)
             }}
           />
         </div>
         <div
           className={cs(style.mtr, {
             [style.active]:
-              selValues === mtValues || selValues === mrValues || selValues === myValues || selValues === mxValues,
+              target === Target.m ||
+              target === Target.my ||
+              target === Target.mx ||
+              target === Target.mt ||
+              target === Target.mr,
             [style.hover]: mtHover || mrHover,
           })}
         />
 
         <div
-          className={cs(style.ml_row_span3, { [style.active]: selValues === mlValues || selValues === mxValues })}
+          className={cs(style.ml_row_span3, {
+            [style.active]: target === Target.m || target === Target.mx || target === Target.ml,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(mlValues)
-            setSelProperty(mlProperty)
-            setCleanPropertys([])
+            setTarget(Target.ml)
           }}
           onMouseEnter={() => setMlHover(true)}
           onMouseLeave={() => setMlHover(false)}
         >
           <span>{mlProperty?.classname || mxProperty?.classname || mProperty?.classname}</span>
           <div
-            className={cs(style.stick, { [style.active]: selValues === mxValues })}
+            className={style.stick}
             role="button"
             aria-hidden="true"
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(mxValues)
-              setSelProperty(mxProperty)
-              setCleanPropertys([mlProperty, mrProperty])
+              setTarget(Target.mx)
             }}
           />
         </div>
@@ -157,19 +275,24 @@ const Frame: React.FC = (): JSX.Element => {
         <div
           className={cs(style.ptl, {
             [style.active]:
-              selValues === ptValues || selValues === plValues || selValues === pyValues || selValues === pxValues,
+              target === Target.p ||
+              target === Target.py ||
+              target === Target.px ||
+              target === Target.pt ||
+              target === Target.pl,
             [style.hover]: ptHover || plHover,
           })}
         />
         <div
-          className={cs(style.pt, { [style.active]: selValues === ptValues || selValues === pyValues })}
+          className={cs(style.pt, {
+            [style.active]: target === Target.p || target === Target.py || target === Target.pt,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(ptValues)
-            setSelProperty(ptProperty)
-            setCleanPropertys([])
+            setTarget(Target.pt)
           }}
           onMouseEnter={() => setPtHover(true)}
           onMouseLeave={() => setPtHover(false)}
@@ -182,28 +305,32 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(pyValues)
-              setSelProperty(pyProperty)
-              setCleanPropertys([ptProperty, pbProperty])
+              setTarget(Target.py)
             }}
           />
         </div>
         <div
           className={cs(style.ptr, {
             [style.active]:
-              selValues === ptValues || selValues === prValues || selValues === pyValues || selValues === pxValues,
+              target === Target.p ||
+              target === Target.py ||
+              target === Target.px ||
+              target === Target.pt ||
+              target === Target.pr,
             [style.hover]: ptHover || prHover,
           })}
         />
 
         <div
-          className={cs(style.mr_row_span3, { [style.active]: selValues === mrValues || selValues === mxValues })}
+          className={cs(style.mr_row_span3, {
+            [style.active]: target === Target.m || target === Target.mx || target === Target.mr,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(mrValues)
-            setSelProperty(mrProperty)
-            setCleanPropertys([])
+            setTarget(Target.mr)
           }}
           onMouseEnter={() => setMrHover(true)}
           onMouseLeave={() => setMrHover(false)}
@@ -216,21 +343,21 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(mxValues)
-              setSelProperty(mxProperty)
-              setCleanPropertys([mlProperty, mrProperty])
+              setTarget(Target.mx)
             }}
           />
         </div>
 
         <div
-          className={cs(style.pl, { [style.active]: selValues === plValues || selValues === pxValues })}
+          className={cs(style.pl, {
+            [style.active]: target === Target.p || target === Target.px || target === Target.ml,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(plValues)
-            setSelProperty(plProperty)
-            setCleanPropertys([])
+            setTarget(Target.pl)
           }}
           onMouseEnter={() => setPlHover(true)}
           onMouseLeave={() => setPlHover(false)}
@@ -243,21 +370,21 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(pxValues)
-              setSelProperty(pxProperty)
-              setCleanPropertys([plProperty, prProperty])
+              setTarget(Target.px)
             }}
           />
         </div>
         <div className={style.center} />
         <div
-          className={cs(style.pr, { [style.active]: selValues === prValues || selValues === pxValues })}
+          className={cs(style.pr, {
+            [style.active]: target === Target.p || target === Target.px || target === Target.pr,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(prValues)
-            setSelProperty(prProperty)
-            setCleanPropertys([])
+            setTarget(Target.pr)
           }}
           onMouseEnter={() => setPrHover(true)}
           onMouseLeave={() => setPrHover(false)}
@@ -270,8 +397,7 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(pxValues)
-              setSelProperty(pxProperty)
-              setCleanPropertys([plProperty, prProperty])
+              setTarget(Target.px)
             }}
           />
         </div>
@@ -279,19 +405,24 @@ const Frame: React.FC = (): JSX.Element => {
         <div
           className={cs(style.pbl, {
             [style.active]:
-              selValues === pbValues || selValues === plValues || selValues === pyValues || selValues === pxValues,
+              target === Target.p ||
+              target === Target.py ||
+              target === Target.px ||
+              target === Target.pb ||
+              target === Target.pl,
             [style.hover]: pbHover || plHover,
           })}
         />
         <div
-          className={cs(style.pb, { [style.active]: selValues === pbValues || selValues === pyValues })}
+          className={cs(style.pb, {
+            [style.active]: target === Target.p || target === Target.py || target === Target.pb,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(pbValues)
-            setSelProperty(pbProperty)
-            setCleanPropertys([])
+            setTarget(Target.pb)
           }}
           onMouseEnter={() => setPbHover(true)}
           onMouseLeave={() => setPbHover(false)}
@@ -304,15 +435,18 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(pyValues)
-              setSelProperty(pyProperty)
-              setCleanPropertys([ptProperty, pbProperty])
+              setTarget(Target.py)
             }}
           />
         </div>
         <div
           className={cs(style.pbr, {
             [style.active]:
-              selValues === pbValues || selValues === prValues || selValues === pyValues || selValues === pxValues,
+              target === Target.p ||
+              target === Target.py ||
+              target === Target.px ||
+              target === Target.pb ||
+              target === Target.pr,
             [style.hover]: pbHover || prHover,
           })}
         />
@@ -320,19 +454,24 @@ const Frame: React.FC = (): JSX.Element => {
         <div
           className={cs(style.mbl, {
             [style.active]:
-              selValues === mbValues || selValues === mlValues || selValues === myValues || selValues === mxValues,
+              target === Target.m ||
+              target === Target.my ||
+              target === Target.mx ||
+              target === Target.mb ||
+              target === Target.ml,
             [style.hover]: mbHover || mlHover,
           })}
         />
         <div
-          className={cs(style.mb_column_span3, { [style.active]: selValues === mbValues || selValues === myValues })}
+          className={cs(style.mb_column_span3, {
+            [style.active]: target === Target.m || target === Target.mb || target === Target.my,
+          })}
           role="button"
           aria-hidden="true"
           onClick={(e) => {
             e.stopPropagation()
             setSelValues(mbValues)
-            setSelProperty(mbProperty)
-            setCleanPropertys([])
+            setTarget(Target.mb)
           }}
           onMouseEnter={() => setMbHover(true)}
           onMouseLeave={() => setMbHover(false)}
@@ -345,15 +484,18 @@ const Frame: React.FC = (): JSX.Element => {
             onClick={(e) => {
               e.stopPropagation()
               setSelValues(myValues)
-              setSelProperty(myProperty)
-              setCleanPropertys([mtProperty, mbProperty])
+              setTarget(Target.my)
             }}
           />
         </div>
         <div
           className={cs(style.mbr, {
             [style.active]:
-              selValues === mbValues || selValues === mrValues || selValues === myValues || selValues === mxValues,
+              target === Target.m ||
+              target === Target.my ||
+              target === Target.mx ||
+              target === Target.mb ||
+              target === Target.mr,
             [style.hover]: mbHover || mrHover,
           })}
         />
