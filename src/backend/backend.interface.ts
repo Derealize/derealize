@@ -9,7 +9,6 @@ export enum Handler {
   Push = 'Push',
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
-  FocusElement = 'FocusElement',
   UpdateClass = 'UpdateClass',
   SelectElement = 'SelectElement',
 }
@@ -18,22 +17,7 @@ export enum Broadcast {
   Status = 'Status',
   Installing = 'Installing',
   Starting = 'Starting',
-  FocusElement = 'FocusElement',
-  LiveUpdateClass = 'LiveUpdateClass',
   SelectElement = 'SelectElement',
-}
-
-export interface ElementPayload {
-  projectId: string
-  codePosition: string
-  tagName: string
-  className: string
-  selector: string
-  useShift?: boolean
-  display?: string
-  position?: string
-  parentTagName?: string
-  parentDisplay?: string
 }
 
 export interface ProjectConfig {

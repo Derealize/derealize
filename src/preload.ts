@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron'
 import type { Project } from './models/project'
 import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, send, listen, unlisten } from './client-ipc'
@@ -85,6 +85,15 @@ contextBridge.exposeInMainWorld('derealize', {
   deviceEmulation: (projectId: string, width: number) => {
     ipcRenderer.send('deviceEmulation', projectId, width)
   },
+  listenMainIpc: (key: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) => {
+    ipcRenderer.on(key, listener)
+  },
+  unlistenMainIpc: (key: string) => {
+    ipcRenderer.removeAllListeners(key)
+  },
+  sendMainIpc: (key: string, ...args: any[]) => {
+    ipcRenderer.send(key, ...args)
+  },
 })
 
 ipcRenderer.on('setParams', (event: Event, { socketId }: Record<string, string>) => {
@@ -116,5 +125,8 @@ export interface PreloadWindow extends Window {
     closeProjectView: (id: string) => void
     loadURL: (projectId: string, url: string) => void
     deviceEmulation: (projectId: string, width: number) => void
+    listenMainIpc: (key: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) => void
+    unlistenMainIpc: (key: string) => void
+    sendMainIpc: (key: string, ...args: any[]) => void
   }
 }
