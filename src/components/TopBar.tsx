@@ -1,18 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { useStyleConfig, useToast, Flex, IconButton, Tooltip, IconButtonProps } from '@chakra-ui/react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import {
+  useStyleConfig,
+  useToast,
+  Flex,
+  Text,
+  IconButton,
+  Tooltip,
+  IconButtonProps,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+} from '@chakra-ui/react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
-import { IoBookmarksOutline } from 'react-icons/io5'
+import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import type { BoolReply } from '../backend/backend.interface'
-import { ProjectStage, Handler, ElementPayload } from '../backend/backend.interface'
+import { ProjectStage, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
+import type { Element } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import Breadcrumb from './Breadcrumb'
+// import Breadcrumb from './Breadcrumb'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -31,13 +42,10 @@ BarIconButton.defaultProps = {
   selected: false,
 }
 
-type Props = {
-  project: Project
-}
-
-const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
+const TopBar: React.FC = (): JSX.Element => {
   const toast = useToast()
 
+  const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
@@ -45,7 +53,10 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<Element | undefined>((state) => state.controlles.element)
+  const breadcrumbs = useMemo(() => {
+    return element?.selector.split('>').map((sel, i) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, i }))
+  }, [element])
 
   const callPull = useCallback(async () => {
     if (!project) return null
@@ -82,6 +93,8 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
     }
     return null
   }, [project, toast])
+
+  if (!project) return <></>
 
   return (
     <Flex className={style.topbar} justify="space-between">
@@ -123,7 +136,28 @@ const TopBar: React.FC<Props> = ({ project }: Props): JSX.Element => {
         <BarIconButton aria-label="Pages" icon={<IoBookmarksOutline />} onClick={() => pagesMenu()} />
       </Flex>
 
-      <Breadcrumb project={project} />
+      <Flex align="center" justify="center">
+        <Breadcrumb spacing="8px" separator={<IoChevronForward color="#a0aec0" />}>
+          {breadcrumbs?.map(({ sel, i, tooltip }) => (
+            <BreadcrumbItem key={sel + i}>
+              <Tooltip label={tooltip}>
+                {i === breadcrumbs.length - 1 ? (
+                  <Text textColor="teal.500">{sel}</Text>
+                ) : (
+                  <BreadcrumbLink
+                    onMouseEnter={() => send(Handler.SelectElement, { projectId: project.url, index: i })}
+                    onClick={() => {
+                      send(Handler.SelectElement, { projectId: project.url, index: i, isClick: true })
+                    }}
+                  >
+                    {sel}
+                  </BreadcrumbLink>
+                )}
+              </Tooltip>
+            </BreadcrumbItem>
+          ))}
+        </Breadcrumb>
+      </Flex>
 
       <Flex align="center" justify="right">
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />

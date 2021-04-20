@@ -1,10 +1,10 @@
 /* eslint-disable no-restricted-syntax */
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import { nanoid } from 'nanoid'
-import type { Variant } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from '../index'
 import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
 import type { PreloadWindow } from '../../preload'
+import type { Element } from '../project'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
@@ -50,8 +50,8 @@ export interface AlreadyVariants {
 export interface ControllesModel {
   propertys: Array<Property>
 
-  element: ElementPayload | undefined
-  setElement: Action<ControllesModel, ElementPayload | undefined>
+  element: Element | undefined
+  setElement: Action<ControllesModel, Element | undefined>
 
   setProperty: Action<ControllesModel, Property>
   deleteProperty: Action<ControllesModel, string>

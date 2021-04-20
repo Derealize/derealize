@@ -31,6 +31,8 @@ const {
   loadURL,
 } = window.derealize
 
+export type Element = Omit<ElementPayload, 'projectId'>
+
 export interface Project {
   url: string
   path: string
@@ -46,7 +48,7 @@ export interface Project {
   runningOutput?: Array<string>
   tailwindVersion?: string
   tailwindConfig?: TailwindConfig
-  element?: ElementPayload
+  element?: Element
 }
 
 export enum ProjectView {
@@ -195,15 +197,15 @@ const projectModel: ProjectModel = {
   setFrontProject: action((state, project) => {
     state.frontProject = project
   }),
-  setFrontProjectThunk: thunk(async (actions, payload, { getStoreActions }) => {
-    actions.setFrontProject(payload)
-    if (!payload) {
+  setFrontProjectThunk: thunk(async (actions, project, { getStoreActions }) => {
+    actions.setFrontProject(project)
+    if (!project) {
       frontMain()
       return
     }
 
-    getStoreActions().controlles.setElement(payload.element)
-    await send(Handler.CheckStatus, { url: payload.url })
+    getStoreActions().controlles.setElement(project.element)
+    await send(Handler.CheckStatus, { url: project.url })
   }),
 
   frontProjectView: ProjectView.BrowserView,
@@ -392,7 +394,7 @@ const projectModel: ProjectModel = {
 
     listen(Broadcast.FocusElement, (payload: ElementPayload) => {
       const { openedProjects, frontProject } = getState()
-      const project = openedProjects.find((p) => p.url === payload.id)
+      const project = openedProjects.find((p) => p.url === payload.projectId)
       if (!project) return
 
       project.element = payload.tagName ? payload : undefined

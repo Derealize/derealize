@@ -11,6 +11,7 @@ export enum Handler {
   GetTailwindConfig = 'GetTailwindConfig',
   FocusElement = 'FocusElement',
   UpdateClass = 'UpdateClass',
+  SelectElement = 'SelectElement',
 }
 
 export enum Broadcast {
@@ -19,10 +20,11 @@ export enum Broadcast {
   Starting = 'Starting',
   FocusElement = 'FocusElement',
   LiveUpdateClass = 'LiveUpdateClass',
+  SelectElement = 'SelectElement',
 }
 
 export interface ElementPayload {
-  id: string
+  projectId: string
   codePosition: string
   tagName: string
   className: string

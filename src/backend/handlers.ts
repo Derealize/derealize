@@ -95,14 +95,19 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
 }
 
 export const FocusElement = async (payload: ElementPayload) => {
-  const project = getProject(payload.id)
+  const project = getProject(payload.projectId)
   emit(Broadcast.FocusElement, payload)
 }
 
 export const UpdateClass = async (payload: ElementPayload) => {
-  const { id, codePosition, className, useShift } = payload
-  const project = getProject(id)
+  const { projectId, codePosition, className, useShift } = payload
+  const project = getProject(projectId)
 
   emit(Broadcast.LiveUpdateClass, payload)
   if (useShift) shift(project.path, codePosition, className)
+}
+
+export const SelectElement = async (payload: Record<string, string>) => {
+  const project = getProject(payload.projectId)
+  emit(Broadcast.SelectElement, payload)
 }
