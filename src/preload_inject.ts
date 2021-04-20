@@ -1,7 +1,8 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import 'selector-generator'
 import { connectSocket, send, listen } from './client-ipc'
-import { Handler, Broadcast, ElementPayload } from './backend/backend.interface'
+import { Handler, Broadcast } from './backend/backend.interface'
+import { ElementPayload, MainIpcChannel } from './interface'
 
 let PROJECTID: string | undefined
 let selector: string | undefined
@@ -30,8 +31,8 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   }
 
   if (!activeElement) {
-    await send(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
-    ipcRenderer.send('storeActiveSelector', PROJECTID, undefined)
+    // await send(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
+    ipcRenderer.send(MainIpcChannel.FocusElement, { projectId: PROJECTID, tagName: '', selector: '' })
     return
   }
 
@@ -45,8 +46,7 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
 
   if (!selector) {
     selector = getSelectorString(activeElement)
-    ipcRenderer.send('storeActiveSelector', PROJECTID, selector)
-    console.log('selector', selector)
+    // console.log('selector', selector)
   }
 
   const { tagName, className } = activeElement
@@ -62,7 +62,8 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
     payload.parentDisplay = parentDeclaration.getPropertyValue('display')
   }
 
-  await send(Handler.FocusElement, payload as any)
+  ipcRenderer.send(MainIpcChannel.FocusElement, payload)
+  // await send(Handler.FocusElement, payload as any)
 }
 
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
@@ -81,7 +82,7 @@ const derealizeListener = async (e: Event) => {
   await InspectActiveElement()
 }
 
-listen(Broadcast.LiveUpdateClass, ({ projectId, className }: ElementPayload) => {
+ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId, className }: ElementPayload) => {
   if (projectId === PROJECTID && activeElement) {
     // console.log('LiveUpdateClass', className)
     activeElement.className = className

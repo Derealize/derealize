@@ -1,3 +1,4 @@
+import type { IpcRendererEvent } from 'electron'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
@@ -15,7 +16,8 @@ import type {
   BoolReply,
   GitFileChanges,
 } from '../backend/backend.interface'
-import { Broadcast, Handler, ProjectStage, ElementPayload } from '../backend/backend.interface'
+import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
+import { ElementPayload, MainIpcChannel } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -25,6 +27,8 @@ const {
   send,
   listen,
   unlisten,
+  listenMainIpc,
+  unlistenMainIpc,
   frontMain,
   frontProjectWeb,
   closeProjectView,
@@ -204,7 +208,9 @@ const projectModel: ProjectModel = {
       return
     }
 
-    getStoreActions().controlles.setElement(project.element)
+    if (project.element) {
+      getStoreActions().controlles.setElement({ ...project.element, projectId: project.url })
+    }
     await send(Handler.CheckStatus, { url: project.url })
   }),
 
@@ -392,14 +398,14 @@ const projectModel: ProjectModel = {
       actions.setRunningOutput(project.runningOutput)
     })
 
-    listen(Broadcast.FocusElement, (payload: ElementPayload) => {
+    listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, payload: ElementPayload) => {
       const { openedProjects, frontProject } = getState()
       const project = openedProjects.find((p) => p.url === payload.projectId)
       if (!project) return
 
       project.element = payload.tagName ? payload : undefined
-      if (project === frontProject) {
-        getStoreActions().controlles.setElement(project.element)
+      if (project === frontProject && project.element) {
+        getStoreActions().controlles.setElement({ ...project.element, projectId: project.url })
       }
     })
   }),
@@ -408,7 +414,7 @@ const projectModel: ProjectModel = {
     unlisten(Broadcast.Status)
     unlisten(Broadcast.Installing)
     unlisten(Broadcast.Starting)
-    unlisten(Broadcast.FocusElement)
+    unlistenMainIpc(MainIpcChannel.FocusElement)
   }),
 
   modalDisclosure: false,

@@ -11,6 +11,7 @@ import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
+import { ElementPayload, MainIpcChannel } from './interface'
 
 const isDev = process.env.NODE_ENV === 'development'
 const isDebug = isDev || process.env.DEBUG_PROD === 'true'
@@ -405,14 +406,11 @@ ipcMain.on('openDirs', (event, folderpath: string) => {
   shell.openPath(folderpath)
 })
 
-ipcMain.on('focusElement', (event, payload) => {
+ipcMain.on(MainIpcChannel.FocusElement, (event, payload: ElementPayload) => {
   if (!mainWindow) return
-  mainWindow.webContents.send('focusElement', payload)
-})
-
-ipcMain.on('storeActiveSelector', (event, projectId, activeSelector) => {
-  const project = projects.get(projectId)
+  const project = projects.get(payload.projectId)
   if (project) {
-    project.activeSelector = activeSelector
+    project.activeSelector = payload.selector
   }
+  mainWindow.webContents.send(MainIpcChannel.FocusElement, payload)
 })

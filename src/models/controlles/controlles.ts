@@ -2,13 +2,13 @@
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
-import { Broadcast, Handler, ElementPayload } from '../../backend/backend.interface'
+import { Handler } from '../../backend/backend.interface'
+import { ElementPayload, MainIpcChannel } from '../../interface'
 import type { PreloadWindow } from '../../preload'
-import type { Element } from '../project'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
-const { send, listen, unlisten, deviceEmulation } = window.derealize
+const { send, sendMainIpc, deviceEmulation } = window.derealize
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
@@ -50,8 +50,8 @@ export interface AlreadyVariants {
 export interface ControllesModel {
   propertys: Array<Property>
 
-  element: Element | undefined
-  setElement: Action<ControllesModel, Element | undefined>
+  element: ElementPayload | undefined
+  setElement: Action<ControllesModel, ElementPayload | undefined>
 
   setProperty: Action<ControllesModel, Property>
   deleteProperty: Action<ControllesModel, string>
@@ -139,7 +139,7 @@ const controllesModel: ControllesModel = {
     state.propertys = state.propertys.filter((p) => payload !== p.id)
   }),
 
-  updateClassName: thunk(async (actions, useShift, { getState }) => {
+  updateClassName: thunk(async (actions, shiftCode, { getState }) => {
     const { propertys, element } = getState()
     if (!element) return
     // const compiledPropertys = compileAll(propertys)
@@ -168,7 +168,11 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
-    send(Handler.UpdateClass, { ...element, className, useShift })
+    if (shiftCode) {
+      send(Handler.UpdateClass, { ...element, className })
+    } else {
+      sendMainIpc(MainIpcChannel.LiveUpdateClass, { ...element, className })
+    }
   }),
 
   screenVariants: computed([(state, storeState) => storeState.project.frontProject], (project) => {

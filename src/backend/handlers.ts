@@ -94,11 +94,6 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
   return config
 }
 
-export const FocusElement = async (payload: ElementPayload) => {
-  const project = getProject(payload.projectId)
-  emit(Broadcast.FocusElement, payload)
-}
-
 export const UpdateClass = async (payload: ElementPayload) => {
   const { projectId, codePosition, className, useShift } = payload
   const project = getProject(projectId)
