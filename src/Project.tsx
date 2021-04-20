@@ -7,7 +7,8 @@ import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project, ProjectView } from './models/project'
-import type { CommitLog, BoolReply, ElementPayload } from './backend/backend.interface'
+import type { Element } from './models/project'
+import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
 import Controllers from './components/controllers/Controllers'
@@ -17,15 +18,12 @@ import type { PreloadWindow } from './preload'
 declare const window: PreloadWindow
 const { send } = window.derealize
 
-type Props = {
-  project: Project
-}
-
-const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
+const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
   const loading = useStoreState<boolean>((state) => state.project.startloading)
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+  const element = useStoreState<Element | undefined>((state) => state.controlles.element)
   const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
@@ -52,9 +50,11 @@ const ProjectPage: React.FC<Props> = ({ project }: Props): JSX.Element => {
     return null
   }, [project, toast])
 
+  if (!project) return <></>
+
   return (
     <>
-      <TopBar project={project} />
+      <TopBar />
       <div className={style.main}>
         {frontProjectView === ProjectView.BrowserView && !!element && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>

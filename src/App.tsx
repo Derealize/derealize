@@ -16,7 +16,7 @@ const App = (): JSX.Element => {
   const projectListen = useStoreActions((actions) => actions.project.listen)
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
-  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
+  const project = useStoreState<Project | null>((state) => state.project.frontProject)
 
   useEffect(() => {
     profileLoadStore()
@@ -31,10 +31,7 @@ const App = (): JSX.Element => {
   return (
     <div className="app">
       <TabBar />
-      <div className={style.main}>
-        {!frontProject && <Home />}
-        {frontProject && <ProjectView project={frontProject} />}
-      </div>
+      <div className={style.main}>{project ? <ProjectView /> : <Home />}</div>
       <ImportProject />
     </div>
   )

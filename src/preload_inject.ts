@@ -3,10 +3,12 @@ import 'selector-generator'
 import { connectSocket, send, listen } from './client-ipc'
 import { Handler, Broadcast, ElementPayload } from './backend/backend.interface'
 
-let PROJECTID: string | null = null
-let activeElement: HTMLElement | null = null
+let PROJECTID: string | undefined
+let selector: string | undefined
+let activeElement: Element | null = null
+let hoverElement: Element | null = null
 const css = `
-  [data-code]:hover {
+  [data-hover], [data-code]:hover {
     box-shadow: 0 0 0 2px #4fd1c5;
   }
   [data-active] {
@@ -22,14 +24,13 @@ const getSelectorString = (el: Element): string => {
 const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   if (!PROJECTID) return
 
-  let selector = activeSelector
+  selector = activeSelector
   if (selector) {
     activeElement = document.querySelector(selector)
-    activeElement?.setAttribute('data-active', 'true')
   }
 
   if (!activeElement) {
-    await send(Handler.FocusElement, { id: PROJECTID, tagName: '' })
+    await send(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
     ipcRenderer.send('storeActiveSelector', PROJECTID, undefined)
     return
   }
@@ -40,13 +41,16 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
     return
   }
 
+  activeElement.setAttribute('data-active', 'true')
+
   if (!selector) {
     selector = getSelectorString(activeElement)
     ipcRenderer.send('storeActiveSelector', PROJECTID, selector)
+    console.log('selector', selector)
   }
 
   const { tagName, className } = activeElement
-  const payload: ElementPayload = { id: PROJECTID, codePosition, className, tagName, selector }
+  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, tagName, selector }
 
   const declaration = getComputedStyle(activeElement)
   payload.display = declaration.getPropertyValue('display')
@@ -74,15 +78,32 @@ const derealizeListener = async (e: Event) => {
 
   activeElement?.removeAttribute('data-active')
   activeElement = e.target as HTMLElement
-  activeElement.setAttribute('data-active', 'true')
-
   await InspectActiveElement()
 }
 
-listen(Broadcast.LiveUpdateClass, ({ id, className }: ElementPayload) => {
-  if (id === PROJECTID && activeElement) {
+listen(Broadcast.LiveUpdateClass, ({ projectId, className }: ElementPayload) => {
+  if (projectId === PROJECTID && activeElement) {
     // console.log('LiveUpdateClass', className)
     activeElement.className = className
+  }
+})
+
+listen(Broadcast.SelectElement, async ({ projectId, index, isClick }) => {
+  if (projectId !== PROJECTID || !selector) return
+  hoverElement?.removeAttribute('data-hover')
+
+  const sels = selector.split('>')
+  const sel = sels.slice(0, index + 1).join('>')
+  const target = document.querySelector(sel)
+  if (target) {
+    if (isClick) {
+      activeElement?.removeAttribute('data-active')
+      activeElement = target
+      await InspectActiveElement()
+    } else {
+      hoverElement = target
+      hoverElement.setAttribute('data-hover', 'true')
+    }
   }
 })
 
