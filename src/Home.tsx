@@ -30,9 +30,10 @@ import type { Project } from './models/project'
 import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
+import { MainIpcChannel } from './interface'
 
 declare const window: PreloadWindow
-const { openDirs, send } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
@@ -104,7 +105,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              openDirs(p.path)
+                              sendMainIpc(MainIpcChannel.OpenDirs, p.path)
                             }}
                           >
                             Open Folder
@@ -113,7 +114,7 @@ const Home = (): JSX.Element => {
                             <MenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                send(Handler.Push, { url: p.url })
+                                sendBackIpc(Handler.Push, { url: p.url })
                               }}
                             >
                               Push {p.changes.length} files
@@ -122,7 +123,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              send(Handler.Pull, { url: p.url })
+                              sendBackIpc(Handler.Pull, { url: p.url })
                             }}
                           >
                             Pull

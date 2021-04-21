@@ -8,7 +8,7 @@ import type { PreloadWindow } from '../../preload'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
-const { send, sendMainIpc, deviceEmulation } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
@@ -169,7 +169,7 @@ const controllesModel: ControllesModel = {
     })
 
     if (shiftCode) {
-      send(Handler.UpdateClass, { ...element, className })
+      sendBackIpc(Handler.UpdateClass, { ...element, className })
     } else {
       sendMainIpc(MainIpcChannel.LiveUpdateClass, { ...element, className })
     }
@@ -194,7 +194,7 @@ const controllesModel: ControllesModel = {
           width = parseInt(screen.replace('px', ''), 10)
         }
       }
-      deviceEmulation(frontProject.url, width)
+      sendMainIpc(MainIpcChannel.DeviceEmulation, frontProject.url, width)
     }
   }),
   selectStateVariant: undefined,

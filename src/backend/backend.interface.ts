@@ -28,12 +28,12 @@ export interface ProjectConfig {
   applyCssFile: string
 }
 
-export enum ProjectStage {
-  None,
-  Initialized,
-  Ready, // npm installed
-  Starting,
-  Running,
+export enum ProjectStatus {
+  None = 'None',
+  Initialized = 'Initialized',
+  Ready = 'Ready', // npm installed
+  Starting = 'Starting',
+  Running = 'Running',
 }
 
 export interface PayloadError {
@@ -55,7 +55,7 @@ export interface StatusPayload {
   id: string
   productName: string
   changes: Array<GitFileChanges>
-  stage: ProjectStage
+  status: ProjectStatus
   tailwindVersion: string
   tailwindConfigPath: string
   config: ProjectConfig

@@ -101,51 +101,54 @@ const frontMain = () => {
   projects.forEach((p) => mainWindow?.removeBrowserView(p.view))
 }
 
-ipcMain.on('frontMain', (event: any) => {
+ipcMain.on(MainIpcChannel.FrontMain, (event: any) => {
   frontMain()
 })
 
-ipcMain.on('frontProjectWeb', (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
-  if (!mainWindow || !projectId) return
+ipcMain.on(
+  MainIpcChannel.FrontProjectWeb,
+  (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
+    if (!mainWindow || !projectId) return
 
-  const project = projects.get(projectId)
-  if (project) {
-    mainWindow.setBrowserView(project.view)
-  } else {
-    const view = new BrowserView({
-      webPreferences: {
-        nodeIntegration: false,
-        enableRemoteModule: false,
-        contextIsolation: true,
-        preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'preload_inject.prod.js'),
-        allowRunningInsecureContent: true,
-      },
-    })
-    view.setBackgroundColor('#fff') // todo: invalid
+    const project = projects.get(projectId)
+    if (project) {
+      mainWindow.setBrowserView(project.view)
+    } else {
+      const view = new BrowserView({
+        webPreferences: {
+          nodeIntegration: false,
+          enableRemoteModule: false,
+          contextIsolation: true,
+          preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'preload_inject.prod.js'),
+          allowRunningInsecureContent: true,
+        },
+      })
+      view.setBackgroundColor('#fff') // todo: invalid
 
-    projects.set(projectId, { view, lunchUrl, pages })
-    mainWindow.setBrowserView(view)
-    setBrowserViewBounds(mainWindow)
-    if (isDebug) {
-      view.webContents.openDevTools()
+      projects.set(projectId, { view, lunchUrl, pages })
+      mainWindow.setBrowserView(view)
+      setBrowserViewBounds(mainWindow)
+      if (isDebug) {
+        view.webContents.openDevTools()
+      }
+
+      // console.log(`lunchUrl:${lunchUrl}`)
+      view.webContents.loadURL(lunchUrl)
+
+      view.webContents.on('did-finish-load', () => {
+        const loadedProject = projects.get(projectId)
+        if (loadedProject) {
+          view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
+        }
+      })
     }
 
-    // console.log(`lunchUrl:${lunchUrl}`)
-    view.webContents.loadURL(lunchUrl)
+    projectMenu = menuBuilder?.buildProjectMenu(projectId)
+    pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
+  },
+)
 
-    view.webContents.on('did-finish-load', () => {
-      const loadedProject = projects.get(projectId)
-      if (loadedProject) {
-        view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
-      }
-    })
-  }
-
-  projectMenu = menuBuilder?.buildProjectMenu(projectId)
-  pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
-})
-
-ipcMain.on('deviceEmulation', (event, projectId: string, swidth: number) => {
+ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: number) => {
   const project = projects.get(projectId)
   if (project) {
     const rectangle = project.view.getBounds()
@@ -168,11 +171,11 @@ const loadURL = (projectId: string, url: string) => {
   }
 }
 
-ipcMain.on('loadUrl', (event, projectId: string, url: string) => {
+ipcMain.on(MainIpcChannel.LoadURL, (event, projectId: string, url: string) => {
   loadURL(projectId, url)
 })
 
-ipcMain.on('closeProjectView', (event, projectId: string) => {
+ipcMain.on(MainIpcChannel.CloseProjectView, (event, projectId: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578
@@ -347,17 +350,17 @@ app
   })
   .catch(log.error)
 
-ipcMain.on('getStore', (event, key: string) => {
+ipcMain.on(MainIpcChannel.GetStore, (event, key: string) => {
   const value = store.get(key)
   event.returnValue = value
   // event.sender.send(`getStore-${key}`, value) // contextBridge getStoreAsync()
 })
 
-ipcMain.on('setStore', (event, payload: Record<string, unknown>) => {
+ipcMain.on(MainIpcChannel.SetStore, (event, payload: Record<string, unknown>) => {
   store.set(payload)
 })
 
-ipcMain.on('controls', (event, payload: string) => {
+ipcMain.on(MainIpcChannel.Controls, (event, payload: string) => {
   if (!mainWindow) return
   switch (payload) {
     case 'minimize':
@@ -377,24 +380,24 @@ ipcMain.on('controls', (event, payload: string) => {
   }
 })
 
-ipcMain.on('mainMenu', () => {
+ipcMain.on(MainIpcChannel.MainMenu, () => {
   if (!mainWindow || !mainMenu) return
   mainMenu.popup({ window: mainWindow, x: 228, y: mainWindow.isMaximized() ? 34 : 38 })
 })
 
-ipcMain.on('projectMenu', () => {
+ipcMain.on(MainIpcChannel.ProjectMenu, () => {
   if (!mainWindow || !projectMenu) return
   const rectangle = mainWindow.getBounds()
   projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: mainWindow.isMaximized() ? 76 : 80 })
 })
 
-ipcMain.on('pagesMenu', () => {
+ipcMain.on(MainIpcChannel.PagesMenu, () => {
   if (!mainWindow || !pagesMenu) return
   pagesMenu.popup({ window: mainWindow, x: 130, y: mainWindow.isMaximized() ? 76 : 80 })
 })
 
 // https://jaketrent.com/post/select-directory-in-electron
-ipcMain.on('selectDirs', async (event, arg) => {
+ipcMain.on(MainIpcChannel.SelectDirs, async (event, arg) => {
   if (!mainWindow) return
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory'],
@@ -402,7 +405,7 @@ ipcMain.on('selectDirs', async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on('openDirs', (event, folderpath: string) => {
+ipcMain.on(MainIpcChannel.OpenDirs, (event, folderpath: string) => {
   shell.openPath(folderpath)
 })
 

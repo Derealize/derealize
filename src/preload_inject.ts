@@ -1,6 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import 'selector-generator'
-import { connectSocket, send, listen } from './client-ipc'
+// import { connectSocket, sendBackIpc, listenBackIpc } from './client-ipc'
 import { ElementPayload, SelectPayload, MainIpcChannel } from './interface'
 
 let PROJECTID: string | undefined
@@ -31,7 +31,7 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   }
 
   if (!activeElement) {
-    // await send(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
+    // await sendBackIpc(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
     ipcRenderer.send(MainIpcChannel.FocusElement, { projectId: PROJECTID, tagName: '', selector: '' })
     return
   }
@@ -63,13 +63,12 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   }
 
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
-  // await send(Handler.FocusElement, payload as any)
+  // await sendBackIpc(Handler.FocusElement, payload as any)
 }
 
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
-  // console.log('setParams', socketId, projectId, activeSelector)
   PROJECTID = projectId
-  connectSocket(socketId)
+  // connectSocket(socketId)
   await InspectActiveElement(activeSelector)
 })
 
