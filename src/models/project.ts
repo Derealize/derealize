@@ -69,6 +69,7 @@ export const OmitStoreProp = [
   'installOutput',
   'config',
   'tailwindConfig',
+  'element',
 ]
 
 const toast = createStandaloneToast({

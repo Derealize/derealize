@@ -23,11 +23,11 @@ import { Project, ProjectView } from '../models/project'
 import type { Element } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-// import Breadcrumb from './Breadcrumb'
+import { MainIpcChannel, SelectPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { send, projectMenu, pagesMenu } = window.derealize
+const { send, sendMainIpc, projectMenu, pagesMenu } = window.derealize
 
 const BarIconButton = React.forwardRef(
   (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
@@ -55,7 +55,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
   const element = useStoreState<Element | undefined>((state) => state.controlles.element)
   const breadcrumbs = useMemo(() => {
-    return element?.selector.split('>').map((sel, i) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, i }))
+    return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
 
   const callPull = useCallback(async () => {
@@ -138,16 +138,22 @@ const TopBar: React.FC = (): JSX.Element => {
 
       <Flex align="center" justify="center">
         <Breadcrumb spacing="8px" separator={<IoChevronForward color="#a0aec0" />}>
-          {breadcrumbs?.map(({ sel, i, tooltip }) => (
-            <BreadcrumbItem key={sel + i}>
+          {breadcrumbs?.map(({ sel, index, tooltip }) => (
+            <BreadcrumbItem key={sel + index}>
               <Tooltip label={tooltip}>
-                {i === breadcrumbs.length - 1 ? (
+                {index === breadcrumbs.length - 1 ? (
                   <Text textColor="teal.500">{sel}</Text>
                 ) : (
                   <BreadcrumbLink
-                    onMouseEnter={() => send(Handler.SelectElement, { projectId: project.url, index: i })}
+                    onMouseEnter={() =>
+                      sendMainIpc(MainIpcChannel.SelectElement, { projectId: project.url, index } as SelectPayload)
+                    }
                     onClick={() => {
-                      send(Handler.SelectElement, { projectId: project.url, index: i, isClick: true })
+                      sendMainIpc(MainIpcChannel.SelectElement, {
+                        projectId: project.url,
+                        index,
+                        isClick: true,
+                      } as SelectPayload)
                     }}
                   >
                     {sel}

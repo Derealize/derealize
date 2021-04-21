@@ -10,14 +10,12 @@ export enum Handler {
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
   UpdateClass = 'UpdateClass',
-  SelectElement = 'SelectElement',
 }
 
 export enum Broadcast {
   Status = 'Status',
   Installing = 'Installing',
   Starting = 'Starting',
-  SelectElement = 'SelectElement',
 }
 
 export interface ProjectConfig {
