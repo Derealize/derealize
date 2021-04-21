@@ -1,4 +1,5 @@
-import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
+import { computed, Computed, State } from 'easy-peasy'
+import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -62,7 +63,6 @@ export interface BorderModel {
   ringOffsetColorValues: Computed<BorderModel, Array<string>, StoreModel>
   ringOffsetColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
-  allPropertys: Computed<BorderModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<BorderModel, AlreadyVariants, StoreModel>
 }
 
@@ -244,67 +244,47 @@ const borderModel: BorderModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  allPropertys: computed(
-    ({
-      roundedTopLeftPropertys,
-      roundedTopRightPropertys,
-      roundedBottomLeftPropertys,
-      roundedBottomRightPropertys,
-      borderTopPropertys,
-      borderBottomPropertys,
-      borderLeftPropertys,
-      borderRightPropertys,
-      borderColorPropertys,
-      borderOpacityPropertys,
-      borderStylePropertys,
-      divideYPropertys,
-      divideXPropertys,
-      divideColorPropertys,
-      divideOpacityPropertys,
-      divideStylePropertys,
-      ringWidthPropertys,
-      ringColorPropertys,
-      ringOpacityPropertys,
-      ringOffsetPropertys,
-      ringOffsetColorPropertys,
-    }) => {
-      return roundedTopLeftPropertys.concat(
-        roundedTopRightPropertys,
-        roundedBottomLeftPropertys,
-        roundedBottomRightPropertys,
-        borderTopPropertys,
-        borderBottomPropertys,
-        borderLeftPropertys,
-        borderRightPropertys,
-        borderColorPropertys,
-        borderOpacityPropertys,
-        borderStylePropertys,
-        divideYPropertys,
-        divideXPropertys,
-        divideColorPropertys,
-        divideOpacityPropertys,
-        divideStylePropertys,
-        ringWidthPropertys,
-        ringColorPropertys,
-        ringOpacityPropertys,
-        ringOffsetPropertys,
-        ringOffsetColorPropertys,
-      )
+  alreadyVariants: computed(
+    [
+      (state: State<BorderModel>) => state.roundedTopLeftPropertys,
+      (state: State<BorderModel>) => state.roundedTopRightPropertys,
+      (state: State<BorderModel>) => state.roundedBottomLeftPropertys,
+      (state: State<BorderModel>) => state.roundedBottomRightPropertys,
+      (state: State<BorderModel>) => state.borderTopPropertys,
+      (state: State<BorderModel>) => state.borderBottomPropertys,
+      (state: State<BorderModel>) => state.borderLeftPropertys,
+      (state: State<BorderModel>) => state.borderRightPropertys,
+      (state: State<BorderModel>) => state.borderColorPropertys,
+      (state: State<BorderModel>) => state.borderOpacityPropertys,
+      (state: State<BorderModel>) => state.borderStylePropertys,
+      (state: State<BorderModel>) => state.divideYPropertys,
+      (state: State<BorderModel>) => state.divideXPropertys,
+      (state: State<BorderModel>) => state.divideColorPropertys,
+      (state: State<BorderModel>) => state.divideOpacityPropertys,
+      (state: State<BorderModel>) => state.divideStylePropertys,
+      (state: State<BorderModel>) => state.ringWidthPropertys,
+      (state: State<BorderModel>) => state.ringColorPropertys,
+      (state: State<BorderModel>) => state.ringOpacityPropertys,
+      (state: State<BorderModel>) => state.ringOffsetPropertys,
+      (state: State<BorderModel>) => state.ringOffsetColorPropertys,
+    ] as any,
+    (...propertys: Array<Property[]>) => {
+      const allPropertys = flatten(propertys)
+
+      const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
+      const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
+      const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
+      const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
+
+      return {
+        screens: [...new Set(screens)],
+        states: [...new Set(states)],
+        lists: [...new Set(lists)],
+        customs: [...new Set(customs)],
+        dark: allPropertys.some((property) => property.dark),
+      }
     },
   ),
-  alreadyVariants: computed(({ allPropertys }) => {
-    const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
-    const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
-    const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
-    const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
-    return {
-      screens: [...new Set(screens)],
-      states: [...new Set(states)],
-      lists: [...new Set(lists)],
-      customs: [...new Set(customs)],
-      dark: allPropertys.some((property) => property.dark),
-    }
-  }),
 }
 
 export default borderModel

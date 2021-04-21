@@ -46,7 +46,6 @@ const LayoutSection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
   const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
   const displayProperty = useComputeProperty(displayPropertys)
-
   return (
     <VStack alignItems="stretch">
       {!already && <Variants alreadyVariants={alreadyVariants} />}
