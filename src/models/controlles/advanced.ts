@@ -1,4 +1,5 @@
-import { computed, Computed } from 'easy-peasy'
+import { computed, Computed, State } from 'easy-peasy'
+import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -41,7 +42,6 @@ export interface AdvancedModel {
 
   overscrollPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
-  allPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<AdvancedModel, AlreadyVariants, StoreModel>
 }
 
@@ -62,23 +62,29 @@ const advancedModel: AdvancedModel = {
     propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
   ),
 
-  allPropertys: computed(({ boxSizingPropertys, floatPropertys, clearPropertys, overscrollPropertys }) => {
-    return boxSizingPropertys.concat(floatPropertys, clearPropertys, overscrollPropertys)
-  }),
+  alreadyVariants: computed(
+    [
+      (state: State<AdvancedModel>) => state.boxSizingPropertys,
+      (state: State<AdvancedModel>) => state.floatPropertys,
+      (state: State<AdvancedModel>) => state.clearPropertys,
+      (state: State<AdvancedModel>) => state.overscrollPropertys,
+    ] as any,
+    (...propertys: Array<Property[]>) => {
+      const allPropertys = flatten(propertys)
 
-  alreadyVariants: computed(({ allPropertys }) => {
-    const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
-    const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
-    const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
-    const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
-    return {
-      screens: [...new Set(screens)],
-      states: [...new Set(states)],
-      lists: [...new Set(lists)],
-      customs: [...new Set(customs)],
-      dark: allPropertys.some((property) => property.dark),
-    }
-  }),
+      const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
+      const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
+      const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
+      const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
+      return {
+        screens: [...new Set(screens)],
+        states: [...new Set(states)],
+        lists: [...new Set(lists)],
+        customs: [...new Set(customs)],
+        dark: allPropertys.some((property) => property.dark),
+      }
+    },
+  ),
 }
 
 export default advancedModel

@@ -1,4 +1,5 @@
-import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
+import { computed, Computed, State } from 'easy-peasy'
+import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -59,7 +60,6 @@ export interface SpacingModel {
   spaceXValues: Computed<SpacingModel, Array<string>, StoreModel>
   spaceXPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
 
-  allPropertys: Computed<SpacingModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<SpacingModel, AlreadyVariants, StoreModel>
 }
 
@@ -250,57 +250,40 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  allPropertys: computed(
-    ({
-      widthPropertys,
-      minWidthPropertys,
-      maxWidthPropertys,
-      heightPropertys,
-      minHeightPropertys,
-      maxHeightPropertys,
-      paddingTopPropertys,
-      paddingBottomPropertys,
-      paddingLeftPropertys,
-      paddingRightPropertys,
-      marginTopPropertys,
-      marginBottomPropertys,
-      marginLeftPropertys,
-      marginRightPropertys,
-      spaceYPropertys,
-      spaceXPropertys,
-    }) => {
-      return widthPropertys.concat(
-        minWidthPropertys,
-        maxWidthPropertys,
-        heightPropertys,
-        minHeightPropertys,
-        maxHeightPropertys,
-        paddingTopPropertys,
-        paddingBottomPropertys,
-        paddingLeftPropertys,
-        paddingRightPropertys,
-        marginTopPropertys,
-        marginBottomPropertys,
-        marginLeftPropertys,
-        marginRightPropertys,
-        spaceYPropertys,
-        spaceXPropertys,
-      )
+  alreadyVariants: computed(
+    [
+      (state: State<SpacingModel>) => state.widthPropertys,
+      (state: State<SpacingModel>) => state.minWidthPropertys,
+      (state: State<SpacingModel>) => state.maxWidthPropertys,
+      (state: State<SpacingModel>) => state.heightPropertys,
+      (state: State<SpacingModel>) => state.minHeightPropertys,
+      (state: State<SpacingModel>) => state.maxHeightPropertys,
+      (state: State<SpacingModel>) => state.paddingTopPropertys,
+      (state: State<SpacingModel>) => state.paddingBottomPropertys,
+      (state: State<SpacingModel>) => state.paddingLeftPropertys,
+      (state: State<SpacingModel>) => state.paddingRightPropertys,
+      (state: State<SpacingModel>) => state.marginTopPropertys,
+      (state: State<SpacingModel>) => state.marginBottomPropertys,
+      (state: State<SpacingModel>) => state.marginLeftPropertys,
+      (state: State<SpacingModel>) => state.marginRightPropertys,
+      (state: State<SpacingModel>) => state.spaceYPropertys,
+      (state: State<SpacingModel>) => state.spaceXPropertys,
+    ] as any,
+    (...propertys: Array<Property[]>) => {
+      const allPropertys = flatten(propertys)
+      const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
+      const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
+      const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
+      const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
+      return {
+        screens: [...new Set(screens)],
+        states: [...new Set(states)],
+        lists: [...new Set(lists)],
+        customs: [...new Set(customs)],
+        dark: allPropertys.some((property) => property.dark),
+      }
     },
   ),
-  alreadyVariants: computed(({ allPropertys }) => {
-    const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
-    const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
-    const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
-    const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
-    return {
-      screens: [...new Set(screens)],
-      states: [...new Set(states)],
-      lists: [...new Set(lists)],
-      customs: [...new Set(customs)],
-      dark: allPropertys.some((property) => property.dark),
-    }
-  }),
 }
 
 export default spacingModel

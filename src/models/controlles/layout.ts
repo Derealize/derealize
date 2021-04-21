@@ -1,4 +1,5 @@
-import { computed, Computed } from 'easy-peasy'
+import { computed, Computed, State } from 'easy-peasy'
+import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -165,7 +166,6 @@ export interface LayoutModel {
   autoRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   // #endregion
 
-  allPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
 }
 
@@ -437,98 +437,59 @@ const layoutModel: LayoutModel = {
   ),
   // #endregion
 
-  allPropertys: computed(
-    ({
-      containerPropertys,
-      displayPropertys,
-      objectFitPropertys,
-      objectPositionPropertys,
-      overflowPropertys,
-      positionPropertys,
-      topPropertys,
-      bottomPropertys,
-      leftPropertys,
-      rightPropertys,
-      visibilityPropertys,
-      zIndexPropertys,
+  alreadyVariants: computed(
+    [
+      (state: State<LayoutModel>) => state.containerPropertys,
+      (state: State<LayoutModel>) => state.displayPropertys,
+      (state: State<LayoutModel>) => state.objectFitPropertys,
+      (state: State<LayoutModel>) => state.objectPositionPropertys,
+      (state: State<LayoutModel>) => state.overflowPropertys,
+      (state: State<LayoutModel>) => state.positionPropertys,
+      (state: State<LayoutModel>) => state.topPropertys,
+      (state: State<LayoutModel>) => state.bottomPropertys,
+      (state: State<LayoutModel>) => state.leftPropertys,
+      (state: State<LayoutModel>) => state.rightPropertys,
+      (state: State<LayoutModel>) => state.visibilityPropertys,
+      (state: State<LayoutModel>) => state.zIndexPropertys,
+      (state: State<LayoutModel>) => state.flexDirectionPropertys,
+      (state: State<LayoutModel>) => state.flexWrapPropertys,
+      (state: State<LayoutModel>) => state.flexPropertys,
+      (state: State<LayoutModel>) => state.flexGrowPropertys,
+      (state: State<LayoutModel>) => state.flexShrinkPropertys,
+      (state: State<LayoutModel>) => state.orderPropertys,
+      (state: State<LayoutModel>) => state.justifyContentPropertys,
+      (state: State<LayoutModel>) => state.alignItemsPropertys,
+      (state: State<LayoutModel>) => state.alignContentPropertys,
+      (state: State<LayoutModel>) => state.alignSelfPropertys,
+      (state: State<LayoutModel>) => state.gridColsPropertys,
+      (state: State<LayoutModel>) => state.gridRowsPropertys,
+      (state: State<LayoutModel>) => state.colSpanPropertys,
+      (state: State<LayoutModel>) => state.colStartPropertys,
+      (state: State<LayoutModel>) => state.colEndPropertys,
+      (state: State<LayoutModel>) => state.rowSpanPropertys,
+      (state: State<LayoutModel>) => state.rowStartPropertys,
+      (state: State<LayoutModel>) => state.rowEndPropertys,
+      (state: State<LayoutModel>) => state.gridFlowPropertys,
+      (state: State<LayoutModel>) => state.gapPropertys,
+      (state: State<LayoutModel>) => state.autoColsPropertys,
+      (state: State<LayoutModel>) => state.autoRowsPropertys,
+    ] as any,
+    (...propertys: Array<Property[]>) => {
+      const allPropertys = flatten(propertys)
 
-      flexDirectionPropertys,
-      flexWrapPropertys,
-      flexPropertys,
-      flexGrowPropertys,
-      flexShrinkPropertys,
-      orderPropertys,
-      justifyContentPropertys,
-      alignItemsPropertys,
-      alignContentPropertys,
-      alignSelfPropertys,
-
-      gridColsPropertys,
-      gridRowsPropertys,
-      colSpanPropertys,
-      colStartPropertys,
-      colEndPropertys,
-      rowSpanPropertys,
-      rowStartPropertys,
-      rowEndPropertys,
-      gridFlowPropertys,
-      gapPropertys,
-      autoColsPropertys,
-      autoRowsPropertys,
-    }) => {
-      return containerPropertys.concat(
-        displayPropertys,
-        objectFitPropertys,
-        objectPositionPropertys,
-        overflowPropertys,
-        positionPropertys,
-        topPropertys,
-        bottomPropertys,
-        leftPropertys,
-        rightPropertys,
-        visibilityPropertys,
-        zIndexPropertys,
-
-        flexDirectionPropertys,
-        flexWrapPropertys,
-        flexPropertys,
-        flexGrowPropertys,
-        flexShrinkPropertys,
-        orderPropertys,
-        justifyContentPropertys,
-        alignItemsPropertys,
-        alignContentPropertys,
-        alignSelfPropertys,
-
-        gridColsPropertys,
-        gridRowsPropertys,
-        colSpanPropertys,
-        colStartPropertys,
-        colEndPropertys,
-        rowSpanPropertys,
-        rowStartPropertys,
-        rowEndPropertys,
-        gridFlowPropertys,
-        gapPropertys,
-        autoColsPropertys,
-        autoRowsPropertys,
-      )
+      const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
+      const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
+      const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
+      const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
+      return {
+        screens: [...new Set(screens)],
+        states: [...new Set(states)],
+        lists: [...new Set(lists)],
+        customs: [...new Set(customs)],
+        dark: allPropertys.some((property) => property.dark),
+      }
     },
   ),
-
-  alreadyVariants: computed(({ allPropertys }) => {
-    const screens = allPropertys.filter((property) => property.screen).map((property) => property.screen as string)
-    const states = allPropertys.filter((property) => property.state).map((property) => property.state as string)
-    const lists = allPropertys.filter((property) => property.list).map((property) => property.list as string)
-    const customs = allPropertys.filter((property) => property.custom).map((property) => property.custom as string)
-    return {
-      screens: [...new Set(screens)],
-      states: [...new Set(states)],
-      lists: [...new Set(lists)],
-      customs: [...new Set(customs)],
-      dark: allPropertys.some((property) => property.dark),
-    }
-  }),
 }
 
 export default layoutModel
