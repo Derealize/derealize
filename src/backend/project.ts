@@ -13,7 +13,7 @@ import type {
   BoolReply,
   HistoryReply,
 } from './backend.interface'
-import { ProjectStage } from './backend.interface'
+import { ProjectStatus } from './backend.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
 import emit from './emit'
@@ -30,7 +30,7 @@ export enum Broadcast {
 }
 
 class Project {
-  stage: ProjectStage = ProjectStage.None
+  status: ProjectStatus = ProjectStatus.None
 
   repo: Repository | undefined
 
@@ -62,7 +62,7 @@ class Project {
     emit(Broadcast.Status, {
       id: this.url,
       changes: this.changes,
-      stage: this.stage,
+      status: this.status,
       productName: this.productName,
       tailwindVersion: this.tailwindVersion,
       config: this.config,
@@ -148,12 +148,12 @@ class Project {
     const reply = await this.CheckStatus()
     if (!reply.result) return reply
 
-    this.stage = ProjectStage.Initialized
+    this.status = ProjectStatus.Initialized
     return { result: true }
   }
 
   Install(): BoolReply {
-    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
+    if (this.status === ProjectStatus.Starting || this.status === ProjectStatus.Running) {
       return { result: false, error: 'Starting or Running' }
     }
 
@@ -179,8 +179,8 @@ class Project {
     this.installProcess.on('exit', (exit) => {
       emit(Broadcast.Installing, { id: this.url, exit } as ProcessPayload)
       if (!hasError) {
-        log('stage = ProjectStage.Ready')
-        this.stage = ProjectStage.Ready
+        log('status = ProjectStatus.Ready')
+        this.status = ProjectStatus.Ready
         if (debugEmitStatus) log('Install EmitStatus')
         this.EmitStatus()
       }
@@ -190,7 +190,7 @@ class Project {
   }
 
   async Start(): Promise<BoolReply> {
-    if (this.stage === ProjectStage.Starting || this.stage === ProjectStage.Running) {
+    if (this.status === ProjectStatus.Starting || this.status === ProjectStatus.Running) {
       return { result: false, error: 'Starting or Running' }
     }
 
@@ -198,17 +198,17 @@ class Project {
     await killPort(this.config.port)
 
     this.runningProcess = npmStart(this.path, this.config.npmScript)
-    this.stage = ProjectStage.Starting
+    this.status = ProjectStatus.Starting
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
       if (!message) return
       emit(Broadcast.Starting, { id: this.url, stdout: message } as ProcessPayload)
 
-      if (this.stage !== ProjectStage.Running && compiledMessage.some((m) => message.includes(m))) {
-        this.stage = ProjectStage.Running
+      if (this.status !== ProjectStatus.Running && compiledMessage.some((m) => message.includes(m))) {
+        this.status = ProjectStatus.Running
       }
-      if (debugEmitStatus) log(`Start data EmitStatus ${this.stage}`)
+      if (debugEmitStatus) log(`Start data EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
@@ -219,15 +219,15 @@ class Project {
     this.runningProcess.on('error', (error) => {
       log('starting error', error)
       emit(Broadcast.Starting, { id: this.url, error: error.message } as ProcessPayload)
-      this.stage = ProjectStage.Ready
-      if (debugEmitStatus) log(`Start error EmitStatus ${this.stage}`)
+      this.status = ProjectStatus.Ready
+      if (debugEmitStatus) log(`Start error EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
     this.runningProcess.on('exit', (exit) => {
       emit(Broadcast.Starting, { id: this.url, exit } as ProcessPayload)
-      this.stage = ProjectStage.Ready
-      if (debugEmitStatus) log(`Start exit EmitStatus ${this.stage}`)
+      this.status = ProjectStatus.Ready
+      if (debugEmitStatus) log(`Start exit EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
@@ -238,7 +238,7 @@ class Project {
     this.runningProcess?.kill()
     await killPort(this.config.port)
 
-    this.stage = ProjectStage.Ready
+    this.status = ProjectStatus.Ready
     this.EmitStatus()
   }
 

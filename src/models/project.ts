@@ -16,23 +16,19 @@ import type {
   BoolReply,
   GitFileChanges,
 } from '../backend/backend.interface'
-import { Broadcast, Handler, ProjectStage } from '../backend/backend.interface'
+import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ElementPayload, MainIpcChannel } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const {
-  setStore,
-  getStore,
-  send,
-  listen,
-  unlisten,
+  sendBackIpc,
+  listenBackIpc,
+  unlistenBackIpc,
   listenMainIpc,
   unlistenMainIpc,
-  frontMain,
-  frontProjectWeb,
-  closeProjectView,
-  loadURL,
+  sendMainIpc,
+  sendMainIpcSync,
 } = window.derealize
 
 export type Element = Omit<ElementPayload, 'projectId'>
@@ -44,7 +40,7 @@ export interface Project {
   name: string
   productName?: string
   isOpened?: boolean
-  stage?: ProjectStage
+  status?: ProjectStatus
   changes?: Array<GitFileChanges>
   config?: ProjectConfig
   page?: string
@@ -82,7 +78,7 @@ const toast = createStandaloneToast({
 const storeProject = (projects: Array<Project>) => {
   // proxy object can't serialize https://stackoverflow.com/a/60344844
   const omitProjects = projects.map((p) => omit(p, OmitStoreProp))
-  setStore({ projects: clone(omitProjects) })
+  sendMainIpc(MainIpcChannel.SetStore, { projects: clone(omitProjects) })
 }
 
 export interface ProjectModel {
@@ -163,7 +159,7 @@ const projectModel: ProjectModel = {
     storeProject(state.projects)
   }),
   getStoreProjects: action((state) => {
-    const projects = getStore('projects') as Array<Project> | undefined
+    const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
     if (projects) {
       state.projects = projects
     }
@@ -185,7 +181,7 @@ const projectModel: ProjectModel = {
     actions.closeProject(url)
     const projects = getState().projects.filter((p) => p.url !== url)
     actions.setProjects(projects)
-    send(Handler.Remove, { url })
+    sendBackIpc(Handler.Remove, { url })
   }),
   setProject: action((state, payload) => {
     const project = state.projects.find((p) => p.url === payload.url)
@@ -205,23 +201,25 @@ const projectModel: ProjectModel = {
   setFrontProjectThunk: thunk(async (actions, project, { getStoreActions }) => {
     actions.setFrontProject(project)
     if (!project) {
-      frontMain()
+      sendMainIpc(MainIpcChannel.FrontMain)
       return
     }
 
     if (project.element) {
       getStoreActions().controlles.setElement({ ...project.element, projectId: project.url })
     }
-    await send(Handler.CheckStatus, { url: project.url })
+    await sendBackIpc(Handler.CheckStatus, { url: project.url })
   }),
 
   frontProjectView: ProjectView.BrowserView,
   setFrontProjectView: action((state, payload) => {
     state.frontProjectView = payload
-    if (state.frontProject && payload === ProjectView.BrowserView) {
-      frontProjectWeb(clone(state.frontProject))
+    const project = state.frontProject
+    if (project && payload === ProjectView.BrowserView) {
+      if (!project.config) throw new Error('project.config null')
+      sendMainIpc(MainIpcChannel.FrontProjectWeb, project.url, project.config.lunchUrl, [...project.config.pages])
     } else {
-      frontMain()
+      sendMainIpc(MainIpcChannel.FrontMain)
     }
   }),
 
@@ -241,7 +239,7 @@ const projectModel: ProjectModel = {
     project.runningOutput = []
     actions.setRunningOutput([])
     actions.setFrontProjectView(ProjectView.Debugging)
-    const reply = (await send(Handler.Start, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Start, { url: project.url })) as BoolReply
     if (!reply.result) {
       actions.setStartLoading(false)
       toast({
@@ -253,7 +251,7 @@ const projectModel: ProjectModel = {
   stopProject: action((state, url) => {
     const project = state.projects.find((p) => p.url === url)
     if (project) {
-      send(Handler.Stop, { url: project.url })
+      sendBackIpc(Handler.Stop, { url: project.url })
     }
   }),
   closeProject: thunk((actions, url, { getState }) => {
@@ -276,8 +274,8 @@ const projectModel: ProjectModel = {
       }
     }
 
-    send(Handler.Stop, { url: project.url })
-    closeProjectView(project.url)
+    sendBackIpc(Handler.Stop, { url: project.url })
+    sendMainIpc(MainIpcChannel.CloseProjectView, project.url)
     actions.setProjects(projects)
   }),
 
@@ -289,10 +287,10 @@ const projectModel: ProjectModel = {
       const { url, path, config } = project
       const branch = config?.branch
 
-      const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
+      const { result, error } = (await sendBackIpc(Handler.Import, { url, path, branch })) as BoolReply
       if (result) {
-        send(Handler.Install, { url, path, branch })
-        project.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
+        sendBackIpc(Handler.Install, { url, path, branch })
+        project.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { url })) as TailwindConfig
       } else {
         toast({
           title: `Import error:${error}`,
@@ -305,7 +303,7 @@ const projectModel: ProjectModel = {
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
-    listen(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
+    listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -325,14 +323,14 @@ const projectModel: ProjectModel = {
       }
 
       if (frontProject === project) {
-        if (status.stage === ProjectStage.Running && project.stage !== ProjectStage.Running) {
+        if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
           actions.setStartLoading(false)
           actions.setFrontProjectView(ProjectView.BrowserView)
         }
       }
 
-      // console.log('project.stage = status.stage', project.url, status.stage)
-      project.stage = status.stage
+      // console.log('project.status = status.status', project.url, status.status)
+      project.status = status.status
       project.changes = status.changes
       project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
@@ -340,7 +338,7 @@ const projectModel: ProjectModel = {
       actions.setProject(project)
     })
 
-    listen(Broadcast.Installing, (payload: ProcessPayload) => {
+    listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setImportLoading(false)
         toast({
@@ -369,7 +367,7 @@ const projectModel: ProjectModel = {
       actions.setInstallOutput(project.installOutput)
     })
 
-    listen(Broadcast.Starting, (payload: ProcessPayload) => {
+    listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setStartLoading(false)
         actions.setFrontProjectView(ProjectView.Debugging)
@@ -412,9 +410,9 @@ const projectModel: ProjectModel = {
   }),
 
   unlisten: action(() => {
-    unlisten(Broadcast.Status)
-    unlisten(Broadcast.Installing)
-    unlisten(Broadcast.Starting)
+    unlistenBackIpc(Broadcast.Status)
+    unlistenBackIpc(Broadcast.Installing)
+    unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.FocusElement)
   }),
 
@@ -438,7 +436,7 @@ const projectModel: ProjectModel = {
     const { frontProject } = getState()
     if (!frontProject) return
 
-    const reply = (await send(Handler.History, { url: frontProject.url })) as HistoryReply
+    const reply = (await sendBackIpc(Handler.History, { url: frontProject.url })) as HistoryReply
     if (reply.error) {
       toast({
         title: `callHistory error:${reply.error}`,
@@ -453,7 +451,7 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.url === projectId)
     if (project && project.config) {
       project.page = page
-      loadURL(project.url, project.config.lunchUrl + page)
+      sendMainIpc(MainIpcChannel.LoadURL, project.url, project.config.lunchUrl + page)
     }
   }),
 }

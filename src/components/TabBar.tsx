@@ -9,9 +9,10 @@ import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
 import type { PreloadWindow } from '../preload'
+import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { controls, mainMenu } = window.derealize
+const { sendMainIpc } = window.derealize
 
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
@@ -73,7 +74,7 @@ const TabBar = (): JSX.Element => {
                   className={css.menu}
                   onClick={(e) => {
                     e.stopPropagation()
-                    mainMenu()
+                    sendMainIpc(MainIpcChannel.MainMenu)
                   }}
                 />
               )}
@@ -118,7 +119,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.minButton)}
           onClick={() => {
-            controls('minimize')
+            sendMainIpc(MainIpcChannel.Controls, 'minimize')
           }}
           role="button"
           aria-hidden="true"
@@ -133,7 +134,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.maxButton)}
           onClick={() => {
-            controls('maximize')
+            sendMainIpc(MainIpcChannel.Controls, 'maximize')
           }}
           role="button"
           aria-hidden="true"
@@ -148,7 +149,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.restoreButton)}
           onClick={() => {
-            controls('unmaximize')
+            sendMainIpc(MainIpcChannel.Controls, 'unmaximize')
           }}
           role="button"
           aria-hidden="true"
@@ -163,7 +164,7 @@ const TabBar = (): JSX.Element => {
         <div
           className={cs(css.button, css.closeButton)}
           onClick={() => {
-            controls('close')
+            sendMainIpc(MainIpcChannel.Controls, 'close')
           }}
           role="button"
           aria-hidden="true"

@@ -2,9 +2,10 @@ import { Action, action, Thunk, thunk } from 'easy-peasy'
 import ky from 'ky'
 import Language, { navigatorLanguage } from '../utils/language'
 import type { PreloadWindow } from '../preload'
+import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { setStore, getStore } = window.derealize
+const { sendMainIpc, sendMainIpcSync } = window.derealize
 
 export enum UserRole {
   Ultimate = 3,
@@ -49,7 +50,7 @@ const profileModel: ProfileModel = {
   setSettings: action((state, { settings, storage = false, post = false }) => {
     state.settings = settings
     if (storage) {
-      setStore({ settings })
+      sendMainIpc(MainIpcChannel.SetStore, { settings })
     }
     if (post && state.jwt) {
       ky.post(`${process.env.REACT_APP_NEST}/users/settings`, {
@@ -66,7 +67,7 @@ const profileModel: ProfileModel = {
     state.jwt = jwt
     localStorage.setItem('jwt', jwt || '') // support PrivateRoute
     if (storage) {
-      setStore({ jwt })
+      sendMainIpc(MainIpcChannel.SetStore, { jwt })
     }
   }),
 
@@ -76,12 +77,12 @@ const profileModel: ProfileModel = {
   }),
 
   loadStore: thunk(async (actions) => {
-    const settings = getStore('settings') as Settings | undefined
+    const settings = sendMainIpcSync(MainIpcChannel.GetStore, 'settings') as Settings | undefined
     if (settings) {
       actions.setSettings({ settings })
     }
 
-    const jwt = getStore('jwt') as string | undefined
+    const jwt = sendMainIpcSync(MainIpcChannel.GetStore, 'jwt') as string | undefined
     if (!jwt) {
       actions.logout()
       return

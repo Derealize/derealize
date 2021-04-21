@@ -1,9 +1,10 @@
 import { Action, action, Thunk, thunk } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { PreloadWindow } from '../preload'
+import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { setStore, getStore } = window.derealize
+const { sendMainIpc, sendMainIpcSync } = window.derealize
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -32,7 +33,7 @@ const libraryModel: LibraryModel = {
     state.librarys = librarys
     if (storage) {
       // todo: RxDB store
-      setStore({ librarys })
+      sendMainIpc(MainIpcChannel.SetStore, { librarys })
     }
   }),
   addLibrary: action((state, library) => {
@@ -44,14 +45,14 @@ const libraryModel: LibraryModel = {
       return
     }
     state.librarys.push(library)
-    setStore({ librarys: state.librarys })
+    sendMainIpc(MainIpcChannel.SetStore, { librarys: state.librarys })
   }),
   removeLibrary: action((state, libraryName) => {
     state.librarys = state.librarys.filter((p) => p.name !== libraryName)
-    setStore({ librarys: state.librarys })
+    sendMainIpc(MainIpcChannel.SetStore, { librarys: state.librarys })
   }),
   loadStore: action((state) => {
-    const librarys = getStore('librarys') as Array<Library> | undefined
+    const librarys = sendMainIpcSync(MainIpcChannel.GetStore, 'librarys') as Array<Library> | undefined
     if (librarys) {
       state.librarys = librarys
     }

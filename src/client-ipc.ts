@@ -58,7 +58,7 @@ export const connectSocket = (socketId: string) => {
   })
 }
 
-export const send = (name: string, payload: Record<string, unknown> = {}): Promise<unknown> => {
+export const sendBackIpc = (name: string, payload: Record<string, unknown> = {}): Promise<unknown> => {
   return new Promise((resolve, reject) => {
     const id = uuid.v4()
     replyHandlers.set(id, { resolve, reject })
@@ -70,7 +70,7 @@ export const send = (name: string, payload: Record<string, unknown> = {}): Promi
   })
 }
 
-export function listen(name: string, cb: (payload: any) => void): () => void {
+export function listenBackIpc(name: string, cb: (payload: any) => void): () => void {
   if (!listeners.get(name)) {
     listeners.set(name, [])
   }
@@ -86,6 +86,6 @@ export function listen(name: string, cb: (payload: any) => void): () => void {
   }
 }
 
-export function unlisten(name: string) {
+export function unlistenBackIpc(name: string) {
   listeners.set(name, [])
 }

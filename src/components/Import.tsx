@@ -37,14 +37,15 @@ import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { css } from '@emotion/react'
 import type { BoolReply } from '../backend/backend.interface'
-import { Handler, ProjectStage } from '../backend/backend.interface'
+import { Handler, ProjectStatus } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project, ProjectView } from '../models/project'
 import style from './Import.module.scss'
 import type { PreloadWindow } from '../preload'
+import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { send, selectDirs } = window.derealize
+const { sendBackIpc, sendMainIpcSync } = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -78,7 +79,7 @@ const ImportProject = (): JSX.Element => {
   const [showPassword, setShowPassword] = useState(false)
 
   const project = useMemo(() => projects.find((p) => p.url === url), [projects, url])
-  const readyOpen = project?.stage === ProjectStage.Ready
+  const readyOpen = project?.status === ProjectStatus.Ready
 
   useEffect(() => {
     if (!url) return
@@ -124,7 +125,7 @@ const ImportProject = (): JSX.Element => {
     }
 
     setLoading(true)
-    const { result, error } = (await send(Handler.Import, { url, path, branch })) as BoolReply
+    const { result, error } = (await sendBackIpc(Handler.Import, { url, path, branch })) as BoolReply
 
     if (result) {
       const newProject: Project = {
@@ -132,12 +133,12 @@ const ImportProject = (): JSX.Element => {
         path,
         name,
         editedTime: dayjs().toString(),
-        stage: ProjectStage.Initialized,
+        status: ProjectStatus.Initialized,
         installOutput: [],
       }
       addProject(newProject)
-      await send(Handler.Install, { url, path, branch })
-      newProject.tailwindConfig = (await send(Handler.GetTailwindConfig, { url })) as TailwindConfig
+      await sendBackIpc(Handler.Install, { url, path, branch })
+      newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { url })) as TailwindConfig
     } else {
       setLoading(false)
       setInstallOutput([`import error: ${error}`])
@@ -189,7 +190,7 @@ const ImportProject = (): JSX.Element => {
                     disabled={loading}
                     onClick={(e) => {
                       e.stopPropagation()
-                      const filePaths = selectDirs()
+                      const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
                       setPath(filePaths[0])
                     }}
                   >

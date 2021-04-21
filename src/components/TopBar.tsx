@@ -18,7 +18,7 @@ import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import type { BoolReply } from '../backend/backend.interface'
-import { ProjectStage, Handler } from '../backend/backend.interface'
+import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
 import type { Element } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -27,7 +27,7 @@ import { MainIpcChannel, SelectPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { send, sendMainIpc, projectMenu, pagesMenu } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
 const BarIconButton = React.forwardRef(
   (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
@@ -61,7 +61,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const callPull = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send(Handler.Pull, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Pull, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Pull error:${reply.error}`,
@@ -79,7 +79,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send(Handler.Push, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Push, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Push error:${reply.error}`,
@@ -133,7 +133,11 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <BarIconButton aria-label="Pages" icon={<IoBookmarksOutline />} onClick={() => pagesMenu()} />
+        <BarIconButton
+          aria-label="Pages"
+          icon={<IoBookmarksOutline />}
+          onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
+        />
       </Flex>
 
       <Flex align="center" justify="center">
@@ -167,12 +171,12 @@ const TopBar: React.FC = (): JSX.Element => {
 
       <Flex align="center" justify="right">
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
-        {project.stage === ProjectStage.Ready && (
+        {project.status === ProjectStatus.Ready && (
           <Tooltip label="start">
             <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.url)} />
           </Tooltip>
         )}
-        {(project.stage === ProjectStage.Running || project.stage === ProjectStage.Starting) && (
+        {(project.status === ProjectStatus.Running || project.status === ProjectStatus.Starting) && (
           <Tooltip label="stop">
             <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.url)} />
           </Tooltip>
@@ -193,7 +197,11 @@ const TopBar: React.FC = (): JSX.Element => {
             }}
           />
         </Tooltip>
-        <BarIconButton aria-label="Project Menu" icon={<CgMenu />} onClick={() => projectMenu()} />
+        <BarIconButton
+          aria-label="Project Menu"
+          icon={<CgMenu />}
+          onClick={() => sendMainIpc(MainIpcChannel.ProjectMenu)}
+        />
       </Flex>
     </Flex>
   )

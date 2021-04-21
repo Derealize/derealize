@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useReducer } from 'react'
 import cs from 'classnames'
-import { css } from '@emotion/react'
 import dayjs from 'dayjs'
 import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } from '@chakra-ui/react'
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
@@ -16,7 +15,7 @@ import style from './Project.module.scss'
 import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
-const { send } = window.derealize
+const { sendBackIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
@@ -35,7 +34,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await send(Handler.Push, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Push, { url: project.url })) as BoolReply
     if (reply.error) {
       toast({
         title: `Push error:${reply.error}`,
