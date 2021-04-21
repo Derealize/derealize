@@ -29,9 +29,9 @@ node_modules/selector-generator/selector-generator.js 给 document.querySelector
 // result += "[name=\"" + cssEscaper.escape(attributeName) + "\"]";
 result += "[name=\"" + attributeName + "\"]";
 // result += "." + cssEscaper.escape(prefixedName.substr(1));
-result += "." + prefixedName.substr(1);
+result += "." + prefixedName.substr(1).replaceAll(':', '\\:');
 // return "#" + cssEscaper.escape(id);
-return "#" + id;
+return "#" + id.replaceAll(':', '\\:');
 // L569 withoutNthChild: true,
 withoutNthChild: false,
 ```

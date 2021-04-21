@@ -1,8 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron'
 import 'selector-generator'
 import { connectSocket, send, listen } from './client-ipc'
-import { Handler, Broadcast } from './backend/backend.interface'
-import { ElementPayload, MainIpcChannel } from './interface'
+import { ElementPayload, SelectPayload, MainIpcChannel } from './interface'
 
 let PROJECTID: string | undefined
 let selector: string | undefined
@@ -27,6 +26,7 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
 
   selector = activeSelector
   if (selector) {
+    // console.log('InspectActiveElement', selector)
     activeElement = document.querySelector(selector)
   }
 
@@ -89,18 +89,20 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId,
   }
 })
 
-listen(Broadcast.SelectElement, async ({ projectId, index, isClick }) => {
+ipcRenderer.on(MainIpcChannel.SelectElement, async (event: Event, { projectId, index, isClick }: SelectPayload) => {
   if (projectId !== PROJECTID || !selector) return
   hoverElement?.removeAttribute('data-hover')
 
   const sels = selector.split('>')
   const sel = sels.slice(0, index + 1).join('>')
+
+  // console.log('SelectElement', sel)
   const target = document.querySelector(sel)
   if (target) {
     if (isClick) {
       activeElement?.removeAttribute('data-active')
       activeElement = target
-      await InspectActiveElement()
+      InspectActiveElement()
     } else {
       hoverElement = target
       hoverElement.setAttribute('data-hover', 'true')

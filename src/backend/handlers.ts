@@ -2,10 +2,9 @@
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import type { HistoryReply, BoolReply, ElementPayload } from './backend.interface'
-import { Broadcast } from './backend.interface'
+import type { HistoryReply, BoolReply } from './backend.interface'
+import { ElementPayload } from '../interface'
 import shift from './shift'
-import emit from './emit'
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
@@ -95,14 +94,7 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
 }
 
 export const UpdateClass = async (payload: ElementPayload) => {
-  const { projectId, codePosition, className, useShift } = payload
+  const { projectId, codePosition, className } = payload
   const project = getProject(projectId)
-
-  emit(Broadcast.LiveUpdateClass, payload)
-  if (useShift) shift(project.path, codePosition, className)
-}
-
-export const SelectElement = async (payload: Record<string, string>) => {
-  const project = getProject(payload.projectId)
-  emit(Broadcast.SelectElement, payload)
+  shift(project.path, codePosition, className)
 }
