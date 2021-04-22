@@ -1,5 +1,5 @@
 import React from 'react'
-import { HStack, Center } from '@chakra-ui/react'
+import { HStack, Center, Box } from '@chakra-ui/react'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -30,20 +30,24 @@ const Inset: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.layout.rightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  console.log('positionProperty.classname', positionProperty?.classname)
+  // console.log('positionProperty.classname', positionProperty?.classname)
   if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
 
   return (
     <>
-      <Center w="50%">
-        <SelectController placeholder="inset-top" values={valuesTop} property={propertyTop} />
+      <Center>
+        <Box w="50%">
+          <SelectController placeholder="inset-top" values={valuesTop} property={propertyTop} />
+        </Box>
       </Center>
       <HStack>
         <SelectController placeholder="inset-left" values={valuesLeft} property={propertyLeft} />
         <SelectController placeholder="inset-right" values={valuesRight} property={propertyRight} />
       </HStack>
-      <Center w="50%">
-        <SelectController placeholder="inset-bottom" values={valuesBottom} property={propertyBottom} />
+      <Center>
+        <Box w="50%">
+          <SelectController placeholder="inset-bottom" values={valuesBottom} property={propertyBottom} />
+        </Box>
       </Center>
     </>
   )
