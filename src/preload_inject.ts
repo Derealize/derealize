@@ -9,10 +9,10 @@ let activeElement: Element | null = null
 let hoverElement: Element | null = null
 const css = `
   [data-hover], [data-code]:hover {
-    box-shadow: 0 0 0 2px #4fd1c5;
+    box-shadow: 0 0 0 2px #e2e8f0;
   }
   [data-active] {
-    box-shadow: 0 0 0 2px #319795;
+    box-shadow: 0 0 0 2px #4fd1c5 !important;
   }
 `
 
