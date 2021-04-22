@@ -8,14 +8,17 @@ import { ElementPayload } from '../../../interface'
 
 const AutoRows: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  // const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
+  const displayProperty = useComputeProperty(displayPropertys)
 
   const values = useStoreState<Array<string>>((state) => state.layout.autoRowsValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.autoRowsPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.display !== 'grid') return <></>
+  if (!displayProperty || displayProperty.classname !== 'grid') return <></>
+  // if (!element || element.display !== 'grid') return <></>
 
   return <SelectController placeholder="auto-rows" values={values} property={property} />
 }

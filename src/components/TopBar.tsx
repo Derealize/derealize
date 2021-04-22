@@ -182,7 +182,7 @@ const TopBar: React.FC = (): JSX.Element => {
           </Tooltip>
         )}
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
-        <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} />
+        {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"

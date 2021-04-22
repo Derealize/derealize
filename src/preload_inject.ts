@@ -26,12 +26,10 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
 
   selector = activeSelector
   if (selector) {
-    // console.log('InspectActiveElement', selector)
     activeElement = document.querySelector(selector)
   }
 
   if (!activeElement) {
-    // await sendBackIpc(Handler.FocusElement, { projectId: PROJECTID, tagName: '' })
     ipcRenderer.send(MainIpcChannel.FocusElement, { projectId: PROJECTID, tagName: '', selector: '' })
     return
   }
@@ -52,6 +50,9 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   const { tagName, className } = activeElement
   const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, tagName, selector }
 
+  // https://stackoverflow.com/a/11495671
+  // getComputedStyle() 不支持伪类查询，任何伪类style都会被检索。目前只能使用tailwindcss classname
+  // 但parentDeclaration还无法被tailwindcss classname取代
   const declaration = getComputedStyle(activeElement)
   payload.display = declaration.getPropertyValue('display')
   payload.position = declaration.getPropertyValue('position')
@@ -63,7 +64,6 @@ const InspectActiveElement = async (activeSelector?: string): Promise<void> => {
   }
 
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
-  // await sendBackIpc(Handler.FocusElement, payload as any)
 }
 
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
