@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import { Divider, VStack } from '@chakra-ui/react'
+import { Box, VStack } from '@chakra-ui/react'
 import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -19,23 +19,24 @@ const SpacingSection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.spacing.alreadyVariants)
 
   return (
-    <VStack alignItems="stretch">
+    <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-
       <Frame />
 
-      <Width />
-      <MaxWidth />
-      <MinWidth />
-      <Height />
-      <MaxHeight />
-      <MinHeight />
+      <VStack mt={6}>
+        <Width />
+        <MaxWidth />
+        <MinWidth />
+        <Height />
+        <MaxHeight />
+        <MinHeight />
+      </VStack>
 
-      <div className="mgt2r">
+      <VStack mt={6}>
         <SpaceBetweenY />
         <SpaceBetweenX />
-      </div>
-    </VStack>
+      </VStack>
+    </>
   )
 }
 

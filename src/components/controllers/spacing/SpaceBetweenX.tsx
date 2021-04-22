@@ -17,7 +17,7 @@ const SpaceBetween: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element || element.display?.includes('inline')) return <></>
 
-  return <SelectController placeholder="space-between" values={values} property={property} />
+  return <SelectController placeholder="space-between-x" values={values} property={property} />
 }
 
 export default SpaceBetween
