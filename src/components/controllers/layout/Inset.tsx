@@ -11,8 +11,8 @@ export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 const Inset: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
-  const positionProperty = useComputeProperty(positionPropertys)
+  // const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
+  // const positionProperty = useComputeProperty(positionPropertys)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.layout.topPropertys)
@@ -31,7 +31,8 @@ const Inset: React.FC = (): JSX.Element => {
   const propertyRight = useComputeProperty(propertysRight)
 
   // console.log('positionProperty.classname', positionProperty?.classname)
-  if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
+  // if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
+  if (!element?.position || !InsetPositions.includes(element.position)) return <></>
 
   return (
     <>

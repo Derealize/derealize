@@ -52,6 +52,7 @@ export interface ControllesModel {
 
   element: ElementPayload | undefined
   setElement: Action<ControllesModel, ElementPayload | undefined>
+  setElementThunk: Thunk<ControllesModel, ElementPayload | undefined>
 
   setProperty: Action<ControllesModel, Property>
   deleteProperty: Action<ControllesModel, string>
@@ -115,6 +116,12 @@ const controllesModel: ControllesModel = {
       state.propertys.push(property)
     })
     // state.propertys = resolutionAll(state.propertys)
+  }),
+  setElementThunk: thunk(async (actions, payload) => {
+    actions.setElement(payload)
+    if (payload) {
+      actions.updateClassName()
+    }
   }),
 
   setProperty: action((state, payload) => {
