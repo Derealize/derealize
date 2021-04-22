@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { Tooltip, Stack, Box, Text, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
 import cs from 'classnames'
 import { IoImageOutline, IoGridOutline } from 'react-icons/io5'
-import { BsType } from 'react-icons/bs'
+import { BsType, BsLayoutTextWindowReverse, BsFileCode } from 'react-icons/bs'
 import { AiOutlineAlignCenter, AiOutlineInteraction } from 'react-icons/ai'
-import { CgSpaceBetweenV, CgComponents, CgMoreAlt } from 'react-icons/cg'
+import { CgSpaceBetweenV, CgComponents, CgMoreAlt, CgBorderRight } from 'react-icons/cg'
 import { GrThreeDEffects } from 'react-icons/gr'
 import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine } from 'react-icons/ri'
-import { MdBorderStyle, MdGridOn } from 'react-icons/md'
+import { MdTransform, MdGridOn } from 'react-icons/md'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
@@ -26,14 +26,14 @@ const Controllers: React.FC = (): JSX.Element => {
         <Tab p={3}>
           <Tooltip label="(F1) Already">
             <Box>
-              <Icon as={RiFileList2Line} boxSize={6} />
+              <Icon as={BsFileCode} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F2) Layout/Flex/Grid">
+          <Tooltip label="(F2) Layout">
             <Box>
-              <Icon as={IoGridOutline} boxSize={6} />
+              <Icon as={BsLayoutTextWindowReverse} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
@@ -47,7 +47,7 @@ const Controllers: React.FC = (): JSX.Element => {
         <Tab p={3}>
           <Tooltip label="(F4) Border">
             <Box>
-              <Icon as={MdBorderStyle} boxSize={6} />
+              <Icon as={CgBorderRight} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
@@ -68,21 +68,14 @@ const Controllers: React.FC = (): JSX.Element => {
         <Tab p={3}>
           <Tooltip label="(F7) Effects/Transition/Transform">
             <Box>
-              <Icon as={GrThreeDEffects} boxSize={6} />
+              <Icon as={MdTransform} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F8) Components/Table">
+          <Tooltip label="(F8) Components">
             <Box>
               <Icon as={CgComponents} boxSize={6} />
-            </Box>
-          </Tooltip>
-        </Tab>
-        <Tab p={3}>
-          <Tooltip label="(F9) Interactivity">
-            <Box>
-              <Icon as={AiOutlineInteraction} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
@@ -119,10 +112,7 @@ const Controllers: React.FC = (): JSX.Element => {
           <p>Effects/Transition/Animation/Transform</p>
         </TabPanel>
         <TabPanel>
-          <p>Components/Table</p>
-        </TabPanel>
-        <TabPanel>
-          <p>Interactivity</p>
+          <p>Components</p>
         </TabPanel>
         <TabPanel>
           <AdvancedSection />

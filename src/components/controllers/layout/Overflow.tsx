@@ -6,7 +6,7 @@ import { OverflowValues } from '../../../models/controlles/layout'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../backend/backend.interface'
+import { ElementPayload } from '../../../interface'
 
 const OverflowGroups = groupBy<string>(OverflowValues, (value) => {
   const array = value.split('-')

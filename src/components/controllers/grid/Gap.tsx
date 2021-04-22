@@ -5,7 +5,7 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../backend/backend.interface'
+import { ElementPayload } from '../../../interface'
 import { ContainerTags } from '../LimitedTags'
 
 const Gap: React.FC = (): JSX.Element => {

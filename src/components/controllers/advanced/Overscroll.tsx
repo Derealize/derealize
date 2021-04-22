@@ -6,7 +6,7 @@ import { OverscrollValues } from '../../../models/controlles/advanced'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../backend/backend.interface'
+import { ElementPayload } from '../../../interface'
 
 const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
   const array = value.split('-')

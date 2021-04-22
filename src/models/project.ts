@@ -31,7 +31,7 @@ const {
   sendMainIpcSync,
 } = window.derealize
 
-export type Element = Omit<ElementPayload, 'projectId'>
+// export type Element = Omit<ElementPayload, 'projectId'>
 
 export interface Project {
   url: string
@@ -48,7 +48,7 @@ export interface Project {
   runningOutput?: Array<string>
   tailwindVersion?: string
   tailwindConfig?: TailwindConfig
-  element?: Element
+  element?: ElementPayload
 }
 
 export enum ProjectView {
@@ -205,9 +205,7 @@ const projectModel: ProjectModel = {
       return
     }
 
-    if (project.element) {
-      getStoreActions().controlles.setElement({ ...project.element, projectId: project.url })
-    }
+    getStoreActions().controlles.setElementThunk(project.element)
     await sendBackIpc(Handler.CheckStatus, { url: project.url })
   }),
 
@@ -403,8 +401,8 @@ const projectModel: ProjectModel = {
       if (!project) return
 
       project.element = payload.tagName ? payload : undefined
-      if (project === frontProject && project.element) {
-        getStoreActions().controlles.setElement({ ...project.element, projectId: project.url })
+      if (project === frontProject) {
+        getStoreActions().controlles.setElementThunk(project.element)
       }
     })
   }),

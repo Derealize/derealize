@@ -6,7 +6,7 @@ import { ObjectFitValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../backend/backend.interface'
+import { ElementPayload } from '../../../interface'
 import { ReplacedElementTags } from '../LimitedTags'
 
 const ObjectFit: React.FC = (): JSX.Element => {

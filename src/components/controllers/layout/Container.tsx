@@ -7,7 +7,7 @@ import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 // import useMatchVariants from '../useMatchVariants'
-import { ElementPayload } from '../../../backend/backend.interface'
+import { ElementPayload } from '../../../interface'
 
 const Tags = [
   'div',
