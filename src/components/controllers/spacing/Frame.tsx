@@ -197,7 +197,24 @@ const Frame: React.FC = (): JSX.Element => {
   const [plHover, setPlHover] = useState(false)
   const [prHover, setPrHover] = useState(false)
 
-  if (already || !element) return <></>
+  if (
+    already &&
+    !mProperty &&
+    !mbProperty &&
+    !mlProperty &&
+    !mrProperty &&
+    !mtProperty &&
+    !mxProperty &&
+    !myProperty &&
+    !pProperty &&
+    !pbProperty &&
+    !plProperty &&
+    !prProperty &&
+    !ptProperty &&
+    !pxProperty &&
+    !pyProperty
+  )
+    return <></>
 
   return (
     <div className={style.component}>
