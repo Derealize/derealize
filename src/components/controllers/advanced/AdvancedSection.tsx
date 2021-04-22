@@ -14,13 +14,15 @@ const AdvancedSection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.advanced.alreadyVariants)
 
   return (
-    <VStack alignItems="stretch">
+    <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <BoxSizing />
-      <Clear />
-      <Float />
-      <Overscroll />
-    </VStack>
+      <VStack mt={4}>
+        <BoxSizing />
+        <Clear />
+        <Float />
+        <Overscroll />
+      </VStack>
+    </>
   )
 }
 

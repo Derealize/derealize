@@ -47,13 +47,15 @@ const LayoutSection: React.FC = (): JSX.Element => {
   const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
   const displayProperty = useComputeProperty(displayPropertys)
   return (
-    <VStack alignItems="stretch">
+    <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
 
-      <Display />
+      <VStack mt={4} alignItems="stretch">
+        <Display />
+      </VStack>
 
       {displayProperty?.classname === 'flex' && (
-        <>
+        <VStack mt={4}>
           <FlexController />
           <FlexDirection />
           <FlexGrow />
@@ -64,11 +66,11 @@ const LayoutSection: React.FC = (): JSX.Element => {
           <AlignContent />
           <AlignItems />
           <AlignSelf />
-        </>
+        </VStack>
       )}
 
       {displayProperty?.classname === 'grid' && (
-        <>
+        <VStack mt={4}>
           <GridCols />
           <GridRows />
           <Gap />
@@ -81,10 +83,10 @@ const LayoutSection: React.FC = (): JSX.Element => {
           <RowEnd />
           <AutoCols />
           <AutoRows />
-        </>
+        </VStack>
       )}
 
-      <div className="mgt2r">
+      <VStack mt={6}>
         <Position />
         <Inset />
         <Container />
@@ -93,8 +95,8 @@ const LayoutSection: React.FC = (): JSX.Element => {
         <Overflow />
         <Visibility />
         <Zindex />
-      </div>
-    </VStack>
+      </VStack>
+    </>
   )
 }
 
