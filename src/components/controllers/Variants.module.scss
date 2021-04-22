@@ -19,16 +19,14 @@ $teal500: #319795;
   color: $gray-600;
   cursor: pointer;
   display: inline-block;
-  &:hover {
+  &:hover,
+  &.active {
     @include linelink($gray-600);
   }
   &.already {
     color: $pink-500;
-    &:hover {
+    &.active {
       @include linelink($pink-500);
     }
-  }
-  &.active {
-    @include linelink($pink-500);
   }
 }

@@ -85,12 +85,12 @@ export interface LayoutModel {
   positionPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   insetSuffix: Computed<LayoutModel, Array<string>, StoreModel>
-  insetValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-  insetYValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetYPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
-  insetXValues: Computed<LayoutModel, Array<string>, StoreModel>
-  insetXPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // insetValues: Computed<LayoutModel, Array<string>, StoreModel>
+  // insetPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // insetYValues: Computed<LayoutModel, Array<string>, StoreModel>
+  // insetYPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  // insetXValues: Computed<LayoutModel, Array<string>, StoreModel>
+  // insetXPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   topValues: Computed<LayoutModel, Array<string>, StoreModel>
   topPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   bottomValues: Computed<LayoutModel, Array<string>, StoreModel>
@@ -204,27 +204,27 @@ const layoutModel: LayoutModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
-  insetValues: computed([(state) => state.insetSuffix], (suffix) =>
-    suffix.map((v) => (v.startsWith('-') ? `-inset-${v.replace('-', '')}` : `inset-${v}`)),
-  ),
-  insetPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  insetYValues: computed([(state) => state.insetSuffix], (suffix) =>
-    suffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.replace('-', '')}` : `inset-y-${v}`)),
-  ),
-  insetYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  insetXValues: computed([(state) => state.insetSuffix], (suffix) =>
-    suffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.replace('-', '')}` : `inset-x-${v}`)),
-  ),
-  insetXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
+  // insetValues: computed([(state) => state.insetSuffix], (suffix) =>
+  //   suffix.map((v) => (v.startsWith('-') ? `-inset-${v.replace('-', '')}` : `inset-${v}`)),
+  // ),
+  // insetPropertys: computed(
+  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
+  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  // ),
+  // insetYValues: computed([(state) => state.insetSuffix], (suffix) =>
+  //   suffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.replace('-', '')}` : `inset-y-${v}`)),
+  // ),
+  // insetYPropertys: computed(
+  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
+  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  // ),
+  // insetXValues: computed([(state) => state.insetSuffix], (suffix) =>
+  //   suffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.replace('-', '')}` : `inset-x-${v}`)),
+  // ),
+  // insetXPropertys: computed(
+  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
+  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  // ),
   topValues: computed([(state) => state.insetSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-top-${v.replace('-', '')}` : `top-${v}`)),
   ),
@@ -445,6 +445,9 @@ const layoutModel: LayoutModel = {
       (state: State<LayoutModel>) => state.objectPositionPropertys,
       (state: State<LayoutModel>) => state.overflowPropertys,
       (state: State<LayoutModel>) => state.positionPropertys,
+      // (state: State<LayoutModel>) => state.insetPropertys,
+      // (state: State<LayoutModel>) => state.insetYPropertys,
+      // (state: State<LayoutModel>) => state.insetXPropertys,
       (state: State<LayoutModel>) => state.topPropertys,
       (state: State<LayoutModel>) => state.bottomPropertys,
       (state: State<LayoutModel>) => state.leftPropertys,

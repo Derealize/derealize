@@ -14,7 +14,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const setSelectScreenVariant = useStoreActions((actions) => actions.controlles.setSelectScreenVariantWithDevice)
 
   const selectStateVariant = useStoreState<string | undefined>((state) => state.controlles.selectStateVariant)
-  const setSelectStateVariant = useStoreActions((actions) => actions.controlles.setSelectStateVariant)
+  const setSelectStateVariant = useStoreActions((actions) => actions.controlles.setSelectStateVariantThunk)
 
   const selectListVariant = useStoreState<string | undefined>((state) => state.controlles.selectListVariant)
   const setSelectListVariant = useStoreActions((actions) => actions.controlles.setSelectListVariant)

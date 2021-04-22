@@ -65,6 +65,7 @@ export interface ControllesModel {
 
   selectStateVariant: StateVariantsType | undefined
   setSelectStateVariant: Action<ControllesModel, StateVariantsType | undefined>
+  setSelectStateVariantThunk: Thunk<ControllesModel, StateVariantsType | undefined>
 
   selectListVariant: ListVariantsType | undefined
   setSelectListVariant: Action<ControllesModel, ListVariantsType | undefined>
@@ -140,7 +141,7 @@ const controllesModel: ControllesModel = {
   }),
 
   updateClassName: thunk(async (actions, shiftCode, { getState }) => {
-    const { propertys, element } = getState()
+    const { propertys, element, selectStateVariant } = getState()
     if (!element) return
     // const compiledPropertys = compileAll(propertys)
 
@@ -153,7 +154,7 @@ const controllesModel: ControllesModel = {
       if (screen) {
         variants += `${screen}:`
       }
-      if (state) {
+      if (state && (shiftCode || state !== selectStateVariant)) {
         variants += `${state}:`
       }
       if (list) {
@@ -200,6 +201,10 @@ const controllesModel: ControllesModel = {
   selectStateVariant: undefined,
   setSelectStateVariant: action((state, payload) => {
     state.selectStateVariant = state.selectStateVariant === payload ? undefined : payload
+  }),
+  setSelectStateVariantThunk: thunk(async (actions, payload) => {
+    actions.setSelectStateVariant(payload)
+    actions.updateClassName()
   }),
 
   selectListVariant: undefined,
