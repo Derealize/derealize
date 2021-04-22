@@ -10,13 +10,16 @@ import { ElementPayload } from '../../../interface'
 
 const FlexDirection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  // const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
+  const displayProperty = useComputeProperty(displayPropertys)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexDirectionPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.display !== 'flex') return <></>
+  if (!displayProperty || displayProperty.classname !== 'flex') return <></>
+  // if (!element || element.display !== 'flex') return <></>
 
   return <SelectController placeholder="flex-direction" values={FlexDirectionValues} property={property} />
 }

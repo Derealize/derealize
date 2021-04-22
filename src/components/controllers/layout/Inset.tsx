@@ -9,10 +9,9 @@ import { ElementPayload } from '../../../interface'
 export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 
 const Inset: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
-
-  // const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
-  // const positionProperty = useComputeProperty(positionPropertys)
+  // const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
+  const positionProperty = useComputeProperty(positionPropertys)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.layout.topPropertys)
@@ -30,24 +29,23 @@ const Inset: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.layout.rightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  // console.log('positionProperty.classname', positionProperty?.classname)
-  // if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
-  if (!element?.position || !InsetPositions.includes(element.position)) return <></>
+  if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
+  // if (!element?.position || !InsetPositions.includes(element.position)) return <></>
 
   return (
     <>
       <Center>
         <Box w="50%">
-          <SelectController placeholder="inset-top" values={valuesTop} property={propertyTop} />
+          <SelectController placeholder="top" values={valuesTop} property={propertyTop} />
         </Box>
       </Center>
       <HStack>
-        <SelectController placeholder="inset-left" values={valuesLeft} property={propertyLeft} />
-        <SelectController placeholder="inset-right" values={valuesRight} property={propertyRight} />
+        <SelectController placeholder="left" values={valuesLeft} property={propertyLeft} />
+        <SelectController placeholder="right" values={valuesRight} property={propertyRight} />
       </HStack>
       <Center>
         <Box w="50%">
-          <SelectController placeholder="inset-bottom" values={valuesBottom} property={propertyBottom} />
+          <SelectController placeholder="bottom" values={valuesBottom} property={propertyBottom} />
         </Box>
       </Center>
     </>
