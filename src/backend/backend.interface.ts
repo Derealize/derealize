@@ -20,7 +20,8 @@ export enum Broadcast {
 
 export interface ProjectConfig {
   branch: string
-  npmScript: string
+  runScript: string
+  formatScript: string
   lunchUrl: string
   port: number
   pages: Array<string>
