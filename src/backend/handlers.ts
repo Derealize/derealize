@@ -3,8 +3,9 @@ import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
-import { ElementPayload } from '../interface'
-import shift from './shift'
+import { ElementPayload, InsertElementPayload } from '../interface'
+import { ApplyClass, InsertElement } from './shift'
+import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
 type IdParam = { url: string }
@@ -94,7 +95,16 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
 }
 
 export const UpdateClass = async (payload: ElementPayload) => {
-  const { projectId, codePosition, className } = payload
+  const { projectId } = payload
   const project = getProject(projectId)
-  shift(project.path, codePosition, className)
+
+  ApplyClass(project.path, payload)
+}
+
+export const AddElement = async (payload: InsertElementPayload) => {
+  const { projectId } = payload
+  const project = getProject(projectId)
+
+  InsertElement(project.path, payload)
+  npmStart(project.path, project.config.formatScript)
 }

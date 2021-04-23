@@ -10,6 +10,18 @@ export interface ElementPayload {
   parentDisplay?: string
 }
 
+export enum InsertMode {
+  after,
+  before,
+  append,
+  prepend,
+}
+
+export interface InsertElementPayload extends ElementPayload {
+  insertTagName: string
+  insertMode: InsertMode
+}
+
 export interface SelectPayload {
   projectId: string
   index: number

@@ -38,7 +38,8 @@ class Project {
 
   config: ProjectConfig = {
     branch: 'derealize',
-    npmScript: 'dev',
+    runScript: 'dev',
+    formatScript: 'format',
     lunchUrl: 'http://localhost:3000',
     port: 3000,
     pages: [],
@@ -197,7 +198,7 @@ class Project {
     this.runningProcess?.kill()
     await killPort(this.config.port)
 
-    this.runningProcess = npmStart(this.path, this.config.npmScript)
+    this.runningProcess = npmStart(this.path, this.config.runScript)
     this.status = ProjectStatus.Starting
 
     this.runningProcess.stdout.on('data', (stdout) => {
