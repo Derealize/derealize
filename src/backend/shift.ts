@@ -73,10 +73,7 @@ export const ApplyClass = (projectPath: string, { codePosition, className }: Ele
   fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
 }
 
-export const InsertElement = (
-  projectPath: string,
-  { codePosition, insertTagName, insertMode }: InsertElementPayload,
-) => {
+export const Insert = (projectPath: string, { codePosition, insertTagName, insertMode }: InsertElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -105,6 +102,53 @@ export const InsertElement = (
           node.children.unshift(element)
         }
 
+        return false
+      }
+
+      this.traverse(path)
+      return true
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+}
+
+export const Delete = (projectPath: string, { codePosition }: ElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+
+  visit(ast, {
+    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+      const { node } = astPath
+
+      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+        astPath.prune()
+        return false
+      }
+
+      this.traverse(path)
+      return true
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+}
+
+export const Replace = (projectPath: string, { codePosition, insertTagName }: InsertElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+
+  visit(ast, {
+    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+      const { node } = astPath
+
+      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+        const jsxId = builders.jsxIdentifier(insertTagName)
+        node.name = jsxId
+        node.openingElement.name = jsxId
+        if (node.closingElement) {
+          node.closingElement.name = jsxId
+        }
         return false
       }
 
