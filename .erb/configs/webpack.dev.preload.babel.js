@@ -12,7 +12,7 @@ export default merge(baseConfig, {
 
   entry: {
     preload: path.join(__dirname, '../../src/preload.ts'),
-    preload_inject: path.join(__dirname, '../../src/preload_inject.ts'),
+    'preload-inject': path.join(__dirname, '../../src/preload-inject.ts'),
   },
 
   output: {

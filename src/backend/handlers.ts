@@ -95,31 +95,27 @@ export const GetTailwindConfig = async ({ url }: IdParam): Promise<TailwindConfi
 }
 
 export const UpdateClass = async (payload: ElementPayload) => {
-  const { projectId } = payload
-  const project = getProject(projectId)
+  const project = getProject(payload.projectId)
 
   ApplyClass(project.path, payload)
 }
 
 export const AddElement = async (payload: InsertElementPayload) => {
-  const { projectId } = payload
-  const project = getProject(projectId)
+  const project = getProject(payload.projectId)
 
   Insert(project.path, payload)
   npmStart(project.path, project.config.formatScript)
 }
 
 export const DeleteElement = async (payload: ElementPayload) => {
-  const { projectId } = payload
-  const project = getProject(projectId)
+  const project = getProject(payload.projectId)
 
   Delete(project.path, payload)
   npmStart(project.path, project.config.formatScript)
 }
 
 export const ReplaceElement = async (payload: InsertElementPayload) => {
-  const { projectId } = payload
-  const project = getProject(projectId)
+  const project = getProject(payload.projectId)
 
   Replace(project.path, payload)
 }

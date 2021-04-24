@@ -15,7 +15,7 @@ export default merge(baseConfig, {
 
   entry: {
     preload: path.join(__dirname, '../../src/preload.ts'),
-    preload_inject: path.join(__dirname, '../../src/preload_inject.ts'),
+    'preload-inject': path.join(__dirname, '../../src/preload-inject.ts'),
   },
 
   output: {
@@ -38,7 +38,7 @@ export default merge(baseConfig, {
   plugins: [
     new CleanWebpackPlugin({
       // 即使是BeforeBuild，也需要编译成功才生效
-      cleanOnceBeforeBuildPatterns: ['preload.prod.js', 'preload_inject.prod.js'],
+      cleanOnceBeforeBuildPatterns: ['preload.prod.js', 'preload-inject.prod.js'],
     }),
   ],
 
