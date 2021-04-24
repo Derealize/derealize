@@ -4,7 +4,7 @@ import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
 import { ElementPayload, InsertElementPayload } from '../interface'
-import { ApplyClass, InsertElement } from './shift'
+import { ApplyClass, Insert, Delete, Replace } from './shift'
 import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
@@ -105,6 +105,21 @@ export const AddElement = async (payload: InsertElementPayload) => {
   const { projectId } = payload
   const project = getProject(projectId)
 
-  InsertElement(project.path, payload)
+  Insert(project.path, payload)
   npmStart(project.path, project.config.formatScript)
+}
+
+export const DeleteElement = async (payload: ElementPayload) => {
+  const { projectId } = payload
+  const project = getProject(projectId)
+
+  Delete(project.path, payload)
+  npmStart(project.path, project.config.formatScript)
+}
+
+export const ReplaceElement = async (payload: InsertElementPayload) => {
+  const { projectId } = payload
+  const project = getProject(projectId)
+
+  Replace(project.path, payload)
 }
