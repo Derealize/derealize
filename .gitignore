@@ -58,7 +58,6 @@ dll
 
 src/main.js
 src/backend.js
-src/react_transformer.js
 src/preload.js
-src/preload_inject.js
+src/preload-inject.js
 src/style.css

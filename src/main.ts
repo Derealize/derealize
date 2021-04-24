@@ -119,7 +119,7 @@ ipcMain.on(
           nodeIntegration: false,
           enableRemoteModule: false,
           contextIsolation: true,
-          preload: path.resolve(__dirname, isDev ? 'preload_inject.js' : 'preload_inject.prod.js'),
+          preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
           allowRunningInsecureContent: true,
         },
       })
