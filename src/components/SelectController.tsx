@@ -103,7 +103,7 @@ const SelectController: React.FC<Props> = ({
         },
         valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
           ...provided,
-          padding: 0,
+          // padding: 0,
         }),
         placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
           ...provided,
