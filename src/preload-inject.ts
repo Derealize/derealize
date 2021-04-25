@@ -15,21 +15,24 @@ const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
 }
 
-const InspectActiveElement = async (targetOrSelector?: string | HTMLElement): Promise<void> => {
+const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Promise<void> => {
   if (!PROJECTID) return
 
+  selector = undefined
   if (activeElement) {
     activeElement.removeAttribute('data-active')
     activeElement.querySelector('ul.de-section')?.remove()
+    activeElement = null
   }
 
   if (typeof targetOrSelector === 'string') {
     selector = targetOrSelector
-    if (selector) {
-      activeElement = document.querySelector(selector)
-    }
+    if (selector) activeElement = document.querySelector(selector)
   } else if (targetOrSelector) {
     activeElement = targetOrSelector
+    selector = getSelectorString(activeElement)
+  } else {
+    throw new Error('targetOrSelector null')
   }
 
   if (!activeElement) {
@@ -41,11 +44,6 @@ const InspectActiveElement = async (targetOrSelector?: string | HTMLElement): Pr
   if (!codePosition) {
     alert('This element does not support deraelize update')
     return
-  }
-
-  if (!selector) {
-    selector = getSelectorString(activeElement)
-    // console.log('selector', selector)
   }
 
   const { tagName, className } = activeElement
