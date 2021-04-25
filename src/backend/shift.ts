@@ -64,8 +64,8 @@ export const ApplyClass = (projectPath: string, { codePosition, className }: Ele
         return false
       }
 
-      this.traverse(path)
-      return true
+      this.traverse(astPath)
+      return undefined
     },
   })
 
@@ -105,8 +105,8 @@ export const Insert = (projectPath: string, { codePosition, insertTagName, inser
         return false
       }
 
-      this.traverse(path)
-      return true
+      this.traverse(astPath)
+      return undefined
     },
   })
 
@@ -126,8 +126,8 @@ export const Delete = (projectPath: string, { codePosition }: ElementPayload) =>
         return false
       }
 
-      this.traverse(path)
-      return true
+      this.traverse(astPath)
+      return undefined
     },
   })
 
@@ -152,8 +152,8 @@ export const Replace = (projectPath: string, { codePosition, insertTagName }: In
         return false
       }
 
-      this.traverse(path)
-      return true
+      this.traverse(astPath)
+      return undefined
     },
   })
 
