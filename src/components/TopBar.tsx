@@ -20,10 +20,9 @@ import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
-import type { Element } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import { MainIpcChannel, SelectPayload } from '../interface'
+import { ElementPayload, MainIpcChannel, SelectPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -53,7 +52,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
-  const element = useStoreState<Element | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
@@ -140,11 +139,11 @@ const TopBar: React.FC = (): JSX.Element => {
         />
       </Flex>
 
-      <Flex align="center" justify="center">
-        <Breadcrumb spacing="8px" separator={<IoChevronForward color="#a0aec0" />}>
+      <Flex align="center" justify="center" className={style.breadcrumb}>
+        <Breadcrumb spacing="4px" separator={<IoChevronForward color="#a0aec0" />}>
           {breadcrumbs?.map(({ sel, index, tooltip }) => (
             <BreadcrumbItem key={sel + index}>
-              <Tooltip label={tooltip}>
+              <Tooltip label={tooltip} placement="top">
                 {index === breadcrumbs.length - 1 ? (
                   <Text textColor="teal.500">{sel}</Text>
                 ) : (
