@@ -22,7 +22,9 @@ export const cssText = `
 }
 
 i.de-icon {
-  width: 32px;
+  font-size: 14px;
+  width: 30px;
+  height: 24px;
   display: inline-block;
   cursor: pointer;
   font-style: normal;
@@ -33,21 +35,21 @@ i.de-icon {
 .de-section {
   position: absolute;
   display: flex;
-  height: 26px;
   list-style: none;
   margin: 0;
   padding: 0;
   height: 24px;
-  top: 1px;
+  line-height: 20px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%) translateY(-100%);
-  background-color: #71d7f7;
+  background-color: #4fd1c5;
   border-radius: 5px 5px 0 0;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .de-section .de-button:hover {
-  background-color: #10bcf2;
+  background-color: #38B2AC;
 }
 
 .de-section .de-button:first-child {
@@ -59,13 +61,13 @@ i.de-icon {
   position: absolute;
   top: 2px;
   border: solid transparent;
-  border-right: solid #71d7f7;
+  border-right: solid #4fd1c5;
   border-width: 22px 12px 0 0;
   right: calc(100% - 1px);
 }
 
 .de-section .de-button:first-child:hover:before {
-  border-right-color: #10bcf2;
+  border-right-color: #38B2AC;
 }
 
 .de-section .de-button:last-child {
@@ -77,13 +79,13 @@ i.de-icon {
   position: absolute;
   top: 2px;
   border: solid transparent;
-  border-left: solid #71d7f7;
+  border-left: solid #4fd1c5;
   border-width: 22px 0 0 12px;
   left: calc(100% - 1px);
 }
 
 .de-section .de-button:last-child:hover:after {
-  border-left-color: #10bcf2;
+  border-left-color: #38B2AC;
 }
 
 .de-section.de-inside {

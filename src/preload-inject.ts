@@ -71,7 +71,8 @@ const InspectActiveElement = async (targetOrSelector?: string | HTMLElement): Pr
 
   activeElement.setAttribute('data-active', 'true')
   activeElement.insertAdjacentHTML('afterbegin', sectionText(activeElement.offsetTop < 26))
-  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async () => {
+  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
+    e.stopPropagation()
     if (window.confirm('Sure Delete?')) {
       await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
     }
@@ -85,10 +86,10 @@ ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSe
 })
 
 const derealizeListener = async (e: Event) => {
-  if (!e.target || !PROJECTID) return
+  if (!e.currentTarget || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
 
-  await InspectActiveElement(e.target as HTMLElement)
+  await InspectActiveElement(e.currentTarget as HTMLElement)
 }
 
 ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId, className }: ElementPayload) => {

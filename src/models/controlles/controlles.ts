@@ -118,7 +118,6 @@ const controllesModel: ControllesModel = {
     // state.propertys = resolutionAll(state.propertys)
   }),
   setElementThunk: thunk(async (actions, payload) => {
-    console.log('setElementThunk', payload)
     actions.setElement(payload)
     if (payload) {
       actions.updateClassName()
