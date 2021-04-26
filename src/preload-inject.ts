@@ -68,7 +68,8 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
 
   activeElement.setAttribute('data-active', 'true')
-  activeElement.insertAdjacentHTML('afterbegin', sectionText(activeElement.offsetTop < 26))
+  const viewportReact = activeElement.getBoundingClientRect()
+  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26))
   activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
     e.stopPropagation()
     if (window.confirm('Sure Delete?')) {
