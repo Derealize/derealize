@@ -16,6 +16,7 @@ import Already from './Already'
 import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
+import BorderSection from './border/BorderSection'
 import Insert from './Insert'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import style from './Controllers.module.scss'
@@ -75,16 +76,16 @@ const Controllers: React.FC = (): JSX.Element => {
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F5) Background">
+          <Tooltip label="(F5) Typography">
             <Box>
-              <Icon as={RiImageLine} boxSize={6} />
+              <Icon as={MdFormatColorText} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F6) Typography">
+          <Tooltip label="(F6) Background">
             <Box>
-              <Icon as={MdFormatColorText} boxSize={6} />
+              <Icon as={RiImageLine} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
@@ -130,13 +131,13 @@ const Controllers: React.FC = (): JSX.Element => {
           <SpacingSection />
         </TabPanel>
         <TabPanel>
-          <p>Border!</p>
-        </TabPanel>
-        <TabPanel>
-          <p>Background!</p>
+          <BorderSection />
         </TabPanel>
         <TabPanel>
           <p>Typography!</p>
+        </TabPanel>
+        <TabPanel>
+          <p>Background!</p>
         </TabPanel>
         <TabPanel>
           <p>Effects/Transition/Animation/Transform</p>

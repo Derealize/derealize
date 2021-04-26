@@ -119,7 +119,7 @@ const SelectController: React.FC<Props> = ({
       isClearable
       options={
         typeof values[0] === 'string'
-          ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v }))
+          ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v.split('-').splice(-1)[0] }))
           : (values as ReadonlyArray<OptionType | GroupType>)
       }
       value={property ? { value: property.classname, label: property.classname } : null}

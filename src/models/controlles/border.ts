@@ -3,10 +3,13 @@ import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
-export const BorderStyleValues = ['solid', 'dashed', 'dotted', 'double', 'none']
+export const BorderStyleValues = ['border-solid', 'border-dashed', 'border-dotted', 'border-double', 'border-none']
+export const DivideStyleValues = ['divide-solid', 'divide-dashed', 'divide-dotted', 'divide-double', 'divide-none']
 
 export interface BorderModel {
   roundedSuffix: Computed<BorderModel, Array<string>, StoreModel>
+  roundedValues: Computed<BorderModel, Array<string>, StoreModel>
+  roundedPropertys: Computed<BorderModel, Array<Property>, StoreModel>
   roundedTopLeftValues: Computed<BorderModel, Array<string>, StoreModel>
   roundedTopLeftPropertys: Computed<BorderModel, Array<Property>, StoreModel>
   roundedTopRightValues: Computed<BorderModel, Array<string>, StoreModel>
@@ -17,6 +20,8 @@ export interface BorderModel {
   roundedBottomRightPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   borderSuffix: Computed<BorderModel, Array<string>, StoreModel>
+  borderValues: Computed<BorderModel, Array<string>, StoreModel>
+  borderPropertys: Computed<BorderModel, Array<Property>, StoreModel>
   borderTopValues: Computed<BorderModel, Array<string>, StoreModel>
   borderTopPropertys: Computed<BorderModel, Array<Property>, StoreModel>
   borderBottomValues: Computed<BorderModel, Array<string>, StoreModel>
@@ -71,28 +76,35 @@ const borderModel: BorderModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.borderRadius)
   }),
-  roundedTopLeftValues: computed(({ roundedSuffix }) => {
+  roundedValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
+    return roundedSuffix.map((v) => `rounded-${v}`)
+  }),
+  roundedPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  roundedTopLeftValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-tl-${v}`)
   }),
   roundedTopLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedTopLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  roundedTopRightValues: computed(({ roundedSuffix }) => {
+  roundedTopRightValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-tr-${v}`)
   }),
   roundedTopRightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedTopRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  roundedBottomLeftValues: computed(({ roundedSuffix }) => {
+  roundedBottomLeftValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-bl-${v}`)
   }),
   roundedBottomLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedBottomLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  roundedBottomRightValues: computed(({ roundedSuffix }) => {
+  roundedBottomRightValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-br-${v}`)
   }),
   roundedBottomRightPropertys: computed(
@@ -104,28 +116,35 @@ const borderModel: BorderModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.borderWidth)
   }),
-  borderTopValues: computed(({ borderSuffix }) => {
+  borderValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
+    return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border' : `border-${v}`))
+  }),
+  borderPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  borderTopValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-t' : `border-t-${v}`))
   }),
   borderTopPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.borderTopValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  borderBottomValues: computed(({ borderSuffix }) => {
+  borderBottomValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-b' : `border-b-${v}`))
   }),
   borderBottomPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.borderBottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  borderLeftValues: computed(({ borderSuffix }) => {
+  borderLeftValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-l' : `border-l-${v}`))
   }),
   borderLeftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.borderLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  borderRightValues: computed(({ borderSuffix }) => {
+  borderRightValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-r' : `border-r-${v}`))
   }),
   borderRightPropertys: computed(
@@ -160,14 +179,14 @@ const borderModel: BorderModel = {
     const { divideWidth, borderWidth } = project.tailwindConfig.theme
     return Object.keys(Object.assign(divideWidth, borderWidth))
   }),
-  divideYValues: computed(({ divideSuffix }) => {
+  divideYValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-y' : `divide-y-${v}`))
   }),
   divideYPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.divideYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  divideXValues: computed(({ divideSuffix }) => {
+  divideXValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-x' : `divide-x-${v}`))
   }),
   divideXPropertys: computed(
@@ -194,7 +213,7 @@ const borderModel: BorderModel = {
   ),
 
   divideStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => BorderStyleValues.includes(classname)),
+    propertys.filter(({ classname }) => DivideStyleValues.includes(classname)),
   ),
 
   ringWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -246,6 +265,7 @@ const borderModel: BorderModel = {
 
   alreadyVariants: computed(
     [
+      (state: State<BorderModel>) => state.roundedPropertys,
       (state: State<BorderModel>) => state.roundedTopLeftPropertys,
       (state: State<BorderModel>) => state.roundedTopRightPropertys,
       (state: State<BorderModel>) => state.roundedBottomLeftPropertys,

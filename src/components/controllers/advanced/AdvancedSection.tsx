@@ -9,9 +9,9 @@ import Clear from './Clear'
 import Float from './Float'
 import Overscroll from './Overscroll'
 
-const AdvancedSection: React.FC = (): JSX.Element => {
+const BorderSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.advanced.alreadyVariants)
+  const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.border.alreadyVariants)
 
   return (
     <>
@@ -26,4 +26,4 @@ const AdvancedSection: React.FC = (): JSX.Element => {
   )
 }
 
-export default AdvancedSection
+export default BorderSection
