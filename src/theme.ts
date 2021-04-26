@@ -44,6 +44,15 @@ const mytheme = extendTheme({
   },
   components: {
     BarIconButton,
+    Button: {
+      sizes: {
+        icon: {
+          h: '56px',
+          w: '56px',
+          fontSize: '30px',
+        },
+      },
+    },
   },
 })
 

@@ -22,7 +22,7 @@ import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import { ElementPayload, MainIpcChannel, SelectPayload } from '../interface'
+import { ElementPayload, MainIpcChannel, BreadcrumbPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -149,14 +149,14 @@ const TopBar: React.FC = (): JSX.Element => {
                 ) : (
                   <BreadcrumbLink
                     onMouseEnter={() =>
-                      sendMainIpc(MainIpcChannel.SelectElement, { projectId: project.url, index } as SelectPayload)
+                      sendMainIpc(MainIpcChannel.SelectElement, { projectId: project.url, index } as BreadcrumbPayload)
                     }
                     onClick={() => {
                       sendMainIpc(MainIpcChannel.SelectElement, {
                         projectId: project.url,
                         index,
                         isClick: true,
-                      } as SelectPayload)
+                      } as BreadcrumbPayload)
                     }}
                   >
                     {sel}

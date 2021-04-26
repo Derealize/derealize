@@ -11,38 +11,47 @@ export interface ElementPayload {
 }
 
 export enum InsertMode {
-  after,
-  before,
-  append,
-  prepend,
+  After = 'After',
+  Before = 'Before',
+  Append = 'Append',
+  // Prepend = 'Prepend',
+}
+
+export enum InsertElementType {
+  div = 'div',
+  span = 'span',
+  a = 'a',
+  button = 'button',
+  input = 'input',
 }
 
 export interface InsertElementPayload extends ElementPayload {
-  insertTagName: string
+  insertElementType: InsertElementType
   insertMode: InsertMode
 }
 
-export interface SelectPayload {
+export interface BreadcrumbPayload {
   projectId: string
   index: number
   isClick?: boolean
 }
 
 export enum MainIpcChannel {
-  FocusElement = 'FocusElement',
-  LiveUpdateClass = 'LiveUpdateClass',
-  SelectElement = 'SelectElement',
-  DeviceEmulation = 'DeviceEmulation',
-  LoadURL = 'LoadURL',
-  CloseProjectView = 'CloseProjectView',
-  FrontMain = 'FrontMain',
-  FrontProjectWeb = 'FrontProjectWeb',
-  OpenDirs = 'OpenDirs',
-  SelectDirs = 'SelectDirs',
-  PagesMenu = 'PagesMenu',
-  ProjectMenu = 'ProjectMenu',
-  MainMenu = 'MainMenu',
-  Controls = 'Controls',
   GetStore = 'GetStore',
   SetStore = 'SetStore',
+  Controls = 'Controls',
+  MainMenu = 'MainMenu',
+  ProjectMenu = 'ProjectMenu',
+  PagesMenu = 'PagesMenu',
+  SelectDirs = 'SelectDirs',
+  OpenDirs = 'OpenDirs',
+  FrontMain = 'FrontMain',
+  FrontProjectWeb = 'FrontProjectWeb',
+  CloseProjectView = 'CloseProjectView',
+  LoadURL = 'LoadURL',
+  DeviceEmulation = 'DeviceEmulation',
+  FocusElement = 'FocusElement',
+  SelectElement = 'SelectElement',
+  LiveUpdateClass = 'LiveUpdateClass',
+  InsertTab = 'InsertTab',
 }

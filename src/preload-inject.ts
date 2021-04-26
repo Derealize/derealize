@@ -2,7 +2,7 @@ import { ipcRenderer, contextBridge } from 'electron'
 import 'selector-generator'
 import { connectSocket, sendBackIpc, listenBackIpc } from './client-ipc'
 import { Handler } from './backend/backend.interface'
-import { ElementPayload, SelectPayload, MainIpcChannel } from './interface'
+import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
 import { cssText, sectionText } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -75,6 +75,10 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
       await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
     }
   })
+  activeElement.querySelector('ul.de-section i.de-add')?.addEventListener('click', async (e) => {
+    e.stopPropagation()
+    ipcRenderer.send(MainIpcChannel.InsertTab, true)
+  })
 }
 
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
@@ -97,7 +101,7 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId,
   }
 })
 
-ipcRenderer.on(MainIpcChannel.SelectElement, async (event: Event, { projectId, index, isClick }: SelectPayload) => {
+ipcRenderer.on(MainIpcChannel.SelectElement, async (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
   if (projectId !== PROJECTID || !selector) return
   hoverElement?.removeAttribute('data-hover')
 
@@ -120,7 +124,8 @@ const listenElement = async () => {
   document.querySelectorAll('[data-code]').forEach((el) => {
     el.removeEventListener('click', derealizeListener)
     el.addEventListener('click', derealizeListener)
-
+    el.removeEventListener('focus', derealizeListener)
+    el.addEventListener('focus', derealizeListener)
     el.removeEventListener('contextmenu', derealizeListener)
     el.addEventListener('contextmenu', derealizeListener)
   })

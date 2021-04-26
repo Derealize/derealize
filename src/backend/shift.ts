@@ -4,7 +4,7 @@ import { types, parse, print, visit } from 'recast'
 import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
-import { ElementPayload, InsertMode, InsertElementPayload } from '../interface'
+import { ElementPayload, InsertMode, InsertElementPayload, InsertElementType } from '../interface'
 import log from './log'
 
 const { builders, namedTypes } = types
@@ -73,7 +73,7 @@ export const ApplyClass = (projectPath: string, { codePosition, className }: Ele
   fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
 }
 
-export const Insert = (projectPath: string, { codePosition, insertTagName, insertMode }: InsertElementPayload) => {
+export const Insert = (projectPath: string, { codePosition, insertElementType, insertMode }: InsertElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -81,26 +81,48 @@ export const Insert = (projectPath: string, { codePosition, insertTagName, inser
       const { node } = astPath
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(insertTagName)
-        const open = builders.jsxOpeningElement(jsxId)
+        const jsxId = builders.jsxIdentifier(insertElementType)
         const close = builders.jsxClosingElement(jsxId)
+
+        const open = builders.jsxOpeningElement(jsxId)
+        let className = 'bg-green-100'
+        switch (insertElementType) {
+          case InsertElementType.div:
+            className = 'bg-green-100 my-2 py-2'
+            break
+          case InsertElementType.span:
+          case InsertElementType.a:
+            className = 'bg-green-100 mx-2 px-2'
+            break
+          case InsertElementType.button:
+            className = 'bg-green-100 m-2 p-2'
+            break
+          default:
+            break
+        }
+        open.attributes = []
+        open.attributes.push(
+          builders.jsxAttribute(builders.jsxIdentifier('className'), builders.stringLiteral(className)),
+        )
+
         const element = builders.jsxElement(open, close)
 
-        if (insertMode === InsertMode.after) {
+        if (insertMode === InsertMode.After) {
+          astPath.insertAfter(element)
+        } else if (insertMode === InsertMode.Before) {
           astPath.insertBefore(element)
-        } else if (insertMode === InsertMode.before) {
-          astPath.insertBefore(element)
-        } else if (insertMode === InsertMode.append) {
+        } else if (insertMode === InsertMode.Append) {
           if (!node.children) {
             node.children = []
           }
           node.children.push(element)
-        } else if (insertMode === InsertMode.prepend) {
-          if (!node.children) {
-            node.children = []
-          }
-          node.children.unshift(element)
         }
+        //  else if (insertMode === InsertMode.Prepend) {
+        //   if (!node.children) {
+        //     node.children = []
+        //   }
+        //   node.children.unshift(element)
+        // }
 
         return false
       }
@@ -135,7 +157,7 @@ export const Delete = (projectPath: string, { codePosition }: ElementPayload) =>
   fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
 }
 
-export const Replace = (projectPath: string, { codePosition, insertTagName }: InsertElementPayload) => {
+export const Replace = (projectPath: string, { codePosition, insertElementType }: InsertElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -143,7 +165,7 @@ export const Replace = (projectPath: string, { codePosition, insertTagName }: In
       const { node } = astPath
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(insertTagName)
+        const jsxId = builders.jsxIdentifier(insertElementType)
         node.name = jsxId
         node.openingElement.name = jsxId
         if (node.closingElement) {

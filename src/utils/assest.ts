@@ -9,14 +9,18 @@ export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const StringEnumObjects = (enumme: any, prefix?: string): Array<{ label: string; value: string }> => {
-  return Object.keys(enumme).map((key, i) => ({ label: i === 0 && prefix ? prefix + key : key, value: enumme[key] }))
+export const StringEnumObjects = (enumme: any): Array<{ label: string; value: string }> => {
+  return Object.keys(enumme).map((key) => ({ label: key, value: enumme[key] }))
 }
 
-export const IntEnumObjects = (enumme: any, prefix?: string): Array<{ label: string; value: number }> => {
+export const IntEnumObjects = (enumme: any): Array<{ label: string; value: number }> => {
   return Object.keys(enumme)
     .filter((value) => !Number.isNaN(Number(value)))
-    .map((key, i) => ({ label: i === 0 && prefix ? prefix + enumme[key] : enumme[key], value: parseInt(key, 10) }))
+    .map((key) => ({ label: enumme[key], value: parseInt(key, 10) }))
+}
+
+export const IntEnumValues = (enumme: any): Array<string> => {
+  return Object.keys(enumme).filter((value) => !Number.isNaN(Number(value)))
 }
 
 export const ReplacedElementTagName = [
