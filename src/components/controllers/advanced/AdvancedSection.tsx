@@ -8,6 +8,7 @@ import BoxSizing from './BoxSizing'
 import Clear from './Clear'
 import Float from './Float'
 import Overscroll from './Overscroll'
+import Divide from './Divide'
 
 const BorderSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -16,10 +17,11 @@ const BorderSection: React.FC = (): JSX.Element => {
   return (
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <VStack mt={4}>
+      <VStack mt={4} alignItems="stretch" spacing={8}>
         <BoxSizing />
         <Clear />
         <Float />
+        <Divide />
         <Overscroll />
       </VStack>
     </>
