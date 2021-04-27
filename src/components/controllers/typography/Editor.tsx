@@ -31,7 +31,6 @@ const Editor: React.FC = (): JSX.Element => {
     setText(element?.text)
   }, [element])
 
-  console.log('element?.text', element?.text)
   if (element?.text === undefined) return <></>
 
   return (

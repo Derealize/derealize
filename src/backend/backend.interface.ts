@@ -14,6 +14,7 @@ export enum Handler {
   DeleteElement = 'DeleteElement',
   ReplaceElement = 'ReplaceElement',
   TextElement = 'TextElement',
+  JitTigger = 'JitTigger',
 }
 
 export enum Broadcast {

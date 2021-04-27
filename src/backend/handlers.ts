@@ -1,9 +1,12 @@
 /* eslint-disable no-restricted-syntax */
+import fs from 'fs'
+// eslint-disable-next-line import/no-named-default
+import { default as _path } from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
-import { ElementPayload, InsertElementPayload } from '../interface'
+import { ElementPayload, InsertElementPayload, JitTiggerPayload } from '../interface'
 import { ApplyClass, Insert, Delete, Replace, Text } from './shift'
 import { npmStart } from './npm'
 
@@ -124,4 +127,11 @@ export const TextElement = async (payload: ElementPayload) => {
   const project = getProject(payload.projectId)
 
   Text(project.path, payload)
+}
+
+export const JitTigger = (payload: JitTiggerPayload) => {
+  const project = getProject(payload.projectId)
+
+  const filePath = _path.resolve(project.path, 'derealize-jit.html')
+  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`, { encoding: 'utf8' })
 }
