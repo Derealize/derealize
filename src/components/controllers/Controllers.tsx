@@ -17,6 +17,7 @@ import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
 import BorderSection from './border/BorderSection'
+import TypographySection from './typography/TypographySection'
 import Insert from './Insert'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import style from './Controllers.module.scss'
@@ -134,7 +135,7 @@ const Controllers: React.FC = (): JSX.Element => {
           <BorderSection />
         </TabPanel>
         <TabPanel>
-          <p>Typography!</p>
+          <TypographySection />
         </TabPanel>
         <TabPanel>
           <p>Background!</p>

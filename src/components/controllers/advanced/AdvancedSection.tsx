@@ -9,6 +9,13 @@ import Clear from './Clear'
 import Float from './Float'
 import Overscroll from './Overscroll'
 import Divide from './Divide'
+import FontSmoothing from './FontSmoothing'
+import FontStyle from './FontStyle'
+import FontVariantNumeric from './FontVariantNumeric'
+import ListStyle from './ListStyle'
+import TextOverflow from './TextOverflow'
+import VerticalAlign from './VerticalAlign'
+import WordBreak from './WordBreak'
 
 const BorderSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -17,12 +24,19 @@ const BorderSection: React.FC = (): JSX.Element => {
   return (
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <VStack mt={4} alignItems="stretch" spacing={8}>
+      <VStack mt={4} alignItems="stretch" spacing={6}>
         <BoxSizing />
-        <Clear />
         <Float />
+        <Clear />
         <Divide />
         <Overscroll />
+        <FontSmoothing />
+        <FontStyle />
+        <FontVariantNumeric />
+        <ListStyle />
+        <TextOverflow />
+        <VerticalAlign />
+        <WordBreak />
       </VStack>
     </>
   )

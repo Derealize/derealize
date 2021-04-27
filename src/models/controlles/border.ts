@@ -4,7 +4,6 @@ import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
 export const BorderStyleValues = ['border-solid', 'border-dashed', 'border-dotted', 'border-double', 'border-none']
-export const DivideStyleValues = ['divide-solid', 'divide-dashed', 'divide-dotted', 'divide-double', 'divide-none']
 
 export interface BorderModel {
   roundedSuffix: Computed<BorderModel, Array<string>, StoreModel>
@@ -38,20 +37,6 @@ export interface BorderModel {
   borderOpacityPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   borderStylePropertys: Computed<BorderModel, Array<Property>, StoreModel>
-
-  divideSuffix: Computed<BorderModel, Array<string>, StoreModel>
-  divideYValues: Computed<BorderModel, Array<string>, StoreModel>
-  divideYPropertys: Computed<BorderModel, Array<Property>, StoreModel>
-  divideXValues: Computed<BorderModel, Array<string>, StoreModel>
-  divideXPropertys: Computed<BorderModel, Array<Property>, StoreModel>
-
-  divideColorValues: Computed<BorderModel, Array<string>, StoreModel>
-  divideColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
-
-  divideOpacityValues: Computed<BorderModel, Array<string>, StoreModel>
-  divideOpacityPropertys: Computed<BorderModel, Array<Property>, StoreModel>
-
-  divideStylePropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   ringWidthValues: Computed<BorderModel, Array<string>, StoreModel>
   ringWidthPropertys: Computed<BorderModel, Array<Property>, StoreModel>
@@ -174,48 +159,6 @@ const borderModel: BorderModel = {
     propertys.filter(({ classname }) => BorderStyleValues.includes(classname)),
   ),
 
-  divideSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    const { divideWidth, borderWidth } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(divideWidth, borderWidth))
-  }),
-  divideYValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
-    return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-y' : `divide-y-${v}`))
-  }),
-  divideYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideYValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-  divideXValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
-    return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-x' : `divide-x-${v}`))
-  }),
-  divideXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideXValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  divideColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.divideColor).map((v) => `divide-${v}`)
-  }),
-  divideColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  divideOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.divideOpacity).map((v) => `divide-opacity-${v}`)
-  }),
-  divideOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideOpacityValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  divideStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => DivideStyleValues.includes(classname)),
-  ),
-
   ringWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.ringWidth).map((v) => (v === 'DEFAULT' ? 'ring' : `ring-${v}`))
@@ -277,11 +220,6 @@ const borderModel: BorderModel = {
       (state: State<BorderModel>) => state.borderColorPropertys,
       (state: State<BorderModel>) => state.borderOpacityPropertys,
       (state: State<BorderModel>) => state.borderStylePropertys,
-      (state: State<BorderModel>) => state.divideYPropertys,
-      (state: State<BorderModel>) => state.divideXPropertys,
-      (state: State<BorderModel>) => state.divideColorPropertys,
-      (state: State<BorderModel>) => state.divideOpacityPropertys,
-      (state: State<BorderModel>) => state.divideStylePropertys,
       (state: State<BorderModel>) => state.ringWidthPropertys,
       (state: State<BorderModel>) => state.ringColorPropertys,
       (state: State<BorderModel>) => state.ringOpacityPropertys,

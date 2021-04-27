@@ -7,6 +7,7 @@ import layoutModel, { LayoutModel } from './controlles/layout'
 import spacingModel, { SpacingModel } from './controlles/spacing'
 import advancedModel, { AdvancedModel } from './controlles/advanced'
 import borderModel, { BorderModel } from './controlles/border'
+import typographyModel, { TypographyModel } from './controlles/typography'
 
 export interface StoreModel {
   profile: ProfileModel
@@ -18,6 +19,7 @@ export interface StoreModel {
   spacing: SpacingModel
   advanced: AdvancedModel
   border: BorderModel
+  typography: TypographyModel
 }
 
 const storeModel: StoreModel = {
@@ -30,6 +32,7 @@ const storeModel: StoreModel = {
   spacing: spacingModel,
   advanced: advancedModel,
   border: borderModel,
+  typography: typographyModel,
 }
 
 export default storeModel
