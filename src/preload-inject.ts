@@ -50,7 +50,8 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
     activeElement = targetOrSelector
     selector = getSelectorString(activeElement)
   } else {
-    throw new Error('targetOrSelector null')
+    console.warn('targetOrSelector null')
+    return
   }
 
   if (!activeElement) {
