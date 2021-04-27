@@ -16,9 +16,16 @@ import Select, {
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
 import styles from './SelectController.module.scss'
-import { useStoreActions } from '../reduxStore'
+import { useStoreActions, useStoreState } from '../reduxStore'
+import type { Project } from '../models/project'
 import type { Property } from '../models/controlles/controlles'
 import theme from '../theme'
+import { Handler } from '../backend/backend.interface'
+import type { PreloadWindow } from '../preload'
+import { JitTiggerPayload } from '../interface'
+
+declare const window: PreloadWindow
+const { sendBackIpc, sendMainIpc } = window.derealize
 
 export interface OptionType extends OptionTypeBase {
   label: string
@@ -50,6 +57,7 @@ const SelectController: React.FC<Props> = ({
   onMouseEnter,
   cleanPropertys,
 }: Props): JSX.Element => {
+  const project = useStoreState<Project>((state) => state.project.frontProject)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
@@ -124,6 +132,16 @@ const SelectController: React.FC<Props> = ({
       }
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
+      onFocus={() => {
+        const className =
+          typeof values[0] === 'string'
+            ? (values as ReadonlyArray<string>).join(' ')
+            : (values as ReadonlyArray<OptionType | GroupType>)
+                .map((g) => g.options.map((o) => o.value).join(' '))
+                .join(' ')
+        const payload: JitTiggerPayload = { projectId: project.url, className }
+        sendBackIpc(Handler.JitTigger, payload as any)
+      }}
       onChange={(ovalue, { action }) => {
         if (action === 'clear' && property) {
           deleteProperty(property.id)

@@ -37,6 +37,11 @@ export interface BreadcrumbPayload {
   isClick?: boolean
 }
 
+export interface JitTiggerPayload {
+  projectId: string
+  className: string
+}
+
 export enum MainIpcChannel {
   GetStore = 'GetStore',
   SetStore = 'SetStore',
