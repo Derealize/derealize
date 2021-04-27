@@ -57,7 +57,7 @@ const SelectController: React.FC<Props> = ({
   onMouseEnter,
   cleanPropertys,
 }: Props): JSX.Element => {
-  const project = useStoreState<Project>((state) => state.project.frontProject)
+  const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
