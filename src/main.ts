@@ -438,3 +438,8 @@ ipcMain.on(MainIpcChannel.InsertTab, (event, payload: boolean) => {
   if (!mainWindow) return
   mainWindow.webContents.send(MainIpcChannel.InsertTab, payload)
 })
+
+ipcMain.on(MainIpcChannel.TextTab, (event, payload: boolean) => {
+  if (!mainWindow) return
+  mainWindow.webContents.send(MainIpcChannel.TextTab, payload)
+})

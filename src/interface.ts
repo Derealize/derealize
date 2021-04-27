@@ -4,6 +4,7 @@ export interface ElementPayload {
   tagName: string
   className: string
   selector: string
+  text?: string
   display?: string
   position?: string
   parentTagName?: string
@@ -54,4 +55,5 @@ export enum MainIpcChannel {
   SelectElement = 'SelectElement',
   LiveUpdateClass = 'LiveUpdateClass',
   InsertTab = 'InsertTab',
+  TextTab = 'TextTab',
 }

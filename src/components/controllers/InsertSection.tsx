@@ -32,7 +32,7 @@ const Insert: React.FC = (): JSX.Element => {
       insertMode: selInsertMode,
       insertElementType: selElementType,
     }
-    sendBackIpc(Handler.AddElement, payload as any)
+    sendBackIpc(Handler.InsertElement, payload as any)
   }, [element, selElementType, selInsertMode, toast])
 
   return (

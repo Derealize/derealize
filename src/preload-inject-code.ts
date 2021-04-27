@@ -1,11 +1,18 @@
-export const sectionText = (inside: boolean) => `
+// <li class="de-button ui-sortable-handle" title="handle">
+//   <i class="de-icon de-handle" aria-hidden="true"> ☷ </i>
+// </li>
+export const sectionText = (inside: boolean, text: boolean) => `
 <ul class="de-section ${inside ? 'de-inside' : ''}">
-  <li class="de-button" title="add">
-    <i class="de-icon de-add" aria-hidden="true"> ✚ </i>
+  <li class="de-button" title="insert">
+    <i class="de-icon de-insert" aria-hidden="true"> ✚ </i>
   </li>
-  <li class="de-button ui-sortable-handle" title="edit">
-    <i class="de-icon de-handle" aria-hidden="true"> ☷ </i>
-  </li>
+  ${
+    text
+      ? `<li class="de-button" title="text">
+    <i class="de-icon de-text" aria-hidden="true"> ✎ </i>
+  </li>`
+      : ''
+  }
   <li class="de-button" title="delete">
     <i class="de-icon de-delete" aria-hidden="true"> 🗙 </i>
   </li>

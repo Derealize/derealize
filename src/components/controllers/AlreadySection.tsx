@@ -9,7 +9,7 @@ import SpacingSection from './spacing/SpacingSection'
 import AdvancedSection from './advanced/AdvancedSection'
 // import { Project } from '../../models/project'
 
-const Already: React.FC = (): JSX.Element => {
+const AlreadySection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.controlles.alreadyVariants)
   // const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
   // const setPage = useStoreActions((actions) => actions.project.setPage)
@@ -39,4 +39,4 @@ const Already: React.FC = (): JSX.Element => {
   )
 }
 
-export default Already
+export default AlreadySection

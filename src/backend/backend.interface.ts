@@ -10,9 +10,10 @@ export enum Handler {
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
   UpdateClass = 'UpdateClass',
-  AddElement = 'AddElement',
+  InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
   ReplaceElement = 'ReplaceElement',
+  TextElement = 'TextElement',
 }
 
 export enum Broadcast {

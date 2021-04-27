@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import type { IpcRendererEvent } from 'electron'
-import { Tooltip, Stack, Box, Text, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
+import { Tooltip, Stack, Box, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
 import { IoImageOutline, IoGridOutline } from 'react-icons/io5'
 import { BsType, BsLayoutTextWindowReverse, BsFileCode, BsTextareaT, BsListCheck } from 'react-icons/bs'
 import { AiOutlineAlignCenter, AiOutlineInteraction, AiOutlineLayout } from 'react-icons/ai'
-import { CgSpaceBetweenV, CgComponents, CgMoreAlt, CgBorderRight, CgRatio } from 'react-icons/cg'
+import { CgSpaceBetweenV, CgComponents, CgMoreAlt, CgBorderRight, CgRatio, CgFormatText } from 'react-icons/cg'
 import { RiFileList2Line, RiLayoutMasonryLine, RiLayoutGridLine, RiLayout5Line, RiImageLine } from 'react-icons/ri'
 import { MdTransform, MdGridOn, MdFormatColorText } from 'react-icons/md'
 import { FcAddRow } from 'react-icons/fc'
@@ -12,13 +12,13 @@ import { BiCrop } from 'react-icons/bi'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
-import Already from './Already'
+import AlreadySection from './AlreadySection'
 import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
 import BorderSection from './border/BorderSection'
 import TypographySection from './typography/TypographySection'
-import Insert from './Insert'
+import InsertSection from './InsertSection'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import style from './Controllers.module.scss'
 import type { PreloadWindow } from '../../preload'
@@ -26,24 +26,46 @@ import type { PreloadWindow } from '../../preload'
 declare const window: PreloadWindow
 const { listenMainIpc, unlistenMainIpc } = window.derealize
 
+enum ControllerTab {
+  Already,
+  Layout,
+  Spacing,
+  Border,
+  Typography,
+  Background,
+  Effects,
+  Components,
+  Advanced,
+  Insert,
+}
+
 const Controllers: React.FC = (): JSX.Element => {
   const propertys = useStoreState<Array<Property>>((state) => state.controlles.propertys)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
-  const [tabIndex, setTabIndex] = useState(propertys.length ? 0 : 1)
+  const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
-    if (tabIndex === 9 && !element) {
-      setTabIndex(propertys.length ? 0 : 1)
-    }
-
     listenMainIpc(MainIpcChannel.InsertTab, (e: IpcRendererEvent, payload: boolean) => {
-      if (element && payload) {
-        setTabIndex(9)
+      if (payload) {
+        setTabIndex(ControllerTab.Insert)
       }
     })
 
-    return () => unlistenMainIpc(MainIpcChannel.InsertTab)
-  }, [element, propertys.length, tabIndex])
+    if (tabIndex === ControllerTab.Typography && element?.text === undefined) {
+      setTabIndex(ControllerTab.Already)
+    }
+
+    listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
+      if (payload && element?.text !== undefined) {
+        setTabIndex(ControllerTab.Typography)
+      }
+    })
+
+    return () => {
+      unlistenMainIpc(MainIpcChannel.InsertTab)
+      unlistenMainIpc(MainIpcChannel.TextTab)
+    }
+  }, [element, tabIndex])
 
   return (
     <Tabs orientation="vertical" colorScheme="teal" index={tabIndex} onChange={(i) => setTabIndex(i)}>
@@ -122,7 +144,7 @@ const Controllers: React.FC = (): JSX.Element => {
       <TabPanels className={style.panels}>
         <TabPanel>
           <ControllersContext.Provider value={{ already: true }}>
-            <Already />
+            <AlreadySection />
           </ControllersContext.Provider>
         </TabPanel>
         <TabPanel>
@@ -150,7 +172,7 @@ const Controllers: React.FC = (): JSX.Element => {
           <AdvancedSection />
         </TabPanel>
         <TabPanel>
-          <Insert />
+          <InsertSection />
         </TabPanel>
       </TabPanels>
     </Tabs>

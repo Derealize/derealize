@@ -182,3 +182,33 @@ export const Replace = (projectPath: string, { codePosition, insertElementType }
   const output = print(ast)
   fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
 }
+
+export const Text = (projectPath: string, { codePosition, text }: ElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+
+  visit(ast, {
+    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+      const { node } = astPath
+
+      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+        if (!text) {
+          node.children = []
+        } else {
+          if (node.openingElement.selfClosing) {
+            node.closingElement = builders.jsxClosingElement(node.openingElement.name)
+            node.openingElement.selfClosing = false
+          }
+          const jsxText = builders.jsxText(text)
+          node.children = [jsxText]
+        }
+        return false
+      }
+
+      this.traverse(astPath)
+      return undefined
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+}
