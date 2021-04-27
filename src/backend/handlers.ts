@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs'
 // eslint-disable-next-line import/no-named-default
-import { default as _path } from 'path'
+import sysPath from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
@@ -132,6 +132,6 @@ export const TextElement = async (payload: ElementPayload) => {
 export const JitTigger = (payload: JitTiggerPayload) => {
   const project = getProject(payload.projectId)
 
-  const filePath = _path.resolve(project.path, 'derealize-jit.html')
+  const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
   fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`, { encoding: 'utf8' })
 }
