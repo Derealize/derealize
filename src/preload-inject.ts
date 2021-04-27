@@ -10,6 +10,24 @@ let selector: string | undefined
 let activeElement: HTMLElement | null = null
 let hoverElement: Element | null = null
 
+// https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+const EmptyElement = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]
+
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
@@ -47,7 +65,13 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   }
 
   const { tagName, className } = activeElement
-  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, tagName, selector }
+
+  const supportText = !activeElement.children.length && !EmptyElement.includes(tagName.toLowerCase())
+  let text: string | undefined
+  if (supportText) {
+    text = activeElement.innerText
+  }
+  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, tagName, selector, text }
 
   // https://stackoverflow.com/a/11495671
   // getComputedStyle() 不支持伪类查询，任何伪类style都会被检索。目前只能使用tailwindcss classname
@@ -69,16 +93,20 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
 
   activeElement.setAttribute('data-active', 'true')
   const viewportReact = activeElement.getBoundingClientRect()
-  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26))
+  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26, supportText))
   activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
     e.stopPropagation()
     if (window.confirm('Sure Delete?')) {
       await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
     }
   })
-  activeElement.querySelector('ul.de-section i.de-add')?.addEventListener('click', async (e) => {
+  activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', async (e) => {
     e.stopPropagation()
     ipcRenderer.send(MainIpcChannel.InsertTab, true)
+  })
+  activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', async (e) => {
+    e.stopPropagation()
+    ipcRenderer.send(MainIpcChannel.TextTab, true)
   })
 }
 
