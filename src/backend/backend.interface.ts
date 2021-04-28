@@ -43,12 +43,12 @@ export enum ProjectStatus {
 }
 
 export interface PayloadError {
-  id: string
+  projectId: string
   error: string
 }
 
 export interface Payload {
-  id: string
+  projectId: string
   result: string
 }
 
@@ -58,7 +58,7 @@ export interface GitFileChanges {
 }
 
 export interface StatusPayload {
-  id: string
+  projectId: string
   productName: string
   changes: Array<GitFileChanges>
   status: ProjectStatus
@@ -68,7 +68,7 @@ export interface StatusPayload {
 }
 
 export interface ProcessPayload {
-  id: string
+  projectId: string
   stdout?: string
   stderr?: string
   exit?: number

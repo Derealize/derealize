@@ -15,7 +15,7 @@ const Width: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.display?.includes('inline')) return <></>
+  if (!element || element.display === 'inline') return <></>
 
   return <SelectController placeholder="width" values={values} property={property} />
 }

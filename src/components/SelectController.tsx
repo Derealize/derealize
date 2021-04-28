@@ -140,7 +140,7 @@ const SelectController: React.FC<Props> = ({
             : (values as ReadonlyArray<OptionType | GroupType>)
                 .map((g) => g.options.map((o) => o.value).join(' '))
                 .join(' ')
-        const payload: JitTiggerPayload = { projectId: project.url, className }
+        const payload: JitTiggerPayload = { projectId: project.id, className }
         sendBackIpc(Handler.JitTigger, payload as any)
       }}
       onChange={(ovalue, { action }) => {

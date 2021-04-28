@@ -21,8 +21,6 @@ import {
   MenuDivider,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import cs from 'classnames'
-import { css } from '@emotion/react'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
@@ -61,13 +59,13 @@ const Home = (): JSX.Element => {
             </HStack>
             <Wrap mt={6} spacing={8}>
               {projects.map((p) => (
-                <WrapItem key={p.url}>
+                <WrapItem key={p.id}>
                   <Box
                     w="xs"
                     boxShadow="md"
                     borderRadius="md"
                     className={style.project}
-                    onClick={() => openProject(p.url)}
+                    onClick={() => openProject(p.id)}
                   >
                     <div className={style.pattern} />
                     <Flex align="center">
@@ -94,7 +92,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              openProject(p.url)
+                              openProject(p.id)
                             }}
                           >
                             Open
@@ -111,7 +109,7 @@ const Home = (): JSX.Element => {
                             <MenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
-                                sendBackIpc(Handler.Push, { url: p.url })
+                                sendBackIpc(Handler.Push, { projectId: p.id })
                               }}
                             >
                               Push {p.changes.length} files
@@ -120,7 +118,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              sendBackIpc(Handler.Pull, { url: p.url })
+                              sendBackIpc(Handler.Pull, { projectId: p.id })
                             }}
                           >
                             Pull
@@ -131,7 +129,7 @@ const Home = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              removeProject(p.url)
+                              removeProject(p.id)
                             }}
                           >
                             Remove

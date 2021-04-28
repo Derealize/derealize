@@ -131,24 +131,26 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId,
   }
 })
 
-ipcRenderer.on(MainIpcChannel.SelectElement, async (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
-  if (projectId !== PROJECTID || !selector) return
-  hoverElement?.removeAttribute('data-hover')
+ipcRenderer.on(
+  MainIpcChannel.SelectBreadcrumb,
+  async (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
+    if (projectId !== PROJECTID || !selector) return
+    hoverElement?.removeAttribute('data-hover')
 
-  const sels = selector.split('>')
-  const sel = sels.slice(0, index + 1).join('>')
+    const sels = selector.split('>')
+    const sel = sels.slice(0, index + 1).join('>')
 
-  // console.log('SelectElement', sel)
-  const target = document.querySelector(sel)
-  if (target) {
-    if (isClick) {
-      InspectActiveElement(target as HTMLElement)
-    } else {
-      hoverElement = target
-      hoverElement.setAttribute('data-hover', 'true')
+    const target = document.querySelector(sel)
+    if (target) {
+      if (isClick) {
+        InspectActiveElement(target as HTMLElement)
+      } else {
+        hoverElement = target
+        hoverElement.setAttribute('data-hover', 'true')
+      }
     }
-  }
-})
+  },
+)
 
 const listenElement = async () => {
   document.querySelectorAll('[data-code]').forEach((el) => {

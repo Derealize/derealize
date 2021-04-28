@@ -17,7 +17,7 @@ const { sendMainIpc } = window.derealize
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
   const openedProjects = useStoreState<Array<Project>>((state) => state.project.openedProjects)
-  const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
+  const frontProject = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const setFrontProject = useStoreActions((actions) => actions.project.setFrontProjectThunk)
   const closeProject = useStoreActions((actions) => actions.project.closeProject)
 
@@ -59,7 +59,7 @@ const TabBar = (): JSX.Element => {
             }}
             role="button"
             aria-hidden="true"
-            {...(frontProject === null ? { active: 'true' } : {})}
+            {...(frontProject === undefined ? { active: 'true' } : {})}
           >
             <div className="chrome-tab-dividers" />
             <div className="chrome-tab-background">
@@ -83,14 +83,14 @@ const TabBar = (): JSX.Element => {
 
           {openedProjects.map((p) => (
             <div
-              key={p.url}
+              key={p.id}
               className="chrome-tab"
               onClick={() => {
-                setFrontProject(p)
+                setFrontProject(p.id)
               }}
               role="button"
               aria-hidden="true"
-              {...(frontProject?.url === p.url ? { active: 'true' } : {})}
+              {...(frontProject?.id === p.id ? { active: 'true' } : {})}
             >
               <div className="chrome-tab-dividers" />
               <div className="chrome-tab-background">
@@ -104,7 +104,7 @@ const TabBar = (): JSX.Element => {
                   className="chrome-tab-close"
                   onClick={(e) => {
                     e.stopPropagation()
-                    closeProject(p.url)
+                    closeProject(p.id)
                   }}
                   role="button"
                   aria-hidden="true"

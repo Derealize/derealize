@@ -36,20 +36,23 @@ const ElementEdit: React.FC = (): JSX.Element => {
 
   return (
     <VStack alignItems="stretch">
-      <Select
-        placeholder="Element Type"
-        value={selElementType}
-        onChange={(e) => setSelElementType(e.target.value as InsertElementType)}
-      >
-        {Object.keys(InsertElementType).map((value) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </Select>
-      <Button colorScheme="teal" variant="ghost" onClick={handleReplace}>
-        Replace
-      </Button>
+      <HStack>
+        <Select
+          placeholder="Element Type"
+          value={selElementType}
+          onChange={(e) => setSelElementType(e.target.value as InsertElementType)}
+        >
+          {Object.keys(InsertElementType).map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </Select>
+        <Button colorScheme="teal" variant="ghost" onClick={handleReplace}>
+          Replace
+        </Button>
+      </HStack>
+
       <Button colorScheme="pink" variant="ghost" onClick={handleDelete}>
         Delete
       </Button>

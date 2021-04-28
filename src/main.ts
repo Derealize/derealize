@@ -436,11 +436,11 @@ ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, payload: ElementPayload) => {
   }
 })
 
-ipcMain.on(MainIpcChannel.SelectElement, (event, payload: BreadcrumbPayload) => {
+ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) => {
   if (!mainWindow) return
   const project = projects.get(payload.projectId)
   if (project) {
-    project.view.webContents.send(MainIpcChannel.SelectElement, payload)
+    project.view.webContents.send(MainIpcChannel.SelectBreadcrumb, payload)
   }
 })
 

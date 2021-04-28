@@ -55,13 +55,13 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly url: string, readonly path: string, branch = 'derealize') {
+  constructor(readonly projectId: string, readonly url: string, readonly path: string, branch = 'derealize') {
     this.config.branch = branch
   }
 
   EmitStatus(): void {
     emit(Broadcast.Status, {
-      id: this.url,
+      projectId: this.projectId,
       changes: this.changes,
       status: this.status,
       productName: this.productName,
@@ -164,21 +164,21 @@ class Project {
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
-      emit(Broadcast.Installing, { id: this.url, stdout: stdout.toString() } as ProcessPayload)
+      emit(Broadcast.Installing, { projectId: this.projectId, stdout: stdout.toString() } as ProcessPayload)
     })
 
     this.installProcess.stderr.on('data', (stderr) => {
-      emit(Broadcast.Installing, { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+      emit(Broadcast.Installing, { projectId: this.projectId, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.installProcess.on('error', (error) => {
       hasError = true
-      emit(Broadcast.Installing, { id: this.url, error: error.message, exit: 0 } as ProcessPayload)
+      emit(Broadcast.Installing, { projectId: this.projectId, error: error.message, exit: 0 } as ProcessPayload)
       log('installing error', error)
     })
 
     this.installProcess.on('exit', (exit) => {
-      emit(Broadcast.Installing, { id: this.url, exit } as ProcessPayload)
+      emit(Broadcast.Installing, { projectId: this.projectId, exit } as ProcessPayload)
       if (!hasError) {
         log('status = ProjectStatus.Ready')
         this.status = ProjectStatus.Ready
@@ -204,7 +204,7 @@ class Project {
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
       if (!message) return
-      emit(Broadcast.Starting, { id: this.url, stdout: message } as ProcessPayload)
+      emit(Broadcast.Starting, { projectId: this.projectId, stdout: message } as ProcessPayload)
 
       if (this.status !== ProjectStatus.Running && compiledMessage.some((m) => message.includes(m))) {
         this.status = ProjectStatus.Running
@@ -214,19 +214,19 @@ class Project {
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      emit(Broadcast.Starting, { id: this.url, stderr: stderr.toString() } as ProcessPayload)
+      emit(Broadcast.Starting, { projectId: this.projectId, stderr: stderr.toString() } as ProcessPayload)
     })
 
     this.runningProcess.on('error', (error) => {
       log('starting error', error)
-      emit(Broadcast.Starting, { id: this.url, error: error.message } as ProcessPayload)
+      emit(Broadcast.Starting, { projectId: this.projectId, error: error.message } as ProcessPayload)
       this.status = ProjectStatus.Ready
       if (debugEmitStatus) log(`Start error EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
     this.runningProcess.on('exit', (exit) => {
-      emit(Broadcast.Starting, { id: this.url, exit } as ProcessPayload)
+      emit(Broadcast.Starting, { projectId: this.projectId, exit } as ProcessPayload)
       this.status = ProjectStatus.Ready
       if (debugEmitStatus) log(`Start exit EmitStatus ${this.status}`)
       this.EmitStatus()
