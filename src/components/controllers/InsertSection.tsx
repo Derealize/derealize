@@ -84,8 +84,8 @@ const Insert: React.FC = (): JSX.Element => {
         ))}
       </Select>
 
-      <Button colorScheme="pink" onClick={handleInsert}>
-        Insert
+      <Button colorScheme="pink" variant="ghost" onClick={handleInsert}>
+        Add
       </Button>
     </VStack>
   )

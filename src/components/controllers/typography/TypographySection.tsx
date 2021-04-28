@@ -10,7 +10,7 @@ import FontWeight from './FontWeight'
 import LineHeight from './LineHeight'
 import LetterSpacing from './LetterSpacing'
 import Placeholder from './Placeholder'
-import Editor from './Editor'
+import Text from './Text'
 import TextAlign from './TextAlign'
 import TextColor from './TextColor'
 import TextDecoration from './TextDecoration'
@@ -25,7 +25,7 @@ const TypographySection: React.FC = (): JSX.Element => {
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <VStack mt={4} alignItems="stretch" spacing={6}>
-        <Editor />
+        <Text />
         <FontFamily />
         <FontSize />
         <FontWeight />

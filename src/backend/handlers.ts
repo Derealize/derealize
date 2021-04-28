@@ -1,6 +1,5 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs'
-// eslint-disable-next-line import/no-named-default
 import sysPath from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
@@ -30,7 +29,7 @@ export const Import = async ({ url, path, branch }: Record<string, string>): Pro
   return result
 }
 
-export const Remove = async ({ url }: Record<string, string>): Promise<BoolReply> => {
+export const Remove = async ({ url }: IdParam): Promise<BoolReply> => {
   const result = projectsMap.delete(url)
   return { result }
 }
@@ -133,5 +132,5 @@ export const JitTigger = (payload: JitTiggerPayload) => {
   const project = getProject(payload.projectId)
 
   const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
-  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`)
 }

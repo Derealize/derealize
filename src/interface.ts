@@ -28,7 +28,7 @@ export enum InsertElementType {
 
 export interface InsertElementPayload extends ElementPayload {
   insertElementType: InsertElementType
-  insertMode: InsertMode
+  insertMode?: InsertMode
 }
 
 export interface BreadcrumbPayload {
