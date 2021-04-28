@@ -55,7 +55,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
       </VStack>
 
       {displayProperty?.classname === 'flex' && (
-        <VStack mt={4}>
+        <VStack mt={2} alignItems="stretch">
           <FlexController />
           <FlexDirection />
           <FlexGrow />
@@ -70,7 +70,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
       )}
 
       {displayProperty?.classname === 'grid' && (
-        <VStack mt={4}>
+        <VStack mt={2} alignItems="stretch">
           <GridCols />
           <GridRows />
           <Gap />
@@ -86,7 +86,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
         </VStack>
       )}
 
-      <VStack mt={6}>
+      <VStack mt={4} alignItems="stretch">
         <Position />
         <Inset />
         <Container />

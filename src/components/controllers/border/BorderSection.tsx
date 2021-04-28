@@ -14,7 +14,7 @@ const AdvancedSection: React.FC = (): JSX.Element => {
   return (
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <VStack mt={4} alignItems="stretch" spacing={8}>
+      <VStack mt={4} alignItems="stretch" spacing={6}>
         <Border />
         <Rounded />
       </VStack>
