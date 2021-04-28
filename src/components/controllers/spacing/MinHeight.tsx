@@ -6,18 +6,18 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../interface'
 
-const MinWidth: React.FC = (): JSX.Element => {
+const MinHeight: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
 
-  const values = useStoreState<Array<string>>((state) => state.spacing.minWidthValues)
-  const propertys = useStoreState<Array<Property>>((state) => state.spacing.minWidthPropertys)
+  const values = useStoreState<Array<string>>((state) => state.spacing.minHeightValues)
+  const propertys = useStoreState<Array<Property>>((state) => state.spacing.minHeightPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.display?.includes('inline')) return <></>
+  if (!element || element.display === 'inline') return <></>
 
   return <SelectController placeholder="min-height" values={values} property={property} />
 }
 
-export default MinWidth
+export default MinHeight

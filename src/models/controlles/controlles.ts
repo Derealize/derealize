@@ -176,10 +176,11 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
+    const payload: ElementPayload = { ...element, className }
     if (shiftCode) {
-      sendBackIpc(Handler.UpdateClass, { ...element, className })
+      sendBackIpc(Handler.UpdateClass, payload as any)
     } else {
-      sendMainIpc(MainIpcChannel.LiveUpdateClass, { ...element, className })
+      sendMainIpc(MainIpcChannel.LiveUpdateClass, payload as any)
     }
   }),
 
@@ -202,7 +203,7 @@ const controllesModel: ControllesModel = {
           width = parseInt(screen.replace('px', ''), 10)
         }
       }
-      sendMainIpc(MainIpcChannel.DeviceEmulation, frontProject.url, width)
+      sendMainIpc(MainIpcChannel.DeviceEmulation, frontProject.id, width)
     }
   }),
   selectStateVariant: undefined,

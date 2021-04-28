@@ -25,8 +25,11 @@ const store = new Store({
       uniqueItems: true,
       items: {
         type: 'object',
-        required: ['url', 'path', 'name', 'editedTime'],
+        required: ['id', 'url', 'path', 'name', 'editedTime'],
         properties: {
+          id: {
+            type: 'string',
+          },
           url: {
             type: 'string',
           },

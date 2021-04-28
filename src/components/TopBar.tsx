@@ -59,7 +59,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const callPull = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await sendBackIpc(Handler.Pull, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Pull, { projectId: project.id })) as BoolReply
     if (reply.error) {
       toast({
         title: `Pull error:${reply.error}`,
@@ -77,7 +77,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await sendBackIpc(Handler.Push, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Push, { projectId: project.id })) as BoolReply
     if (reply.error) {
       toast({
         title: `Push error:${reply.error}`,
@@ -105,9 +105,9 @@ const TopBar: React.FC = (): JSX.Element => {
             onClick={() => {
               if (project.projectView !== ProjectView.FileStatus) {
                 callHistory()
-                setProjectView({ projectId: project.url, view: ProjectView.FileStatus })
+                setProjectView({ projectId: project.id, view: ProjectView.FileStatus })
               } else {
-                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
+                setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
               }
             }}
           />
@@ -148,11 +148,14 @@ const TopBar: React.FC = (): JSX.Element => {
                 ) : (
                   <BreadcrumbLink
                     onMouseEnter={() =>
-                      sendMainIpc(MainIpcChannel.SelectElement, { projectId: project.url, index } as BreadcrumbPayload)
+                      sendMainIpc(MainIpcChannel.SelectBreadcrumb, {
+                        projectId: project.id,
+                        index,
+                      } as BreadcrumbPayload)
                     }
                     onClick={() => {
-                      sendMainIpc(MainIpcChannel.SelectElement, {
-                        projectId: project.url,
+                      sendMainIpc(MainIpcChannel.SelectBreadcrumb, {
+                        projectId: project.id,
                         index,
                         isClick: true,
                       } as BreadcrumbPayload)
@@ -171,12 +174,12 @@ const TopBar: React.FC = (): JSX.Element => {
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {project.status === ProjectStatus.Ready && (
           <Tooltip label="start">
-            <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.url)} />
+            <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.id)} />
           </Tooltip>
         )}
         {(project.status === ProjectStatus.Running || project.status === ProjectStatus.Starting) && (
           <Tooltip label="stop">
-            <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.url)} />
+            <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.id)} />
           </Tooltip>
         )}
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
@@ -188,9 +191,9 @@ const TopBar: React.FC = (): JSX.Element => {
             icon={<VscOutput />}
             onClick={() => {
               if (project.projectView !== ProjectView.Debugging) {
-                setProjectView({ projectId: project.url, view: ProjectView.Debugging })
+                setProjectView({ projectId: project.id, view: ProjectView.Debugging })
               } else {
-                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
+                setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
               }
             }}
           />

@@ -5,8 +5,7 @@ import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
 import Frame from './Frame'
-import SpaceBetweenY from './SpaceBetweenY'
-import SpaceBetweenX from './SpaceBetweenX'
+import SpaceBetween from './SpaceBetween'
 import Width from './Width'
 import MaxWidth from './MaxWidth'
 import MinWidth from './MinWidth'
@@ -30,8 +29,7 @@ const SpacingSection: React.FC = (): JSX.Element => {
         <Height />
         <MaxHeight />
         <MinHeight />
-        <SpaceBetweenY />
-        <SpaceBetweenX />
+        <SpaceBetween />
       </VStack>
     </>
   )

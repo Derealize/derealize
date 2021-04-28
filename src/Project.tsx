@@ -20,7 +20,7 @@ const { sendBackIpc } = window.derealize
 const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<Element | undefined>((state) => state.controlles.element)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
@@ -32,10 +32,10 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const callPush = useCallback(async () => {
     if (!project) return null
 
-    const reply = (await sendBackIpc(Handler.Push, { url: project.url })) as BoolReply
+    const reply = (await sendBackIpc(Handler.Push, { projectId: project.id })) as BoolReply
     if (reply.error) {
       toast({
-        title: `Push error:${reply.error}`,
+        title: `Push error: ${reply.error}`,
         status: 'error',
       })
     } else {
@@ -48,7 +48,9 @@ const ProjectPage: React.FC = (): JSX.Element => {
   }, [project, toast])
 
   if (!project) return <></>
-
+  console.log('id', project.id)
+  console.log('projectView', project.projectView)
+  console.log('startloading', project.startloading)
   return (
     <>
       <TopBar />
@@ -72,7 +74,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
               colorScheme="gray"
               className={style.closebtn}
               onClick={() => {
-                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
+                setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
               }}
             />
           )}

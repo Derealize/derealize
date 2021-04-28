@@ -1,5 +1,14 @@
-export interface ElementPayload {
+export interface IdParam {
   projectId: string
+}
+
+export interface ImportPayload extends IdParam {
+  url: string
+  path: string
+  branch: string
+}
+
+export interface ElementPayload extends IdParam {
   codePosition: string
   tagName: string
   className: string
@@ -58,7 +67,7 @@ export enum MainIpcChannel {
   LoadURL = 'LoadURL',
   DeviceEmulation = 'DeviceEmulation',
   FocusElement = 'FocusElement',
-  SelectElement = 'SelectElement',
+  SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
   InsertTab = 'InsertTab',
   TextTab = 'TextTab',

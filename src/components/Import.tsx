@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo } from 'react'
 import dayjs from 'dayjs'
+import { nanoid } from 'nanoid'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { useForm } from 'react-hook-form'
 import {
@@ -35,8 +36,8 @@ import {
 } from '@chakra-ui/react'
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
-import { css } from '@emotion/react'
 import type { BoolReply } from '../backend/backend.interface'
+import type { ImportPayload } from '../interface'
 import { Handler, ProjectStatus } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project, ProjectView } from '../models/project'
@@ -78,7 +79,8 @@ const ImportProject = (): JSX.Element => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const project = useMemo(() => projects.find((p) => p.url === url), [projects, url])
+  const [projectId, setProjectId] = useState('')
+  const project = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId])
   const readyOpen = project?.status === ProjectStatus.Ready
 
   useEffect(() => {
@@ -125,10 +127,13 @@ const ImportProject = (): JSX.Element => {
     }
 
     setLoading(true)
-    const { result, error } = (await sendBackIpc(Handler.Import, { url, path, branch })) as BoolReply
-
+    const id = nanoid()
+    setProjectId(id)
+    const payload: ImportPayload = { projectId: id, url, path, branch }
+    const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
     if (result) {
       const newProject: Project = {
+        id,
         url,
         path,
         name,
@@ -137,20 +142,20 @@ const ImportProject = (): JSX.Element => {
         installOutput: [],
       }
       addProject(newProject)
-      await sendBackIpc(Handler.Install, { url, path, branch })
-      newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { url })) as TailwindConfig
+      await sendBackIpc(Handler.Install, { projectId: id })
+      newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
     } else {
       setLoading(false)
       setInstallOutput([`import error: ${error}`])
     }
-  }, [projects, url, path, name, addProject, setInstallOutput, setLoading, branch, onOpenExistsAlert])
+  }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, setInstallOutput])
 
   const open = useCallback(() => {
-    if (readyOpen) {
+    if (readyOpen && projectId) {
       setModalClose()
-      openProject(url)
+      openProject(projectId)
     }
-  }, [openProject, readyOpen, setModalClose, url])
+  }, [openProject, projectId, readyOpen, setModalClose])
 
   return (
     <>

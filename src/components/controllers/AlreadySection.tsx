@@ -22,7 +22,7 @@ const AlreadySection: React.FC = (): JSX.Element => {
           variant="unstyled"
           value={frontProject.page}
           onChange={(e) => {
-            setPage({ projectId: frontProject.url, page: e.target.value })
+            setPage({ projectId: frontProject.id, page: e.target.value })
           }}
         >
           {frontProject.config.pages.map((page) => (

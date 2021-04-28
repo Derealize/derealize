@@ -14,6 +14,7 @@ export default (socketId: string) => {
       const { id, name, payload } = msg
 
       if (handlers[name]) {
+        log(name + JSON.stringify(payload))
         handlers[name](payload)
           .then((result: any) => {
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result }))
