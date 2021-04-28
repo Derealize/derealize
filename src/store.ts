@@ -39,9 +39,6 @@ const store = new Store({
           name: {
             type: 'string',
           },
-          productName: {
-            type: 'string',
-          },
           page: {
             type: 'string',
           },

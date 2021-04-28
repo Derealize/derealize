@@ -33,12 +33,17 @@ const {
 
 // export type Element = Omit<ElementPayload, 'projectId'>
 
+export enum ProjectView {
+  Debugging,
+  FileStatus,
+  BrowserView,
+}
+
 export interface Project {
   url: string
   path: string
   editedTime: string
   name: string
-  productName?: string
   isOpened?: boolean
   status?: ProjectStatus
   changes?: Array<GitFileChanges>
@@ -49,12 +54,8 @@ export interface Project {
   tailwindVersion?: string
   tailwindConfig?: TailwindConfig
   element?: ElementPayload
-}
-
-export enum ProjectView {
-  Debugging,
-  FileStatus,
-  BrowserView,
+  projectView?: ProjectView
+  startloading?: boolean
 }
 
 export const OmitStoreProp = [
@@ -66,6 +67,8 @@ export const OmitStoreProp = [
   'config',
   'tailwindConfig',
   'element',
+  'projectView',
+  'startloading',
 ]
 
 const toast = createStandaloneToast({
@@ -82,9 +85,6 @@ const storeProject = (projects: Array<Project>) => {
 }
 
 export interface ProjectModel {
-  startloading: boolean
-  setStartLoading: Action<ProjectModel, boolean>
-
   importloading: boolean
   setImportLoading: Action<ProjectModel, boolean>
 
@@ -106,8 +106,9 @@ export interface ProjectModel {
   frontProject: Project | null
   setFrontProject: Action<ProjectModel, Project | null>
   setFrontProjectThunk: Thunk<ProjectModel, Project | null, void, StoreModel>
-  frontProjectView: ProjectView
-  setFrontProjectView: Action<ProjectModel, ProjectView>
+
+  setStartLoading: Action<ProjectModel, { projectId: string; loading: boolean }>
+  setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
 
   openProject: Thunk<ProjectModel, string>
   startProject: Thunk<ProjectModel, string>
@@ -130,11 +131,6 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
-  startloading: false,
-  setStartLoading: action((state, payload) => {
-    state.startloading = payload
-  }),
-
   importloading: false,
   setImportLoading: action((state, payload) => {
     state.importloading = payload
@@ -209,11 +205,26 @@ const projectModel: ProjectModel = {
     await sendBackIpc(Handler.CheckStatus, { url: project.url })
   }),
 
-  frontProjectView: ProjectView.BrowserView,
-  setFrontProjectView: action((state, payload) => {
-    state.frontProjectView = payload
-    const project = state.frontProject
-    if (project && payload === ProjectView.BrowserView) {
+  setStartLoading: action((state, { projectId, loading }) => {
+    const project = state.projects.find((p) => p.url === projectId)
+    if (!project) return
+
+    project.startloading = loading
+    if (project.url === state.frontProject?.url) {
+      state.frontProject = project
+    }
+  }),
+
+  setProjectView: action((state, { projectId, view }) => {
+    const project = state.projects.find((p) => p.url === projectId)
+    if (!project) return
+
+    project.projectView = view
+    if (project.url === state.frontProject?.url) {
+      state.frontProject = project
+    }
+
+    if (project && view === ProjectView.BrowserView) {
       if (!project.config) throw new Error('project.config null')
       sendMainIpc(MainIpcChannel.FrontProjectWeb, project.url, project.config.lunchUrl, [...project.config.pages])
     } else {
@@ -226,20 +237,20 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     project.isOpened = true
+    await actions.setFrontProjectThunk(project)
     await actions.startProject(project.url)
-    actions.setFrontProjectThunk(project)
   }),
   startProject: thunk(async (actions, url, { getState }) => {
     const project = getState().projects.find((p) => p.url === url)
     if (!project) return
 
-    actions.setStartLoading(true)
+    actions.setStartLoading({ projectId: url, loading: true })
     project.runningOutput = []
     actions.setRunningOutput([])
-    actions.setFrontProjectView(ProjectView.Debugging)
+    actions.setProjectView({ projectId: url, view: ProjectView.Debugging })
     const reply = (await sendBackIpc(Handler.Start, { url: project.url })) as BoolReply
     if (!reply.result) {
-      actions.setStartLoading(false)
+      actions.setStartLoading({ projectId: url, loading: false })
       toast({
         title: reply.error,
         status: 'error',
@@ -322,15 +333,14 @@ const projectModel: ProjectModel = {
 
       if (frontProject === project) {
         if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
-          actions.setStartLoading(false)
-          actions.setFrontProjectView(ProjectView.BrowserView)
+          actions.setStartLoading({ projectId: project.url, loading: false })
+          actions.setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
         }
       }
 
       // console.log('project.status = status.status', project.url, status.status)
       project.status = status.status
       project.changes = status.changes
-      project.productName = status.productName
       project.tailwindVersion = status.tailwindVersion
 
       actions.setProject(project)
@@ -367,8 +377,8 @@ const projectModel: ProjectModel = {
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
-        actions.setStartLoading(false)
-        actions.setFrontProjectView(ProjectView.Debugging)
+        actions.setStartLoading({ projectId: payload.id, loading: false })
+        actions.setProjectView({ projectId: payload.id, view: ProjectView.Debugging })
         toast({
           title: `Starting error:${payload.error}`,
           status: 'error',
@@ -390,7 +400,7 @@ const projectModel: ProjectModel = {
         project.runningOutput.push(`stderr:${payload.stderr}`)
       } else if (payload.exit !== undefined) {
         project.runningOutput.push(`exit:${payload.error}`)
-        actions.setStartLoading(false)
+        actions.setStartLoading({ projectId: payload.id, loading: false })
       }
       actions.setRunningOutput(project.runningOutput)
     })
