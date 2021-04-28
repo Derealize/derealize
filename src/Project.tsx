@@ -19,12 +19,10 @@ const { sendBackIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
-  const loading = useStoreState<boolean>((state) => state.project.startloading)
 
   const project = useStoreState<Project | null>((state) => state.project.frontProject)
   const element = useStoreState<Element | undefined>((state) => state.controlles.element)
-  const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
-  const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
+  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
@@ -55,31 +53,31 @@ const ProjectPage: React.FC = (): JSX.Element => {
     <>
       <TopBar />
       <div className={style.main}>
-        {frontProjectView === ProjectView.BrowserView && !!element && (
+        {project.projectView === ProjectView.BrowserView && !!element && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
             <Controllers />
           </div>
         )}
 
         <div className={style.content}>
-          {loading && (
+          {project.startloading && (
             <Box mb={4}>
-              <PuffLoader loading={loading} color="#4FD1C5" />
+              <PuffLoader loading={project.startloading} color="#4FD1C5" />
             </Box>
           )}
 
-          {(frontProjectView === ProjectView.Debugging || frontProjectView === ProjectView.FileStatus) && (
+          {(project.projectView === ProjectView.Debugging || project.projectView === ProjectView.FileStatus) && (
             <CloseButton
               size="lg"
               colorScheme="gray"
               className={style.closebtn}
               onClick={() => {
-                setFrontProjectView(ProjectView.BrowserView)
+                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
               }}
             />
           )}
 
-          {frontProjectView === ProjectView.Debugging && (
+          {project.projectView === ProjectView.Debugging && (
             <div className={style.output}>
               {runningOutput.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
@@ -90,7 +88,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </div>
           )}
 
-          {frontProjectView === ProjectView.FileStatus && (
+          {project.projectView === ProjectView.FileStatus && (
             <>
               {project.changes?.length !== 0 && (
                 <Text mb={10}>

@@ -48,8 +48,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 
-  const frontProjectView = useStoreState<ProjectView>((state) => state.project.frontProjectView)
-  const setFrontProjectView = useStoreActions((actions) => actions.project.setFrontProjectView)
+  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
@@ -101,14 +100,14 @@ const TopBar: React.FC = (): JSX.Element => {
         <Tooltip label="files status and history">
           <BarIconButton
             aria-label="FileStatus"
-            selected={frontProjectView === ProjectView.FileStatus}
+            selected={project.projectView === ProjectView.FileStatus}
             icon={<HiOutlineStatusOnline />}
             onClick={() => {
-              if (frontProjectView !== ProjectView.FileStatus) {
+              if (project.projectView !== ProjectView.FileStatus) {
                 callHistory()
-                setFrontProjectView(ProjectView.FileStatus)
+                setProjectView({ projectId: project.url, view: ProjectView.FileStatus })
               } else {
-                setFrontProjectView(ProjectView.BrowserView)
+                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
               }
             }}
           />
@@ -185,13 +184,13 @@ const TopBar: React.FC = (): JSX.Element => {
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"
-            selected={frontProjectView === ProjectView.Debugging}
+            selected={project.projectView === ProjectView.Debugging}
             icon={<VscOutput />}
             onClick={() => {
-              if (frontProjectView !== ProjectView.Debugging) {
-                setFrontProjectView(ProjectView.Debugging)
+              if (project.projectView !== ProjectView.Debugging) {
+                setProjectView({ projectId: project.url, view: ProjectView.Debugging })
               } else {
-                setFrontProjectView(ProjectView.BrowserView)
+                setProjectView({ projectId: project.url, view: ProjectView.BrowserView })
               }
             }}
           />

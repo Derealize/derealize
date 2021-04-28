@@ -59,7 +59,7 @@ const Home = (): JSX.Element => {
                 Import
               </Button>
             </HStack>
-            <Wrap mt={6} spacing={4}>
+            <Wrap mt={6} spacing={8}>
               {projects.map((p) => (
                 <WrapItem key={p.url}>
                   <Box
@@ -74,9 +74,6 @@ const Home = (): JSX.Element => {
                       <Box className={style.content}>
                         <Text className={style.name} as="kbd" isTruncated>
                           {p.name}
-                        </Text>
-                        <Text color="gray.500" isTruncated>
-                          {p.productName}
                         </Text>
                         <Text color="gray.400" fontSize="xs">
                           {dayjs(p.editedTime).fromNow()} edited
