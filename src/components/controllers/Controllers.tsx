@@ -61,9 +61,17 @@ const Controllers: React.FC = (): JSX.Element => {
       }
     })
 
+    listenMainIpc(MainIpcChannel.Shortcut, (e: IpcRendererEvent, payload: string) => {
+      if (payload.startsWith('Alt+')) {
+        const number = payload.split('+').splice(-1)[0]
+        setTabIndex((parseInt(number, 10) - 1) as ControllerTab)
+      }
+    })
+
     return () => {
       unlistenMainIpc(MainIpcChannel.InsertTab)
       unlistenMainIpc(MainIpcChannel.TextTab)
+      unlistenMainIpc(MainIpcChannel.Shortcut)
     }
   }, [element, tabIndex])
 
@@ -71,70 +79,70 @@ const Controllers: React.FC = (): JSX.Element => {
     <Tabs orientation="vertical" colorScheme="teal" index={tabIndex} onChange={(i) => setTabIndex(i)}>
       <TabList>
         <Tab p={3}>
-          <Tooltip label="(F1) Current">
+          <Tooltip label="(Alt+1) Current">
             <Box>
               <Icon as={BsListCheck} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F2) Layout">
+          <Tooltip label="(Alt+2) Layout">
             <Box>
               <Icon as={AiOutlineLayout} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F3) Spacing">
+          <Tooltip label="(Alt+3) Spacing">
             <Box>
               <Icon as={CgRatio} boxSize={5} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab px={2} py={3}>
-          <Tooltip label="(F4) Border">
+          <Tooltip label="(Alt+4) Border">
             <Box>
               <Icon as={CgBorderRight} boxSize={7} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F5) Typography">
+          <Tooltip label="(Alt+5) Typography">
             <Box>
               <Icon as={MdFormatColorText} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F6) Background">
+          <Tooltip label="(Alt+6) Background">
             <Box>
               <Icon as={RiImageLine} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F7) Effects/Transition/Transform">
+          <Tooltip label="(Alt+7) Effects/Transition/Transform">
             <Box>
               <Icon as={BiCrop} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F8) Components">
+          <Tooltip label="(Alt+8) Components">
             <Box>
               <Icon as={CgComponents} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F9) Advanced">
+          <Tooltip label="(Alt+9) Advanced">
             <Box>
               <Icon as={CgMoreAlt} boxSize={6} />
             </Box>
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(F10) Add">
+          <Tooltip label="(Alt+10) Add">
             <Box>
               <Icon as={FcAddRow} boxSize={6} />
             </Box>
