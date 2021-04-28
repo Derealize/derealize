@@ -43,6 +43,7 @@ export interface JitTiggerPayload {
 }
 
 export enum MainIpcChannel {
+  Shortcut = 'Shortcut',
   GetStore = 'GetStore',
   SetStore = 'SetStore',
   Controls = 'Controls',
@@ -62,3 +63,5 @@ export enum MainIpcChannel {
   InsertTab = 'InsertTab',
   TextTab = 'TextTab',
 }
+
+export const Shortcuts = ['Alt+1', 'Alt+2', 'Alt+3', 'Alt+4', 'Alt+5', 'Alt+6', 'Alt+7', 'Alt+8', 'Alt+9', 'Alt+10']

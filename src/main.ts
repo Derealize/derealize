@@ -5,13 +5,13 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
+import { app, globalShortcut, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, BreadcrumbPayload, MainIpcChannel, Shortcuts } from './interface'
 
 const isDev = process.env.NODE_ENV === 'development'
 const isDebug = isDev || process.env.DEBUG_PROD === 'true'
@@ -273,6 +273,10 @@ app.on('window-all-closed', () => {
   }
 })
 
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
+})
+
 app.on('activate', async () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
@@ -341,6 +345,12 @@ app
   .then(async () => {
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
+
+    Shortcuts.forEach((key) => {
+      globalShortcut.register(key, () => {
+        mainWindow?.webContents.send(MainIpcChannel.Shortcut, key)
+      })
+    })
 
     socketId = await findOpenSocket()
     createBackendProcess()
