@@ -7,6 +7,7 @@ import Variants from './Variants'
 import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
 import AdvancedSection from './advanced/AdvancedSection'
+import ElementEdit from './ElementEdit'
 // import { Project } from '../../models/project'
 
 const AlreadySection: React.FC = (): JSX.Element => {
@@ -35,6 +36,7 @@ const AlreadySection: React.FC = (): JSX.Element => {
       <LayoutSection />
       <SpacingSection />
       <AdvancedSection />
+      <ElementEdit />
     </VStack>
   )
 }

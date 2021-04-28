@@ -133,6 +133,7 @@ const SelectController: React.FC<Props> = ({
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onFocus={() => {
+        if (!project) return
         const className =
           typeof values[0] === 'string'
             ? (values as ReadonlyArray<string>).join(' ')

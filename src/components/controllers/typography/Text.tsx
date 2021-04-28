@@ -8,7 +8,7 @@ import type { PreloadWindow } from '../../../preload'
 declare const window: PreloadWindow
 const { sendBackIpc } = window.derealize
 
-const Editor: React.FC = (): JSX.Element => {
+const Text: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
@@ -50,4 +50,4 @@ const Editor: React.FC = (): JSX.Element => {
   )
 }
 
-export default Editor
+export default Text
