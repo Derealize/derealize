@@ -23,16 +23,13 @@ const SpacingSection: React.FC = (): JSX.Element => {
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <Frame />
 
-      <VStack mt={6}>
+      <VStack mt={4} alignItems="stretch" spacing={4}>
         <Width />
         <MaxWidth />
         <MinWidth />
         <Height />
         <MaxHeight />
         <MinHeight />
-      </VStack>
-
-      <VStack mt={6}>
         <SpaceBetweenY />
         <SpaceBetweenX />
       </VStack>

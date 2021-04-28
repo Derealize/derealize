@@ -24,7 +24,7 @@ const BorderSection: React.FC = (): JSX.Element => {
   return (
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
-      <VStack mt={4} alignItems="stretch" spacing={6}>
+      <VStack mt={4} alignItems="stretch" spacing={4}>
         <BoxSizing />
         <Float />
         <Clear />

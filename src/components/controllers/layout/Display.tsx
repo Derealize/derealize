@@ -24,7 +24,7 @@ const Display: React.FC = (): JSX.Element => {
   return (
     <>
       <SelectController placeholder="display" values={DisplayValues} property={property} onMouseEnter={false} />
-      <HStack align="center" justify="space-between">
+      <HStack align="center" justify="space-between" px={2}>
         <span>Flex</span>
         <Switch
           checked={property?.classname === 'flex'}
@@ -59,7 +59,7 @@ const Display: React.FC = (): JSX.Element => {
         />
       </HStack>
 
-      <HStack align="center" justify="space-between">
+      <HStack align="center" justify="space-between" px={2}>
         <span>Grid</span>
         <Switch
           checked={property?.classname === 'grid'}
