@@ -132,7 +132,6 @@ ipcMain.on(
         view.webContents.openDevTools()
       }
 
-      // console.log(`lunchUrl:${lunchUrl}`)
       view.webContents.loadURL(lunchUrl)
 
       view.webContents.on('did-finish-load', () => {

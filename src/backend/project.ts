@@ -19,7 +19,7 @@ import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory
 import emit from './emit'
 import log from './log'
 
-const compiledMessage = ['compiled', 'successfully']
+const compiledMessage = ['Compiled', 'compiled', 'successfully']
 const debugEmitStatus = false
 
 export enum Broadcast {
@@ -54,7 +54,7 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly projectId: string, readonly url: string, readonly path: string, readonly branch = 'master') {}
+  constructor(readonly projectId: string, readonly url: string, readonly path: string, readonly branch = 'derealize') {}
 
   EmitStatus(): void {
     emit(Broadcast.Status, {

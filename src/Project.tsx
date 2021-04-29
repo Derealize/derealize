@@ -49,7 +49,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
   if (!project) return <></>
 
-  console.log('Project.tsx', project.id, project.startloading, project.projectView)
+  // console.log('Project.tsx', project.id, project.startloading, project.projectView)
 
   return (
     <>

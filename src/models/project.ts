@@ -88,8 +88,8 @@ const storeProject = (projects: Array<Project>) => {
   sendMainIpc(MainIpcChannel.SetStore, { projects: clone(omitProjects) })
 }
 
-const mainDisplayProject = (project: Project) => {
-  if (project.projectView === ProjectView.BrowserView) {
+const mainDisplayProject = (project?: Project) => {
+  if (project?.projectView === ProjectView.BrowserView) {
     if (!project.config) throw new Error('project.config null')
     sendMainIpc(MainIpcChannel.FrontProjectWeb, project.id, project.config.lunchUrl, [...project.config.pages])
   } else {
@@ -110,6 +110,7 @@ export interface ProjectModel {
   projects: Array<Project>
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
+  isReady: Computed<ProjectModel, (id: string) => boolean>
 
   setProjects: Action<ProjectModel, Array<Project>>
   getStoreProjects: Action<ProjectModel>
@@ -131,7 +132,6 @@ export interface ProjectModel {
 
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel, void, void, StoreModel>
-  unlisten: Action<ProjectModel>
 
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
@@ -161,12 +161,16 @@ const projectModel: ProjectModel = {
   }),
 
   projects: [],
-  openedProjects: computed([(state) => state.projects], (projects) => {
-    return projects.filter((p) => p.isOpened)
+  openedProjects: computed((state) => {
+    return state.projects.filter((p) => p.isOpened)
   }),
-  frontProject: computed([(state) => state.projects], (projects) => {
-    return projects.find((p) => p.isFront)
+  frontProject: computed((state) => {
+    return state.projects.find((p) => p.isFront)
   }),
+  isReady: computed((state) => (id) => {
+    return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
+  }),
+
   setProjects: action((state, payload) => {
     state.projects = payload
     storeProject(state.projects)
@@ -209,13 +213,14 @@ const projectModel: ProjectModel = {
     })
 
     const project = state.projects.find((p) => p.id === projectId)
+    mainDisplayProject(project)
     if (project) {
       project.isFront = true
       sendBackIpc(Handler.CheckStatus, { projectId: project.id })
-      mainDisplayProject(project)
     }
   }),
   setFrontProjectThunk: thunk(async (actions, projectId, { getState, getStoreActions }) => {
+    // console.log('setFrontProjectThunk', projectId)
     actions.setFrontProject(projectId)
     const project = getState().projects.find((p) => p.id === projectId)
     if (project) {
@@ -236,14 +241,13 @@ const projectModel: ProjectModel = {
   setStartLoading: action((state, { projectId, loading }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
-    console.log('setStartLoading', loading)
+    // console.log('setStartLoading', loading)
     project.startloading = loading
   }),
 
   openProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
-
     project.isOpened = true
     await actions.setFrontProjectThunk(project.id)
     await actions.startProject(project.id)
@@ -319,8 +323,7 @@ const projectModel: ProjectModel = {
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
-    actions.unlisten()
-
+    unlistenBackIpc(Broadcast.Status)
     listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
@@ -336,6 +339,13 @@ const projectModel: ProjectModel = {
 
       const status = payload as StatusPayload
 
+      if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
+        project.startloading = false
+        project.projectView = ProjectView.BrowserView
+        mainDisplayProject(project)
+        sendMainIpc(MainIpcChannel.LoadURL, project.id, project.config?.lunchUrl)
+      }
+
       project.status = status.status
       project.changes = status.changes
       project.tailwindVersion = status.tailwindVersion
@@ -344,16 +354,10 @@ const projectModel: ProjectModel = {
       //   project.page = status.config.pages[0]
       // }
 
-      if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
-        console.log('Broadcast.Status startloading false')
-        project.startloading = false
-        project.projectView = ProjectView.BrowserView
-        mainDisplayProject(project)
-      }
-
       actions.setProject(project)
     })
 
+    unlistenBackIpc(Broadcast.Installing)
     listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setImportLoading(false)
@@ -383,6 +387,7 @@ const projectModel: ProjectModel = {
       actions.setInstallOutput(project.installOutput)
     })
 
+    unlistenBackIpc(Broadcast.Starting)
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
@@ -412,9 +417,10 @@ const projectModel: ProjectModel = {
       actions.setRunningOutput(project.runningOutput)
     })
 
+    unlistenMainIpc(MainIpcChannel.FocusElement)
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, payload: ElementPayload) => {
-      const { openedProjects, frontProject } = getState()
-      const project = openedProjects.find((p) => p.id === payload.projectId)
+      const { projects, frontProject } = getState()
+      const project = projects.find((p) => p.id === payload.projectId)
       if (!project) return
 
       project.element = payload.tagName ? payload : undefined
@@ -422,13 +428,6 @@ const projectModel: ProjectModel = {
         getStoreActions().controlles.setElementThunk(project.element)
       }
     })
-  }),
-
-  unlisten: action(() => {
-    unlistenBackIpc(Broadcast.Status)
-    unlistenBackIpc(Broadcast.Installing)
-    unlistenBackIpc(Broadcast.Starting)
-    unlistenMainIpc(MainIpcChannel.FocusElement)
   }),
 
   modalDisclosure: false,

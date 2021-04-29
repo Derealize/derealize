@@ -73,15 +73,14 @@ const ImportProject = (): JSX.Element => {
 
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
-  const [branch, setBranch] = useState('master')
+  const [branch, setBranch] = useState('derealize')
   const [path, setPath] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   const [projectId, setProjectId] = useState('')
-  const project = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId])
-  const readyOpen = project?.status === ProjectStatus.Ready
+  const isReady = useStoreState<boolean>((state) => state.project.isReady(projectId))
 
   useEffect(() => {
     if (!url) return
@@ -152,11 +151,11 @@ const ImportProject = (): JSX.Element => {
   }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, setInstallOutput])
 
   const open = useCallback(() => {
-    if (readyOpen && projectId) {
+    if (isReady && projectId) {
       setModalClose()
       openProject(projectId)
     }
-  }, [openProject, projectId, readyOpen, setModalClose])
+  }, [openProject, projectId, isReady, setModalClose])
 
   return (
     <>
@@ -292,14 +291,14 @@ const ImportProject = (): JSX.Element => {
                 )}
               </Box>
             </Grid>
-            {readyOpen && (
+            {isReady && (
               <Text color="teal.500" align="center">
                 Congratulations, it looks like the project is ready to work.
               </Text>
             )}
           </ModalBody>
           <ModalFooter justifyContent="center">
-            {readyOpen && (
+            {isReady && (
               <ButtonGroup variant="outline" size="lg" spacing={6}>
                 <Button colorScheme="gray" onClick={() => setModalClose()}>
                   Close Dialog
@@ -312,13 +311,13 @@ const ImportProject = (): JSX.Element => {
             <Button
               colorScheme="teal"
               size="lg"
-              variant={readyOpen ? 'outline' : 'solid'}
+              variant={isReady ? 'outline' : 'solid'}
               isLoading={loading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={handleSubmit(submit)}
               ml={6}
             >
-              Import {readyOpen && 'Again'}
+              Import {isReady && 'Again'}
             </Button>
           </ModalFooter>
         </ModalContent>
