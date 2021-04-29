@@ -24,7 +24,6 @@ export enum Broadcast {
 }
 
 export interface ProjectConfig {
-  branch: string
   runScript: string
   formatScript: string
   lunchUrl: string

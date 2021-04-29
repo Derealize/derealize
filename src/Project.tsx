@@ -48,9 +48,9 @@ const ProjectPage: React.FC = (): JSX.Element => {
   }, [project, toast])
 
   if (!project) return <></>
-  console.log('id', project.id)
-  console.log('projectView', project.projectView)
-  console.log('startloading', project.startloading)
+
+  console.log('Project.tsx', project.id, project.startloading, project.projectView)
+
   return (
     <>
       <TopBar />

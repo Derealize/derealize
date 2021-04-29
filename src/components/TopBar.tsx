@@ -44,7 +44,7 @@ BarIconButton.defaultProps = {
 const TopBar: React.FC = (): JSX.Element => {
   const toast = useToast()
 
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const startProject = useStoreActions((actions) => actions.project.startProject)
   const stopProject = useStoreActions((actions) => actions.project.stopProject)
 

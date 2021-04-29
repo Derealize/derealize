@@ -73,7 +73,7 @@ const ImportProject = (): JSX.Element => {
 
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
-  const [branch, setBranch] = useState('derealize')
+  const [branch, setBranch] = useState('master')
   const [path, setPath] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -137,6 +137,7 @@ const ImportProject = (): JSX.Element => {
         url,
         path,
         name,
+        branch,
         editedTime: dayjs().toString(),
         status: ProjectStatus.Initialized,
         installOutput: [],

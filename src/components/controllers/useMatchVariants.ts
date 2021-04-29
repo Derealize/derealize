@@ -7,7 +7,7 @@ import { StateVariantsType, ListVariantsType } from '../../models/controlles/con
 export type VariantsPropertyNames = keyof TailwindConfig['variants']
 
 const useMatchVariants = (prop: VariantsPropertyNames) => {
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const variants: Variant[] | undefined = project?.tailwindConfig?.variants[prop]
 
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)

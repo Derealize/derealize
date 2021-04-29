@@ -16,7 +16,7 @@ const App = (): JSX.Element => {
   const projectListen = useStoreActions((actions) => actions.project.listen)
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
-  const project = useStoreState<Project | null>((state) => state.project.frontProject)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
   useEffect(() => {
     profileLoadStore()
