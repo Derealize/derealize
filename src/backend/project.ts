@@ -194,7 +194,6 @@ class Project {
 
     this.runningProcess?.kill()
     await killPort(this.config.port)
-    console.log('this.config.port', this.config.port)
 
     this.runningProcess = npmStart(this.path, this.config.runScript)
     this.status = ProjectStatus.Starting

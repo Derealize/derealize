@@ -101,51 +101,47 @@ const frontMain = () => {
   projects.forEach((p) => mainWindow?.removeBrowserView(p.view))
 }
 
-ipcMain.on(MainIpcChannel.FrontMain, (event: any) => {
-  frontMain()
-})
+ipcMain.on(MainIpcChannel.FrontView, (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
+  if (!mainWindow) return
+  if (!projectId) {
+    frontMain()
+    return
+  }
 
-ipcMain.on(
-  MainIpcChannel.FrontProjectWeb,
-  (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
-    if (!mainWindow || !projectId) return
+  const project = projects.get(projectId)
+  if (project) {
+    mainWindow.setBrowserView(project.view)
+  } else {
+    const view = new BrowserView({
+      webPreferences: {
+        nodeIntegration: false,
+        enableRemoteModule: false,
+        contextIsolation: true,
+        preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
+        allowRunningInsecureContent: true,
+      },
+    })
+    view.setBackgroundColor('#fff') // todo: invalid
 
-    const project = projects.get(projectId)
-    if (project) {
-      mainWindow.setBrowserView(project.view)
-    } else {
-      const view = new BrowserView({
-        webPreferences: {
-          nodeIntegration: false,
-          enableRemoteModule: false,
-          contextIsolation: true,
-          preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
-          allowRunningInsecureContent: true,
-        },
-      })
-      view.setBackgroundColor('#fff') // todo: invalid
-
-      projects.set(projectId, { view, lunchUrl, pages })
-      mainWindow.setBrowserView(view)
-      setBrowserViewBounds(mainWindow)
-      if (isDebug) {
-        view.webContents.openDevTools()
-      }
-
-      view.webContents.loadURL(lunchUrl)
-
-      view.webContents.on('did-finish-load', () => {
-        const loadedProject = projects.get(projectId)
-        if (loadedProject) {
-          view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
-        }
-      })
+    projects.set(projectId, { view, lunchUrl, pages })
+    mainWindow.setBrowserView(view)
+    setBrowserViewBounds(mainWindow)
+    if (isDebug) {
+      view.webContents.openDevTools()
     }
 
-    projectMenu = menuBuilder?.buildProjectMenu(projectId)
-    pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
-  },
-)
+    // view.webContents.loadURL(lunchUrl)
+    view.webContents.on('did-finish-load', () => {
+      const loadedProject = projects.get(projectId)
+      if (loadedProject) {
+        view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
+      }
+    })
+  }
+
+  projectMenu = menuBuilder?.buildProjectMenu(projectId)
+  pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
+})
 
 ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: number) => {
   const project = projects.get(projectId)
@@ -174,7 +170,7 @@ ipcMain.on(MainIpcChannel.LoadURL, (event, projectId: string, url: string) => {
   loadURL(projectId, url)
 })
 
-ipcMain.on(MainIpcChannel.CloseProjectView, (event, projectId: string) => {
+ipcMain.on(MainIpcChannel.DestroyProjectView, (event, projectId: string) => {
   if (!mainWindow) return
 
   // https://github.com/electron/electron/pull/23578

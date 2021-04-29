@@ -114,7 +114,6 @@ const controllesModel: ControllesModel = {
         }
       })
       state.propertys.push(property)
-      console.log('propertys.push', property)
     })
     // state.propertys = resolutionAll(state.propertys)
   }),
