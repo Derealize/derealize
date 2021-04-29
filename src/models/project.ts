@@ -45,12 +45,13 @@ export interface Project {
   path: string
   editedTime: string
   name: string
+  branch: string
   isOpened?: boolean
   isFront?: boolean
   status?: ProjectStatus
   changes?: Array<GitFileChanges>
   config?: ProjectConfig
-  page?: string
+  // page?: string
   installOutput?: Array<string>
   runningOutput?: Array<string>
   tailwindVersion?: string
@@ -85,6 +86,15 @@ const storeProject = (projects: Array<Project>) => {
   // proxy object can't serialize https://stackoverflow.com/a/60344844
   const omitProjects = projects.map((p) => omit(p, OmitStoreProp))
   sendMainIpc(MainIpcChannel.SetStore, { projects: clone(omitProjects) })
+}
+
+const mainDisplayProject = (project: Project) => {
+  if (project.projectView === ProjectView.BrowserView) {
+    if (!project.config) throw new Error('project.config null')
+    sendMainIpc(MainIpcChannel.FrontProjectWeb, project.id, project.config.lunchUrl, [...project.config.pages])
+  } else {
+    sendMainIpc(MainIpcChannel.FrontMain)
+  }
 }
 
 export interface ProjectModel {
@@ -131,7 +141,7 @@ export interface ProjectModel {
   setHistorys: Action<ProjectModel, Array<CommitLog>>
   callHistory: Thunk<ProjectModel>
 
-  setPage: Action<ProjectModel, { projectId: string; page: string }>
+  // setPage: Action<ProjectModel, { projectId: string; page: string }>
 }
 
 const projectModel: ProjectModel = {
@@ -190,7 +200,6 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === payload.id)
     if (!project) throw new Error("project don't exist")
     Object.assign(project, payload)
-    state.projects = [...state.projects]
     storeProject(state.projects)
   }),
 
@@ -203,8 +212,7 @@ const projectModel: ProjectModel = {
     if (project) {
       project.isFront = true
       sendBackIpc(Handler.CheckStatus, { projectId: project.id })
-    } else {
-      sendMainIpc(MainIpcChannel.FrontMain)
+      mainDisplayProject(project)
     }
   }),
   setFrontProjectThunk: thunk(async (actions, projectId, { getState, getStoreActions }) => {
@@ -215,27 +223,21 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  setStartLoading: action((state, { projectId, loading }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-
-    project.startloading = loading
-    // state.projects = [...state.projects]
-  }),
-
   setProjectView: action((state, { projectId, view }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
-
     project.projectView = view
-    // state.projects = [...state.projects]
 
-    if (project && view === ProjectView.BrowserView) {
-      if (!project.config) throw new Error('project.config null')
-      sendMainIpc(MainIpcChannel.FrontProjectWeb, project.id, project.config.lunchUrl, [...project.config.pages])
-    } else {
-      sendMainIpc(MainIpcChannel.FrontMain)
+    if (project.id === state.frontProject?.id) {
+      mainDisplayProject(project)
     }
+  }),
+
+  setStartLoading: action((state, { projectId, loading }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    console.log('setStartLoading', loading)
+    project.startloading = loading
   }),
 
   openProject: thunk(async (actions, projectId, { getState }) => {
@@ -250,9 +252,9 @@ const projectModel: ProjectModel = {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
 
-    actions.setStartLoading({ projectId, loading: true })
     project.runningOutput = []
     actions.setRunningOutput([])
+    actions.setStartLoading({ projectId, loading: true })
     actions.setProjectView({ projectId, view: ProjectView.Debugging })
     const reply = (await sendBackIpc(Handler.Start, { projectId })) as BoolReply
     if (!reply.result) {
@@ -270,12 +272,13 @@ const projectModel: ProjectModel = {
     }
   }),
   closeProject: thunk((actions, projectId, { getState }) => {
-    const { projects, frontProject, openedProjects } = getState()
+    const { projects, openedProjects } = getState()
     const project = projects.find((p) => p.id === projectId)
     if (!project) throw new Error('closeProject null')
     project.isOpened = false
 
-    if (project.id === frontProject?.id) {
+    if (project.isFront) {
+      project.isFront = false
       // match chrome-tabs.js:243
       const oindex = openedProjects.findIndex((p) => p.id === project.id)
       if (oindex >= 0) {
@@ -289,9 +292,9 @@ const projectModel: ProjectModel = {
       }
     }
 
+    actions.setProject(project)
     sendBackIpc(Handler.Stop, { projectId })
     sendMainIpc(MainIpcChannel.CloseProjectView, projectId)
-    actions.setProjects(projects)
   }),
 
   loadStore: thunk(async (actions, none, { getState }) => {
@@ -299,8 +302,7 @@ const projectModel: ProjectModel = {
     const { projects } = getState()
 
     projects?.forEach(async (project: Project) => {
-      const { id: projectId, url, path, config } = project
-      const branch = config?.branch || ''
+      const { id: projectId, url, path, branch } = project
 
       const payload: ImportPayload = { projectId, url, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
@@ -328,26 +330,26 @@ const projectModel: ProjectModel = {
         return
       }
 
-      const { projects, frontProject } = getState()
+      const { projects } = getState()
       const project = projects.find((p) => p.id === payload.projectId)
       if (!project) return
 
       const status = payload as StatusPayload
-      project.config = status.config
-      if (!project.page && status.config.pages.length) {
-        project.page = status.config.pages[0]
-      }
-
-      if (project.id === frontProject?.id) {
-        if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
-          actions.setStartLoading({ projectId: project.id, loading: false })
-          actions.setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
-        }
-      }
 
       project.status = status.status
       project.changes = status.changes
       project.tailwindVersion = status.tailwindVersion
+      project.config = status.config
+      // if (!project.page && status.config.pages.length) {
+      //   project.page = status.config.pages[0]
+      // }
+
+      if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
+        console.log('Broadcast.Status startloading false')
+        project.startloading = false
+        project.projectView = ProjectView.BrowserView
+        mainDisplayProject(project)
+      }
 
       actions.setProject(project)
     })
@@ -384,7 +386,6 @@ const projectModel: ProjectModel = {
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
-        actions.setProjectView({ projectId: payload.projectId, view: ProjectView.Debugging })
         toast({
           title: `Starting error:${payload.error}`,
           status: 'error',
@@ -461,13 +462,13 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  setPage: action((state, { projectId, page }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (project && project.config) {
-      project.page = page
-      sendMainIpc(MainIpcChannel.LoadURL, project.id, project.config.lunchUrl + page)
-    }
-  }),
+  // setPage: action((state, { projectId, page }) => {
+  //   const project = state.projects.find((p) => p.id === projectId)
+  //   if (project && project.config) {
+  //     project.page = page
+  //     sendMainIpc(MainIpcChannel.LoadURL, project.id, project.config.lunchUrl + page)
+  //   }
+  // }),
 }
 
 export default projectModel

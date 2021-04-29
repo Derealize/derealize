@@ -20,7 +20,7 @@ import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['compiled', 'successfully']
-const debugEmitStatus = true
+const debugEmitStatus = false
 
 export enum Broadcast {
   Status = 'Status',
@@ -37,7 +37,6 @@ class Project {
   changes: Array<GitFileChanges> = []
 
   config: ProjectConfig = {
-    branch: 'derealize',
     runScript: 'dev',
     formatScript: 'format',
     lunchUrl: 'http://localhost:3000',
@@ -55,9 +54,7 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly projectId: string, readonly url: string, readonly path: string, branch = 'derealize') {
-    this.config.branch = branch
-  }
+  constructor(readonly projectId: string, readonly url: string, readonly path: string, readonly branch = 'master') {}
 
   EmitStatus(): void {
     emit(Broadcast.Status, {
@@ -102,7 +99,7 @@ class Project {
     if (!this.repo) return { result: false, error: 'repo null' }
 
     try {
-      await checkBranch(this.repo, this.config.branch)
+      await checkBranch(this.repo, this.branch)
     } catch (err) {
       log('git branch error', err)
       return { result: false, error: err.message }
@@ -131,7 +128,7 @@ class Project {
 
   async Import(): Promise<BoolReply> {
     try {
-      this.repo = await gitClone(this.url, this.path, this.config.branch)
+      this.repo = await gitClone(this.url, this.path, this.branch)
     } catch (err) {
       if (err.message.includes('exists and is not an empty directory')) {
         try {
@@ -197,6 +194,7 @@ class Project {
 
     this.runningProcess?.kill()
     await killPort(this.config.port)
+    console.log('this.config.port', this.config.port)
 
     this.runningProcess = npmStart(this.path, this.config.runScript)
     this.status = ProjectStatus.Starting

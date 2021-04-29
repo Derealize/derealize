@@ -12,7 +12,7 @@ import ElementEdit from './ElementEdit'
 
 const AlreadySection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.controlles.alreadyVariants)
-  // const frontProject = useStoreState<Project | null>((state) => state.project.frontProject)
+  // const frontProject = useStoreState<Project | undefined>((state) => state.project.frontProject)
   // const setPage = useStoreActions((actions) => actions.project.setPage)
 
   return (
