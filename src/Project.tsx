@@ -1,12 +1,11 @@
 import React, { useCallback, useMemo, useReducer } from 'react'
-import cs from 'classnames'
 import dayjs from 'dayjs'
 import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } from '@chakra-ui/react'
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project, ProjectView } from './models/project'
-import type { Element } from './models/project'
+import type { ElementPayload } from './interface'
 import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
@@ -21,7 +20,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<Element | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
@@ -49,13 +48,11 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
   if (!project) return <></>
 
-  // console.log('Project.tsx', project.id, project.startloading, project.projectView)
-
   return (
     <>
       <TopBar />
       <div className={style.main}>
-        {project.projectView === ProjectView.BrowserView && !!element && (
+        {project.view === ProjectView.BrowserView && !!element && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
             <Controllers />
           </div>
@@ -68,7 +65,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </Box>
           )}
 
-          {(project.projectView === ProjectView.Debugging || project.projectView === ProjectView.FileStatus) && (
+          {(project.view === ProjectView.Debugging || project.view === ProjectView.FileStatus) && (
             <CloseButton
               size="lg"
               colorScheme="gray"
@@ -79,7 +76,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             />
           )}
 
-          {project.projectView === ProjectView.Debugging && (
+          {project.view === ProjectView.Debugging && (
             <div className={style.output}>
               {runningOutput.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
@@ -90,7 +87,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </div>
           )}
 
-          {project.projectView === ProjectView.FileStatus && (
+          {project.view === ProjectView.FileStatus && (
             <>
               {project.changes?.length !== 0 && (
                 <Text mb={10}>
