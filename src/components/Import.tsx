@@ -174,7 +174,7 @@ const ImportProject = (): JSX.Element => {
         installOutput.push(`exit: ${payload.error}`)
         setImportloading(false)
       }
-      setInstallOutput(installOutput)
+      setInstallOutput([...installOutput])
     })
     return () => unlistenBackIpc(Broadcast.Installing)
   }, [installOutput, toast])
