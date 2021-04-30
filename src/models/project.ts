@@ -109,7 +109,7 @@ export interface ProjectModel {
 
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
-  getProject: Computed<ProjectModel, (id: string) => Project | undefined>
+  isReady: Computed<ProjectModel, (id: string) => boolean | undefined>
 
   addProject: Action<ProjectModel, Project>
   setProject: Action<ProjectModel, Project>
@@ -170,8 +170,8 @@ const projectModel: ProjectModel = {
   frontProject: computed((state) => {
     return state.projects.find((p) => p.isFront)
   }),
-  getProject: computed((state) => (id) => {
-    return state.projects.find((p) => p.id === id)
+  isReady: computed((state) => (id) => {
+    return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
   }),
 
   addProject: action((state, project) => {
@@ -433,6 +433,7 @@ const projectModel: ProjectModel = {
   modalDisclosure: false,
   setModalOpen: action((state) => {
     state.modalDisclosure = true
+    state.installOutput = []
   }),
   setModalClose: action((state) => {
     state.modalDisclosure = false
