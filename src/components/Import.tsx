@@ -68,6 +68,7 @@ const ImportProject = (): JSX.Element => {
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
+  const installOutput = useStoreState<Array<string>>((state) => state.project.installOutput)
   const pushInstallOutput = useStoreActions((actions) => actions.project.pushInstallOutput)
   const emptyInstallOutput = useStoreActions((actions) => actions.project.emptyInstallOutput)
 
@@ -82,12 +83,11 @@ const ImportProject = (): JSX.Element => {
   const [projectId, setProjectId] = useState('')
   const project = useStoreState<Project | undefined>((state) => state.project.getProject(projectId))
   const isReady = useMemo(() => project?.status === ProjectStatus.Ready, [project?.status])
+  console.log('ImportProject', project?.status)
 
   useEffect(() => {
     if (!url) return
-    if (project) {
-      emptyInstallOutput(project.id)
-    }
+    emptyInstallOutput()
 
     try {
       const parseURL = new URL(url)
@@ -102,7 +102,7 @@ const ImportProject = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [project, project?.id, emptyInstallOutput, toast, url])
+  }, [emptyInstallOutput, toast, url])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
@@ -142,14 +142,13 @@ const ImportProject = (): JSX.Element => {
         branch,
         editedTime: dayjs().toString(),
         status: ProjectStatus.Initialized,
-        installOutput: [],
       }
       addProject(newProject)
       await sendBackIpc(Handler.Install, { projectId: id })
       newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
     } else {
       setLoading(false)
-      pushInstallOutput({ projectId: id, output: `import error: ${error}` })
+      pushInstallOutput(`import error: ${error}`)
     }
   }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, pushInstallOutput])
 
@@ -286,7 +285,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p className={style.output}>{project?.installOutput?.join('\n')}</p>
+                <p className={style.output}>{installOutput.join('\n')}</p>
                 {loading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
