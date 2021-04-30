@@ -52,7 +52,6 @@ export interface Project {
   changes?: Array<GitFileChanges>
   config?: ProjectConfig
   // page?: string
-  installOutput?: Array<string>
   runningOutput?: Array<string>
   tailwindVersion?: string
   tailwindConfig?: TailwindConfig
@@ -101,6 +100,10 @@ export interface ProjectModel {
   importloading: boolean
   setImportLoading: Action<ProjectModel, boolean>
 
+  installOutput: Array<string>
+  pushInstallOutput: Action<ProjectModel, string>
+  emptyInstallOutput: Action<ProjectModel>
+
   projects: Array<Project>
   setProjects: Action<ProjectModel, Array<Project>>
 
@@ -115,9 +118,6 @@ export interface ProjectModel {
 
   pushRunningOutput: Action<ProjectModel, { projectId: string; output: string }>
   emptyRunningOutput: Action<ProjectModel, string>
-  pushInstallOutput: Action<ProjectModel, { projectId: string; output: string }>
-  emptyInstallOutput: Action<ProjectModel, string>
-
   setStartLoading: Action<ProjectModel, { projectId: string; loading: boolean }>
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
 
@@ -150,9 +150,17 @@ const projectModel: ProjectModel = {
     state.importloading = payload
   }),
 
+  installOutput: [],
+  pushInstallOutput: action((state, payload) => {
+    state.installOutput.push(payload)
+  }),
+  emptyInstallOutput: action((state, payload) => {
+    state.installOutput = []
+  }),
+
   projects: [],
   setProjects: action((state, projects) => {
-    state.projects = { ...projects }
+    state.projects = [...projects]
     storeProject(state.projects)
   }),
 
@@ -167,12 +175,8 @@ const projectModel: ProjectModel = {
   }),
 
   addProject: action((state, project) => {
-    if (state.projects.some((p) => p.url === project.url)) {
-      toast({
-        title: 'project url existed',
-        status: 'warning',
-      })
-      return
+    if (state.projects.some((p) => p.id === project.id)) {
+      throw Error('projectId already exist.')
     }
 
     state.projects.push(project)
@@ -205,19 +209,6 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.runningOutput = []
-    }
-  }),
-  pushInstallOutput: action((state, { projectId, output }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (project) {
-      if (!project.installOutput) project.installOutput = []
-      project.installOutput?.push(output)
-    }
-  }),
-  emptyInstallOutput: action((state, projectId) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (project) {
-      project.installOutput = []
     }
   }),
 
@@ -384,14 +375,12 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.id === payload.projectId)
       if (!project) return
 
-      const { id: projectId } = project
-
       if (payload.stdout) {
-        actions.pushInstallOutput({ projectId, output: `stdout:${payload.stdout}` })
+        actions.pushInstallOutput(`stdout: ${payload.stdout}`)
       } else if (payload.stderr) {
-        actions.pushInstallOutput({ projectId, output: `stderr:${payload.stderr}` })
+        actions.pushInstallOutput(`stderr: ${payload.stderr}`)
       } else if (payload.exit !== undefined) {
-        actions.pushInstallOutput({ projectId, output: `exit:${payload.error}` })
+        actions.pushInstallOutput(`exit: ${payload.error}`)
         actions.setImportLoading(false)
       }
     })
@@ -417,7 +406,7 @@ const projectModel: ProjectModel = {
       } else if (payload.stderr) {
         actions.pushRunningOutput({ projectId, output: `stderr: ${payload.stderr}` })
       } else if (payload.exit !== undefined) {
-        actions.pushRunningOutput({ projectId, output: `exit: ${payload.stderr}` })
+        actions.pushRunningOutput({ projectId, output: `exit: ${payload.error}` })
         actions.setStartLoading({ projectId, loading: false })
       }
     })
