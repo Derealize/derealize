@@ -68,8 +68,8 @@ const ImportProject = (): JSX.Element => {
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
-  const installOutput = useStoreState<Array<string>>((state) => state.project.installOutput)
-  const setInstallOutput = useStoreActions((actions) => actions.project.setInstallOutput)
+  const pushInstallOutput = useStoreActions((actions) => actions.project.pushInstallOutput)
+  const emptyInstallOutput = useStoreActions((actions) => actions.project.emptyInstallOutput)
 
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
@@ -80,11 +80,14 @@ const ImportProject = (): JSX.Element => {
   const [showPassword, setShowPassword] = useState(false)
 
   const [projectId, setProjectId] = useState('')
-  const isReady = useStoreState<boolean>((state) => state.project.isReady(projectId))
+  const project = useStoreState<Project | undefined>((state) => state.project.getProject(projectId))
+  const isReady = useMemo(() => project?.status === ProjectStatus.Ready, [project?.status])
 
   useEffect(() => {
     if (!url) return
-    setInstallOutput([])
+    if (project) {
+      emptyInstallOutput(project.id)
+    }
 
     try {
       const parseURL = new URL(url)
@@ -99,7 +102,7 @@ const ImportProject = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [setInstallOutput, toast, url])
+  }, [project, project?.id, emptyInstallOutput, toast, url])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
@@ -146,9 +149,9 @@ const ImportProject = (): JSX.Element => {
       newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
     } else {
       setLoading(false)
-      setInstallOutput([`import error: ${error}`])
+      pushInstallOutput({ projectId: id, output: `import error: ${error}` })
     }
-  }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, setInstallOutput])
+  }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, pushInstallOutput])
 
   const open = useCallback(() => {
     if (isReady && projectId) {
@@ -283,7 +286,7 @@ const ImportProject = (): JSX.Element => {
                 </FormControl>
               </Box>
               <Box>
-                <p className={style.output}>{installOutput.join('\n')}</p>
+                <p className={style.output}>{project?.installOutput?.join('\n')}</p>
                 {loading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />

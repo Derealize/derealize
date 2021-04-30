@@ -37,7 +37,7 @@ const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
   const openProject = useStoreActions((actions) => actions.project.openProject)
-  const removeProject = useStoreActions((actions) => actions.project.removeProject)
+  const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
 
   return (
     <div className={style.home}>

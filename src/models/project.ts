@@ -101,36 +101,37 @@ export interface ProjectModel {
   importloading: boolean
   setImportLoading: Action<ProjectModel, boolean>
 
-  runningOutput: Array<string>
-  setRunningOutput: Action<ProjectModel, Array<string>>
-
-  installOutput: Array<string>
-  setInstallOutput: Action<ProjectModel, Array<string>>
-
   projects: Array<Project>
+  setProjects: Action<ProjectModel, Array<Project>>
+
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
-  isReady: Computed<ProjectModel, (id: string) => boolean>
+  getProject: Computed<ProjectModel, (id: string) => Project | undefined>
 
   addProject: Action<ProjectModel, Project>
   setProject: Action<ProjectModel, Project>
-  setProjects: Action<ProjectModel, Array<Project>>
-  removeProject: Thunk<ProjectModel, string>
+  removeProject: Action<ProjectModel, string>
+  removeProjectThunk: Thunk<ProjectModel, string>
 
-  setFrontProject: Action<ProjectModel, string | null>
-  setFrontProjectThunk: Thunk<ProjectModel, string | null, void, StoreModel>
+  pushRunningOutput: Action<ProjectModel, { projectId: string; output: string }>
+  emptyRunningOutput: Action<ProjectModel, string>
+  pushInstallOutput: Action<ProjectModel, { projectId: string; output: string }>
+  emptyInstallOutput: Action<ProjectModel, string>
 
   setStartLoading: Action<ProjectModel, { projectId: string; loading: boolean }>
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
 
-  openProject: Thunk<ProjectModel, string>
+  setFrontProject: Action<ProjectModel, string | null>
+  setFrontProjectThunk: Thunk<ProjectModel, string | null, void, StoreModel>
+
   startProject: Thunk<ProjectModel, string>
   stopProject: Action<ProjectModel, string>
+  openProject: Thunk<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string>
 
-  getStoreProjects: Action<ProjectModel>
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel, void, void, StoreModel>
+  unlisten: Action<ProjectModel>
 
   modalDisclosure: boolean
   setModalOpen: Action<ProjectModel>
@@ -149,25 +150,20 @@ const projectModel: ProjectModel = {
     state.importloading = payload
   }),
 
-  runningOutput: [],
-  setRunningOutput: action((state, payload) => {
-    state.runningOutput = [...payload]
-  }),
-
-  installOutput: [],
-  setInstallOutput: action((state, payload) => {
-    state.installOutput = [...payload]
-  }),
-
   projects: [],
+  setProjects: action((state, projects) => {
+    state.projects = { ...projects }
+    storeProject(state.projects)
+  }),
+
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
   }),
   frontProject: computed((state) => {
     return state.projects.find((p) => p.isFront)
   }),
-  isReady: computed((state) => (id) => {
-    return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
+  getProject: computed((state) => (id) => {
+    return state.projects.find((p) => p.id === id)
   }),
 
   addProject: action((state, project) => {
@@ -182,21 +178,62 @@ const projectModel: ProjectModel = {
     state.projects.push(project)
     storeProject(state.projects)
   }),
-  setProjects: action((state, payload) => {
-    state.projects = payload
+  removeProject: action((state, projectId) => {
+    state.projects = state.projects.filter((p) => p.id !== projectId)
     storeProject(state.projects)
-  }),
-  removeProject: thunk((actions, projectId, { getState }) => {
-    actions.closeProject(projectId)
-    const projects = getState().projects.filter((p) => p.id !== projectId)
-    actions.setProjects(projects)
     sendBackIpc(Handler.Remove, { projectId })
+  }),
+  removeProjectThunk: thunk((actions, projectId) => {
+    actions.closeProject(projectId)
+    actions.removeProject(projectId)
   }),
   setProject: action((state, payload) => {
     const project = state.projects.find((p) => p.id === payload.id)
     if (!project) throw new Error("project don't exist")
     Object.assign(project, payload)
     storeProject(state.projects)
+  }),
+
+  pushRunningOutput: action((state, { projectId, output }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      if (!project.runningOutput) project.runningOutput = []
+      project.runningOutput.push(output)
+    }
+  }),
+  emptyRunningOutput: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.runningOutput = []
+    }
+  }),
+  pushInstallOutput: action((state, { projectId, output }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      if (!project.installOutput) project.installOutput = []
+      project.installOutput?.push(output)
+    }
+  }),
+  emptyInstallOutput: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.installOutput = []
+    }
+  }),
+
+  setStartLoading: action((state, { projectId, loading }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.startloading = loading
+    }
+  }),
+  setProjectView: action((state, { projectId, view }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.view = view
+    if (project.id === state.frontProject?.id) {
+      mainFrontView(project)
+    }
   }),
 
   setFrontProject: action((state, projectId) => {
@@ -219,34 +256,11 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  setProjectView: action((state, { projectId, view }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.view = view
-    if (project.id === state.frontProject?.id) {
-      mainFrontView(project)
-    }
-  }),
-
-  setStartLoading: action((state, { projectId, loading }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.startloading = loading
-  }),
-
-  openProject: thunk(async (actions, projectId, { getState }) => {
-    const project = getState().projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.isOpened = true
-    await actions.setFrontProjectThunk(project.id)
-    await actions.startProject(project.id)
-  }),
   startProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
 
-    project.runningOutput = []
-    actions.setRunningOutput([])
+    actions.emptyRunningOutput(projectId)
     actions.setStartLoading({ projectId, loading: true })
     actions.setProjectView({ projectId, view: ProjectView.Debugging })
     const reply = (await sendBackIpc(Handler.Start, { projectId })) as BoolReply
@@ -263,6 +277,13 @@ const projectModel: ProjectModel = {
     if (project) {
       sendBackIpc(Handler.Stop, { projectId })
     }
+  }),
+  openProject: thunk(async (actions, projectId, { getState }) => {
+    const project = getState().projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.isOpened = true
+    await actions.setFrontProjectThunk(project.id)
+    await actions.startProject(project.id)
   }),
   closeProject: thunk((actions, projectId, { getState }) => {
     const { projects, openedProjects } = getState()
@@ -290,17 +311,13 @@ const projectModel: ProjectModel = {
     sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
   }),
 
-  getStoreProjects: action((state) => {
+  loadStore: thunk(async (actions, none, { getState }) => {
     const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
     if (projects) {
-      state.projects = projects
+      actions.setProjects(projects)
     }
-  }),
-  loadStore: thunk(async (actions, none, { getState }) => {
-    actions.getStoreProjects()
-    const { projects } = getState()
 
-    projects?.forEach(async (project: Project) => {
+    projects?.forEach(async (project) => {
       const { id: projectId, url, path, branch } = project
 
       const payload: ImportPayload = { projectId, url, path, branch }
@@ -318,7 +335,8 @@ const projectModel: ProjectModel = {
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
-    unlistenBackIpc(Broadcast.Status)
+    actions.unlisten()
+
     listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
@@ -352,7 +370,6 @@ const projectModel: ProjectModel = {
       actions.setProject(project)
     })
 
-    unlistenBackIpc(Broadcast.Installing)
     listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setImportLoading(false)
@@ -367,22 +384,18 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.id === payload.projectId)
       if (!project) return
 
-      if (!project.installOutput) {
-        project.installOutput = []
-      }
+      const { id: projectId } = project
 
       if (payload.stdout) {
-        project.installOutput.push(`stdout:${payload.stdout}`)
+        actions.pushInstallOutput({ projectId, output: `stdout:${payload.stdout}` })
       } else if (payload.stderr) {
-        project.installOutput.push(`stderr:${payload.stderr}`)
+        actions.pushInstallOutput({ projectId, output: `stderr:${payload.stderr}` })
       } else if (payload.exit !== undefined) {
-        project.installOutput.push(`exit:${payload.error}`)
+        actions.pushInstallOutput({ projectId, output: `exit:${payload.error}` })
         actions.setImportLoading(false)
       }
-      actions.setInstallOutput(project.installOutput)
     })
 
-    unlistenBackIpc(Broadcast.Starting)
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
@@ -397,22 +410,18 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.id === payload.projectId)
       if (!project) return
 
-      if (!project.runningOutput) {
-        project.runningOutput = []
-      }
+      const { id: projectId } = project
 
       if (payload.stdout) {
-        project.runningOutput.push(`stdout:${payload.stdout}`)
+        actions.pushRunningOutput({ projectId, output: `stdout: ${payload.stdout}` })
       } else if (payload.stderr) {
-        project.runningOutput.push(`stderr:${payload.stderr}`)
+        actions.pushRunningOutput({ projectId, output: `stderr: ${payload.stderr}` })
       } else if (payload.exit !== undefined) {
-        project.runningOutput.push(`exit:${payload.error}`)
-        actions.setStartLoading({ projectId: payload.projectId, loading: false })
+        actions.pushRunningOutput({ projectId, output: `exit: ${payload.stderr}` })
+        actions.setStartLoading({ projectId, loading: false })
       }
-      actions.setRunningOutput(project.runningOutput)
     })
 
-    unlistenMainIpc(MainIpcChannel.FocusElement)
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, payload: ElementPayload) => {
       const { projects, frontProject } = getState()
       const project = projects.find((p) => p.id === payload.projectId)
@@ -425,10 +434,16 @@ const projectModel: ProjectModel = {
     })
   }),
 
+  unlisten: action(() => {
+    unlistenBackIpc(Broadcast.Status)
+    unlistenBackIpc(Broadcast.Installing)
+    unlistenBackIpc(Broadcast.Starting)
+    unlistenMainIpc(MainIpcChannel.FocusElement)
+  }),
+
   modalDisclosure: false,
   setModalOpen: action((state) => {
     state.modalDisclosure = true
-    state.installOutput = []
   }),
   setModalClose: action((state) => {
     state.modalDisclosure = false
