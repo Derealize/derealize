@@ -132,5 +132,5 @@ export const JitTigger = (payload: JitTiggerPayload) => {
   const project = getProject(payload.projectId)
 
   const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
-  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`)
+  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`, { encoding: 'utf8' })
 }

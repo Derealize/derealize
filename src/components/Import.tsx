@@ -81,9 +81,7 @@ const ImportProject = (): JSX.Element => {
   const [showPassword, setShowPassword] = useState(false)
 
   const [projectId, setProjectId] = useState('')
-  const project = useStoreState<Project | undefined>((state) => state.project.getProject(projectId))
-  const isReady = useMemo(() => project?.status === ProjectStatus.Ready, [project?.status])
-  console.log('ImportProject', project?.status)
+  const isReady = useStoreState<boolean | undefined>((state) => state.project.isReady(projectId))
 
   useEffect(() => {
     if (!url) return

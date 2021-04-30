@@ -70,7 +70,7 @@ export const ApplyClass = (projectPath: string, { codePosition, className }: Ele
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
 export const Insert = (projectPath: string, { codePosition, insertElementType, insertMode }: InsertElementPayload) => {
@@ -133,7 +133,7 @@ export const Insert = (projectPath: string, { codePosition, insertElementType, i
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
 export const Delete = (projectPath: string, { codePosition }: ElementPayload) => {
@@ -154,7 +154,7 @@ export const Delete = (projectPath: string, { codePosition }: ElementPayload) =>
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
 export const Replace = (projectPath: string, { codePosition, insertElementType }: InsertElementPayload) => {
@@ -180,7 +180,7 @@ export const Replace = (projectPath: string, { codePosition, insertElementType }
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
 export const Text = (projectPath: string, { codePosition, text }: ElementPayload) => {
@@ -210,5 +210,5 @@ export const Text = (projectPath: string, { codePosition, text }: ElementPayload
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code, { encoding: 'utf8' })
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
