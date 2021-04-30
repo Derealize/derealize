@@ -38,15 +38,15 @@ import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import type { BoolReply } from '../backend/backend.interface'
 import type { ImportPayload } from '../interface'
-import { Handler, ProjectStatus } from '../backend/backend.interface'
+import { Handler, ProjectStatus, Broadcast, ProcessPayload } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project, ProjectView } from '../models/project'
+import type { Project } from '../models/project'
 import style from './Import.module.scss'
 import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpcSync } = window.derealize
+const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc } = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -61,16 +61,10 @@ const ImportProject = (): JSX.Element => {
 
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
-  const loading = useStoreState<boolean>((state) => state.project.importloading)
-  const setLoading = useStoreActions((actions) => actions.project.setImportLoading)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
-
-  const installOutput = useStoreState<Array<string>>((state) => state.project.installOutput)
-  const pushInstallOutput = useStoreActions((actions) => actions.project.pushInstallOutput)
-  const emptyInstallOutput = useStoreActions((actions) => actions.project.emptyInstallOutput)
 
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
@@ -80,12 +74,15 @@ const ImportProject = (): JSX.Element => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
+  const [importloading, setImportloading] = useState(false)
+  const [installOutput, setInstallOutput] = useState<Array<string>>([])
+
   const [projectId, setProjectId] = useState('')
   const isReady = useStoreState<boolean | undefined>((state) => state.project.isReady(projectId))
 
   useEffect(() => {
     if (!url) return
-    emptyInstallOutput()
+    setInstallOutput([])
 
     try {
       const parseURL = new URL(url)
@@ -100,7 +97,7 @@ const ImportProject = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [emptyInstallOutput, toast, url])
+  }, [setInstallOutput, toast, url])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
@@ -126,7 +123,7 @@ const ImportProject = (): JSX.Element => {
       return
     }
 
-    setLoading(true)
+    setImportloading(true)
     const id = nanoid()
     setProjectId(id)
     const payload: ImportPayload = { projectId: id, url, path, branch }
@@ -145,10 +142,11 @@ const ImportProject = (): JSX.Element => {
       await sendBackIpc(Handler.Install, { projectId: id })
       newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
     } else {
-      setLoading(false)
-      pushInstallOutput(`import error: ${error}`)
+      setImportloading(false)
+      installOutput.push(`import error: ${error}`)
+      setInstallOutput(installOutput)
     }
-  }, [projects, url, setLoading, path, branch, onOpenExistsAlert, name, addProject, pushInstallOutput])
+  }, [projects, url, path, branch, onOpenExistsAlert, name, addProject, installOutput])
 
   const open = useCallback(() => {
     if (isReady && projectId) {
@@ -156,6 +154,30 @@ const ImportProject = (): JSX.Element => {
       openProject(projectId)
     }
   }, [openProject, projectId, isReady, setModalClose])
+
+  useEffect(() => {
+    listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
+      if (payload.error) {
+        setImportloading(false)
+        toast({
+          title: `Installing error:${payload.error}`,
+          status: 'error',
+        })
+        return
+      }
+
+      if (payload.stdout) {
+        installOutput.push(`stdout: ${payload.stdout}`)
+      } else if (payload.stderr) {
+        installOutput.push(`stderr: ${payload.stderr}`)
+      } else if (payload.exit !== undefined) {
+        installOutput.push(`exit: ${payload.error}`)
+        setImportloading(false)
+      }
+      setInstallOutput(installOutput)
+    })
+    return () => unlistenBackIpc(Broadcast.Installing)
+  }, [installOutput, toast])
 
   return (
     <>
@@ -174,7 +196,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={url}
                     ref={register({ required: true, pattern: gitUrlPattern })}
-                    disabled={loading}
+                    disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
                   <FormHelperText className="prose">
@@ -192,7 +214,7 @@ const ImportProject = (): JSX.Element => {
                   <Button
                     leftIcon={<FaRegFolderOpen />}
                     colorScheme="gray"
-                    disabled={loading}
+                    disabled={importloading}
                     onClick={(e) => {
                       e.stopPropagation()
                       const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
@@ -223,7 +245,7 @@ const ImportProject = (): JSX.Element => {
                     type="text"
                     value={username}
                     ref={register({ required: true })}
-                    disabled={loading}
+                    disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setUsername(e.target.value)
                       updateUrl({ _username: e.target.value })
@@ -240,7 +262,7 @@ const ImportProject = (): JSX.Element => {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
-                      disabled={loading}
+                      disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         setPassword(e.target.value)
                         updateUrl({ _password: e.target.value })
@@ -259,7 +281,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     type="text"
                     value={name}
-                    disabled={loading}
+                    disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setName(e.target.value)
                     }}
@@ -271,7 +293,7 @@ const ImportProject = (): JSX.Element => {
                   <Input
                     name="branch"
                     type="text"
-                    disabled={loading}
+                    disabled={importloading}
                     value={branch}
                     colorScheme="gray"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -284,7 +306,7 @@ const ImportProject = (): JSX.Element => {
               </Box>
               <Box>
                 <p className={style.output}>{installOutput.join('\n')}</p>
-                {loading && (
+                {importloading && (
                   <p className={style.spinner}>
                     <BarLoader height={4} width={100} color="gray" />
                   </p>
@@ -312,7 +334,7 @@ const ImportProject = (): JSX.Element => {
               colorScheme="teal"
               size="lg"
               variant={isReady ? 'outline' : 'solid'}
-              isLoading={loading}
+              isLoading={importloading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={handleSubmit(submit)}
               ml={6}
