@@ -97,13 +97,6 @@ const mainFrontView = (project?: Project) => {
 }
 
 export interface ProjectModel {
-  importloading: boolean
-  setImportLoading: Action<ProjectModel, boolean>
-
-  installOutput: Array<string>
-  pushInstallOutput: Action<ProjectModel, string>
-  emptyInstallOutput: Action<ProjectModel>
-
   projects: Array<Project>
   setProjects: Action<ProjectModel, Array<Project>>
 
@@ -145,19 +138,6 @@ export interface ProjectModel {
 }
 
 const projectModel: ProjectModel = {
-  importloading: false,
-  setImportLoading: action((state, payload) => {
-    state.importloading = payload
-  }),
-
-  installOutput: [],
-  pushInstallOutput: action((state, payload) => {
-    state.installOutput.push(payload)
-  }),
-  emptyInstallOutput: action((state, payload) => {
-    state.installOutput = []
-  }),
-
   projects: [],
   setProjects: action((state, projects) => {
     state.projects = [...projects]
@@ -233,17 +213,19 @@ const projectModel: ProjectModel = {
     })
 
     const project = state.projects.find((p) => p.id === projectId)
-    mainFrontView(project)
     if (project) {
       project.isFront = true
       sendBackIpc(Handler.CheckStatus, { projectId: project.id })
     }
+    mainFrontView(project)
   }),
   setFrontProjectThunk: thunk(async (actions, projectId, { getState, getStoreActions }) => {
     actions.setFrontProject(projectId)
     const project = getState().projects.find((p) => p.id === projectId)
     if (project) {
       getStoreActions().controlles.setElementThunk(project.element)
+    } else {
+      getStoreActions().controlles.setElementThunk(undefined)
     }
   }),
 
@@ -302,7 +284,7 @@ const projectModel: ProjectModel = {
     sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
   }),
 
-  loadStore: thunk(async (actions, none, { getState }) => {
+  loadStore: thunk(async (actions) => {
     const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
     if (projects) {
       actions.setProjects(projects)
@@ -361,30 +343,6 @@ const projectModel: ProjectModel = {
       actions.setProject(project)
     })
 
-    listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
-      if (payload.error) {
-        actions.setImportLoading(false)
-        toast({
-          title: `Installing error:${payload.error}`,
-          status: 'error',
-        })
-        return
-      }
-
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === payload.projectId)
-      if (!project) return
-
-      if (payload.stdout) {
-        actions.pushInstallOutput(`stdout: ${payload.stdout}`)
-      } else if (payload.stderr) {
-        actions.pushInstallOutput(`stderr: ${payload.stderr}`)
-      } else if (payload.exit !== undefined) {
-        actions.pushInstallOutput(`exit: ${payload.error}`)
-        actions.setImportLoading(false)
-      }
-    })
-
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
@@ -425,7 +383,6 @@ const projectModel: ProjectModel = {
 
   unlisten: action(() => {
     unlistenBackIpc(Broadcast.Status)
-    unlistenBackIpc(Broadcast.Installing)
     unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.FocusElement)
   }),
@@ -433,7 +390,6 @@ const projectModel: ProjectModel = {
   modalDisclosure: false,
   setModalOpen: action((state) => {
     state.modalDisclosure = true
-    state.installOutput = []
   }),
   setModalClose: action((state) => {
     state.modalDisclosure = false
