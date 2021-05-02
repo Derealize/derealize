@@ -1,9 +1,10 @@
+/* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
-import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
+import { nanoid } from 'nanoid'
+import { Action, action, Thunk, thunk, Computed, computed, ThunkOn, thunkOn } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
-import dayjs from 'dayjs'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
 import type {
@@ -18,6 +19,7 @@ import type {
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ElementPayload, MainIpcChannel, ImportPayload } from '../interface'
+import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -39,6 +41,11 @@ export enum ProjectView {
   BrowserView,
 }
 
+export interface ElementState extends ElementPayload {
+  selected: boolean
+  propertys: Array<Property>
+}
+
 export interface Project {
   id: string
   url: string
@@ -49,16 +56,35 @@ export interface Project {
   isOpened?: boolean
   isFront?: boolean
   status?: ProjectStatus
-  changes?: Array<GitFileChanges>
-  config?: ProjectConfig
-  // page?: string
-  runningOutput?: Array<string>
-  tailwindVersion?: string
   tailwindConfig?: TailwindConfig
-  element?: ElementPayload
+  tailwindVersion?: string
+  config?: ProjectConfig
+  changes?: Array<GitFileChanges>
+  elements?: Array<ElementState>
   view?: ProjectView
   startloading?: boolean
+  runningOutput?: Array<string>
+  // page?: string
 }
+
+// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
+// 本质上所有variant都可以多选应用在同一个属性上
+export const StateVariants = [
+  'hover',
+  'focus',
+  'active',
+  'disabled',
+  'visited',
+  'checked',
+  'group-hover', // 需要父元素设置 'group' class
+  'group-focus',
+  'focus-within',
+  'focus-visible',
+] as const
+export type StateVariantsType = typeof StateVariants[number]
+
+export const ListVariants = ['first', 'last', 'odd', 'even'] as const
+export type ListVariantsType = typeof ListVariants[number]
 
 export const OmitStoreProp = [
   'isOpened',
@@ -103,6 +129,7 @@ export interface ProjectModel {
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
   isReady: Computed<ProjectModel, (id: string) => boolean | undefined>
+  activeElement: Computed<ProjectModel, ElementState | undefined>
 
   addProject: Action<ProjectModel, Project>
   setProject: Action<ProjectModel, Project>
@@ -114,9 +141,18 @@ export interface ProjectModel {
   setStartLoading: Action<ProjectModel, { projectId: string; loading: boolean }>
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
 
-  setFrontProject: Action<ProjectModel, string | null>
-  setFrontProjectThunk: Thunk<ProjectModel, string | null, void, StoreModel>
+  screenVariants: Computed<ProjectModel, Array<string>, StoreModel>
+  customVariants: Computed<ProjectModel, Array<string>, StoreModel>
 
+  focusElement: Action<ProjectModel, { projectId: string; element: ElementPayload }>
+  blurElements: Action<ProjectModel, { projectId: string }>
+  cleanUnSelectedElements: Action<ProjectModel, { projectId: string }>
+
+  setActiveElementProperty: Action<ProjectModel, Property>
+  deleteActiveElementProperty: Action<ProjectModel, string>
+  shiftClassName: Thunk<ProjectModel, boolean | undefined, void, StoreModel>
+
+  setFrontProject: Action<ProjectModel, string | null>
   startProject: Thunk<ProjectModel, string>
   stopProject: Action<ProjectModel, string>
   openProject: Thunk<ProjectModel, string>
@@ -152,6 +188,9 @@ const projectModel: ProjectModel = {
   }),
   isReady: computed((state) => (id) => {
     return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
+  }),
+  activeElement: computed((state) => {
+    return state.frontProject?.elements?.find((el) => el.selected)
   }),
 
   addProject: action((state, project) => {
@@ -207,6 +246,130 @@ const projectModel: ProjectModel = {
     }
   }),
 
+  screenVariants: computed((state) => {
+    if (!state.frontProject?.tailwindConfig) return []
+    return Object.keys(state.frontProject.tailwindConfig.theme.screens)
+  }),
+
+  customVariants: computed((state) => {
+    if (!state.frontProject?.tailwindConfig) return []
+    let result: Array<string> = []
+    for (const [, variants] of Object.entries(state.frontProject.tailwindConfig.variants)) {
+      const leftVariants = variants.filter(
+        (v) =>
+          v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v as any) && !ListVariants.includes(v as any),
+      )
+      result = result.concat(leftVariants)
+    }
+    return [...new Set(result)]
+  }),
+
+  focusElement: action((state, { projectId, element }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+
+    const propertys: Array<Property> = []
+    if (element?.className) {
+      element.className.split(/\s+/).forEach((name) => {
+        const names = name.split(':')
+        const property: Property = {
+          id: nanoid(),
+          classname: names.splice(-1)[0],
+        }
+        names.forEach((variant) => {
+          if (state.screenVariants.includes(variant)) {
+            property.screen = variant
+          }
+          if (StateVariants.includes(variant as StateVariantsType)) {
+            property.state = variant as StateVariantsType
+          }
+          if (ListVariants.includes(variant as ListVariantsType)) {
+            property.list = variant as ListVariantsType
+          }
+          if (state.customVariants.includes(variant)) {
+            property.custom = variant
+          }
+          if (variant === 'dark') {
+            property.dark = true
+          }
+        })
+        propertys.push(property)
+      })
+    }
+
+    const elstate = { ...element, propertys, selected: true }
+
+    const el = project.elements?.find((e) => e.selector)
+    if (el) {
+      Object.assign(el, elstate)
+    } else {
+      if (!project.elements) project.elements = []
+      project.elements?.push(elstate)
+    }
+  }),
+  blurElements: action((state, { projectId }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    project?.elements?.forEach((el) => {
+      el.selected = false
+    })
+  }),
+  cleanUnSelectedElements: action((state, { projectId }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.elements = project.elements?.filter((el) => el.selected)
+  }),
+
+  setActiveElementProperty: action((state, property) => {
+    if (!state.activeElement) return
+    const target = state.activeElement.propertys.find((p) => p.id === property.id)
+    if (target) {
+      Object.assign(target, property)
+    } else {
+      state.activeElement.propertys.push(property)
+    }
+  }),
+  deleteActiveElementProperty: action((state, propertyId) => {
+    if (!state.activeElement) return
+    state.activeElement.propertys = state.activeElement.propertys.filter((p) => p.id !== propertyId)
+  }),
+  shiftClassName: thunk(async (actions, none, { getState }) => {
+    const { frontProject } = getState()
+    if (!frontProject || !frontProject.elements) return
+
+    const payloads: Array<ElementPayload> = []
+    frontProject.elements.forEach((element) => {
+      let className = ''
+      element.propertys.forEach((property) => {
+        const { screen, state, list, custom, dark, classname: name } = property
+        if (!name) return
+
+        let variants = ''
+        if (screen) {
+          variants += `${screen}:`
+        }
+        if (state) {
+          variants += `${state}:`
+        }
+        if (list) {
+          variants += `${list}:`
+        }
+        if (custom) {
+          variants += `${custom}:`
+        }
+        if (dark) {
+          variants += `dark:`
+        }
+        className += `${variants + name} `
+      })
+
+      const { selected, propertys, ...payload } = element
+      payload.className = className
+      payloads.push(payload)
+    })
+
+    sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
+  }),
+
   setFrontProject: action((state, projectId) => {
     state.projects.forEach((p) => {
       p.isFront = false
@@ -218,15 +381,6 @@ const projectModel: ProjectModel = {
       sendBackIpc(Handler.CheckStatus, { projectId: project.id })
     }
     mainFrontView(project)
-  }),
-  setFrontProjectThunk: thunk(async (actions, projectId, { getState, getStoreActions }) => {
-    actions.setFrontProject(projectId)
-    const project = getState().projects.find((p) => p.id === projectId)
-    if (project) {
-      getStoreActions().controlles.setElementThunk(project.element)
-    } else {
-      getStoreActions().controlles.setElementThunk(undefined)
-    }
   }),
 
   startProject: thunk(async (actions, projectId, { getState }) => {
@@ -255,7 +409,7 @@ const projectModel: ProjectModel = {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
     project.isOpened = true
-    await actions.setFrontProjectThunk(project.id)
+    await actions.setFrontProject(project.id)
     await actions.startProject(project.id)
   }),
   closeProject: thunk((actions, projectId, { getState }) => {
@@ -270,11 +424,11 @@ const projectModel: ProjectModel = {
       const oindex = openedProjects.findIndex((p) => p.id === project.id)
       if (oindex >= 0) {
         if (oindex + 1 < openedProjects.length) {
-          actions.setFrontProjectThunk(openedProjects[oindex + 1].id)
+          actions.setFrontProject(openedProjects[oindex + 1].id)
         } else if (oindex - 1 >= 0) {
-          actions.setFrontProjectThunk(openedProjects[oindex - 1].id)
+          actions.setFrontProject(openedProjects[oindex - 1].id)
         } else {
-          actions.setFrontProjectThunk(null)
+          actions.setFrontProject(null)
         }
       }
     }
@@ -369,15 +523,18 @@ const projectModel: ProjectModel = {
       }
     })
 
-    listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, payload: ElementPayload) => {
-      const { projects, frontProject } = getState()
-      const project = projects.find((p) => p.id === payload.projectId)
+    listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === element.projectId)
       if (!project) return
+      actions.focusElement({ projectId: project.id, element })
+    })
 
-      project.element = payload.tagName ? payload : undefined
-      if (project.id === frontProject?.id) {
-        getStoreActions().controlles.setElementThunk(project.element)
-      }
+    listenMainIpc(MainIpcChannel.BlurElement, (event: IpcRendererEvent, projectId: string) => {
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === projectId)
+      if (!project) return
+      actions.blurElements({ projectId: project.id })
     })
   }),
 
@@ -385,6 +542,7 @@ const projectModel: ProjectModel = {
     unlistenBackIpc(Broadcast.Status)
     unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.FocusElement)
+    unlistenMainIpc(MainIpcChannel.BlurElement)
   }),
 
   modalDisclosure: false,

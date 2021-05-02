@@ -415,12 +415,19 @@ ipcMain.on(MainIpcChannel.OpenDirs, (event, folderpath: string) => {
 })
 
 ipcMain.on(MainIpcChannel.FocusElement, (event, payload: ElementPayload) => {
-  if (!mainWindow) return
   const project = projects.get(payload.projectId)
   if (project) {
     project.activeSelector = payload.selector
   }
-  mainWindow.webContents.send(MainIpcChannel.FocusElement, payload)
+  mainWindow?.webContents.send(MainIpcChannel.FocusElement, payload)
+})
+
+ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {
+  const project = projects.get(projectId)
+  if (project) {
+    project.activeSelector = undefined
+  }
+  mainWindow?.webContents.send(MainIpcChannel.BlurElement, projectId)
 })
 
 ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, payload: ElementPayload) => {
