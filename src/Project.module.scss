@@ -40,7 +40,7 @@ body.maximized {
   & > .author,
   & > .message {
     display: inline-block;
-    width: 130px;
+    width: 180px;
     @include ellipsis();
   }
 
