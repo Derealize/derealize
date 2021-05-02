@@ -145,9 +145,10 @@ export interface ProjectModel {
   screenVariants: Computed<ProjectModel, Array<string>, StoreModel>
   customVariants: Computed<ProjectModel, Array<string>, StoreModel>
 
+  unSelectedAllElements: Action<ProjectModel, string>
   focusElement: Action<ProjectModel, { projectId: string; element: ElementPayload }>
-  blurElements: Action<ProjectModel, { projectId: string }>
-  cleanUnSelectedElements: Action<ProjectModel, { projectId: string }>
+  cleanElements: Action<ProjectModel, string>
+  cleanUnSelectedElements: Action<ProjectModel, string>
 
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
@@ -191,6 +192,7 @@ const projectModel: ProjectModel = {
     return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
   }),
   activeElement: computed((state) => {
+    console.log('state.frontProject', state.frontProject)
     return state.frontProject?.elements?.find((el) => el.selected)
   }),
 
@@ -265,9 +267,19 @@ const projectModel: ProjectModel = {
     return [...new Set(result)]
   }),
 
+  unSelectedAllElements: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    project?.elements?.forEach((el) => {
+      el.selected = false
+    })
+  }),
   focusElement: action((state, { projectId, element }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
+
+    project.elements?.forEach((el) => {
+      el.selected = false
+    })
 
     const propertys: Array<Property> = []
     if (element?.className) {
@@ -300,7 +312,7 @@ const projectModel: ProjectModel = {
 
     const elstate = { ...element, propertys, selected: true }
 
-    const el = project.elements?.find((e) => e.selector)
+    const el = project.elements?.find((e) => e.selector === element.selector)
     if (el) {
       Object.assign(el, elstate)
     } else {
@@ -308,13 +320,12 @@ const projectModel: ProjectModel = {
       project.elements?.push(elstate)
     }
   }),
-  blurElements: action((state, { projectId }) => {
+  cleanElements: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
-    project?.elements?.forEach((el) => {
-      el.selected = false
-    })
+    if (!project) return
+    project.elements = []
   }),
-  cleanUnSelectedElements: action((state, { projectId }) => {
+  cleanUnSelectedElements: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.elements = project.elements?.filter((el) => el.selected)
@@ -375,7 +386,8 @@ const projectModel: ProjectModel = {
       payloads.push(payload)
     })
 
-    sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
+    await sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
+    actions.cleanUnSelectedElements(frontProject.id)
   }),
 
   setFrontProject: action((state, projectId) => {
@@ -543,7 +555,14 @@ const projectModel: ProjectModel = {
       const { projects } = getState()
       const project = projects.find((p) => p.id === projectId)
       if (!project) return
-      actions.blurElements({ projectId: project.id })
+      actions.unSelectedAllElements(project.id)
+    })
+
+    listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === projectId)
+      if (!project) return
+      actions.cleanElements(project.id)
     })
   }),
 

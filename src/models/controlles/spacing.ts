@@ -71,11 +71,7 @@ const spacingModel: SpacingModel = {
   }),
   widthPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.widthValues],
-    (propertys, values) => {
-      const rr = propertys.filter(({ classname }) => values.includes(classname))
-      console.log('widthPropertys', rr)
-      return rr
-    },
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   minWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {

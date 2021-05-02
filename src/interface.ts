@@ -67,6 +67,7 @@ export enum MainIpcChannel {
   DeviceEmulation = 'DeviceEmulation',
   FocusElement = 'FocusElement',
   BlurElement = 'BlurElement',
+  Flush = 'Flush',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
   InsertTab = 'InsertTab',
