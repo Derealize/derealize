@@ -427,8 +427,16 @@ ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {
   const project = projects.get(projectId)
   if (project) {
     project.activeSelector = undefined
+    mainWindow?.webContents.send(MainIpcChannel.BlurElement, projectId)
   }
-  mainWindow?.webContents.send(MainIpcChannel.BlurElement, projectId)
+})
+
+ipcMain.on(MainIpcChannel.Flush, (event, projectId: string) => {
+  const project = projects.get(projectId)
+  if (project) {
+    project.activeSelector = undefined
+    mainWindow?.webContents.send(MainIpcChannel.Flush, projectId)
+  }
 })
 
 ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, payload: ElementPayload) => {

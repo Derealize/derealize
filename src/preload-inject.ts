@@ -55,7 +55,7 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   }
 
   if (!activeElement) {
-    ipcRenderer.send(MainIpcChannel.BlurElement, { projectId: PROJECTID })
+    ipcRenderer.send(MainIpcChannel.BlurElement, PROJECTID)
     return
   }
 
@@ -114,6 +114,7 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
 ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
   PROJECTID = projectId
   connectSocket(socketId)
+  ipcRenderer.send(MainIpcChannel.Flush, PROJECTID)
   await InspectActiveElement(activeSelector)
 })
 
