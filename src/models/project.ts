@@ -39,6 +39,7 @@ export enum ProjectView {
   Debugging,
   FileStatus,
   BrowserView,
+  Elements,
 }
 
 export interface ElementState extends ElementPayload {
@@ -95,7 +96,7 @@ export const OmitStoreProp = [
   'installOutput',
   'config',
   'tailwindConfig',
-  'element',
+  'elements',
   'view',
   'startloading',
 ]
@@ -320,17 +321,24 @@ const projectModel: ProjectModel = {
   }),
 
   setActiveElementProperty: action((state, property) => {
-    if (!state.activeElement) return
-    const target = state.activeElement.propertys.find((p) => p.id === property.id)
+    const project = state.projects.find((p) => p.isFront)
+    if (!project) return
+    const element = project.elements?.find((el) => el.selected)
+    if (!element) return
+    const target = element.propertys.find((p) => p.id === property.id)
     if (target) {
       Object.assign(target, property)
+      // console.log('target', target)
     } else {
-      state.activeElement.propertys.push(property)
+      element.propertys.push(property)
     }
   }),
   deleteActiveElementProperty: action((state, propertyId) => {
-    if (!state.activeElement) return
-    state.activeElement.propertys = state.activeElement.propertys.filter((p) => p.id !== propertyId)
+    const project = state.projects.find((p) => p.isFront)
+    if (!project) return
+    const element = project.elements?.find((el) => el.selected)
+    if (!element) return
+    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
   }),
   shiftClassName: thunk(async (actions, none, { getState }) => {
     const { frontProject } = getState()
@@ -417,6 +425,7 @@ const projectModel: ProjectModel = {
     const project = projects.find((p) => p.id === projectId)
     if (!project) throw new Error('closeProject null')
     project.isOpened = false
+    project.elements = []
 
     if (project.isFront) {
       project.isFront = false

@@ -22,6 +22,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
@@ -63,7 +64,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </Box>
           )}
 
-          {(project.view === ProjectView.Debugging || project.view === ProjectView.FileStatus) && (
+          {project.view !== ProjectView.BrowserView && (
             <CloseButton
               size="lg"
               colorScheme="gray"
@@ -89,7 +90,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             <>
               {project.changes?.length !== 0 && (
                 <Text mb={10}>
-                  There are {project.changes?.length} files to be pushed
+                  Here are {project.changes?.length} files waiting to be pushed
                   <Button ml={4} lefticon={<VscRepoPush />} onClick={() => callPush()}>
                     Push
                   </Button>
@@ -107,6 +108,34 @@ const ProjectPage: React.FC = (): JSX.Element => {
                       <span className={style.data}>{dayjs(h.date).format('YYYY-M-D H:m:s')}</span>
                       <span className={style.author}>{h.author}</span>
                       <span className={style.message}>{h.message}</span>
+                    </ListItem>
+                  )
+                })}
+              </List>
+            </>
+          )}
+
+          {project.view === ProjectView.Elements && (
+            <>
+              {project.elements?.length !== 0 && (
+                <Text mb={10}>
+                  Here are {project.elements?.length} elements waiting to be saved
+                  <Button ml={4} lefticon={<VscRepoPush />} onClick={() => shiftClassName()}>
+                    Save
+                  </Button>
+                </Text>
+              )}
+              <List spacing={2}>
+                {project.elements?.map((el) => {
+                  return (
+                    <ListItem
+                      key={el.selector}
+                      className={style.listitem}
+                      color={el.selected ? 'teal.400' : 'gray.400'}
+                    >
+                      <span className={style.data}>{el.tagName}</span>
+                      <span className={style.author}>{el.codePosition}</span>
+                      <span className={style.message}>{el.className}</span>
                     </ListItem>
                   )
                 })}

@@ -398,7 +398,8 @@ ipcMain.on(MainIpcChannel.ProjectMenu, () => {
 
 ipcMain.on(MainIpcChannel.PagesMenu, () => {
   if (!mainWindow || !pagesMenu) return
-  pagesMenu.popup({ window: mainWindow, x: 130, y: mainWindow.isMaximized() ? 76 : 80 })
+  pagesMenu.popup({ window: mainWindow, x: 5, y: mainWindow.isMaximized() ? 76 : 80 })
+  // pagesMenu.popup({ window: mainWindow, x: 130, y: mainWindow.isMaximized() ? 76 : 80 })
 })
 
 // https://jaketrent.com/post/select-directory-in-electron

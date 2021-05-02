@@ -10,12 +10,16 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  ButtonGroup,
+  Button,
 } from '@chakra-ui/react'
+import flatten from 'lodash.flatten'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
+import { IoIosArrowDown } from 'react-icons/io'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project'
@@ -51,6 +55,8 @@ const TopBar: React.FC = (): JSX.Element => {
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
+
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
@@ -96,6 +102,12 @@ const TopBar: React.FC = (): JSX.Element => {
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
+        <BarIconButton
+          aria-label="Pages"
+          icon={<IoBookmarksOutline />}
+          onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
+        />
+
         <Tooltip label="files status and history">
           <BarIconButton
             aria-label="FileStatus"
@@ -130,11 +142,22 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <BarIconButton
-          aria-label="Pages"
-          icon={<IoBookmarksOutline />}
-          onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
-        />
+        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!flatten(project.elements).length}>
+          <Button borderRadius="full" mr="-px" onClick={() => shiftClassName()}>
+            Save
+          </Button>
+          <IconButton
+            borderRadius="full"
+            aria-label="Save"
+            icon={<IoIosArrowDown />}
+            onClick={() => {
+              setProjectView({
+                projectId: project.id,
+                view: project.view === ProjectView.Elements ? ProjectView.BrowserView : ProjectView.Elements,
+              })
+            }}
+          />
+        </ButtonGroup>
       </Flex>
 
       <Flex align="center" justify="center" className={style.breadcrumb}>
@@ -186,10 +209,10 @@ const TopBar: React.FC = (): JSX.Element => {
         <Tooltip label="debug information">
           <BarIconButton
             aria-label="Debug"
-            selected={project.projectView === ProjectView.Debugging}
+            selected={project.view === ProjectView.Debugging}
             icon={<VscOutput />}
             onClick={() => {
-              if (project.projectView !== ProjectView.Debugging) {
+              if (project.view !== ProjectView.Debugging) {
                 setProjectView({ projectId: project.id, view: ProjectView.Debugging })
               } else {
                 setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
