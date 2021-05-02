@@ -11,7 +11,7 @@ const { sendBackIpc } = window.derealize
 const Text: React.FC = (): JSX.Element => {
   const toast = useToast()
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const [text, setText] = useState<string | undefined>(element?.text)
 

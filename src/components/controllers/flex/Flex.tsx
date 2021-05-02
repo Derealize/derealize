@@ -8,7 +8,7 @@ import { ElementPayload } from '../../../interface'
 
 const Flex: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const flexValues = useStoreState<Array<string>>((state) => state.layout.flexValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexPropertys)

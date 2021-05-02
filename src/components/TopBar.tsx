@@ -11,7 +11,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
 } from '@chakra-ui/react'
-import cs from 'classnames'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
@@ -51,7 +50,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
@@ -100,10 +99,10 @@ const TopBar: React.FC = (): JSX.Element => {
         <Tooltip label="files status and history">
           <BarIconButton
             aria-label="FileStatus"
-            selected={project.projectView === ProjectView.FileStatus}
+            selected={project.view === ProjectView.FileStatus}
             icon={<HiOutlineStatusOnline />}
             onClick={() => {
-              if (project.projectView !== ProjectView.FileStatus) {
+              if (project.view !== ProjectView.FileStatus) {
                 callHistory()
                 setProjectView({ projectId: project.id, view: ProjectView.FileStatus })
               } else {

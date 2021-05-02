@@ -9,7 +9,7 @@ import { GridFlowValues } from '../../../models/controlles/layout'
 
 const GridFlow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  // const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  // const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
   const displayProperty = useComputeProperty(displayPropertys)
 
