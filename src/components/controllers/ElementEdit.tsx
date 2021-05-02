@@ -9,7 +9,7 @@ declare const window: PreloadWindow
 const { sendBackIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const elementType = useMemo(() => (element?.tagName.toLowerCase() || InsertElementType.div) as InsertElementType, [
     element,

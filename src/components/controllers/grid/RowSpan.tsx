@@ -9,7 +9,7 @@ import { ElementPayload } from '../../../interface'
 
 const RowSpan: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.layout.rowSpanValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.rowSpanPropertys)

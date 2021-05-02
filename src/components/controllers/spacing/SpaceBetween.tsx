@@ -8,7 +8,7 @@ import { ElementPayload } from '../../../interface'
 
 const SpaceBetween: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const valuesX = useStoreState<Array<string>>((state) => state.spacing.spaceXValues)
   const propertysX = useStoreState<Array<Property>>((state) => state.spacing.spaceXPropertys)

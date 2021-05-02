@@ -8,7 +8,7 @@ import { ElementPayload } from '../../../interface'
 
 const FlexGrow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const flexGrowValues = useStoreState<Array<string>>((state) => state.layout.flexGrowValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexGrowPropertys)

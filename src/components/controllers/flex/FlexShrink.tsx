@@ -8,7 +8,7 @@ import { ElementPayload } from '../../../interface'
 
 const FlexShrink: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const flexShrinkValues = useStoreState<Array<string>>((state) => state.layout.flexShrinkValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexShrinkPropertys)

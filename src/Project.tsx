@@ -20,7 +20,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)

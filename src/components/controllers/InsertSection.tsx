@@ -13,7 +13,7 @@ const { sendBackIpc, sendMainIpc } = window.derealize
 
 const Insert: React.FC = (): JSX.Element => {
   const toast = useToast()
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const [selInsertMode, setSelInsertMode] = useState(InsertMode.After)
   const [selElementType, setSelElementType] = useState(InsertElementType.div)

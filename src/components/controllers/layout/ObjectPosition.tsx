@@ -9,7 +9,7 @@ import { ReplacedElementTags } from '../LimitedTags'
 
 const ObjectPosition: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.objectPositionPropertys)
   const values = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)

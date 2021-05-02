@@ -9,7 +9,7 @@ import { ElementPayload } from '../../../interface'
 export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 
 const Inset: React.FC = (): JSX.Element => {
-  // const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  // const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
   const positionProperty = useComputeProperty(positionPropertys)
 

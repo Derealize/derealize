@@ -27,7 +27,7 @@ enum Target {
 
 const Frame: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const mValues = useStoreState<Array<string>>((state) => state.spacing.marginValues)
   const mPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginPropertys)

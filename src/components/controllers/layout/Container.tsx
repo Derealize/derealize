@@ -32,7 +32,7 @@ const Container: React.FC = (): JSX.Element => {
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.controlles.element)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
   const property = useComputeProperty(propertys)
 
