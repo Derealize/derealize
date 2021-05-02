@@ -58,9 +58,9 @@ const SelectController: React.FC<Props> = ({
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
+  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
+  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
     return (
@@ -69,13 +69,9 @@ const SelectController: React.FC<Props> = ({
           if (!props.data.value && property) {
             deleteProperty(property.id)
           } else if (property) {
-            property.classname = props.data.value
-            setProperty(property)
+            setProperty({ propertyId: property.id, classname: props.data.value })
           } else {
-            setProperty({
-              id: nanoid(),
-              classname: props.data.value,
-            } as Property)
+            setProperty({ propertyId: nanoid(), classname: props.data.value })
           }
 
           cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
@@ -150,13 +146,9 @@ const SelectController: React.FC<Props> = ({
           if (!ovalue && property) {
             deleteProperty(property.id)
           } else if (property) {
-            property.classname = (ovalue as OptionType).value
-            setProperty(property)
+            setProperty({ propertyId: property.id, classname: (ovalue as OptionType).value })
           } else {
-            setProperty({
-              id: nanoid(),
-              classname: (ovalue as OptionType).value,
-            } as Property)
+            setProperty({ propertyId: nanoid(), classname: (ovalue as OptionType).value })
           }
         }
 

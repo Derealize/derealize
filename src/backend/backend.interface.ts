@@ -9,7 +9,7 @@ export enum Handler {
   Push = 'Push',
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
-  UpdateClass = 'UpdateClass',
+  ApplyElementsClassName = 'ApplyElementsClassName',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
   ReplaceElement = 'ReplaceElement',

@@ -96,10 +96,10 @@ export const GetTailwindConfig = async ({ projectId }: IdParam): Promise<Tailwin
   return config
 }
 
-export const UpdateClass = async (payload: ElementPayload) => {
-  const project = getProject(payload.projectId)
-
-  ApplyClass(project.path, payload)
+export const ApplyElementsClassName = async (payloads: Array<ElementPayload>) => {
+  if (!payloads.length) return
+  const project = getProject(payloads[0].projectId)
+  ApplyClass(project.path, payloads)
 }
 
 export const InsertElement = async (payload: InsertElementPayload) => {

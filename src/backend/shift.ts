@@ -9,6 +9,66 @@ import log from './log'
 
 const { builders, namedTypes } = types
 
+export const ApplyClass = (projectPath: string, payloads: Array<ElementPayload>) => {
+  const firstCodePosition = payloads[0].codePosition
+  const firstPosition = firstCodePosition.split(':')
+  const filePath = path.resolve(projectPath, firstPosition[0])
+  const content = fs.readFileSync(filePath, 'utf8')
+  const ast = parse(content, {
+    parser,
+  })
+
+  payloads.forEach((payload) => {
+    const { codePosition, className } = payload
+    const position = codePosition.split(':')
+    const targetLine = parseInt(position[1], 10)
+    const targetColumn = parseInt(position[2], 10)
+
+    visit(ast, {
+      visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+        const { node } = astPath
+
+        if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+          if (!node.attributes) {
+            node.attributes = []
+          }
+
+          const attr = node.attributes.find((a) => namedTypes.JSXAttribute.check(a) && a.name.name === 'className')
+
+          if (!attr) {
+            if (className) {
+              node.attributes.push(
+                builders.jsxAttribute(builders.jsxIdentifier('className'), builders.stringLiteral(className)),
+              )
+            }
+          } else if (!className) {
+            node.attributes = node.attributes.filter(
+              (a) => !(namedTypes.JSXAttribute.check(a) && a.name.name === 'className'),
+            )
+          } else if (namedTypes.JSXAttribute.check(attr)) {
+            if (namedTypes.StringLiteral.check(attr.value)) {
+              attr.value.value = className
+            } else if (namedTypes.JSXExpressionContainer.check(attr.value)) {
+              // todo: 使用babel实现依赖状态表达式的 className
+              log(`${filePath} Cannot predictibly change JSX expression, skipping`)
+            } else if (!attr.value) {
+              attr.value = builders.stringLiteral(className)
+            }
+          }
+
+          return false
+        }
+
+        this.traverse(astPath)
+        return undefined
+      },
+    })
+  })
+
+  const output = print(ast)
+  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+}
+
 const parseCodePosition = (
   projectPath: string,
   codePosition: string,
@@ -24,53 +84,6 @@ const parseCodePosition = (
   })
 
   return { ast, targetLine, targetColumn, filePath }
-}
-
-export const ApplyClass = (projectPath: string, { codePosition, className }: ElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
-
-  visit(ast, {
-    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
-      const { node } = astPath
-
-      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        if (!node.attributes) {
-          node.attributes = []
-        }
-
-        const attr = node.attributes.find((a) => namedTypes.JSXAttribute.check(a) && a.name.name === 'className')
-
-        if (!attr) {
-          if (className) {
-            node.attributes.push(
-              builders.jsxAttribute(builders.jsxIdentifier('className'), builders.stringLiteral(className)),
-            )
-          }
-        } else if (!className) {
-          node.attributes = node.attributes.filter(
-            (a) => !(namedTypes.JSXAttribute.check(a) && a.name.name === 'className'),
-          )
-        } else if (namedTypes.JSXAttribute.check(attr)) {
-          if (namedTypes.StringLiteral.check(attr.value)) {
-            attr.value.value = className
-          } else if (namedTypes.JSXExpressionContainer.check(attr.value)) {
-            // todo: 使用babel实现依赖状态表达式的 className
-            log(`${filePath} Cannot predictibly change JSX expression, skipping`)
-          } else if (!attr.value) {
-            attr.value = builders.stringLiteral(className)
-          }
-        }
-
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
 export const Insert = (projectPath: string, { codePosition, insertElementType, insertMode }: InsertElementPayload) => {

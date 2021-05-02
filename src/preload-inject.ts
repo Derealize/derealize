@@ -55,7 +55,7 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   }
 
   if (!activeElement) {
-    ipcRenderer.send(MainIpcChannel.FocusElement, { projectId: PROJECTID, tagName: '', selector: '' })
+    ipcRenderer.send(MainIpcChannel.BlurElement, { projectId: PROJECTID })
     return
   }
 
