@@ -31,6 +31,7 @@ export interface ProjectConfig {
   pages: Array<string>
   assets: string
   applyCssFile: string
+  isWeapp: boolean
 }
 
 export enum ProjectStatus {

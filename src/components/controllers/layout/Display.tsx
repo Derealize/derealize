@@ -16,8 +16,8 @@ const Display: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
+  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
 
   if (already && !property) return <></>
 
@@ -31,13 +31,9 @@ const Display: React.FC = (): JSX.Element => {
           onChange={(check) => {
             if (check) {
               if (property) {
-                property.classname = 'flex'
-                setProperty(property)
+                setProperty({ propertyId: property.id, classname: 'flex' })
               } else {
-                setProperty({
-                  id: nanoid(),
-                  classname: 'flex',
-                } as Property)
+                setProperty({ propertyId: nanoid(), classname: 'flex' })
               }
             } else if (property) {
               deleteProperty(property.id)
@@ -66,13 +62,9 @@ const Display: React.FC = (): JSX.Element => {
           onChange={(check) => {
             if (check) {
               if (property) {
-                property.classname = 'grid'
-                setProperty(property)
+                setProperty({ propertyId: property.id, classname: 'grid' })
               } else {
-                setProperty({
-                  id: nanoid(),
-                  classname: 'grid',
-                } as Property)
+                setProperty({ propertyId: nanoid(), classname: 'grid' })
               }
             } else if (property) {
               deleteProperty(property.id)

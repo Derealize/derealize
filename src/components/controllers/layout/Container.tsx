@@ -30,7 +30,7 @@ const Container: React.FC = (): JSX.Element => {
 
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.updateClassName)
+  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
 
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
@@ -47,9 +47,9 @@ const Container: React.FC = (): JSX.Element => {
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked && !property) {
           setProperty({
-            id: nanoid(),
+            propertyId: nanoid(),
             classname: ContainerValue,
-          } as Property)
+          })
         } else if (!e.target.checked && property) {
           deleteProperty(property.id)
         }

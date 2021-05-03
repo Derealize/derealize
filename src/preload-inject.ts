@@ -6,6 +6,7 @@ import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
 import { cssText, sectionText } from './preload-inject-code'
 
 let PROJECTID: string | undefined
+let dataCode = 'data-code'
 let selector: string | undefined
 let activeElement: HTMLElement | null = null
 let hoverElement: Element | null = null
@@ -59,7 +60,7 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
     return
   }
 
-  const codePosition = activeElement.getAttribute('data-code')
+  const codePosition = activeElement.getAttribute(dataCode)
   if (!codePosition) {
     alert('This element does not support deraelize update')
     return
@@ -111,13 +112,6 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   })
 }
 
-ipcRenderer.on('setParams', async (event: Event, { socketId, projectId, activeSelector }: Record<string, string>) => {
-  PROJECTID = projectId
-  connectSocket(socketId)
-  ipcRenderer.send(MainIpcChannel.Flush, PROJECTID)
-  await InspectActiveElement(activeSelector)
-})
-
 const derealizeListener = async (e: Event) => {
   if (!e.currentTarget || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
@@ -153,8 +147,8 @@ ipcRenderer.on(
   },
 )
 
-const listenElement = async () => {
-  document.querySelectorAll('[data-code]').forEach((el) => {
+const listenElement = () => {
+  document.querySelectorAll(`[${dataCode}]`).forEach((el) => {
     el.removeEventListener('click', derealizeListener)
     el.addEventListener('click', derealizeListener)
     el.removeEventListener('focus', derealizeListener)
@@ -164,11 +158,25 @@ const listenElement = async () => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// document.addEventListener('DOMContentLoaded', () => {
+//   const style = document.createElement('style')
+//   style.appendChild(document.createTextNode(cssText))
+//   document.head.appendChild(style)
+//   listenElement()
+// })
+
+ipcRenderer.on('setParams', async (event: Event, socketId, projectId, activeSelector, isWeapp) => {
+  PROJECTID = projectId
+  dataCode = isWeapp ? 'title' : 'data-code'
+  connectSocket(socketId)
+  ipcRenderer.send(MainIpcChannel.Flush, PROJECTID)
+
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(cssText))
   document.head.appendChild(style)
   listenElement()
+
+  await InspectActiveElement(activeSelector)
 })
 
 contextBridge.exposeInMainWorld('derealize', {

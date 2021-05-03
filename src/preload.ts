@@ -39,7 +39,7 @@ contextBridge.exposeInMainWorld('derealize', {
   },
 })
 
-ipcRenderer.on('setParams', (event: Event, { socketId }: Record<string, string>) => {
+ipcRenderer.on('setParams', (event: Event, socketId) => {
   connectSocket(socketId)
 })
 
