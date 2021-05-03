@@ -61,9 +61,9 @@ const Controllers: React.FC = (): JSX.Element => {
       }
     })
 
-    listenMainIpc(MainIpcChannel.Shortcut, (e: IpcRendererEvent, payload: string) => {
-      if (payload.startsWith('Alt+')) {
-        const number = payload.split('+').splice(-1)[0]
+    listenMainIpc(MainIpcChannel.ControllerShortcut, (e: IpcRendererEvent, key: string) => {
+      if (key.startsWith('Alt+')) {
+        const number = key.split('+').splice(-1)[0]
         setTabIndex((parseInt(number, 10) - 1) as ControllerTab)
       }
     })

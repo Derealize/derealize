@@ -61,6 +61,10 @@ const TopBar: React.FC = (): JSX.Element => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
 
+  const pendingElements = useMemo(() => {
+    return project?.elements?.filter((el) => el.pending)
+  }, [project?.elements])
+
   const callPull = useCallback(async () => {
     if (!project) return null
 
@@ -142,8 +146,8 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!flatten(project.elements).length}>
-          <Button borderRadius="full" mr="-px" onClick={() => shiftClassName()}>
+        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!pendingElements?.length}>
+          <Button borderRadius="full" mr="-px" disabled={!pendingElements?.length} onClick={() => shiftClassName()}>
             Save
           </Button>
           <IconButton
