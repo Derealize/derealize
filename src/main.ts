@@ -101,47 +101,50 @@ const frontMain = () => {
   projects.forEach((p) => mainWindow?.removeBrowserView(p.view))
 }
 
-ipcMain.on(MainIpcChannel.FrontView, (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>) => {
-  if (!mainWindow) return
-  if (!projectId) {
-    frontMain()
-    return
-  }
-
-  const project = projects.get(projectId)
-  if (project) {
-    mainWindow.setBrowserView(project.view)
-  } else {
-    const view = new BrowserView({
-      webPreferences: {
-        nodeIntegration: false,
-        enableRemoteModule: false,
-        contextIsolation: true,
-        preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
-        allowRunningInsecureContent: true,
-      },
-    })
-    view.setBackgroundColor('#fff') // todo: invalid
-
-    projects.set(projectId, { view, lunchUrl, pages })
-    mainWindow.setBrowserView(view)
-    setBrowserViewBounds(mainWindow)
-    if (isDebug) {
-      view.webContents.openDevTools()
+ipcMain.on(
+  MainIpcChannel.FrontView,
+  (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>, isWeapp: boolean) => {
+    if (!mainWindow) return
+    if (!projectId) {
+      frontMain()
+      return
     }
 
-    // view.webContents.loadURL(lunchUrl)
-    view.webContents.on('did-finish-load', () => {
-      const loadedProject = projects.get(projectId)
-      if (loadedProject) {
-        view.webContents.send('setParams', { socketId, projectId, activeSelector: loadedProject.activeSelector })
-      }
-    })
-  }
+    const project = projects.get(projectId)
+    if (project) {
+      mainWindow.setBrowserView(project.view)
+    } else {
+      const view = new BrowserView({
+        webPreferences: {
+          nodeIntegration: false,
+          enableRemoteModule: false,
+          contextIsolation: true,
+          preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
+          allowRunningInsecureContent: true,
+        },
+      })
+      view.setBackgroundColor('#fff') // todo: invalid
 
-  projectMenu = menuBuilder?.buildProjectMenu(projectId)
-  pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
-})
+      projects.set(projectId, { view, lunchUrl, pages })
+      mainWindow.setBrowserView(view)
+      setBrowserViewBounds(mainWindow)
+      if (isDebug) {
+        view.webContents.openDevTools()
+      }
+
+      // view.webContents.loadURL(lunchUrl)
+      view.webContents.on('did-finish-load', () => {
+        const loadedProject = projects.get(projectId)
+        if (loadedProject) {
+          view.webContents.send('setParams', socketId, projectId, loadedProject.activeSelector, isWeapp)
+        }
+      })
+    }
+
+    projectMenu = menuBuilder?.buildProjectMenu(projectId)
+    pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
+  },
+)
 
 ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: number) => {
   const project = projects.get(projectId)
@@ -232,7 +235,7 @@ const createWindow = async () => {
       mainWindow.focus()
     }
 
-    mainWindow.webContents.send('setParams', { socketId })
+    mainWindow.webContents.send('setParams', socketId)
   })
 
   mainWindow.on('closed', () => {

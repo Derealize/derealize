@@ -118,7 +118,13 @@ const storeProject = (projects: Array<Project>) => {
 const mainFrontView = (project?: Project) => {
   if (project?.view === ProjectView.BrowserView) {
     if (!project.config) throw new Error('project.config null')
-    sendMainIpc(MainIpcChannel.FrontView, project.id, project.config.lunchUrl, [...project.config.pages])
+    sendMainIpc(
+      MainIpcChannel.FrontView,
+      project.id,
+      project.config.lunchUrl,
+      [...project.config.pages],
+      project.config.isWeapp,
+    )
   } else {
     sendMainIpc(MainIpcChannel.FrontView)
   }
@@ -580,6 +586,8 @@ const projectModel: ProjectModel = {
     unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.FocusElement)
     unlistenMainIpc(MainIpcChannel.BlurElement)
+    unlistenMainIpc(MainIpcChannel.Flush)
+    unlistenMainIpc(MainIpcChannel.Shortcut)
   }),
 
   modalDisclosure: false,
