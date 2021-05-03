@@ -11,7 +11,7 @@ import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, BreadcrumbPayload, MainIpcChannel, Shortcuts } from './interface'
+import { ElementPayload, BreadcrumbPayload, MainIpcChannel, Shortcut, ControllerShortcut } from './interface'
 
 const isDev = process.env.NODE_ENV === 'development'
 const isDebug = isDev || process.env.DEBUG_PROD === 'true'
@@ -341,9 +341,15 @@ app
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
-    Shortcuts.forEach((key) => {
+    Shortcut.forEach((key) => {
       globalShortcut.register(key, () => {
         mainWindow?.webContents.send(MainIpcChannel.Shortcut, key)
+      })
+    })
+
+    ControllerShortcut.forEach((key) => {
+      globalShortcut.register(key, () => {
+        mainWindow?.webContents.send(MainIpcChannel.ControllerShortcut, key)
       })
     })
 

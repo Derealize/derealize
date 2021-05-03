@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useReducer } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } from '@chakra-ui/react'
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
@@ -26,6 +26,10 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
+
+  const pendingElements = useMemo(() => {
+    return project?.elements?.filter((el) => el.pending)
+  }, [project?.elements])
 
   const callPush = useCallback(async () => {
     if (!project) return null
@@ -117,16 +121,16 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
           {project.view === ProjectView.Elements && (
             <>
-              {project.elements?.length !== 0 && (
+              {pendingElements?.length !== 0 && (
                 <Text mb={10}>
-                  Here are {project.elements?.length} elements waiting to be saved
+                  Here are {pendingElements?.length} elements waiting to be saved
                   <Button ml={4} lefticon={<VscRepoPush />} onClick={() => shiftClassName()}>
                     Save
                   </Button>
                 </Text>
               )}
               <List spacing={2}>
-                {project.elements?.map((el) => {
+                {pendingElements?.map((el) => {
                   return (
                     <ListItem
                       key={el.selector}

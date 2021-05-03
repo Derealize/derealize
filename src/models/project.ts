@@ -45,6 +45,7 @@ export enum ProjectView {
 export interface ElementState extends ElementPayload {
   selected: boolean
   propertys: Array<Property>
+  pending?: boolean
 }
 
 export interface Project {
@@ -148,7 +149,7 @@ export interface ProjectModel {
   unSelectedAllElements: Action<ProjectModel, string>
   focusElement: Action<ProjectModel, { projectId: string; element: ElementPayload }>
   cleanElements: Action<ProjectModel, string>
-  cleanUnSelectedElements: Action<ProjectModel, string>
+  savedElements: Action<ProjectModel, string>
 
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
@@ -192,7 +193,6 @@ const projectModel: ProjectModel = {
     return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
   }),
   activeElement: computed((state) => {
-    console.log('state.frontProject', state.frontProject)
     return state.frontProject?.elements?.find((el) => el.selected)
   }),
 
@@ -325,10 +325,13 @@ const projectModel: ProjectModel = {
     if (!project) return
     project.elements = []
   }),
-  cleanUnSelectedElements: action((state, projectId) => {
+  savedElements: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.elements = project.elements?.filter((el) => el.selected)
+    project.elements?.forEach((el) => {
+      el.pending = undefined
+    })
   }),
 
   setActiveElementProperty: action((state, property) => {
@@ -336,10 +339,10 @@ const projectModel: ProjectModel = {
     if (!project) return
     const element = project.elements?.find((el) => el.selected)
     if (!element) return
+    element.pending = true
     const target = element.propertys.find((p) => p.id === property.id)
     if (target) {
       Object.assign(target, property)
-      // console.log('target', target)
     } else {
       element.propertys.push(property)
     }
@@ -387,7 +390,7 @@ const projectModel: ProjectModel = {
     })
 
     await sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
-    actions.cleanUnSelectedElements(frontProject.id)
+    actions.savedElements(frontProject.id)
   }),
 
   setFrontProject: action((state, projectId) => {
@@ -563,6 +566,12 @@ const projectModel: ProjectModel = {
       const project = projects.find((p) => p.id === projectId)
       if (!project) return
       actions.cleanElements(project.id)
+    })
+
+    listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
+      if (key === 'CommandOrControl+S') {
+        actions.shiftClassName()
+      }
     })
   }),
 

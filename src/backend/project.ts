@@ -200,7 +200,6 @@ class Project {
 
     this.runningProcess.stdout.on('data', (stdout) => {
       const message = stdout.toString()
-      if (!message) return
       emit(Broadcast.Starting, { projectId: this.projectId, stdout: message } as ProcessPayload)
 
       if (this.status !== ProjectStatus.Running && compiledMessage.some((m) => message.includes(m))) {
@@ -211,7 +210,12 @@ class Project {
     })
 
     this.runningProcess.stderr.on('data', (stderr) => {
-      emit(Broadcast.Starting, { projectId: this.projectId, stderr: stderr.toString() } as ProcessPayload)
+      const message = stderr.toString()
+      emit(Broadcast.Starting, { projectId: this.projectId, stderr: message } as ProcessPayload)
+      if (this.status !== ProjectStatus.Running && compiledMessage.some((m) => message.includes(m))) {
+        this.status = ProjectStatus.Running
+      }
+      this.EmitStatus()
     })
 
     this.runningProcess.on('error', (error) => {
