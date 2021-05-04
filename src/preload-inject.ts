@@ -6,6 +6,7 @@ import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
 import { cssText, sectionText } from './preload-inject-code'
 
 let PROJECTID: string | undefined
+let ISWEAPP = false
 let dataCode = 'data-code'
 let selector: string | undefined
 let activeElement: HTMLElement | null = null
@@ -92,24 +93,26 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   }
 
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
-
   activeElement.setAttribute('data-active', 'true')
-  const viewportReact = activeElement.getBoundingClientRect()
-  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26, supportText))
-  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
-    e.stopPropagation()
-    if (window.confirm('Sure Delete?')) {
-      await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
-    }
-  })
-  activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', async (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.InsertTab, true)
-  })
-  activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', async (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.TextTab, true)
-  })
+
+  if (!ISWEAPP) {
+    const viewportReact = activeElement.getBoundingClientRect()
+    activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26, supportText))
+    activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
+      e.stopPropagation()
+      if (window.confirm('Sure Delete?')) {
+        await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
+      }
+    })
+    activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', async (e) => {
+      e.stopPropagation()
+      ipcRenderer.send(MainIpcChannel.InsertTab, true)
+    })
+    activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', async (e) => {
+      e.stopPropagation()
+      ipcRenderer.send(MainIpcChannel.TextTab, true)
+    })
+  }
 }
 
 const derealizeListener = async (e: Event) => {
@@ -167,6 +170,7 @@ const listenElement = () => {
 
 ipcRenderer.on('setParams', async (event: Event, socketId, projectId, activeSelector, isWeapp) => {
   PROJECTID = projectId
+  ISWEAPP = isWeapp
   dataCode = isWeapp ? 'title' : 'data-code'
   connectSocket(socketId)
   ipcRenderer.send(MainIpcChannel.Flush, PROJECTID)
