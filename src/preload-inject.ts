@@ -35,7 +35,7 @@ const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
 }
 
-const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Promise<void> => {
+const InspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   if (!PROJECTID) return
 
   selector = undefined
@@ -98,57 +98,54 @@ const InspectActiveElement = async (targetOrSelector: string | HTMLElement): Pro
   if (!ISWEAPP) {
     const viewportReact = activeElement.getBoundingClientRect()
     activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26, supportText))
-    activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', async (e) => {
+    activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
       e.stopPropagation()
       if (window.confirm('Sure Delete?')) {
-        await sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
+        sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
       }
     })
-    activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', async (e) => {
+    activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
       e.stopPropagation()
       ipcRenderer.send(MainIpcChannel.InsertTab, true)
     })
-    activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', async (e) => {
+    activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', (e) => {
       e.stopPropagation()
       ipcRenderer.send(MainIpcChannel.TextTab, true)
     })
   }
 }
 
-const derealizeListener = async (e: Event) => {
+const derealizeListener = (e: Event) => {
   if (!e.currentTarget || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
 
-  await InspectActiveElement(e.currentTarget as HTMLElement)
+  InspectActiveElement(e.currentTarget as HTMLElement)
 }
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateClass, async (event: Event, { projectId, className }: ElementPayload) => {
+ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, { projectId, className }: ElementPayload) => {
   if (projectId === PROJECTID && activeElement) {
     // console.log('LiveUpdateClass', className)
     activeElement.className = className
   }
 })
 
-ipcRenderer.on(
-  MainIpcChannel.SelectBreadcrumb,
-  async (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
-    if (projectId !== PROJECTID || !selector) return
-    hoverElement?.removeAttribute('data-hover')
+ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
+  if (projectId !== PROJECTID || !selector) return
+  hoverElement?.removeAttribute('data-hover')
 
-    const sels = selector.split('>')
-    const sel = sels.slice(0, index + 1).join('>')
+  const sels = selector.split('>')
+  const sel = sels.slice(0, index + 1).join('>')
 
-    const target = document.querySelector(sel)
-    if (target) {
-      if (isClick) {
-        InspectActiveElement(target as HTMLElement)
-      } else {
-        hoverElement = target
-        hoverElement.setAttribute('data-hover', 'true')
-      }
+  const target = document.querySelector(sel)
+  if (target) {
+    if (isClick) {
+      InspectActiveElement(target as HTMLElement)
+    } else {
+      hoverElement = target
+      hoverElement.setAttribute('data-hover', 'true')
     }
-  },
-)
+  }
+})
 
 const listenElement = () => {
   document.querySelectorAll(`[${dataCode}]`).forEach((el) => {
@@ -168,7 +165,7 @@ const listenElement = () => {
 //   listenElement()
 // })
 
-ipcRenderer.on('setParams', async (event: Event, socketId, projectId, activeSelector, isWeapp) => {
+ipcRenderer.on('setParams', (event: Event, socketId, projectId, activeSelector, isWeapp) => {
   PROJECTID = projectId
   ISWEAPP = isWeapp
   dataCode = isWeapp ? 'title' : 'data-code'
@@ -180,7 +177,7 @@ ipcRenderer.on('setParams', async (event: Event, socketId, projectId, activeSele
   document.head.appendChild(style)
   listenElement()
 
-  await InspectActiveElement(activeSelector)
+  InspectActiveElement(activeSelector)
 })
 
 contextBridge.exposeInMainWorld('derealize', {
