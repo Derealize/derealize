@@ -68,10 +68,11 @@ const controllesModel: ControllesModel = {
   }),
 
   liveUpdateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const { activeElement } = getStoreState().project
+    const { activeElement, frontProject } = getStoreState().project
     if (!activeElement) return
-    const { selectStateVariant } = getState()
+    if (frontProject?.config?.isWeapp) return
 
+    const { selectStateVariant } = getState()
     let className = ''
     activeElement.propertys.forEach((property) => {
       const { screen, state, list, custom, dark, classname: name } = property
