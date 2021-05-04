@@ -17,7 +17,9 @@ export default merge(baseConfig, {
   mode: 'production',
   target: 'web',
 
-  // development renderer有 babel.config.js: @babel/plugin-transform-runtime 处理core-js
+  // development renderer在dll文件中通过package.json/dependencies引入了regenerator-runtime。且高版本chrome不需要core-js
+  // main.ts 因为是单文件，自己import即可
+  // backend 是node进程，不需要runtime或core-js
   entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
 
   experiments: {

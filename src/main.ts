@@ -327,7 +327,7 @@ const createBackendProcess = () => {
     backendProcess.on('message', (data: { message: string; error?: Error }) => {
       if (data.error) {
         // todo: replace by sentry
-        log.error(data.message, data.error)
+        log.error(`backend: ${data.message}`, data.error)
       } else {
         log.info(`backend: ${data.message}`)
       }

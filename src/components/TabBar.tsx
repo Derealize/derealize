@@ -4,7 +4,7 @@ import cs from 'classnames'
 import { VscThreeBars } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import { Project } from '../models/project'
-import useHotkeys from '../utils/useHotkeys'
+// import useHotkeys from '../utils/useHotkeys'
 import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
@@ -36,16 +36,16 @@ const TabBar = (): JSX.Element => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openedProjects, frontProject])
 
-  useHotkeys(
-    'ctrl+t',
-    () => {
-      chromeTabs.current.addTab({
-        title: 'New Tab',
-        favicon: false,
-      })
-    },
-    [],
-  )
+  // useHotkeys(
+  //   'ctrl+t',
+  //   () => {
+  //     chromeTabs.current.addTab({
+  //       title: 'New Tab',
+  //       favicon: false,
+  //     })
+  //   },
+  //   [],
+  // )
 
   return (
     <header className={css.tabbar}>
