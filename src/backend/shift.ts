@@ -29,20 +29,21 @@ export const ApplyClass = (projectPath: string, payloads: Array<ElementPayload>)
         const { node } = astPath
 
         if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-          if (!node.attributes) {
-            node.attributes = []
+          const onode = node.openingElement
+          if (!onode.attributes) {
+            onode.attributes = []
           }
 
-          const attr = node.attributes.find((a) => namedTypes.JSXAttribute.check(a) && a.name.name === 'className')
+          const attr = onode.attributes.find((n) => namedTypes.JSXAttribute.check(n) && n.name.name === 'className')
 
           if (!attr) {
             if (className) {
-              node.attributes.push(
+              onode.attributes.push(
                 builders.jsxAttribute(builders.jsxIdentifier('className'), builders.stringLiteral(className)),
               )
             }
           } else if (!className) {
-            node.attributes = node.attributes.filter(
+            onode.attributes = onode.attributes.filter(
               (a) => !(namedTypes.JSXAttribute.check(a) && a.name.name === 'className'),
             )
           } else if (namedTypes.JSXAttribute.check(attr)) {
