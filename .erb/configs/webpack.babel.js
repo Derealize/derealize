@@ -7,7 +7,7 @@ import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
-// webpack config 无后缀默认为 'development'
+// config文件无后缀默认为 'development'
 const isProd = process.env.NODE_ENV === 'production'
 
 const sleep = (ms) => {
@@ -208,7 +208,7 @@ export default merge(baseConfig, {
 
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
+      NODE_ENV: JSON.stringify(isProd ? 'production' : 'development'),
     }),
 
     new ReactRefreshWebpackPlugin(),
