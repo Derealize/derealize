@@ -17,9 +17,8 @@ export default merge(baseConfig, {
   mode: 'production',
   target: 'web',
 
-  entry: {
-    renderer: [path.join(__dirname, '../../src/index.tsx')],
-  },
+  // development renderer有 babel.config.js: @babel/plugin-transform-runtime 处理core-js
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
 
   experiments: {
     outputModule: true,
@@ -28,7 +27,7 @@ export default merge(baseConfig, {
   output: {
     path: path.join(__dirname, '../../src/dist'),
     publicPath: './dist/',
-    filename: '[name].prod.js',
+    filename: 'renderer.prod.js',
     library: {
       type: 'module',
     },

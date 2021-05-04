@@ -4,9 +4,9 @@
   "description": "Tailwindcss for Designer",
   "scripts": {
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
-    "start:preload": "cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.preload.babel.js",
-    "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
-    "start:main:ext": "cross-env NODE_ENV=development UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:preload": "webpack --config ./.erb/configs/webpack.dev.preload.babel.js",
+    "start:main": "electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
+    "start:main:ext": "cross-env UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
     "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
     "build": "concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
     "build:preload": "webpack --config ./.erb/configs/webpack.prod.preload.babel.js",

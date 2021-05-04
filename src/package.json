@@ -15,6 +15,6 @@
   },
   "license": "private",
   "dependencies": {
-    "nodegit": "next"
+    "nodegit": "0.28.0-alpha.6"
   }
 }
