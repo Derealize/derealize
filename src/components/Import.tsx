@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
@@ -54,7 +55,12 @@ const ImportProject = (): JSX.Element => {
   const toast = useToast()
   const existsAlertCancelRef = useRef<any>()
   const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
-  const { register, handleSubmit, watch, errors } = useForm()
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm()
 
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
@@ -192,10 +198,9 @@ const ImportProject = (): JSX.Element => {
                 <FormControl id="url" mt={4} isInvalid={!!errors.url}>
                   <FormLabel htmlFor="url">URL</FormLabel>
                   <Input
-                    name="url"
                     type="text"
                     value={url}
-                    ref={register({ required: true, pattern: gitUrlPattern })}
+                    {...register('url', { required: true, pattern: gitUrlPattern })}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                   />
@@ -223,7 +228,7 @@ const ImportProject = (): JSX.Element => {
                   >
                     Select Folder
                   </Button>
-                  <Input name="path" type="hidden" value={path} ref={register({ required: true })} />
+                  <Input type="hidden" value={path} {...register('path', { required: true })} />
                   <Tooltip label={path} aria-label="path">
                     <Text color="gray.500" isTruncated>
                       {path}
@@ -241,10 +246,9 @@ const ImportProject = (): JSX.Element => {
                 <FormControl id="username" mt={4} isInvalid={!!errors.username}>
                   <FormLabel>Username</FormLabel>
                   <Input
-                    name="username"
                     type="text"
                     value={username}
-                    ref={register({ required: true })}
+                    {...register('username', { required: true })}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       setUsername(e.target.value)

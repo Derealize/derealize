@@ -187,7 +187,7 @@ export default merge(baseConfig, {
   plugins: [
     new webpack.EnvironmentPlugin({
       // 字符串值会当作代码片段!
-      NODE_ENV: JSON.stringify('production'),
+      NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
     }),
 

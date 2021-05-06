@@ -208,7 +208,7 @@ export default merge(baseConfig, {
 
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.EnvironmentPlugin({
-      NODE_ENV: JSON.stringify(isProd ? 'production' : 'development'),
+      NODE_ENV: isProd ? 'production' : 'development',
     }),
 
     new ReactRefreshWebpackPlugin(),
