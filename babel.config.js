@@ -56,7 +56,7 @@ module.exports = (api) => {
       require('@babel/plugin-proposal-do-expressions'),
 
       // Stage 2
-      [require('@babel/plugin-proposal-decorators'), { legacy: true }],
+      [require('@babel/plugin-proposal-decorators'), { decoratorsBeforeExport: false }],
       require('@babel/plugin-proposal-function-sent'),
       require('@babel/plugin-proposal-export-namespace-from'),
       require('@babel/plugin-proposal-numeric-separator'),
@@ -65,7 +65,7 @@ module.exports = (api) => {
       // Stage 3
       require('@babel/plugin-syntax-dynamic-import'),
       require('@babel/plugin-syntax-import-meta'),
-      [require('@babel/plugin-proposal-class-properties'), { loose: true }],
+      [require('@babel/plugin-proposal-class-properties')],
       require('@babel/plugin-proposal-json-strings'),
 
       ...(development ? developmentPlugins : productionPlugins),

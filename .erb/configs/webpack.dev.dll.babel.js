@@ -38,7 +38,7 @@ export default merge(baseConfig, {
     }),
 
     new webpack.EnvironmentPlugin({
-      NODE_ENV: JSON.stringify('development'),
+      NODE_ENV: 'development',
       DEBUG_PROD: false,
       START_MINIMIZED: false,
     }),

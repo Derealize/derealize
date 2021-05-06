@@ -13,8 +13,8 @@ import MenuBuilder from './menu'
 import store from './store'
 import { ElementPayload, BreadcrumbPayload, MainIpcChannel, Shortcut, ControllerShortcut } from './interface'
 
-const isDev = process.env.NODE_ENV === 'development'
-const isDebug = isDev || process.env.DEBUG_PROD === 'true'
+const isProd = process.env.NODE_ENV === 'production'
+const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
 let socketId: string
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
@@ -119,7 +119,7 @@ ipcMain.on(
           nodeIntegration: false,
           enableRemoteModule: false,
           contextIsolation: true,
-          preload: path.resolve(__dirname, isDev ? 'preload-inject.js' : 'preload-inject.prod.js'),
+          preload: path.resolve(__dirname, isProd ? 'preload-inject.prod.js' : 'preload-inject.js'),
           allowRunningInsecureContent: true,
         },
       })
@@ -212,7 +212,7 @@ const createWindow = async () => {
       nodeIntegration: false,
       enableRemoteModule: false,
       contextIsolation: true,
-      preload: path.resolve(__dirname, isDev ? 'preload.js' : 'preload.prod.js'),
+      preload: path.resolve(__dirname, isProd ? 'preload.prod.js' : 'preload.js'),
     },
   })
 
@@ -301,8 +301,10 @@ const createBackendWindow = () => {
   })
   backendWin.loadURL(`file://${__dirname}/backend/backend.html`)
   backendWin.webContents.openDevTools()
+  console.log(888)
 
   backendWin.webContents.on('did-finish-load', () => {
+    console.log(999)
     backendWin.webContents.send('set-params', { socketId })
   })
 }
@@ -314,13 +316,13 @@ const createBackendProcess = () => {
       execArgv: ['-r', './.erb/scripts/BabelRegister'],
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
-  } else if (isDev) {
-    createBackendWindow()
-  } else {
+  } else if (isProd) {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
+  } else {
+    createBackendWindow()
   }
 
   if (backendProcess) {
