@@ -70,7 +70,6 @@ const controllesModel: ControllesModel = {
   liveUpdateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
     const { activeElement, frontProject } = getStoreState().project
     if (!activeElement) return
-    if (frontProject?.config?.isWeapp) return
 
     const { selectStateVariant } = getState()
     let className = ''
