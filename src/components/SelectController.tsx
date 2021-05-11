@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { nanoid } from 'nanoid'
 import Select, {
   GroupTypeBase,
@@ -62,22 +62,23 @@ const SelectController: React.FC<Props> = ({
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
 
+  const onOptionEnter = useCallback(
+    async (value: string) => {
+      if (property) {
+        await setProperty({ propertyId: property.id, classname: value })
+      } else {
+        await setProperty({ propertyId: nanoid(), classname: value })
+      }
+
+      cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
+      await updateClassName()
+    },
+    [cleanPropertys, deleteProperty, property, setProperty, updateClassName],
+  )
+
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
     return (
-      <div
-        onMouseEnter={() => {
-          if (!props.data.value && property) {
-            deleteProperty(property.id)
-          } else if (property) {
-            setProperty({ propertyId: property.id, classname: props.data.value })
-          } else {
-            setProperty({ propertyId: nanoid(), classname: props.data.value })
-          }
-
-          cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
-          updateClassName()
-        }}
-      >
+      <div onMouseEnter={() => onOptionEnter(props.data.value)}>
         <components.Option {...props} />
       </div>
     )

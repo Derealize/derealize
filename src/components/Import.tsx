@@ -58,6 +58,15 @@ const {
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
+type Inputs = {
+  url: string
+  path: string
+  username: string
+  password: string
+  displayname: string
+  branch: string
+}
+
 const ImportProject = (): JSX.Element => {
   const toast = useToast()
   const existsAlertCancelRef = useRef<any>()
@@ -66,8 +75,9 @@ const ImportProject = (): JSX.Element => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
-  } = useForm()
+  } = useForm<Inputs>()
 
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
@@ -80,12 +90,12 @@ const ImportProject = (): JSX.Element => {
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
-  const [name, setName] = useState('')
-  const [url, setUrl] = useState('')
-  const [branch, setBranch] = useState('derealize')
-  const [path, setPath] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const watchUrl = watch('url', '')
+  const watchPath = watch('path', '')
+  const watchUsername = watch('username', '')
+  const watchPassword = watch('password', '')
+  const watchBBranch = watch('branch', 'derealize')
+  const watchDisplayname = watch('displayname', '')
   const [showPassword, setShowPassword] = useState(false)
 
   const [importloading, setImportloading] = useState(false)
@@ -105,32 +115,32 @@ const ImportProject = (): JSX.Element => {
   }, [setModalOpen])
 
   useEffect(() => {
-    if (!url) return
+    if (!watchUrl) return
     setInstallOutput([])
 
     try {
-      const parseURL = new URL(url)
-      setUsername(parseURL.username)
-      setPassword(parseURL.password)
+      const parseURL = new URL(watchUrl)
+      setValue('username', parseURL.username)
+      setValue('password', parseURL.password)
 
       const projectName = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
-      setName(projectName)
+      setValue('displayname', projectName)
     } catch (err) {
       toast({
         title: err.message,
         status: 'error',
       })
     }
-  }, [setInstallOutput, toast, url])
+  }, [setInstallOutput, setValue, toast, watchUrl])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
-      if (!url) return
+      if (!watchUrl) return
       try {
-        const parseURL = new URL(url)
+        const parseURL = new URL(watchUrl)
         if (_username) parseURL.username = _username
         if (_password) parseURL.password = _password
-        setUrl(parseURL.href)
+        setValue('url', parseURL.href)
       } catch (err) {
         toast({
           title: err.message,
@@ -138,39 +148,44 @@ const ImportProject = (): JSX.Element => {
         })
       }
     },
-    [toast, url],
+    [setValue, toast, watchUrl],
   )
 
-  const submit = useCallback(async () => {
-    if (projects.map((p) => p.url).includes(url)) {
-      onOpenExistsAlert()
-      return
-    }
-
-    setImportloading(true)
-    const id = nanoid()
-    setProjectId(id)
-    const payload: ImportPayload = { projectId: id, url, path, branch }
-    const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-    if (result) {
-      const newProject: Project = {
-        id,
-        url,
-        path,
-        name,
-        branch,
-        editedTime: dayjs().toString(),
-        status: ProjectStatus.Initialized,
+  const submit = useCallback(
+    async (data) => {
+      console.log('submit', data)
+      const { url, path, displayname: name, branch } = data
+      if (projects.map((p) => p.url).includes(url)) {
+        onOpenExistsAlert()
+        return
       }
-      addProject(newProject)
-      await sendBackIpc(Handler.Install, { projectId: id })
-      newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
-    } else {
-      setImportloading(false)
-      installOutput.push(`import error: ${error}`)
-      setInstallOutput(installOutput)
-    }
-  }, [projects, url, path, branch, onOpenExistsAlert, name, addProject, installOutput])
+
+      setImportloading(true)
+      const id = nanoid()
+      setProjectId(id)
+      const payload: ImportPayload = { projectId: id, url, path, branch }
+      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+      if (result) {
+        const newProject: Project = {
+          id,
+          url,
+          path,
+          name,
+          branch,
+          editedTime: dayjs().toString(),
+          status: ProjectStatus.Initialized,
+        }
+        addProject(newProject)
+        await sendBackIpc(Handler.Install, { projectId: id })
+        newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
+      } else {
+        setImportloading(false)
+        installOutput.push(`import error: ${error}`)
+        setInstallOutput(installOutput)
+      }
+    },
+    [projects, onOpenExistsAlert, addProject, installOutput],
+  )
 
   const open = useCallback(() => {
     if (isReady && projectId) {
@@ -203,6 +218,7 @@ const ImportProject = (): JSX.Element => {
     return () => unlistenBackIpc(Broadcast.Installing)
   }, [installOutput, toast])
 
+  console.log('errors', errors)
   return (
     <>
       <Modal isOpen={modalDisclosure} onClose={setModalClose} scrollBehavior="outside" size="5xl">
@@ -217,10 +233,10 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel htmlFor="url">URL</FormLabel>
                   <Input
                     type="text"
-                    value={url}
+                    value={watchUrl}
                     {...register('url', { required: true, pattern: gitUrlPattern })}
                     disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setValue('url', e.target.value)}
                   />
                   <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
@@ -241,20 +257,20 @@ const ImportProject = (): JSX.Element => {
                     onClick={(e) => {
                       e.stopPropagation()
                       const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
-                      setPath(filePaths[0])
+                      setValue('path', filePaths[0])
                     }}
                   >
                     Select Folder
                   </Button>
-                  <Input type="hidden" value={path} {...register('path', { required: true })} />
-                  <Tooltip label={path} aria-label="path">
+                  <Input type="hidden" value={watchPath} {...register('path', { required: true })} />
+                  <Tooltip label={watchPath} aria-label="path">
                     <Text color="gray.500" isTruncated>
-                      {path}
+                      {watchPath}
                     </Text>
                   </Tooltip>
 
                   {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  {!url && (
+                  {!watchUrl && (
                     <FormHelperText>
                       If the derealize project already exists on the local disk, you can import it directly.
                     </FormHelperText>
@@ -265,11 +281,11 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel>Username</FormLabel>
                   <Input
                     type="text"
-                    value={username}
+                    value={watchUsername}
                     {...register('username', { required: true })}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setUsername(e.target.value)
+                      setValue('username', e.target.value)
                       updateUrl({ _username: e.target.value })
                     }}
                   />
@@ -281,12 +297,12 @@ const ImportProject = (): JSX.Element => {
 
                   <InputGroup size="md">
                     <Input
-                      name="password"
                       type={showPassword ? 'text' : 'password'}
-                      value={password}
+                      value={watchPassword}
+                      {...register('password', { required: true })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        setPassword(e.target.value)
+                        setValue('password', e.target.value)
                         updateUrl({ _password: e.target.value })
                       }}
                     />
@@ -302,10 +318,10 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel>Display Name</FormLabel>
                   <Input
                     type="text"
-                    value={name}
+                    value={watchDisplayname}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setName(e.target.value)
+                      setValue('displayname', e.target.value)
                     }}
                   />
                 </FormControl>
@@ -316,10 +332,10 @@ const ImportProject = (): JSX.Element => {
                     name="branch"
                     type="text"
                     disabled={importloading}
-                    value={branch}
+                    value={watchBBranch}
                     colorScheme="gray"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setBranch(e.target.value)
+                      setValue('branch', e.target.value)
                     }}
                   />
                   <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
