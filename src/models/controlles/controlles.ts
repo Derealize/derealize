@@ -68,7 +68,7 @@ const controllesModel: ControllesModel = {
   }),
 
   liveUpdateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const { activeElement, frontProject } = getStoreState().project
+    const { activeElement } = getStoreState().project
     if (!activeElement) return
 
     const { selectStateVariant } = getState()
