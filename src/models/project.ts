@@ -165,7 +165,7 @@ export interface ProjectModel {
   startProject: Thunk<ProjectModel, string>
   stopProject: Action<ProjectModel, string>
   openProject: Thunk<ProjectModel, string>
-  closeProject: Thunk<ProjectModel, string>
+  closeProject: Thunk<ProjectModel, string | undefined>
 
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel, void, void, StoreModel>
@@ -442,9 +442,13 @@ const projectModel: ProjectModel = {
     await actions.startProject(project.id)
   }),
   closeProject: thunk((actions, projectId, { getState }) => {
-    const { projects, openedProjects } = getState()
-    const project = projects.find((p) => p.id === projectId)
-    if (!project) throw new Error('closeProject null')
+    const { projects, openedProjects, frontProject } = getState()
+
+    const project = projectId ? projects.find((p) => p.id === projectId) : frontProject
+    if (!project) {
+      throw new Error('closeProject null')
+    }
+
     project.isOpened = false
     project.elements = []
 
@@ -575,9 +579,13 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
-      if (key === 'CommandOrControl+S') {
+      if (key === 'Save') {
         actions.shiftClassName()
       }
+    })
+
+    listenMainIpc(MainIpcChannel.CloseFrontProject, (event: IpcRendererEvent) => {
+      actions.closeProject()
     })
   }),
 
@@ -588,13 +596,16 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.BlurElement)
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.Shortcut)
+    unlistenMainIpc(MainIpcChannel.CloseFrontProject)
   }),
 
   modalDisclosure: false,
   setModalOpen: action((state) => {
+    mainFrontView(undefined)
     state.modalDisclosure = true
   }),
   setModalClose: action((state) => {
+    mainFrontView(state.frontProject)
     state.modalDisclosure = false
   }),
 

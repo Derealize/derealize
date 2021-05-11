@@ -71,7 +71,7 @@ const Controllers: React.FC = (): JSX.Element => {
     return () => {
       unlistenMainIpc(MainIpcChannel.InsertTab)
       unlistenMainIpc(MainIpcChannel.TextTab)
-      unlistenMainIpc(MainIpcChannel.Shortcut)
+      unlistenMainIpc(MainIpcChannel.ControllerShortcut)
     }
   }, [element, tabIndex])
 

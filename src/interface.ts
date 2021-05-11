@@ -54,11 +54,12 @@ export interface JitTiggerPayload {
 export enum MainIpcChannel {
   Shortcut = 'Shortcut',
   ControllerShortcut = 'ControllerShortcut',
+  OpenImport = 'OpenImport',
   GetStore = 'GetStore',
   SetStore = 'SetStore',
   Controls = 'Controls',
   MainMenu = 'MainMenu',
-  ProjectMenu = 'ProjectMenu',
+  CloseFrontProject = 'CloseFrontProject',
   PagesMenu = 'PagesMenu',
   SelectDirs = 'SelectDirs',
   OpenDirs = 'OpenDirs',
@@ -75,6 +76,15 @@ export enum MainIpcChannel {
   TextTab = 'TextTab',
 }
 
-export const Shortcut = ['CommandOrControl+S']
-
-export const ControllerShortcut = ['Alt+1', 'Alt+2', 'Alt+3', 'Alt+4', 'Alt+5', 'Alt+6', 'Alt+7', 'Alt+8', 'Alt+9']
+export const ControllerShortcut = [
+  { key: 'Alt+1', label: 'Current Panel' },
+  { key: 'Alt+2', label: 'Layout Panel' },
+  { key: 'Alt+3', label: 'Spacing Panel' },
+  { key: 'Alt+4', label: 'Border Panel' },
+  { key: 'Alt+5', label: 'Typography Panel' },
+  { key: 'Alt+6', label: 'Background Panel' },
+  { key: 'Alt+7', label: 'Effects Panel' },
+  { key: 'Alt+8', label: 'Components Panel' },
+  { key: 'Alt+9', label: 'Advanced Panel' },
+  { key: 'Alt+0', label: 'Add Panel' },
+]
