@@ -5,13 +5,13 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, globalShortcut, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
+import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, BreadcrumbPayload, MainIpcChannel, Shortcut, ControllerShortcut } from './interface'
+import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
@@ -72,7 +72,7 @@ const installExtensions = async () => {
 let menuBuilder: MenuBuilder | null = null
 let mainWindow: BrowserWindow | null = null
 let mainMenu: Menu | null = null
-let projectMenu: Menu | undefined
+// let projectMenu: Menu | undefined
 let pagesMenu: Menu | undefined
 
 const topbarHeight = 42
@@ -141,7 +141,7 @@ ipcMain.on(
       })
     }
 
-    projectMenu = menuBuilder?.buildProjectMenu(projectId)
+    // projectMenu = menuBuilder?.buildProjectMenu(projectId)
     pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
   },
 )
@@ -208,6 +208,7 @@ const createWindow = async () => {
     height: 800,
     icon: getAssetPath('icon.png'),
     frame: false,
+    // autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
@@ -226,7 +227,7 @@ const createWindow = async () => {
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined')
+      throw new Error('mainWindow is not defined')
     }
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize()
@@ -271,9 +272,9 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll()
-})
+// app.on('will-quit', () => {
+//   globalShortcut.unregisterAll()
+// })
 
 app.on('activate', async () => {
   // On macOS it's common to re-create a window in the app when the
@@ -301,10 +302,8 @@ const createBackendWindow = () => {
   })
   backendWin.loadURL(`file://${__dirname}/backend/backend.html`)
   backendWin.webContents.openDevTools()
-  console.log(888)
 
   backendWin.webContents.on('did-finish-load', () => {
-    console.log(999)
     backendWin.webContents.send('set-params', { socketId })
   })
 }
@@ -345,18 +344,6 @@ app
   .then(async () => {
     console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
-
-    Shortcut.forEach((key) => {
-      globalShortcut.register(key, () => {
-        mainWindow?.webContents.send(MainIpcChannel.Shortcut, key)
-      })
-    })
-
-    ControllerShortcut.forEach((key) => {
-      globalShortcut.register(key, () => {
-        mainWindow?.webContents.send(MainIpcChannel.ControllerShortcut, key)
-      })
-    })
 
     socketId = await findOpenSocket()
     createBackendProcess()
@@ -401,11 +388,11 @@ ipcMain.on(MainIpcChannel.MainMenu, () => {
   mainMenu.popup({ window: mainWindow, x: 228, y: mainWindow.isMaximized() ? 34 : 38 })
 })
 
-ipcMain.on(MainIpcChannel.ProjectMenu, () => {
-  if (!mainWindow || !projectMenu) return
-  const rectangle = mainWindow.getBounds()
-  projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: mainWindow.isMaximized() ? 76 : 80 })
-})
+// ipcMain.on(MainIpcChannel.ProjectMenu, () => {
+//   if (!mainWindow || !projectMenu) return
+//   const rectangle = mainWindow.getBounds()
+//   projectMenu.popup({ window: mainWindow, x: rectangle.width - 38, y: mainWindow.isMaximized() ? 76 : 80 })
+// })
 
 ipcMain.on(MainIpcChannel.PagesMenu, () => {
   if (!mainWindow || !pagesMenu) return

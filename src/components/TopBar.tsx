@@ -224,11 +224,11 @@ const TopBar: React.FC = (): JSX.Element => {
             }}
           />
         </Tooltip>
-        <BarIconButton
+        {/* <BarIconButton
           aria-label="Project Menu"
           icon={<CgMenu />}
           onClick={() => sendMainIpc(MainIpcChannel.ProjectMenu)}
-        />
+        /> */}
       </Flex>
     </Flex>
   )

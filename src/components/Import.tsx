@@ -47,7 +47,14 @@ import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc } = window.derealize
+const {
+  sendBackIpc,
+  sendMainIpcSync,
+  listenBackIpc,
+  unlistenBackIpc,
+  listenMainIpc,
+  unlistenMainIpc,
+} = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -67,6 +74,7 @@ const ImportProject = (): JSX.Element => {
 
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
   const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
+  const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
@@ -85,6 +93,16 @@ const ImportProject = (): JSX.Element => {
 
   const [projectId, setProjectId] = useState('')
   const isReady = useStoreState<boolean | undefined>((state) => state.project.isReady(projectId))
+
+  useEffect(() => {
+    listenMainIpc(MainIpcChannel.OpenImport, () => {
+      setModalOpen()
+    })
+
+    return () => {
+      unlistenMainIpc(MainIpcChannel.OpenImport)
+    }
+  }, [setModalOpen])
 
   useEffect(() => {
     if (!url) return
