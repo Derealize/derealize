@@ -57,6 +57,7 @@ export interface Project {
   branch: string
   isOpened?: boolean
   isFront?: boolean
+  isEditing?: boolean
   status?: ProjectStatus
   tailwindConfig?: TailwindConfig
   tailwindVersion?: string
@@ -134,6 +135,9 @@ export interface ProjectModel {
   projects: Array<Project>
   setProjects: Action<ProjectModel, Array<Project>>
 
+  editingProject: Computed<ProjectModel, Project | undefined>
+  setEditingProject: Action<ProjectModel, string | null>
+
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
   isReady: Computed<ProjectModel, (id: string) => boolean | undefined>
@@ -171,8 +175,10 @@ export interface ProjectModel {
   listen: Thunk<ProjectModel, void, void, StoreModel>
   unlisten: Action<ProjectModel>
 
-  modalDisclosure: boolean
-  toggleModal: Action<ProjectModel, boolean | undefined>
+  importModalDisclosure: boolean
+  toggleImportModal: Action<ProjectModel, boolean | undefined>
+  editModalDisclosure: boolean
+  toggleEditModal: Action<ProjectModel, boolean | undefined>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -186,6 +192,20 @@ const projectModel: ProjectModel = {
   setProjects: action((state, projects) => {
     state.projects = [...projects]
     storeProject(state.projects)
+  }),
+
+  editingProject: computed((state) => {
+    return state.projects.find((p) => p.isEditing)
+  }),
+  setEditingProject: action((state, projectId) => {
+    state.projects.forEach((p) => {
+      p.isEditing = false
+    })
+
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.isEditing = true
+    }
   }),
 
   openedProjects: computed((state) => {
@@ -494,7 +514,7 @@ const projectModel: ProjectModel = {
     })
   }),
 
-  listen: thunk(async (actions, none, { getState, getStoreActions }) => {
+  listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
 
     listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
@@ -598,14 +618,25 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
   }),
 
-  modalDisclosure: false,
-  toggleModal: action((state, open) => {
-    if (open === false || state.modalDisclosure) {
+  importModalDisclosure: false,
+  toggleImportModal: action((state, open) => {
+    if (open === false || state.importModalDisclosure) {
       mainFrontView(state.frontProject)
-      state.modalDisclosure = false
+      state.importModalDisclosure = false
     } else {
       mainFrontView(undefined)
-      state.modalDisclosure = true
+      state.importModalDisclosure = true
+    }
+  }),
+
+  editModalDisclosure: false,
+  toggleEditModal: action((state, open) => {
+    if (open === false || state.editModalDisclosure) {
+      mainFrontView(state.frontProject)
+      state.editModalDisclosure = false
+    } else {
+      mainFrontView(undefined)
+      state.editModalDisclosure = true
     }
   }),
 

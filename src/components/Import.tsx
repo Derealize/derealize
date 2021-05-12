@@ -82,8 +82,8 @@ const ImportProject = (): JSX.Element => {
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
-  const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
-  const toggleModal = useStoreActions((actions) => actions.project.toggleModal)
+  const modalDisclosure = useStoreState<boolean>((state) => state.project.importModalDisclosure)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleImportModal)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
@@ -306,6 +306,7 @@ const ImportProject = (): JSX.Element => {
                 <FormControl id="displayname" mt={4}>
                   <FormLabel>Display Name</FormLabel>
                   <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
+                  {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
 
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
