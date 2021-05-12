@@ -29,8 +29,8 @@ const Container: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.controlles.deleteProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
+  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
 
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
@@ -53,7 +53,7 @@ const Container: React.FC = (): JSX.Element => {
         } else if (!e.target.checked && property) {
           deleteProperty(property.id)
         }
-        updateClassName()
+        shiftClassName()
       }}
     >
       Container

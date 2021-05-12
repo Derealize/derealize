@@ -245,6 +245,12 @@ const projectModel: ProjectModel = {
     state.projects[index] = { ...project }
     storeProject(state.projects)
   }),
+  // setProject: action((state, payload) => {
+  //   const project = state.projects.find((p) => p.id === payload.id)
+  //   if (!project) throw new Error("project don't exist")
+  //   Object.assign(project, payload)
+  //   storeProject(state.projects)
+  // }),
 
   pushRunningOutput: action((state, { projectId, output }) => {
     const project = state.projects.find((p) => p.id === projectId)
