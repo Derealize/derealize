@@ -35,7 +35,7 @@ const { sendBackIpc, sendMainIpc } = window.derealize
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
-  const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleModal)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
 
@@ -53,7 +53,7 @@ const Home = (): JSX.Element => {
         <TabPanels>
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} my={6} justifyContent="center">
-              <Button onClick={() => setModalOpen()} leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
+              <Button onClick={() => toggleModal(true)} leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
                 Import
               </Button>
             </HStack>

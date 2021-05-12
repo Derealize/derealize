@@ -172,8 +172,7 @@ export interface ProjectModel {
   unlisten: Action<ProjectModel>
 
   modalDisclosure: boolean
-  setModalOpen: Action<ProjectModel>
-  setModalClose: Action<ProjectModel>
+  toggleModal: Action<ProjectModel, boolean | undefined>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -606,13 +605,14 @@ const projectModel: ProjectModel = {
   }),
 
   modalDisclosure: false,
-  setModalOpen: action((state) => {
-    mainFrontView(undefined)
-    state.modalDisclosure = true
-  }),
-  setModalClose: action((state) => {
-    mainFrontView(state.frontProject)
-    state.modalDisclosure = false
+  toggleModal: action((state, open) => {
+    if (open === false || state.modalDisclosure) {
+      mainFrontView(state.frontProject)
+      state.modalDisclosure = false
+    } else {
+      mainFrontView(undefined)
+      state.modalDisclosure = true
+    }
   }),
 
   historys: [],

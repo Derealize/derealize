@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useRef, ChangeEvent } from 'react'
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
@@ -83,19 +83,14 @@ const ImportProject = (): JSX.Element => {
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
   const modalDisclosure = useStoreState<boolean>((state) => state.project.modalDisclosure)
-  const setModalClose = useStoreActions((actions) => actions.project.setModalClose)
-  const setModalOpen = useStoreActions((actions) => actions.project.setModalOpen)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleModal)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
-  const watchUrl = watch('url', '')
-  const watchPath = watch('path', '')
-  const watchUsername = watch('username', '')
-  const watchPassword = watch('password', '')
-  const watchBBranch = watch('branch', 'derealize')
-  const watchDisplayname = watch('displayname', '')
+  const watchUrl = watch('url')
+  const watchPath = watch('path')
   const [showPassword, setShowPassword] = useState(false)
 
   const [importloading, setImportloading] = useState(false)
@@ -106,13 +101,13 @@ const ImportProject = (): JSX.Element => {
 
   useEffect(() => {
     listenMainIpc(MainIpcChannel.OpenImport, () => {
-      setModalOpen()
+      toggleModal(true)
     })
 
     return () => {
       unlistenMainIpc(MainIpcChannel.OpenImport)
     }
-  }, [setModalOpen])
+  }, [toggleModal])
 
   useEffect(() => {
     if (!watchUrl) return
@@ -153,7 +148,6 @@ const ImportProject = (): JSX.Element => {
 
   const submit = useCallback(
     async (data) => {
-      console.log('submit', data)
       const { url, path, displayname: name, branch } = data
       if (projects.map((p) => p.url).includes(url)) {
         onOpenExistsAlert()
@@ -189,10 +183,10 @@ const ImportProject = (): JSX.Element => {
 
   const open = useCallback(() => {
     if (isReady && projectId) {
-      setModalClose()
+      toggleModal(false)
       openProject(projectId)
     }
-  }, [openProject, projectId, isReady, setModalClose])
+  }, [openProject, projectId, isReady, toggleModal])
 
   useEffect(() => {
     listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
@@ -218,10 +212,9 @@ const ImportProject = (): JSX.Element => {
     return () => unlistenBackIpc(Broadcast.Installing)
   }, [installOutput, toast])
 
-  console.log('errors', errors)
   return (
     <>
-      <Modal isOpen={modalDisclosure} onClose={setModalClose} scrollBehavior="outside" size="5xl">
+      <Modal isOpen={modalDisclosure} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign="center">Import Project</ModalHeader>
@@ -233,10 +226,8 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel htmlFor="url">URL</FormLabel>
                   <Input
                     type="text"
-                    value={watchUrl}
                     {...register('url', { required: true, pattern: gitUrlPattern })}
                     disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setValue('url', e.target.value)}
                   />
                   <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
@@ -262,7 +253,7 @@ const ImportProject = (): JSX.Element => {
                   >
                     Select Folder
                   </Button>
-                  <Input type="hidden" value={watchPath} {...register('path', { required: true })} />
+                  <Input type="hidden" {...register('path', { required: true })} />
                   <Tooltip label={watchPath} aria-label="path">
                     <Text color="gray.500" isTruncated>
                       {watchPath}
@@ -281,11 +272,10 @@ const ImportProject = (): JSX.Element => {
                   <FormLabel>Username</FormLabel>
                   <Input
                     type="text"
-                    value={watchUsername}
                     {...register('username', { required: true })}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setValue('username', e.target.value)
+                      // setValue('username', e.target.value)
                       updateUrl({ _username: e.target.value })
                     }}
                   />
@@ -298,11 +288,10 @@ const ImportProject = (): JSX.Element => {
                   <InputGroup size="md">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      value={watchPassword}
                       {...register('password', { required: true })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        setValue('password', e.target.value)
+                        // setValue('password', e.target.value)
                         updateUrl({ _password: e.target.value })
                       }}
                     />
@@ -316,27 +305,17 @@ const ImportProject = (): JSX.Element => {
 
                 <FormControl id="displayname" mt={4}>
                   <FormLabel>Display Name</FormLabel>
-                  <Input
-                    type="text"
-                    value={watchDisplayname}
-                    disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setValue('displayname', e.target.value)
-                    }}
-                  />
+                  <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
                 </FormControl>
 
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
                   <FormLabel>Git Branch</FormLabel>
                   <Input
-                    name="branch"
+                    {...register('branch', { required: true })}
                     type="text"
                     disabled={importloading}
-                    value={watchBBranch}
+                    defaultValue="derealize"
                     colorScheme="gray"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setValue('branch', e.target.value)
-                    }}
                   />
                   <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
                   {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
@@ -360,7 +339,7 @@ const ImportProject = (): JSX.Element => {
           <ModalFooter justifyContent="center">
             {isReady && (
               <ButtonGroup variant="outline" size="lg" spacing={6}>
-                <Button colorScheme="gray" onClick={() => setModalClose()}>
+                <Button colorScheme="gray" onClick={() => toggleModal(false)}>
                   Close Dialog
                 </Button>
                 <Button colorScheme="teal" onClick={open}>
