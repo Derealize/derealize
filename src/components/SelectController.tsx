@@ -46,7 +46,7 @@ type Props = {
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
   onMouseEnter?: boolean
-  cleanPropertys?: Array<Property | undefined>
+  cleanPropertys?: Array<Property>
   // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
@@ -60,20 +60,19 @@ const SelectController: React.FC<Props> = ({
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
+  const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
 
   const onOptionEnter = useCallback(
     async (value: string) => {
-      if (property) {
-        await setProperty({ propertyId: property.id, classname: value })
-      } else {
-        await setProperty({ propertyId: nanoid(), classname: value })
-      }
-
-      cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
-      await updateClassName()
+      if (!project) return
+      await liveUpdateClassName({
+        projectId: project.id,
+        propertyId: property?.id || nanoid(),
+        classname: value,
+        cleanPropertyIds: cleanPropertys?.map((p) => p.id) || [],
+      })
     },
-    [cleanPropertys, deleteProperty, property, setProperty, updateClassName],
+    [project, cleanPropertys, property, liveUpdateClassName],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
@@ -154,7 +153,6 @@ const SelectController: React.FC<Props> = ({
         }
 
         cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
-        updateClassName(true)
       }}
     />
   )

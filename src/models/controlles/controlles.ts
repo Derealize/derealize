@@ -1,6 +1,5 @@
 import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
 import type { StoreModel } from '../index'
-import { Handler } from '../../backend/backend.interface'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import { StateVariants, StateVariantsType, ListVariants, ListVariantsType } from '../project'
 import type { PreloadWindow } from '../../preload'
@@ -29,7 +28,12 @@ export interface AlreadyVariants {
 
 export interface ControllesModel {
   setProperty: Thunk<ControllesModel, { propertyId: string; classname: string }, void, StoreModel>
-  liveUpdateClassName: Thunk<ControllesModel, boolean | undefined, void, StoreModel>
+  liveUpdateClassName: Thunk<
+    ControllesModel,
+    { projectId: string; propertyId: string; classname: string; cleanPropertyIds: Array<string> },
+    void,
+    StoreModel
+  >
 
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
@@ -67,39 +71,58 @@ const controllesModel: ControllesModel = {
     getStoreActions().project.setActiveElementProperty(property)
   }),
 
-  liveUpdateClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const { activeElement } = getStoreState().project
-    if (!activeElement) return
+  liveUpdateClassName: thunk(
+    async (actions, { projectId, propertyId, classname, cleanPropertyIds }, { getState, getStoreState }) => {
+      const { activeElement } = getStoreState().project
+      if (!activeElement) return
+      const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
 
-    const { selectStateVariant } = getState()
-    let className = ''
-    activeElement.propertys.forEach((property) => {
-      const { screen, state, list, custom, dark, classname: name } = property
-      if (!name) return
+      const gProperty = {
+        id: propertyId,
+        classname,
+        screen: selectScreenVariant,
+        state: selectStateVariant,
+        list: selectListVariant,
+        custom: selectCustomVariant,
+        dark: selectDark ? true : undefined,
+      }
 
-      let variants = ''
-      if (screen) {
-        variants += `${screen}:`
+      const target = activeElement.propertys.find((p) => p.id === propertyId)
+      if (target) {
+        Object.assign(target, gProperty)
+      } else {
+        activeElement.propertys.push(gProperty)
       }
-      if (state && state !== selectStateVariant) {
-        variants += `${state}:`
-      }
-      if (list) {
-        variants += `${list}:`
-      }
-      if (custom) {
-        variants += `${custom}:`
-      }
-      if (dark) {
-        variants += `dark:`
-      }
-      className += `${variants + name} `
-    })
 
-    const { selected, propertys, ...payload } = activeElement
-    payload.className = className
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, payload as any)
-  }),
+      activeElement.propertys = activeElement.propertys.filter((p) => !cleanPropertyIds.includes(p.id))
+
+      let className = ''
+      activeElement.propertys.forEach((property) => {
+        const { screen, state, list, custom, dark, classname: name } = property
+        if (!name) return
+
+        let variants = ''
+        if (screen) {
+          variants += `${screen}:`
+        }
+        if (state && state !== selectStateVariant) {
+          variants += `${state}:`
+        }
+        if (list) {
+          variants += `${list}:`
+        }
+        if (custom) {
+          variants += `${custom}:`
+        }
+        if (dark) {
+          variants += `dark:`
+        }
+        className += `${variants + name} `
+      })
+
+      sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId, className } as any)
+    },
+  ),
 
   selectScreenVariant: undefined,
   setSelectScreenVariant: action((state, payload) => {
