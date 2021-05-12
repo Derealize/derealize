@@ -17,7 +17,7 @@ const Display: React.FC = (): JSX.Element => {
 
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
-  const updateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
+  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
 
   if (already && !property) return <></>
 
@@ -38,7 +38,7 @@ const Display: React.FC = (): JSX.Element => {
             } else if (property) {
               deleteProperty(property.id)
             }
-            updateClassName(true)
+            shiftClassName()
           }}
           offColor={theme.colors.gray['300']}
           onColor={theme.colors.gray['300']}
@@ -69,7 +69,7 @@ const Display: React.FC = (): JSX.Element => {
             } else if (property) {
               deleteProperty(property.id)
             }
-            updateClassName(true)
+            shiftClassName()
           }}
           offColor={theme.colors.gray['300']}
           onColor={theme.colors.gray['300']}
