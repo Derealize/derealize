@@ -4,6 +4,7 @@ import type { Project } from './models/project'
 import Home from './Home'
 import TabBar from './components/TabBar'
 import ImportProject from './components/Import'
+import EditProject from './components/Edit'
 import ProjectView from './Project'
 import style from './App.module.scss'
 
@@ -33,6 +34,7 @@ const App = (): JSX.Element => {
       <TabBar />
       <div className={style.main}>{project ? <ProjectView /> : <Home />}</div>
       <ImportProject />
+      <EditProject />
     </div>
   )
 }
