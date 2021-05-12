@@ -36,7 +36,6 @@ const { sendBackIpc, sendMainIpc } = window.derealize
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const toggleImportModal = useStoreActions((actions) => actions.project.toggleImportModal)
-  const toggleEditModal = useStoreActions((actions) => actions.project.toggleEditModal)
   const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
@@ -116,7 +115,6 @@ const Home = (): JSX.Element => {
                             onClick={(e) => {
                               e.stopPropagation()
                               setEditingProject(p.id)
-                              toggleEditModal(true)
                             }}
                           >
                             Edit
