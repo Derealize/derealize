@@ -347,13 +347,7 @@ const projectModel: ProjectModel = {
     element.pending = true
     const target = element.propertys.find((p) => p.id === property.id)
     if (target) {
-      target.classname = property.classname
-      target.screen = property.screen
-      target.state = property.state
-      target.list = property.list
-      target.custom = property.custom
-      target.dark = property.dark
-      // Object.assign(target, property)
+      Object.assign(target, property)
     } else {
       element.propertys.push(property)
     }

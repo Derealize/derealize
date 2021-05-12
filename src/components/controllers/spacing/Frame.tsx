@@ -139,25 +139,29 @@ const Frame: React.FC = (): JSX.Element => {
     target,
   ])
 
-  const cleanPropertys = useMemo<Array<Property | undefined>>(() => {
+  const cleanPropertys = useMemo<Array<Property>>(() => {
     switch (target) {
       case Target.m:
-        return [myProperty, mxProperty, mtProperty, mbProperty, mlProperty, mrProperty]
+        return [myProperty, mxProperty, mtProperty, mbProperty, mlProperty, mrProperty].filter(
+          Boolean,
+        ) as Array<Property>
       case Target.my:
-        return [mtProperty, mbProperty]
+        return [mtProperty, mbProperty].filter(Boolean) as Array<Property>
       case Target.mx:
-        return [mlProperty, mrProperty]
+        return [mlProperty, mrProperty].filter(Boolean) as Array<Property>
       case Target.mt:
       case Target.mb:
       case Target.ml:
       case Target.mr:
         return []
       case Target.p:
-        return [pyProperty, pxProperty, ptProperty, pbProperty, plProperty, prProperty]
+        return [pyProperty, pxProperty, ptProperty, pbProperty, plProperty, prProperty].filter(
+          Boolean,
+        ) as Array<Property>
       case Target.py:
-        return [ptProperty, pbProperty]
+        return [ptProperty, pbProperty].filter(Boolean) as Array<Property>
       case Target.px:
-        return [plProperty, prProperty]
+        return [plProperty, prProperty].filter(Boolean) as Array<Property>
       case Target.pt:
       case Target.pl:
       case Target.pr:
