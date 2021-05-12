@@ -177,8 +177,6 @@ export interface ProjectModel {
 
   importModalDisclosure: boolean
   toggleImportModal: Action<ProjectModel, boolean | undefined>
-  editModalDisclosure: boolean
-  toggleEditModal: Action<ProjectModel, boolean | undefined>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -205,6 +203,9 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isEditing = true
+      mainFrontView(undefined)
+    } else {
+      mainFrontView(state.frontProject)
     }
   }),
 
@@ -238,10 +239,10 @@ const projectModel: ProjectModel = {
     actions.closeProject(projectId)
     actions.removeProject(projectId)
   }),
-  setProject: action((state, payload) => {
-    const project = state.projects.find((p) => p.id === payload.id)
-    if (!project) throw new Error("project don't exist")
-    Object.assign(project, payload)
+  setProject: action((state, project) => {
+    const index = state.projects.findIndex((p) => p.id === project.id)
+    if (index < 0) throw new Error("project don't exist")
+    state.projects[index] = { ...project }
     storeProject(state.projects)
   }),
 
@@ -626,17 +627,6 @@ const projectModel: ProjectModel = {
     } else {
       mainFrontView(undefined)
       state.importModalDisclosure = true
-    }
-  }),
-
-  editModalDisclosure: false,
-  toggleEditModal: action((state, open) => {
-    if (open === false || state.editModalDisclosure) {
-      mainFrontView(state.frontProject)
-      state.editModalDisclosure = false
-    } else {
-      mainFrontView(undefined)
-      state.editModalDisclosure = true
     }
   }),
 

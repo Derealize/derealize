@@ -33,10 +33,8 @@ const EditProject = (): JSX.Element => {
     formState: { errors },
   } = useForm<Inputs>()
 
-  const modalDisclosure = useStoreState<boolean>((state) => state.project.editModalDisclosure)
-  const toggleModal = useStoreActions((actions) => actions.project.toggleEditModal)
-
   const project = useStoreState<Project | undefined>((state) => state.project.editingProject)
+  const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
   const setProject = useStoreActions((actions) => actions.project.setProject)
 
   const submit = useCallback(
@@ -46,14 +44,14 @@ const EditProject = (): JSX.Element => {
       project.branch = data.branch
       project.isEditing = false
       setProject(project)
-      toggleModal(false)
+      setEditingProject(null)
     },
-    [project, setProject, toggleModal],
+    [project, setEditingProject, setProject],
   )
 
   return (
     <>
-      <Modal isOpen={modalDisclosure} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
+      <Modal isOpen={!!project} onClose={() => setEditingProject(null)} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign="center">Import Project</ModalHeader>
