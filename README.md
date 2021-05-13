@@ -5,8 +5,10 @@ npm install --global --production windows-build-tools
 
 用 yarn，不要挂代理
 <https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
-rm -rf node_modules
 rm yarn.lock src/yarn.lock
+rm -rf node_modules
+Remove-Item -Recurse -Force .\node_modules
+Remove-Item -Recurse -Force .\src\node_modules
 yarn cache clean
 yarn
 yarn electron-rebuild

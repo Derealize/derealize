@@ -23,15 +23,8 @@ import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const {
-  sendBackIpc,
-  listenBackIpc,
-  unlistenBackIpc,
-  listenMainIpc,
-  unlistenMainIpc,
-  sendMainIpc,
-  sendMainIpcSync,
-} = window.derealize
+const { sendBackIpc, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc, sendMainIpc, sendMainIpcSync } =
+  window.derealize
 
 // export type Element = Omit<ElementPayload, 'projectId'>
 
@@ -500,25 +493,27 @@ const projectModel: ProjectModel = {
 
   loadStore: thunk(async (actions) => {
     const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
-    if (projects) {
-      actions.setProjects(projects)
-    }
+    if (!projects) return
 
-    projects?.forEach(async (project) => {
-      const { id: projectId, url, path, branch } = project
+    await Promise.all(
+      projects.map(async (project) => {
+        const { id: projectId, url, path, branch } = project
 
-      const payload: ImportPayload = { projectId, url, path, branch }
-      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-      if (result) {
-        sendBackIpc(Handler.Install, { projectId })
-        project.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId })) as TailwindConfig
-      } else {
-        toast({
-          title: `Import error: ${error}`,
-          status: 'error',
-        })
-      }
-    })
+        const payload: ImportPayload = { projectId, url, path, branch }
+        const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+        if (result) {
+          sendBackIpc(Handler.Install, { projectId })
+          project.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId })) as TailwindConfig
+        } else {
+          toast({
+            title: `Import error: ${error}`,
+            status: 'error',
+          })
+        }
+      }),
+    )
+
+    actions.setProjects(projects)
   }),
 
   listen: thunk(async (actions, none, { getState }) => {
