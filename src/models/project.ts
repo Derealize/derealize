@@ -5,7 +5,7 @@ import { Action, action, Thunk, thunk, Computed, computed, ThunkOn, thunkOn } fr
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
 import type {
   ProjectConfig,
@@ -137,7 +137,6 @@ export interface ProjectModel {
   activeElement: Computed<ProjectModel, ElementState | undefined>
 
   addProject: Action<ProjectModel, Project>
-  setProject: Action<ProjectModel, Project>
   removeProject: Action<ProjectModel, string>
   removeProjectThunk: Thunk<ProjectModel, string>
 
@@ -161,9 +160,12 @@ export interface ProjectModel {
   setFrontProject: Action<ProjectModel, string | null>
   startProject: Thunk<ProjectModel, string>
   stopProject: Action<ProjectModel, string>
+
+  toggleProject: Action<ProjectModel, { projectId: string; open: boolean }>
   openProject: Thunk<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string | undefined>
 
+  setProjectStatue: Action<ProjectModel, StatusPayload>
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel, void, void, StoreModel>
   unlisten: Action<ProjectModel>
@@ -232,18 +234,6 @@ const projectModel: ProjectModel = {
     actions.closeProject(projectId)
     actions.removeProject(projectId)
   }),
-  setProject: action((state, project) => {
-    const index = state.projects.findIndex((p) => p.id === project.id)
-    if (index < 0) throw new Error("project don't exist")
-    state.projects[index] = { ...project }
-    storeProject(state.projects)
-  }),
-  // setProject: action((state, payload) => {
-  //   const project = state.projects.find((p) => p.id === payload.id)
-  //   if (!project) throw new Error("project don't exist")
-  //   Object.assign(project, payload)
-  //   storeProject(state.projects)
-  // }),
 
   pushRunningOutput: action((state, { projectId, output }) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -282,8 +272,8 @@ const projectModel: ProjectModel = {
   customVariants: computed((state) => {
     if (!state.frontProject?.tailwindConfig) return []
     let result: Array<string> = []
-    for (const [, variants] of Object.entries(state.frontProject.tailwindConfig.variants)) {
-      const leftVariants = variants.filter(
+    for (const [name, variants] of Object.entries(state.frontProject.tailwindConfig.variants)) {
+      const leftVariants = (variants as Variant[]).filter(
         (v) =>
           v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v as any) && !ListVariants.includes(v as any),
       )
@@ -453,10 +443,19 @@ const projectModel: ProjectModel = {
       sendBackIpc(Handler.Stop, { projectId })
     }
   }),
+
+  toggleProject: action((state, { projectId, open }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.isOpened = open
+    if (!open) {
+      project.elements = []
+    }
+  }),
   openProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
-    project.isOpened = true
+    actions.toggleProject({ projectId, open: true })
     await actions.setFrontProject(project.id)
     await actions.startProject(project.id)
   }),
@@ -468,11 +467,11 @@ const projectModel: ProjectModel = {
       throw new Error('closeProject null')
     }
 
-    project.isOpened = false
-    project.elements = []
+    actions.toggleProject({ projectId: project.id, open: false })
+    sendBackIpc(Handler.Stop, { projectId })
+    sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
 
     if (project.isFront) {
-      project.isFront = false
       // match chrome-tabs.js:243
       const oindex = openedProjects.findIndex((p) => p.id === project.id)
       if (oindex >= 0) {
@@ -485,10 +484,6 @@ const projectModel: ProjectModel = {
         }
       }
     }
-
-    actions.setProject(project)
-    sendBackIpc(Handler.Stop, { projectId })
-    sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
   }),
 
   loadStore: thunk(async (actions) => {
@@ -516,6 +511,25 @@ const projectModel: ProjectModel = {
     actions.setProjects(projects)
   }),
 
+  setProjectStatue: action((state, payload) => {
+    const project = state.projects.find((p) => p.id === payload.projectId)
+    if (!project) return
+
+    project.config = payload.config
+
+    if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
+      project.startloading = false
+      project.view = ProjectView.BrowserView
+      mainFrontView(project)
+      sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
+    }
+
+    project.status = payload.status
+    project.changes = payload.changes
+    project.tailwindVersion = payload.tailwindVersion
+    storeProject(state.projects)
+  }),
+
   listen: thunk(async (actions, none, { getState }) => {
     actions.unlisten()
 
@@ -528,28 +542,7 @@ const projectModel: ProjectModel = {
         return
       }
 
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === payload.projectId)
-      if (!project) return
-
-      const status = payload as StatusPayload
-      project.config = status.config
-
-      if (status.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
-        project.startloading = false
-        project.view = ProjectView.BrowserView
-        mainFrontView(project)
-        sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
-      }
-
-      project.status = status.status
-      project.changes = status.changes
-      project.tailwindVersion = status.tailwindVersion
-      // if (!project.page && status.config.pages.length) {
-      //   project.page = status.config.pages[0]
-      // }
-
-      actions.setProject(project)
+      actions.setProjectStatue(payload as StatusPayload)
     })
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
@@ -652,14 +645,6 @@ const projectModel: ProjectModel = {
       actions.setHistorys(reply.result)
     }
   }),
-
-  // setPage: action((state, { projectId, page }) => {
-  //   const project = state.projects.find((p) => p.id === projectId)
-  //   if (project && project.config) {
-  //     project.page = page
-  //     sendMainIpc(MainIpcChannel.LoadURL, project.id, project.config.lunchUrl + page)
-  //   }
-  // }),
 }
 
 export default projectModel
