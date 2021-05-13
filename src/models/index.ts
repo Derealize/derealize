@@ -9,6 +9,7 @@ import advancedModel, { AdvancedModel } from './controlles/advanced'
 import borderModel, { BorderModel } from './controlles/border'
 import typographyModel, { TypographyModel } from './controlles/typography'
 import backgroundModel, { BackgroundModel } from './controlles/background'
+import effectsModel, { EffectsModel } from './controlles/effects'
 
 export interface StoreModel {
   profile: ProfileModel
@@ -22,6 +23,7 @@ export interface StoreModel {
   border: BorderModel
   typography: TypographyModel
   background: BackgroundModel
+  effects: EffectsModel
 }
 
 const storeModel: StoreModel = {
@@ -36,6 +38,7 @@ const storeModel: StoreModel = {
   border: borderModel,
   typography: typographyModel,
   background: backgroundModel,
+  effects: effectsModel,
 }
 
 export default storeModel
