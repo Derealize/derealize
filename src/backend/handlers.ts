@@ -90,9 +90,9 @@ export const DisposeAll = async () => {
   log('DisposeAll')
 }
 
-export const GetTailwindConfig = async ({ projectId }: IdParam): Promise<TailwindConfig> => {
+export const GetTailwindConfig = async ({ projectId }: IdParam): Promise<TailwindConfig | undefined> => {
   const project = getProject(projectId)
-  const config = await project.GetTailwindConfig()
+  const config = project.GetTailwindConfig()
   return config
 }
 

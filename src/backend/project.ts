@@ -88,11 +88,16 @@ class Project {
     return { result: true }
   }
 
-  async GetTailwindConfig(): Promise<TailwindConfig> {
-    // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
-    const config = __non_webpack_require__(sysPath.resolve(this.path, './tailwind.config'))
-    // const config = await import(sysPath.resolve(this.path, './tailwind.config.js'))
-    return resolveConfig(config)
+  GetTailwindConfig(): TailwindConfig | undefined {
+    try {
+      // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
+      const config = __non_webpack_require__(sysPath.resolve(this.path, './tailwind.config'))
+      // const config = await import(sysPath.resolve(this.path, './tailwind.config.js'))
+      return resolveConfig(config)
+    } catch (err) {
+      log(`GetTailwindConfig:${this.path}`, err)
+    }
+    return undefined
   }
 
   async CheckStatus(): Promise<BoolReply> {
