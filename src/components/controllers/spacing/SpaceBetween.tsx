@@ -4,11 +4,11 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const SpaceBetween: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const valuesX = useStoreState<Array<string>>((state) => state.spacing.spaceXValues)
   const propertysX = useStoreState<Array<Property>>((state) => state.spacing.spaceXPropertys)
@@ -19,7 +19,7 @@ const SpaceBetween: React.FC = (): JSX.Element => {
   const propertyY = useComputeProperty(propertysY)
 
   if (already && !propertyX && !propertyY) return <></>
-  if (!element || element.display?.includes('inline')) return <></>
+  if (!element?.actualStatus?.display?.includes('block')) return <></>
 
   return (
     <>

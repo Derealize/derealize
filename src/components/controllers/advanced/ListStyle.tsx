@@ -5,13 +5,13 @@ import { ListStyleValues, ListStylePositionValues } from '../../../models/contro
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Tags = ['ul', 'ol', 'dl']
 
 const ListStyle: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.advanced.listStylePropertys)
   const property = useComputeProperty(propertys)
@@ -20,7 +20,7 @@ const ListStyle: React.FC = (): JSX.Element => {
   const positionProperty = useComputeProperty(positionPropertys)
 
   if (already && !property) return <></>
-  if (!element || !Tags.includes(element.tagName)) return <></>
+  if (!Tags.some((name) => element?.actualStatus?.tagName === name)) return <></>
 
   return (
     <>

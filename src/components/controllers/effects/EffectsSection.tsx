@@ -20,7 +20,7 @@ const EffectsSection: React.FC = (): JSX.Element => {
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
 
-      <Accordion defaultIndex={[0]} allowMultiple mt={4}>
+      <Accordion defaultIndex={[0]} mt={4}>
         <AccordionItem>
           <h2>
             <AccordionButton>

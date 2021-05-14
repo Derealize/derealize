@@ -6,17 +6,18 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const ColStart: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.layout.colStartValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.colStartPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.parentDisplay !== 'grid') return <></>
+  if (!element?.actualStatus?.parentDisplay?.includes('grid')) return <></>
 
   return <SelectController placeholder="col-start" values={values} property={property} />
 }

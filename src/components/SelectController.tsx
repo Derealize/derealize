@@ -62,7 +62,7 @@ const SelectController: React.FC<Props> = ({
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
-  const applyClassName = useStoreActions((actions) => actions.controlles.applyClassName)
+  const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const onOptionEnter = useCallback(
     async (value: string) => {
@@ -142,7 +142,7 @@ const SelectController: React.FC<Props> = ({
         sendBackIpc(Handler.JitTigger, payload as any)
       }}
       onBlur={() => {
-        applyClassName()
+        liveApplyClassName()
       }}
       onChange={(ovalue, { action }) => {
         if (action === 'clear' && property) {
@@ -156,7 +156,7 @@ const SelectController: React.FC<Props> = ({
           }
         }
         cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
-        applyClassName()
+        liveApplyClassName()
       }}
     />
   )

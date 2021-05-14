@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
-import { Action, action, Thunk, thunk, Computed, computed, ThunkOn, thunkOn } from 'easy-peasy'
+import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import clone from 'lodash.clonedeep'
 import omit from 'lodash.omit'
@@ -18,7 +18,7 @@ import type {
   GitFileChanges,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ElementPayload, MainIpcChannel, ImportPayload } from '../interface'
+import { ElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -38,6 +38,7 @@ export enum ProjectView {
 export interface ElementState extends ElementPayload {
   selected: boolean
   propertys: Array<Property>
+  actualStatus?: ElementActualStatus
   pending?: boolean
 }
 
@@ -150,6 +151,7 @@ export interface ProjectModel {
 
   unSelectedAllElements: Action<ProjectModel, string>
   focusElement: Action<ProjectModel, { projectId: string; element: ElementPayload }>
+  respElementStatus: Action<ProjectModel, { projectId: string; status: ElementActualStatus }>
   cleanElements: Action<ProjectModel, string>
   savedElements: Action<ProjectModel, string>
 
@@ -327,12 +329,20 @@ const projectModel: ProjectModel = {
 
     const elstate = { ...element, propertys, selected: true }
 
-    const el = project.elements?.find((e) => e.selector === element.selector)
+    const el = project.elements?.find((e) => e.codePosition === element.codePosition)
     if (el) {
       Object.assign(el, elstate)
     } else {
       if (!project.elements) project.elements = []
       project.elements?.push(elstate)
+    }
+  }),
+  respElementStatus: action((state, { projectId, status }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    const el = project.elements?.find((e) => e.codePosition === status.codePosition)
+    if (el) {
+      el.actualStatus = status
     }
   }),
   cleanElements: action((state, projectId) => {
@@ -572,24 +582,31 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === element.projectId)
-      if (!project) return
-      actions.focusElement({ projectId: project.id, element })
+      const project = getState().projects.find((p) => p.id === element.projectId)
+      if (project) {
+        actions.focusElement({ projectId: project.id, element })
+      }
+    })
+
+    listenMainIpc(MainIpcChannel.RespElementStatus, (event: IpcRendererEvent, status: ElementActualStatus) => {
+      const project = getState().projects.find((p) => p.id === status.projectId)
+      if (project) {
+        actions.respElementStatus({ projectId: project.id, status })
+      }
     })
 
     listenMainIpc(MainIpcChannel.BlurElement, (event: IpcRendererEvent, projectId: string) => {
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === projectId)
-      if (!project) return
-      actions.unSelectedAllElements(project.id)
+      const project = getState().projects.find((p) => p.id === projectId)
+      if (project) {
+        actions.unSelectedAllElements(project.id)
+      }
     })
 
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === projectId)
-      if (!project) return
-      actions.cleanElements(project.id)
+      const project = getState().projects.find((p) => p.id === projectId)
+      if (project) {
+        actions.cleanElements(project.id)
+      }
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {

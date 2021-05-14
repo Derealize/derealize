@@ -7,7 +7,7 @@ import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 // import useMatchVariants from '../useMatchVariants'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Tags = [
   'div',
@@ -32,13 +32,13 @@ const Container: React.FC = (): JSX.Element => {
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
   const property = useComputeProperty(propertys)
 
   // if (!useMatchVariants('container')) return <></>
   if (already && !property) return <></>
-  if (!element || !Tags.includes(element.tagName)) return <></>
+  if (!Tags.includes(element?.actualStatus?.tagName || '')) return <></>
 
   return (
     <Checkbox
