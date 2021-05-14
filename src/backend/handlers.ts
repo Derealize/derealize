@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import fs from 'fs'
+import fs, { WriteFileOptions } from 'fs'
 import sysPath from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
@@ -128,9 +128,9 @@ export const TextElement = async (payload: ElementPayload) => {
   Text(project.path, payload)
 }
 
-export const JitTigger = (payload: JitTiggerPayload) => {
-  const project = getProject(payload.projectId)
+export const JitTigger = async ({ projectId, className }: JitTiggerPayload) => {
+  const project = getProject(projectId)
 
   const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
-  fs.writeFileSync(filePath, `<a class="${payload.className}"></a>`, { encoding: 'utf8' })
+  fs.writeFile(filePath, `<a class="${className}"></a>`, { encoding: 'utf8' }, () => null)
 }

@@ -1,4 +1,5 @@
-import { Action, action, Thunk, thunk, computed, Computed, thunkOn, ThunkOn } from 'easy-peasy'
+import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
+import clone from 'lodash.clonedeep'
 import type { StoreModel } from '../index'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import { StateVariants, StateVariantsType, ListVariants, ListVariantsType } from '../project'
@@ -30,10 +31,11 @@ export interface ControllesModel {
   setProperty: Thunk<ControllesModel, { propertyId: string; classname: string }, void, StoreModel>
   liveUpdateClassName: Thunk<
     ControllesModel,
-    { projectId: string; propertyId: string; classname: string; cleanPropertyIds: Array<string> },
+    { propertyId: string; classname: string; cleanPropertyIds: Array<string> },
     void,
     StoreModel
   >
+  applyClassName: Thunk<ControllesModel, void, void, StoreModel>
 
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
@@ -72,9 +74,9 @@ const controllesModel: ControllesModel = {
   }),
 
   liveUpdateClassName: thunk(
-    async (actions, { projectId, propertyId, classname, cleanPropertyIds }, { getState, getStoreState }) => {
-      const { activeElement } = getStoreState().project
-      if (!activeElement) return
+    async (actions, { propertyId, classname, cleanPropertyIds }, { getState, getStoreState }) => {
+      const { activeElement, frontProject } = getStoreState().project
+      if (!activeElement || !frontProject) return
       const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
 
       const gProperty = {
@@ -87,17 +89,17 @@ const controllesModel: ControllesModel = {
         dark: selectDark ? true : undefined,
       }
 
-      const target = activeElement.propertys.find((p) => p.id === propertyId)
+      const propertys = clone(activeElement.propertys.filter((p) => !cleanPropertyIds.includes(p.id)))
+      const target = propertys.find((p) => p.id === propertyId)
+
       if (target) {
         Object.assign(target, gProperty)
       } else {
-        activeElement.propertys.push(gProperty)
+        propertys.push(gProperty)
       }
 
-      activeElement.propertys = activeElement.propertys.filter((p) => !cleanPropertyIds.includes(p.id))
-
       let className = ''
-      activeElement.propertys.forEach((property) => {
+      propertys.forEach((property) => {
         const { screen, state, list, custom, dark, classname: name } = property
         if (!name) return
 
@@ -120,9 +122,41 @@ const controllesModel: ControllesModel = {
         className += `${variants + name} `
       })
 
-      sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId, className } as any)
+      sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId: frontProject.id, className } as any)
     },
   ),
+
+  applyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+    const { activeElement, frontProject } = getStoreState().project
+    if (!activeElement || !frontProject) return
+    const { selectStateVariant } = getState()
+
+    let className = ''
+    activeElement.propertys.forEach((property) => {
+      const { screen, state, list, custom, dark, classname: name } = property
+      if (!name) return
+
+      let variants = ''
+      if (screen) {
+        variants += `${screen}:`
+      }
+      if (state && state !== selectStateVariant) {
+        variants += `${state}:`
+      }
+      if (list) {
+        variants += `${list}:`
+      }
+      if (custom) {
+        variants += `${custom}:`
+      }
+      if (dark) {
+        variants += `dark:`
+      }
+      className += `${variants + name} `
+    })
+
+    sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId: frontProject.id, className } as any)
+  }),
 
   selectScreenVariant: undefined,
   setSelectScreenVariant: action((state, payload) => {
@@ -148,7 +182,7 @@ const controllesModel: ControllesModel = {
   }),
   setSelectStateVariantThunk: thunk(async (actions, payload) => {
     actions.setSelectStateVariant(payload)
-    actions.liveUpdateClassName()
+    actions.restoreClassName()
   }),
 
   selectListVariant: undefined,

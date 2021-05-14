@@ -19,6 +19,7 @@ import SpacingSection from './spacing/SpacingSection'
 import BorderSection from './border/BorderSection'
 import TypographySection from './typography/TypographySection'
 import BackgroundSection from './background/BackgroundSection'
+import EffectsSection from './effects/EffectsSection'
 import InsertSection from './InsertSection'
 import { ElementPayload, MainIpcChannel } from '../../interface'
 import style from './Controllers.module.scss'
@@ -172,7 +173,7 @@ const Controllers: React.FC = (): JSX.Element => {
           <BackgroundSection />
         </TabPanel>
         <TabPanel>
-          <p>Effects/Transition/Animation/Transform</p>
+          <EffectsSection />
         </TabPanel>
         <TabPanel>
           <p>Components</p>
