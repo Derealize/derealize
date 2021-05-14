@@ -58,21 +58,21 @@ const SelectController: React.FC<Props> = ({
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
+  const setJitClassName = useStoreActions((actions) => actions.project.setJitClassName)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
+  const applyClassName = useStoreActions((actions) => actions.controlles.applyClassName)
 
   const onOptionEnter = useCallback(
     async (value: string) => {
-      if (!project) return
-      await liveUpdateClassName({
-        projectId: project.id,
+      liveUpdateClassName({
         propertyId: property?.id || nanoid(),
         classname: value,
         cleanPropertyIds: cleanPropertys?.map((p) => p.id) || [],
       })
     },
-    [project, cleanPropertys, property, liveUpdateClassName],
+    [cleanPropertys, property, liveUpdateClassName],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
@@ -136,23 +136,27 @@ const SelectController: React.FC<Props> = ({
             : (values as ReadonlyArray<OptionType | GroupType>)
                 .map((g) => g.options.map((o) => o.value).join(' '))
                 .join(' ')
+        if (project.jitClassName === className) return
         const payload: JitTiggerPayload = { projectId: project.id, className }
+        setJitClassName(payload)
         sendBackIpc(Handler.JitTigger, payload as any)
+      }}
+      onBlur={() => {
+        applyClassName()
       }}
       onChange={(ovalue, { action }) => {
         if (action === 'clear' && property) {
           deleteProperty(property.id)
         } else if (action === 'select-option') {
-          if (!ovalue && property) {
-            deleteProperty(property.id)
-          } else if (property) {
-            setProperty({ propertyId: property.id, classname: (ovalue as OptionType).value })
+          const classname = (ovalue as OptionType).value
+          if (property) {
+            setProperty({ propertyId: property.id, classname })
           } else {
-            setProperty({ propertyId: nanoid(), classname: (ovalue as OptionType).value })
+            setProperty({ propertyId: nanoid(), classname })
           }
         }
-
         cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
+        applyClassName()
       }}
     />
   )

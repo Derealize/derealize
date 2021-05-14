@@ -142,6 +142,7 @@ const effectsModel: EffectsModel = {
     [(state, storeState) => storeState.controlles.propertys, (state) => state.delayValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
+  // #endregion
 
   animateValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
@@ -151,7 +152,6 @@ const effectsModel: EffectsModel = {
     [(state, storeState) => storeState.controlles.propertys, (state) => state.animateValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
-  // #endregion
 
   // #region transform
   transformPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>

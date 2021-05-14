@@ -60,7 +60,7 @@ export interface Project {
   view?: ProjectView
   startloading?: boolean
   runningOutput?: Array<string>
-  // page?: string
+  jitClassName?: string
 }
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
@@ -177,7 +177,7 @@ export interface ProjectModel {
   setHistorys: Action<ProjectModel, Array<CommitLog>>
   callHistory: Thunk<ProjectModel>
 
-  // setPage: Action<ProjectModel, { projectId: string; page: string }>
+  setJitClassName: Action<ProjectModel, { projectId: string; className: string }>
 }
 
 const projectModel: ProjectModel = {
@@ -643,6 +643,13 @@ const projectModel: ProjectModel = {
       })
     } else {
       actions.setHistorys(reply.result)
+    }
+  }),
+
+  setJitClassName: action((state, { projectId, className }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.jitClassName = className
     }
   }),
 }
