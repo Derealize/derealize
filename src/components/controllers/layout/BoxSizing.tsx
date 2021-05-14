@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useContext } from 'react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
-import { BoxSizingValues } from '../../../models/controlles/advanced'
+import { BoxSizingValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
@@ -9,7 +9,7 @@ import useComputeProperty from '../useComputeProperty'
 const BoxSizing: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.advanced.boxSizingPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.layout.boxSizingPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>

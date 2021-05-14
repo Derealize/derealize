@@ -69,6 +69,11 @@ export const AlignSelfValues = ['self-auto', 'self-start', 'self-end', 'self-cen
 
 export const GridFlowValues = ['grid-flow-row', 'grid-flow-col', 'grid-flow-row-dense', 'grid-flow-col-dense']
 
+export const BoxSizingValues = ['box-border', 'box-content']
+
+export const FloatValues = ['float-right', 'float-left', 'float-none']
+export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
+
 export interface LayoutModel {
   // #region layout
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -165,6 +170,10 @@ export interface LayoutModel {
   autoRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
   autoRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   // #endregion
+
+  boxSizingPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  floatPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  clearPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
 }
@@ -434,6 +443,18 @@ const layoutModel: LayoutModel = {
   autoRowsPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.autoRowsValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  // #endregion
+
+  // #region advanced
+  boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
+  ),
+  floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FloatValues.includes(classname)),
+  ),
+  clearPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => ClearValues.includes(classname)),
   ),
   // #endregion
 

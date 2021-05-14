@@ -4,9 +4,7 @@ import ControllersContext from '../ControllersContext'
 import type { AlreadyVariants } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import Variants from '../Variants'
-import BoxSizing from './BoxSizing'
-import Clear from './Clear'
-import Float from './Float'
+
 import Overscroll from './Overscroll'
 import Divide from './Divide'
 import FontSmoothing from './FontSmoothing'
@@ -25,9 +23,6 @@ const BorderSection: React.FC = (): JSX.Element => {
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <VStack mt={4} alignItems="stretch" spacing={4}>
-        <BoxSizing />
-        <Float />
-        <Clear />
         <Divide />
         <Overscroll />
         <FontSmoothing />
