@@ -3,25 +3,6 @@ import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
-export const BoxSizingValues = ['box-border', 'box-content']
-export const DisplayValues = [
-  'block',
-  'inline-block',
-  'inline',
-  'flex',
-  'inline-flex',
-  'table',
-  'table-caption',
-  'table-cell',
-  'table-column',
-  'table-column-group',
-  'table-footer-group',
-  'table-header-group',
-  'table-row-group',
-  'table-row',
-]
-export const FloatValues = ['float-right', 'float-left', 'float-none']
-export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
 export const OverscrollValues = [
   'overscroll-auto',
   'overscroll-contain',
@@ -71,11 +52,6 @@ export const WhitespaceValues = [
 export const WordBreakValues = ['break-normal', 'break-words', 'break-all']
 
 export interface AdvancedModel {
-  boxSizingPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
-
-  floatPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
-  clearPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
-
   overscrollPropertys: Computed<AdvancedModel, Array<Property>, StoreModel>
 
   divideSuffix: Computed<AdvancedModel, Array<string>, StoreModel>
@@ -108,18 +84,6 @@ export interface AdvancedModel {
 }
 
 const advancedModel: AdvancedModel = {
-  boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
-  ),
-
-  floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => FloatValues.includes(classname)),
-  ),
-
-  clearPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ClearValues.includes(classname)),
-  ),
-
   overscrollPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
   ),

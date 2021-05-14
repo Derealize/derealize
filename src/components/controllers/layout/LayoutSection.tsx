@@ -1,9 +1,8 @@
 import React, { useState, useContext } from 'react'
-import { VStack } from '@chakra-ui/react'
+import { VStack, Box, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react'
 import type { AlreadyVariants, Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import ControllersContext from '../ControllersContext'
-import useComputeProperty from '../useComputeProperty'
 
 import Variants from '../Variants'
 import Container from './Container'
@@ -15,6 +14,7 @@ import Position from './Position'
 import Inset from './Inset'
 import Visibility from './Visibility'
 import Zindex from './Zindex'
+import BoxSizing from './BoxSizing'
 
 import FlexController from '../flex/Flex'
 import FlexDirection from '../flex/FlexDirection'
@@ -40,12 +40,14 @@ import RowEnd from '../grid/RowEnd'
 import AutoCols from '../grid/AutoCols'
 import AutoRows from '../grid/AutoRows'
 
+import Clear from './Clear'
+import Float from './Float'
+
 const LayoutSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
-  const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
-  const displayProperty = useComputeProperty(displayPropertys)
+
   return (
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
@@ -54,48 +56,105 @@ const LayoutSection: React.FC = (): JSX.Element => {
         <Display />
       </VStack>
 
-      {displayProperty?.classname === 'flex' && (
-        <VStack mt={2} alignItems="stretch">
-          <FlexController />
-          <FlexDirection />
-          <FlexGrow />
-          <FlexShrink />
-          <FlexWrap />
-          <JustifyContent />
-          <Order />
-          <AlignContent />
-          <AlignItems />
-          <AlignSelf />
-        </VStack>
-      )}
+      <Accordion defaultIndex={[0]} mt={4}>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Flex
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel alignItems="stretch" pb={4}>
+            <FlexController />
+            <FlexDirection />
+            <FlexGrow />
+            <FlexShrink />
+            <FlexWrap />
+            <JustifyContent />
+            <Order />
+            <AlignContent />
+            <AlignItems />
+            <AlignSelf />
+          </AccordionPanel>
+        </AccordionItem>
 
-      {displayProperty?.classname === 'grid' && (
-        <VStack mt={2} alignItems="stretch">
-          <GridCols />
-          <GridRows />
-          <Gap />
-          <GridFlow />
-          <ColSpan />
-          <ColStart />
-          <ColEnd />
-          <RowSpan />
-          <RowStart />
-          <RowEnd />
-          <AutoCols />
-          <AutoRows />
-        </VStack>
-      )}
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Grid
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel alignItems="stretch" pb={4}>
+            <GridCols />
+            <GridRows />
+            <Gap />
+            <GridFlow />
+            <ColSpan />
+            <ColStart />
+            <ColEnd />
+            <RowSpan />
+            <RowStart />
+            <RowEnd />
+            <AutoCols />
+            <AutoRows />
+          </AccordionPanel>
+        </AccordionItem>
 
-      <VStack mt={4} alignItems="stretch">
-        <Position />
-        <Inset />
-        <Container />
-        <ObjectFit />
-        <ObjectPosition />
-        <Overflow />
-        <Visibility />
-        <Zindex />
-      </VStack>
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Position
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel alignItems="stretch" pb={4}>
+            <Position />
+            <Inset />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Float
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel alignItems="stretch" pb={4}>
+            <Float />
+            <Clear />
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem>
+          <h2>
+            <AccordionButton>
+              <Box flex="1" textAlign="left">
+                Advanced
+              </Box>
+              <AccordionIcon />
+            </AccordionButton>
+          </h2>
+          <AccordionPanel alignItems="stretch" pb={4}>
+            <Visibility />
+            <Zindex />
+            <BoxSizing />
+            <Container />
+            <ObjectFit />
+            <ObjectPosition />
+            <Overflow />
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </>
   )
 }
