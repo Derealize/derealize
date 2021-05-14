@@ -1,19 +1,24 @@
-export interface IdParam {
+export interface ProjectIdParam {
   projectId: string
 }
 
-export interface ImportPayload extends IdParam {
+export interface ImportPayload extends ProjectIdParam {
   url: string
   path: string
   branch: string
 }
 
-export interface ElementPayload extends IdParam {
+export interface ElementPayload extends ProjectIdParam {
   codePosition: string
-  tagName: string
   className: string
   selector: string
   text?: string
+}
+
+export interface ElementActualStatus extends ProjectIdParam {
+  codePosition: string
+  tagName: string
+  className: string
   display?: string
   position?: string
   parentTagName?: string
@@ -40,14 +45,12 @@ export interface InsertElementPayload extends ElementPayload {
   insertMode?: InsertMode
 }
 
-export interface BreadcrumbPayload {
-  projectId: string
+export interface BreadcrumbPayload extends ProjectIdParam {
   index: number
   isClick?: boolean
 }
 
-export interface JitTiggerPayload {
-  projectId: string
+export interface JitTiggerPayload extends ProjectIdParam {
   className: string
 }
 
@@ -68,6 +71,7 @@ export enum MainIpcChannel {
   LoadURL = 'LoadURL',
   DeviceEmulation = 'DeviceEmulation',
   FocusElement = 'FocusElement',
+  RespElementStatus = 'RespElementStatus',
   BlurElement = 'BlurElement',
   Flush = 'Flush',
   SelectBreadcrumb = 'SelectBreadcrumb',

@@ -4,11 +4,11 @@ import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Transition: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.effects.transitionValues)
   const propertys = useStoreState<Array<Property>>((state) => state.effects.transitionPropertys)
@@ -31,7 +31,7 @@ const Transition: React.FC = (): JSX.Element => {
   return (
     <>
       <SelectController placeholder="transition" values={values} property={property} />
-      {element?.className.includes('transition') && (
+      {element?.actualStatus?.className.includes('transition') && (
         <>
           <SelectController placeholder="duration" values={durationValues} property={durationProperty} />
           <SelectController placeholder="timing-function" values={easeValues} property={easeProperty} />

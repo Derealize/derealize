@@ -35,7 +35,7 @@ export interface ControllesModel {
     void,
     StoreModel
   >
-  applyClassName: Thunk<ControllesModel, void, void, StoreModel>
+  liveApplyClassName: Thunk<ControllesModel, void, void, StoreModel>
 
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
@@ -126,7 +126,7 @@ const controllesModel: ControllesModel = {
     },
   ),
 
-  applyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+  liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
     const { activeElement, frontProject } = getStoreState().project
     if (!activeElement || !frontProject) return
     const { selectStateVariant } = getState()
@@ -182,7 +182,7 @@ const controllesModel: ControllesModel = {
   }),
   setSelectStateVariantThunk: thunk(async (actions, payload) => {
     actions.setSelectStateVariant(payload)
-    actions.restoreClassName()
+    actions.liveApplyClassName()
   }),
 
   selectListVariant: undefined,

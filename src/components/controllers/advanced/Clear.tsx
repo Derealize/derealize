@@ -5,17 +5,17 @@ import { ClearValues } from '../../../models/controlles/advanced'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Clear: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.advanced.clearPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || element.display?.includes('inline')) return <></>
+  if (!element?.actualStatus?.display?.includes('block')) return <></>
 
   return <SelectController placeholder="clear" values={ClearValues} property={property} />
 }

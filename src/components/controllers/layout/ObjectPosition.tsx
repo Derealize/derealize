@@ -4,19 +4,19 @@ import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 import { ReplacedElementTags } from '../LimitedTags'
 
 const ObjectPosition: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.objectPositionPropertys)
   const values = useStoreState<Array<string>>((state) => state.layout.objectPositionValues)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element || !ReplacedElementTags.includes(element.tagName)) return <></>
+  if (!ReplacedElementTags.includes(element?.actualStatus?.tagName || '')) return <></>
 
   return <SelectController placeholder="object-position" values={values} property={property} onMouseEnter={false} />
 }

@@ -4,13 +4,13 @@ import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Tags = ['input', 'textarea']
 
 const Placeholder: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.typography.placeholderValues)
   const propertys = useStoreState<Array<Property>>((state) => state.typography.placeholderPropertys)
@@ -21,7 +21,7 @@ const Placeholder: React.FC = (): JSX.Element => {
   const opacityProperty = useComputeProperty(opacityPropertys)
 
   if (already && !property) return <></>
-  if (!element || !Tags.includes(element.tagName)) return <></>
+  if (!Tags.includes(element?.actualStatus?.tagName || '')) return <></>
 
   return (
     <>

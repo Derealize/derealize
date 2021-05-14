@@ -1,19 +1,21 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { HStack, VStack, Select, Button } from '@chakra-ui/react'
-import { ElementPayload, InsertElementType, InsertElementPayload } from '../../interface'
+import { InsertElementType, InsertElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
+import { ElementState } from '../../models/project'
 
 declare const window: PreloadWindow
 const { sendBackIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
-  const elementType = useMemo(() => (element?.tagName.toLowerCase() || InsertElementType.div) as InsertElementType, [
-    element,
-  ])
+  const elementType = useMemo(
+    () => (element?.actualStatus?.tagName.toLowerCase() || InsertElementType.div) as InsertElementType,
+    [element],
+  )
 
   const [selElementType, setSelElementType] = useState(elementType)
 

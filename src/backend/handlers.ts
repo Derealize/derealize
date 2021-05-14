@@ -5,7 +5,7 @@ import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
-import type { IdParam, ImportPayload } from '../interface'
+import type { ProjectIdParam, ImportPayload } from '../interface'
 import { ElementPayload, InsertElementPayload, JitTiggerPayload } from '../interface'
 import { ApplyClass, Insert, Delete, Replace, Text } from './shift'
 import { npmStart } from './npm'
@@ -29,52 +29,52 @@ export const Import = async ({ projectId, url, path, branch }: ImportPayload): P
   return result
 }
 
-export const Remove = async ({ projectId }: IdParam): Promise<BoolReply> => {
+export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const result = projectsMap.delete(projectId)
   return { result }
 }
 
-export const Install = async ({ projectId }: IdParam): Promise<BoolReply> => {
+export const Install = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const project = getProject(projectId)
   const result = project.Install()
   return result
 }
 
-export const CheckStatus = async ({ projectId }: IdParam) => {
+export const CheckStatus = async ({ projectId }: ProjectIdParam) => {
   const project = getProject(projectId)
   await project.CheckStatus()
 }
 
-export const Start = async ({ projectId }: IdParam): Promise<BoolReply> => {
+export const Start = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const project = getProject(projectId)
   const result = await project.Start()
   return result
 }
 
-export const Stop = async ({ projectId }: IdParam) => {
+export const Stop = async ({ projectId }: ProjectIdParam) => {
   const project = getProject(projectId)
   await project.Stop()
 }
 
-export const Pull = async ({ projectId }: IdParam): Promise<BoolReply> => {
+export const Pull = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const project = getProject(projectId)
   const reply = await project.Pull()
   return reply
 }
 
-export const Push = async ({ projectId, msg }: IdParam & { msg: string }): Promise<BoolReply> => {
+export const Push = async ({ projectId, msg }: ProjectIdParam & { msg: string }): Promise<BoolReply> => {
   const project = getProject(projectId)
   const reply = await project.Push(msg)
   return reply
 }
 
-export const History = async ({ projectId }: IdParam): Promise<HistoryReply> => {
+export const History = async ({ projectId }: ProjectIdParam): Promise<HistoryReply> => {
   const project = getProject(projectId)
   const logs = await project.History()
   return logs
 }
 
-// export const Dispose = async ({ projectId }: IdParam) => {
+// export const Dispose = async ({ projectId }: ProjectIdParam) => {
 //   const project = getProject(projectId)
 //   project?.Dispose()
 //   projectsMap.delete(projectId)
@@ -90,7 +90,7 @@ export const DisposeAll = async () => {
   log('DisposeAll')
 }
 
-export const GetTailwindConfig = async ({ projectId }: IdParam): Promise<TailwindConfig | undefined> => {
+export const GetTailwindConfig = async ({ projectId }: ProjectIdParam): Promise<TailwindConfig | undefined> => {
   const project = getProject(projectId)
   const config = project.GetTailwindConfig()
   return config

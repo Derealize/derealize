@@ -11,7 +11,7 @@ import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
@@ -419,6 +419,10 @@ ipcMain.on(MainIpcChannel.FocusElement, (event, payload: ElementPayload) => {
     project.activeSelector = payload.selector
   }
   mainWindow?.webContents.send(MainIpcChannel.FocusElement, payload)
+})
+
+ipcMain.on(MainIpcChannel.RespElementStatus, (event, payload: ElementActualStatus) => {
+  mainWindow?.webContents.send(MainIpcChannel.RespElementStatus, payload)
 })
 
 ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {

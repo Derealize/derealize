@@ -5,11 +5,11 @@ import { TransformValues } from '../../../models/controlles/effects'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 const Transform: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.effects.transformPropertys)
   const property = useComputeProperty(propertys)
@@ -47,7 +47,7 @@ const Transform: React.FC = (): JSX.Element => {
   return (
     <>
       <SelectController placeholder="transform" values={TransformValues} property={property} />
-      {element?.className.includes('transform') && (
+      {element?.actualStatus?.className.includes('transform') && (
         <>
           <SelectController placeholder="origin" values={originValues} property={originProperty} />
           <SelectController placeholder="scale" values={scaleValues} property={scaleProperty} />

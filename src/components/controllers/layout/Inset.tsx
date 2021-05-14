@@ -4,14 +4,12 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementPayload } from '../../../interface'
+import { ElementState } from '../../../models/project'
 
 export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 
 const Inset: React.FC = (): JSX.Element => {
-  // const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
-  const positionPropertys = useStoreState<Array<Property>>((state) => state.layout.positionPropertys)
-  const positionProperty = useComputeProperty(positionPropertys)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.layout.topPropertys)
@@ -29,8 +27,7 @@ const Inset: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.layout.rightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
-  if (!positionProperty || !InsetPositions.includes(positionProperty.classname)) return <></>
-  // if (!element?.position || !InsetPositions.includes(element.position)) return <></>
+  if (!InsetPositions.some((name) => element?.actualStatus?.position?.includes(name))) return <></>
 
   return (
     <>
