@@ -497,6 +497,10 @@ const layoutModel: LayoutModel = {
       (state: State<LayoutModel>) => state.gapPropertys,
       (state: State<LayoutModel>) => state.autoColsPropertys,
       (state: State<LayoutModel>) => state.autoRowsPropertys,
+
+      (state: State<LayoutModel>) => state.boxSizingPropertys,
+      (state: State<LayoutModel>) => state.floatPropertys,
+      (state: State<LayoutModel>) => state.clearPropertys,
     ] as any,
     (...propertys: Array<Property[]>) => {
       const allPropertys = flatten(propertys)

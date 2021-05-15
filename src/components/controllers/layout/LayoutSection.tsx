@@ -1,8 +1,20 @@
 import React, { useState, useContext } from 'react'
-import { VStack, Box, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react'
+import { nanoid } from 'nanoid'
+import Switch from 'react-switch'
+import {
+  VStack,
+  HStack,
+  Box,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+} from '@chakra-ui/react'
 import type { AlreadyVariants, Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import ControllersContext from '../ControllersContext'
+import useComputeProperty from '../useComputeProperty'
 
 import Variants from '../Variants'
 import Container from './Container'
@@ -43,10 +55,19 @@ import AutoRows from '../grid/AutoRows'
 import Clear from './Clear'
 import Float from './Float'
 
+import theme from '../../../theme'
+
 const LayoutSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
+
+  const displayPropertys = useStoreState<Array<Property>>((state) => state.layout.displayPropertys)
+  const displayProperty = useComputeProperty(displayPropertys)
+
+  const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
+  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
+  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
 
   return (
     <>
@@ -56,17 +77,48 @@ const LayoutSection: React.FC = (): JSX.Element => {
         <Display />
       </VStack>
 
-      <Accordion defaultIndex={[0]} mt={4}>
+      <Accordion mt={4}>
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Flex
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
+            <HStack align="center" justify="space-between" px={1} py={2}>
+              <span>enable</span>
+              <Switch
+                checked={displayProperty?.classname === 'flex'}
+                onChange={(check) => {
+                  if (check) {
+                    if (displayProperty) {
+                      setProperty({ propertyId: displayProperty.id, classname: 'flex' })
+                    } else {
+                      setProperty({ propertyId: nanoid(), classname: 'flex' })
+                    }
+                  } else if (displayProperty) {
+                    deleteProperty(displayProperty.id)
+                  }
+                  liveApplyClassName()
+                }}
+                offColor={theme.colors.gray['300']}
+                onColor={theme.colors.gray['300']}
+                onHandleColor={theme.colors.teal['400']}
+                offHandleColor={theme.colors.gray['400']}
+                handleDiameter={26}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 4px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 6px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+                className="react-switch"
+              />
+            </HStack>
+
             <FlexController />
             <FlexDirection />
             <FlexGrow />
@@ -82,14 +134,44 @@ const LayoutSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Grid
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
+            <HStack align="center" justify="space-between" px={1} py={2}>
+              <span>enable</span>
+              <Switch
+                checked={displayProperty?.classname === 'grid'}
+                onChange={(check) => {
+                  if (check) {
+                    if (displayProperty) {
+                      setProperty({ propertyId: displayProperty.id, classname: 'grid' })
+                    } else {
+                      setProperty({ propertyId: nanoid(), classname: 'grid' })
+                    }
+                  } else if (displayProperty) {
+                    deleteProperty(displayProperty.id)
+                  }
+                  liveApplyClassName()
+                }}
+                offColor={theme.colors.gray['300']}
+                onColor={theme.colors.gray['300']}
+                onHandleColor={theme.colors.teal['400']}
+                offHandleColor={theme.colors.gray['400']}
+                handleDiameter={26}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 4px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 6px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+                className="react-switch"
+              />
+            </HStack>
             <GridCols />
             <GridRows />
             <Gap />
@@ -107,14 +189,14 @@ const LayoutSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Position
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <Position />
             <Inset />
           </AccordionPanel>
@@ -122,14 +204,14 @@ const LayoutSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Float
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <Float />
             <Clear />
           </AccordionPanel>
@@ -137,14 +219,14 @@ const LayoutSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Advanced
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <Visibility />
             <Zindex />
             <BoxSizing />

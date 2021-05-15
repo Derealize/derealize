@@ -1,4 +1,7 @@
+@import '../../styles/variable';
+
 .panels > div {
   height: calc(100vh - 89px); // 46 + 42 + 1
   overflow-y: auto;
+  font-family: $font-mono;
 }
