@@ -7,6 +7,42 @@ export const TextAlignValues = ['text-left', 'text-center', 'text-right', 'text-
 export const TextDecorationValues = ['underline', 'line-through', 'no-underline']
 export const TextTransformValues = ['uppercase', 'lowercase', 'capitalize', 'normal-case']
 
+export const FontSmoothingValues = ['antialiased', 'subpixel-antialiased']
+export const FontStyleValues = ['italic', 'not-italic	']
+export const FontVariantNumericValues = [
+  'normal-nums	',
+  'ordinal',
+  'slashed-zero',
+  'lining-nums',
+  'oldstyle-nums',
+  'proportional-nums',
+  'tabular-nums',
+  'diagonal-fractions',
+  'stacked-fractions',
+]
+
+export const ListStyleValues = ['list-none', 'list-disc', 'list-decimal']
+export const ListStylePositionValues = ['list-inside', 'list-outside']
+
+export const TextOverflowValues = ['truncate', 'overflow-ellipsis', 'overflow-clip']
+export const VerticalAlignValues = [
+  'align-baseline',
+  'align-top',
+  'align-middle',
+  'align-bottom',
+  'align-text-top',
+  'align-text-bottom',
+]
+export const WhitespaceValues = [
+  'whitespace-normal',
+  'whitespace-nowrap',
+  'whitespace-pre',
+  'whitespace-pre-line',
+  'whitespace-pre-wrap',
+]
+
+export const WordBreakValues = ['break-normal', 'break-words', 'break-all']
+
 export interface TypographyModel {
   fontFamilyValues: Computed<TypographyModel, Array<string>, StoreModel>
   fontFamilyPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
@@ -39,6 +75,18 @@ export interface TypographyModel {
 
   textDecorationPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
   textTransformPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+
+  fontSmoothingPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  fontStylePropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  fontVariantNumericPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+
+  listStylePropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  listStylePositionPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+
+  textOverflowPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  verticalAlignPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  whitespacePropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  wordBreakPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
 
   alreadyVariants: Computed<TypographyModel, AlreadyVariants, StoreModel>
 }
@@ -131,6 +179,7 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
+  // #region advanced
   textDecorationPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => TextDecorationValues.includes(classname)),
   ),
@@ -138,6 +187,42 @@ const typographyModel: TypographyModel = {
   textTransformPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => TextTransformValues.includes(classname)),
   ),
+
+  fontSmoothingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FontSmoothingValues.includes(classname)),
+  ),
+
+  fontStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FontStyleValues.includes(classname)),
+  ),
+
+  fontVariantNumericPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => FontVariantNumericValues.includes(classname)),
+  ),
+
+  listStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => ListStyleValues.includes(classname)),
+  ),
+
+  listStylePositionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => ListStylePositionValues.includes(classname)),
+  ),
+
+  textOverflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => TextOverflowValues.includes(classname)),
+  ),
+  whitespacePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => WhitespaceValues.includes(classname)),
+  ),
+
+  verticalAlignPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => VerticalAlignValues.includes(classname)),
+  ),
+
+  wordBreakPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => WordBreakValues.includes(classname)),
+  ),
+  // #endregion
 
   alreadyVariants: computed(
     [
@@ -152,6 +237,16 @@ const typographyModel: TypographyModel = {
       (state: State<TypographyModel>) => state.textColorPropertys,
       (state: State<TypographyModel>) => state.textOpacityPropertys,
       (state: State<TypographyModel>) => state.textDecorationPropertys,
+
+      (state: State<TypographyModel>) => state.fontSmoothingPropertys,
+      (state: State<TypographyModel>) => state.fontStylePropertys,
+      (state: State<TypographyModel>) => state.fontVariantNumericPropertys,
+      (state: State<TypographyModel>) => state.listStylePropertys,
+      (state: State<TypographyModel>) => state.listStylePositionPropertys,
+      (state: State<TypographyModel>) => state.textOverflowPropertys,
+      (state: State<TypographyModel>) => state.whitespacePropertys,
+      (state: State<TypographyModel>) => state.verticalAlignPropertys,
+      (state: State<TypographyModel>) => state.wordBreakPropertys,
     ] as any,
     (...propertys: Array<Property[]>) => {
       const allPropertys = flatten(propertys)

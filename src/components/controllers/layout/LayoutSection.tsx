@@ -54,6 +54,7 @@ import AutoRows from '../grid/AutoRows'
 
 import Clear from './Clear'
 import Float from './Float'
+import Overscroll from './Overscroll'
 
 import theme from '../../../theme'
 
@@ -87,7 +88,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <HStack align="center" justify="space-between" px={1} py={2}>
               <span>enable</span>
               <Switch
@@ -141,7 +142,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <HStack align="center" justify="space-between" px={1} py={2}>
               <span>enable</span>
               <Switch
@@ -196,7 +197,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <Position />
             <Inset />
           </AccordionPanel>
@@ -211,7 +212,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <Float />
             <Clear />
           </AccordionPanel>
@@ -226,7 +227,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <Visibility />
             <Zindex />
             <BoxSizing />
@@ -234,6 +235,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
             <ObjectFit />
             <ObjectPosition />
             <Overflow />
+            <Overscroll />
           </AccordionPanel>
         </AccordionItem>
       </Accordion>

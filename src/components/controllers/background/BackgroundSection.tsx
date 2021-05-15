@@ -12,7 +12,6 @@ import BackgroundOpacity from './BackgroundOpacity'
 import BackgroundPosition from './BackgroundPosition'
 import BackgroundRepeat from './BackgroundRepeat'
 import BackgroundSize from './BackgroundSize'
-import GradientColor from './GradientColor'
 
 const BackgroundSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -24,8 +23,8 @@ const BackgroundSection: React.FC = (): JSX.Element => {
       <VStack mt={4} alignItems="stretch">
         <BackgroundColor />
         <BackgroundImage />
-        <GradientColor />
         <BackgroundOpacity />
+
         <BackgroundPosition />
         <BackgroundRepeat />
         <BackgroundSize />

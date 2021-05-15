@@ -71,7 +71,7 @@ const SelectController: React.FC<Props> = ({
   const onOptionEnter = useCallback(
     async (value: string) => {
       liveUpdateClassName({
-        propertyId: property?.id || nanoid(),
+        propertyId: property?.id || '',
         classname: value,
         cleanPropertyIds: cleanPropertys?.map((p) => p.id) || [],
       })
@@ -122,6 +122,7 @@ const SelectController: React.FC<Props> = ({
         },
         singleValue: (provided: CSSObject, props: SingleValueProps<OptionType, GroupType>) => ({
           ...provided,
+          margin: 0,
           color: property ? theme.colors.teal['500'] : theme.colors.gray['400'],
         }),
         valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
@@ -136,7 +137,7 @@ const SelectController: React.FC<Props> = ({
           ...provided,
           margin: 0,
         }),
-        option: (provided: CSSObject, props: OptionProps<OptionType, IsMulti, GroupType>) => ({
+        option: (provided: CSSObject, props: OptionProps<OptionType, boolean, GroupType>) => ({
           ...provided,
           padding: '4px 8px',
         }),
@@ -148,7 +149,10 @@ const SelectController: React.FC<Props> = ({
       isDisabled={isDisabled}
       options={
         typeof values[0] === 'string'
-          ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v.split('-').splice(-1)[0] }))
+          ? (values as ReadonlyArray<string>).map((v) => ({
+              value: v,
+              label: v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-'),
+            }))
           : (values as ReadonlyArray<OptionType | GroupType>)
       }
       value={property ? { value: property.classname, label: property.classname } : null}
@@ -159,7 +163,7 @@ const SelectController: React.FC<Props> = ({
           typeof values[0] === 'string'
             ? (values as ReadonlyArray<string>).join(' ')
             : (values as ReadonlyArray<OptionType | GroupType>)
-                .map((g) => g.options.map((o) => o.value).join(' '))
+                .map((g) => g.options.map((o: any) => o.value).join(' '))
                 .join(' ')
         if (project.jitClassName === className) return
         const payload: JitTiggerPayload = { projectId: project.id, className }

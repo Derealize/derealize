@@ -43,7 +43,7 @@ const Text: React.FC = (): JSX.Element => {
           setText(e.target.value)
         }}
       />
-      <Button colorScheme="pink" onClick={handleInsert}>
+      <Button colorScheme="pink" variant="ghost" onClick={handleInsert}>
         Update
       </Button>
     </VStack>

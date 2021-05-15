@@ -9,23 +9,23 @@ import useComputeProperty from '../useComputeProperty'
 const DivideX: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const valuesX = useStoreState<Array<string>>((state) => state.advanced.divideXValues)
-  const propertysX = useStoreState<Array<Property>>((state) => state.advanced.divideXPropertys)
+  const valuesX = useStoreState<Array<string>>((state) => state.border.divideXValues)
+  const propertysX = useStoreState<Array<Property>>((state) => state.border.divideXPropertys)
   const propertyX = useComputeProperty(propertysX)
 
-  const valuesY = useStoreState<Array<string>>((state) => state.advanced.divideYValues)
-  const propertysY = useStoreState<Array<Property>>((state) => state.advanced.divideYPropertys)
+  const valuesY = useStoreState<Array<string>>((state) => state.border.divideYValues)
+  const propertysY = useStoreState<Array<Property>>((state) => state.border.divideYPropertys)
   const propertyY = useComputeProperty(propertysY)
 
-  const valuesColor = useStoreState<Array<string>>((state) => state.advanced.divideColorValues)
-  const propertysColor = useStoreState<Array<Property>>((state) => state.advanced.divideColorPropertys)
+  const valuesColor = useStoreState<Array<string>>((state) => state.border.divideColorValues)
+  const propertysColor = useStoreState<Array<Property>>((state) => state.border.divideColorPropertys)
   const propertyColor = useComputeProperty(propertysColor)
 
-  const valuesOpacity = useStoreState<Array<string>>((state) => state.advanced.divideOpacityValues)
-  const propertysOpacity = useStoreState<Array<Property>>((state) => state.advanced.divideOpacityPropertys)
+  const valuesOpacity = useStoreState<Array<string>>((state) => state.border.divideOpacityValues)
+  const propertysOpacity = useStoreState<Array<Property>>((state) => state.border.divideOpacityPropertys)
   const propertyOpacity = useComputeProperty(propertysOpacity)
 
-  const propertysStyle = useStoreState<Array<Property>>((state) => state.advanced.divideStylePropertys)
+  const propertysStyle = useStoreState<Array<Property>>((state) => state.border.divideStylePropertys)
   const propertyStyle = useComputeProperty(propertysStyle)
 
   if (already && !propertyX && !propertyY) return <></>
