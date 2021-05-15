@@ -624,6 +624,7 @@ const projectModel: ProjectModel = {
     unlistenBackIpc(Broadcast.Status)
     unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.FocusElement)
+    unlistenMainIpc(MainIpcChannel.RespElementStatus)
     unlistenMainIpc(MainIpcChannel.BlurElement)
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.Shortcut)

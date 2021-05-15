@@ -7,6 +7,8 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementState } from '../../../models/project'
 
+export const SupportDisplays = ['flex', 'block', 'table', 'grid']
+
 const Width: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
@@ -24,7 +26,7 @@ const Width: React.FC = (): JSX.Element => {
   const minProperty = useComputeProperty(minPropertys)
 
   if (already && !property && !maxProperty && !minProperty) return <></>
-  if (!element?.actualStatus?.display?.includes('block')) return <></>
+  if (!SupportDisplays.some((name) => element?.actualStatus?.display?.includes(name))) return <></>
 
   return (
     <Box>
