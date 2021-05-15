@@ -1,20 +1,20 @@
-import React, { useMemo, useState, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
-import { FontSmoothingValues } from '../../../models/controlles/advanced'
+import { WordBreakValues } from '../../../models/controlles/typography'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
 
-const FontSmoothing: React.FC = (): JSX.Element => {
+const WordBreak: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.advanced.fontSmoothingPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.typography.wordBreakPropertys)
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="font-smoothing" values={FontSmoothingValues} property={property} />
+  return <SelectController placeholder="wordbreak" values={WordBreakValues} property={property} />
 }
 
-export default FontSmoothing
+export default WordBreak

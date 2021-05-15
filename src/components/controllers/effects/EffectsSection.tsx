@@ -30,7 +30,7 @@ const EffectsSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <BoxShadow />
             <Opacity />
           </AccordionPanel>
@@ -45,7 +45,7 @@ const EffectsSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <Transition />
             <Animation />
           </AccordionPanel>
@@ -60,7 +60,7 @@ const EffectsSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <Transform />
           </AccordionPanel>
         </AccordionItem>
@@ -74,7 +74,7 @@ const EffectsSection: React.FC = (): JSX.Element => {
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel p={0}>
+          <AccordionPanel px={0} pb={4}>
             <MixBlend />
             <BackgroundBlend />
           </AccordionPanel>

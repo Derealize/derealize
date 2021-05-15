@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { HStack, Center, Box } from '@chakra-ui/react'
 import type { Property } from '../../../models/controlles/controlles'
+import ControllersContext from '../ControllersContext'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
@@ -9,6 +10,7 @@ import { ElementState } from '../../../models/project'
 export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 
 const Inset: React.FC = (): JSX.Element => {
+  const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
@@ -27,6 +29,7 @@ const Inset: React.FC = (): JSX.Element => {
   const propertysRight = useStoreState<Array<Property>>((state) => state.layout.rightPropertys)
   const propertyRight = useComputeProperty(propertysRight)
 
+  if (already && !propertyTop && !propertyBottom && !propertyLeft && !propertyRight) return <></>
   if (!InsetPositions.some((name) => element?.actualStatus?.position?.includes(name))) return <></>
 
   return (

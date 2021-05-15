@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
-import { ListStyleValues, ListStylePositionValues } from '../../../models/controlles/advanced'
+import { ListStyleValues, ListStylePositionValues } from '../../../models/controlles/typography'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
@@ -13,10 +13,10 @@ const ListStyle: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.advanced.listStylePropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.typography.listStylePropertys)
   const property = useComputeProperty(propertys)
 
-  const positionPropertys = useStoreState<Array<Property>>((state) => state.advanced.listStylePositionPropertys)
+  const positionPropertys = useStoreState<Array<Property>>((state) => state.typography.listStylePositionPropertys)
   const positionProperty = useComputeProperty(positionPropertys)
 
   if (already && !property) return <></>

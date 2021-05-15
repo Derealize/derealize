@@ -59,30 +59,30 @@ const Border: React.FC = (): JSX.Element => {
         <Center>
           <Box w="50%">
             <SelectController
-              placeholder="border-t"
+              placeholder={bind ? 'border' : 'border-t'}
               values={bind ? borderValues : borderTopValues}
               property={bind ? borderProperty : borderTopProperty}
             />
           </Box>
         </Center>
-        <HStack>
-          <Box w="40%">
+        <HStack spacing={0}>
+          <Box w="44%">
             <SelectController
-              placeholder="border-l"
+              placeholder={bind ? 'border' : 'border-l'}
               values={bind ? borderValues : borderLeftValues}
               property={bind ? borderProperty : borderLeftProperty}
             />
           </Box>
-          <Center w="20%">
+          <Center w="12%">
             {bind ? (
-              <Icon as={IoLink} w={8} h={8} color="gray.800" onClick={() => setBind(false)} />
+              <Icon as={IoLink} w={6} h={6} color="gray.600" onClick={() => setBind(false)} />
             ) : (
-              <Icon as={IoUnlink} w={8} h={8} color="gray.400" onClick={() => setBind(true)} />
+              <Icon as={IoUnlink} w={6} h={6} color="gray.400" onClick={() => setBind(true)} />
             )}
           </Center>
-          <Box w="40%">
+          <Box w="44%">
             <SelectController
-              placeholder="border-r"
+              placeholder={bind ? 'border' : 'border-r'}
               values={bind ? borderValues : borderRightValues}
               property={bind ? borderProperty : borderRightProperty}
             />
@@ -91,7 +91,7 @@ const Border: React.FC = (): JSX.Element => {
         <Center>
           <Box w="50%">
             <SelectController
-              placeholder="border-b"
+              placeholder={bind ? 'border' : 'border-b'}
               values={bind ? borderValues : borderBottomValues}
               property={bind ? borderProperty : borderBottomProperty}
             />

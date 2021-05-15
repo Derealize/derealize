@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import type { IpcRendererEvent } from 'electron'
-import { Tooltip, Stack, Box, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
-import { IoImageOutline, IoGridOutline } from 'react-icons/io5'
+import { Tooltip, Box, Tabs, TabList, Tab, TabPanels, TabPanel, Icon } from '@chakra-ui/react'
 import { BsType, BsLayoutTextWindowReverse, BsFileCode, BsTextareaT, BsListCheck } from 'react-icons/bs'
 import { AiOutlineAlignCenter, AiOutlineInteraction, AiOutlineLayout } from 'react-icons/ai'
 import { CgSpaceBetweenV, CgComponents, CgMoreAlt, CgBorderRight, CgRatio, CgFormatText } from 'react-icons/cg'
@@ -13,7 +12,6 @@ import { useStoreActions, useStoreState } from '../../reduxStore'
 import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
 import AlreadySection from './AlreadySection'
-import AdvancedSection from './advanced/AdvancedSection'
 import LayoutSection from './layout/LayoutSection'
 import SpacingSection from './spacing/SpacingSection'
 import BorderSection from './border/BorderSection'
@@ -137,14 +135,7 @@ const Controllers: React.FC = (): JSX.Element => {
           </Tooltip>
         </Tab>
         <Tab p={3}>
-          <Tooltip label="(Alt+9) Advanced">
-            <Box>
-              <Icon as={CgMoreAlt} boxSize={6} />
-            </Box>
-          </Tooltip>
-        </Tab>
-        <Tab p={3}>
-          <Tooltip label="(Alt+10) Add">
+          <Tooltip label="(Alt+9) Add">
             <Box>
               <Icon as={FcAddRow} boxSize={6} />
             </Box>
@@ -177,9 +168,6 @@ const Controllers: React.FC = (): JSX.Element => {
         </TabPanel>
         <TabPanel>
           <p>Components</p>
-        </TabPanel>
-        <TabPanel>
-          <AdvancedSection />
         </TabPanel>
         <TabPanel>
           <InsertSection />

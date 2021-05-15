@@ -74,6 +74,18 @@ export const BoxSizingValues = ['box-border', 'box-content']
 export const FloatValues = ['float-right', 'float-left', 'float-none']
 export const ClearValues = ['clear-left', 'clear-right', 'clear-none']
 
+export const OverscrollValues = [
+  'overscroll-auto',
+  'overscroll-contain',
+  'overscroll-none',
+  'overscroll-y-auto',
+  'overscroll-y-contain',
+  'overscroll-y-none',
+  'overscroll-x-auto',
+  'overscroll-x-contain',
+  'overscroll-x-none',
+]
+
 export interface LayoutModel {
   // #region layout
   containerPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -174,37 +186,17 @@ export interface LayoutModel {
   boxSizingPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   floatPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
   clearPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  overscrollPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   alreadyVariants: Computed<LayoutModel, AlreadyVariants, StoreModel>
 }
 
 const layoutModel: LayoutModel = {
-  // #region layout
-  containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter((property) => property.classname === ContainerValue),
-  ),
-
   displayPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => DisplayValues.includes(classname)),
   ),
 
-  objectFitPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => ObjectFitValues.includes(classname)),
-  ),
-
-  objectPositionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.objectPosition).map((v) => `object-${v}`)
-  }),
-  objectPositionPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.objectPositionValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => OverflowValues.includes(classname)),
-  ),
-
+  // #region position
   positionPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => PositionValues.includes(classname)),
   ),
@@ -213,27 +205,6 @@ const layoutModel: LayoutModel = {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
-  // insetValues: computed([(state) => state.insetSuffix], (suffix) =>
-  //   suffix.map((v) => (v.startsWith('-') ? `-inset-${v.slice(1)}` : `inset-${v}`)),
-  // ),
-  // insetPropertys: computed(
-  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetValues],
-  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  // ),
-  // insetYValues: computed([(state) => state.insetSuffix], (suffix) =>
-  //   suffix.map((v) => (v.startsWith('-') ? `-inset-y-${v.slice(1)}` : `inset-y-${v}`)),
-  // ),
-  // insetYPropertys: computed(
-  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetYValues],
-  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  // ),
-  // insetXValues: computed([(state) => state.insetSuffix], (suffix) =>
-  //   suffix.map((v) => (v.startsWith('-') ? `-inset-x-${v.slice(1)}` : `inset-x-${v}`)),
-  // ),
-  // insetXPropertys: computed(
-  //   [(state, storeState) => storeState.controlles.propertys, (state) => state.insetXValues],
-  //   (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  // ),
   topValues: computed([(state) => state.insetSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-top-${v.slice(1)}` : `top-${v}`)),
   ),
@@ -260,19 +231,6 @@ const layoutModel: LayoutModel = {
   ),
   leftPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.leftValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
-  ),
-
-  visibilityPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => VisibilityValues.includes(classname)),
-  ),
-
-  zIndexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.zIndex).map((v) => `z-${v}`)
-  }),
-  zIndexPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.zIndexValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   // #endregion
@@ -446,35 +404,60 @@ const layoutModel: LayoutModel = {
   ),
   // #endregion
 
-  // #region advanced
-  boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
-    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
-  ),
   floatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => FloatValues.includes(classname)),
   ),
   clearPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
     propertys.filter(({ classname }) => ClearValues.includes(classname)),
   ),
+
+  // #region advanced
+  visibilityPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => VisibilityValues.includes(classname)),
+  ),
+  zIndexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.zIndex).map((v) => `z-${v}`)
+  }),
+  zIndexPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.zIndexValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  boxSizingPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => BoxSizingValues.includes(classname)),
+  ),
+  containerPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter((property) => property.classname === ContainerValue),
+  ),
+  objectFitPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => ObjectFitValues.includes(classname)),
+  ),
+  objectPositionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+    if (!project?.tailwindConfig) return []
+    return Object.keys(project.tailwindConfig.theme.objectPosition).map((v) => `object-${v}`)
+  }),
+  objectPositionPropertys: computed(
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.objectPositionValues],
+    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  ),
+  overflowPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => OverflowValues.includes(classname)),
+  ),
+  overscrollPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+    propertys.filter(({ classname }) => OverscrollValues.includes(classname)),
+  ),
   // #endregion
 
   alreadyVariants: computed(
     [
-      (state: State<LayoutModel>) => state.containerPropertys,
       (state: State<LayoutModel>) => state.displayPropertys,
-      (state: State<LayoutModel>) => state.objectFitPropertys,
-      (state: State<LayoutModel>) => state.objectPositionPropertys,
-      (state: State<LayoutModel>) => state.overflowPropertys,
+
       (state: State<LayoutModel>) => state.positionPropertys,
-      // (state: State<LayoutModel>) => state.insetPropertys,
-      // (state: State<LayoutModel>) => state.insetYPropertys,
-      // (state: State<LayoutModel>) => state.insetXPropertys,
       (state: State<LayoutModel>) => state.topPropertys,
       (state: State<LayoutModel>) => state.bottomPropertys,
       (state: State<LayoutModel>) => state.leftPropertys,
       (state: State<LayoutModel>) => state.rightPropertys,
-      (state: State<LayoutModel>) => state.visibilityPropertys,
-      (state: State<LayoutModel>) => state.zIndexPropertys,
+
       (state: State<LayoutModel>) => state.flexDirectionPropertys,
       (state: State<LayoutModel>) => state.flexWrapPropertys,
       (state: State<LayoutModel>) => state.flexPropertys,
@@ -485,6 +468,7 @@ const layoutModel: LayoutModel = {
       (state: State<LayoutModel>) => state.alignItemsPropertys,
       (state: State<LayoutModel>) => state.alignContentPropertys,
       (state: State<LayoutModel>) => state.alignSelfPropertys,
+
       (state: State<LayoutModel>) => state.gridColsPropertys,
       (state: State<LayoutModel>) => state.gridRowsPropertys,
       (state: State<LayoutModel>) => state.colSpanPropertys,
@@ -498,9 +482,16 @@ const layoutModel: LayoutModel = {
       (state: State<LayoutModel>) => state.autoColsPropertys,
       (state: State<LayoutModel>) => state.autoRowsPropertys,
 
+      (state: State<LayoutModel>) => state.visibilityPropertys,
+      (state: State<LayoutModel>) => state.zIndexPropertys,
+      (state: State<LayoutModel>) => state.containerPropertys,
+      (state: State<LayoutModel>) => state.objectFitPropertys,
+      (state: State<LayoutModel>) => state.objectPositionPropertys,
+      (state: State<LayoutModel>) => state.overflowPropertys,
       (state: State<LayoutModel>) => state.boxSizingPropertys,
       (state: State<LayoutModel>) => state.floatPropertys,
       (state: State<LayoutModel>) => state.clearPropertys,
+      (state: State<LayoutModel>) => state.overscrollPropertys,
     ] as any,
     (...propertys: Array<Property[]>) => {
       const allPropertys = flatten(propertys)

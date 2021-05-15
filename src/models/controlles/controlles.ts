@@ -79,7 +79,7 @@ const controllesModel: ControllesModel = {
       if (!activeElement || !frontProject) return
       const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
 
-      const gProperty = {
+      const gProperty: Property = {
         id: propertyId,
         classname,
         screen: selectScreenVariant,

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react'
-import { HStack, Center, Box, Text, Icon } from '@chakra-ui/react'
+import { HStack, Center, Box, Flex, Icon } from '@chakra-ui/react'
 import { IoLink, IoUnlink } from 'react-icons/io5'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
@@ -45,45 +45,45 @@ const Rounded: React.FC = (): JSX.Element => {
 
   return (
     <Box>
-      <HStack spacing="18px">
-        <Box w="50%">
+      <Flex justifyContent="space-between">
+        <Box w="46%">
           <SelectController
-            placeholder={bind ? 'rounded' : 'rounded-tl'}
+            placeholder={bind ? 'radius' : 'radius-tl'}
             values={bind ? roundedValues : roundedTopLeftValues}
             property={bind ? roundedProperty : roundedTopLeftProperty}
           />
         </Box>
-        <Box w="50%">
+        <Box w="46%">
           <SelectController
-            placeholder={bind ? 'rounded' : 'rounded-tr'}
+            placeholder={bind ? 'radius' : 'radius-tr'}
             values={bind ? roundedValues : roundedTopRightValues}
             property={bind ? roundedProperty : roundedTopRightProperty}
           />
         </Box>
-      </HStack>
-      <Center mt={2}>
+      </Flex>
+      <Center>
         {bind ? (
-          <Icon as={IoLink} w={8} h={8} color="gray.800" onClick={() => setBind(false)} />
+          <Icon as={IoLink} w={6} h={6} color="gray.600" onClick={() => setBind(false)} />
         ) : (
-          <Icon as={IoUnlink} w={8} h={8} color="gray.400" onClick={() => setBind(true)} />
+          <Icon as={IoUnlink} w={6} h={6} color="gray.400" onClick={() => setBind(true)} />
         )}
       </Center>
-      <HStack spacing="18px">
-        <Box w="50%">
+      <Flex justifyContent="space-between">
+        <Box w="46%">
           <SelectController
-            placeholder={bind ? 'rounded' : 'rounded-bl'}
+            placeholder={bind ? 'radius' : 'radius-bl'}
             values={bind ? roundedValues : roundedBottomLeftValues}
             property={bind ? roundedProperty : roundedBottomLeftProperty}
           />
         </Box>
-        <Box w="50%">
+        <Box w="46%">
           <SelectController
-            placeholder={bind ? 'rounded' : 'rounded-br'}
+            placeholder={bind ? 'radius' : 'radius-br'}
             values={bind ? roundedValues : roundedBottomRightValues}
             property={bind ? roundedProperty : roundedBottomRightProperty}
           />
         </Box>
-      </HStack>
+      </Flex>
     </Box>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
-import { TextOverflowValues, WhitespaceValues } from '../../../models/controlles/advanced'
+import { TextOverflowValues, WhitespaceValues } from '../../../models/controlles/typography'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
@@ -9,10 +9,10 @@ import useComputeProperty from '../useComputeProperty'
 const TextOverflow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const propertys = useStoreState<Array<Property>>((state) => state.advanced.textOverflowPropertys)
+  const propertys = useStoreState<Array<Property>>((state) => state.typography.textOverflowPropertys)
   const property = useComputeProperty(propertys)
 
-  const whitespacePropertys = useStoreState<Array<Property>>((state) => state.advanced.whitespacePropertys)
+  const whitespacePropertys = useStoreState<Array<Property>>((state) => state.typography.whitespacePropertys)
   const whitespaceProperty = useComputeProperty(whitespacePropertys)
 
   if (already && !property) return <></>

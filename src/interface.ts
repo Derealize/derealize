@@ -23,6 +23,7 @@ export interface ElementActualStatus extends ProjectIdParam {
   position?: string
   parentTagName?: string
   parentDisplay?: string
+  background?: string
 }
 
 export enum InsertMode {
@@ -89,6 +90,5 @@ export const ControllerShortcut = [
   { key: 'Alt+6', label: 'Background Panel' },
   { key: 'Alt+7', label: 'Effects Panel' },
   { key: 'Alt+8', label: 'Components Panel' },
-  { key: 'Alt+9', label: 'Advanced Panel' },
-  { key: 'Alt+0', label: 'Add Panel' },
+  { key: 'Alt+9', label: 'Add Panel' },
 ]

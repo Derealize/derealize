@@ -29,10 +29,10 @@ const ElementEdit: React.FC = (): JSX.Element => {
     sendBackIpc(Handler.ReplaceElement, payload as any)
   }, [element, selElementType])
 
-  const handleDelete = useCallback(() => {
-    if (!element) return
-    sendBackIpc(Handler.ReplaceElement, { ...element } as any)
-  }, [element])
+  // const handleDelete = useCallback(() => {
+  //   if (!element) return
+  //   sendBackIpc(Handler.ReplaceElement, { ...element } as any)
+  // }, [element])
 
   if (!element) return <></>
 
@@ -55,9 +55,9 @@ const ElementEdit: React.FC = (): JSX.Element => {
         </Button>
       </HStack>
 
-      <Button colorScheme="pink" variant="ghost" onClick={handleDelete}>
+      {/* <Button colorScheme="pink" variant="ghost" onClick={handleDelete}>
         Delete
-      </Button>
+      </Button> */}
     </VStack>
   )
 }

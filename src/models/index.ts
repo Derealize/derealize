@@ -5,7 +5,6 @@ import workspaceModel, { WorkspaceModel } from './workspace'
 import controllesModel, { ControllesModel } from './controlles/controlles'
 import layoutModel, { LayoutModel } from './controlles/layout'
 import spacingModel, { SpacingModel } from './controlles/spacing'
-import advancedModel, { AdvancedModel } from './controlles/advanced'
 import borderModel, { BorderModel } from './controlles/border'
 import typographyModel, { TypographyModel } from './controlles/typography'
 import backgroundModel, { BackgroundModel } from './controlles/background'
@@ -19,7 +18,6 @@ export interface StoreModel {
   controlles: ControllesModel
   layout: LayoutModel
   spacing: SpacingModel
-  advanced: AdvancedModel
   border: BorderModel
   typography: TypographyModel
   background: BackgroundModel
@@ -34,7 +32,6 @@ const storeModel: StoreModel = {
   controlles: controllesModel,
   layout: layoutModel,
   spacing: spacingModel,
-  advanced: advancedModel,
   border: borderModel,
   typography: typographyModel,
   background: backgroundModel,

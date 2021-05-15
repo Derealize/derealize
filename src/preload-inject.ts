@@ -49,6 +49,7 @@ const respElementActualStatus = () => {
   const declaration = getComputedStyle(activeElement)
   payload.display = declaration.getPropertyValue('display')
   payload.position = declaration.getPropertyValue('position')
+  payload.background = declaration.getPropertyValue('background-image')
   if (payload.position === 'static') {
     activeElement.style.cssText = 'position: relative'
   }
