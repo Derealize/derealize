@@ -47,14 +47,8 @@ import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const {
-  sendBackIpc,
-  sendMainIpcSync,
-  listenBackIpc,
-  unlistenBackIpc,
-  listenMainIpc,
-  unlistenMainIpc,
-} = window.derealize
+const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc } =
+  window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
@@ -169,9 +163,11 @@ const ImportProject = (): JSX.Element => {
           editedTime: dayjs().toString(),
           status: ProjectStatus.Initialized,
         }
+        newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as
+          | TailwindConfig
+          | undefined
         addProject(newProject)
         await sendBackIpc(Handler.Install, { projectId: id })
-        newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as TailwindConfig
       } else {
         setImportloading(false)
         installOutput.push(`import error: ${error}`)
