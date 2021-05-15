@@ -7,11 +7,7 @@ import Variants from '../Variants'
 import Frame from './Frame'
 import SpaceBetween from './SpaceBetween'
 import Width from './Width'
-import MaxWidth from './MaxWidth'
-import MinWidth from './MinWidth'
 import Height from './Height'
-import MaxHeight from './MaxHeight'
-import MinHeight from './MinHeight'
 
 const SpacingSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -24,11 +20,7 @@ const SpacingSection: React.FC = (): JSX.Element => {
 
       <VStack mt={4} alignItems="stretch" spacing={4}>
         <Width />
-        <MaxWidth />
-        <MinWidth />
         <Height />
-        <MaxHeight />
-        <MinHeight />
         <SpaceBetween />
       </VStack>
     </>

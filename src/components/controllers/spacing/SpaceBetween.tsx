@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useContext } from 'react'
+import { HStack, Box } from '@chakra-ui/react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
@@ -22,10 +23,10 @@ const SpaceBetween: React.FC = (): JSX.Element => {
   if (!element?.actualStatus?.display?.includes('block')) return <></>
 
   return (
-    <>
-      <SelectController placeholder="space-between-x" values={valuesX} property={propertyX} />
-      <SelectController placeholder="space-between-y" values={valuesY} property={propertyY} />
-    </>
+    <HStack>
+      <SelectController placeholder="space-x" values={valuesX} property={propertyX} />
+      <SelectController placeholder="space-y" values={valuesY} property={propertyY} />
+    </HStack>
   )
 }
 

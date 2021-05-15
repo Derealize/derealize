@@ -12,6 +12,8 @@ import Select, {
   InputProps,
   PlaceholderProps,
   IndicatorProps,
+  IndicatorContainerProps,
+  SingleValueProps,
   components,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
@@ -45,6 +47,7 @@ type Props = {
   placeholder: string
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
+  isDisabled?: boolean
   onMouseEnter?: boolean
   cleanPropertys?: Array<Property>
   // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
@@ -54,6 +57,7 @@ const SelectController: React.FC<Props> = ({
   placeholder,
   values,
   property,
+  isDisabled,
   onMouseEnter,
   cleanPropertys,
 }: Props): JSX.Element => {
@@ -94,6 +98,12 @@ const SelectController: React.FC<Props> = ({
         indicatorSeparator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
           display: 'none',
         }),
+        indicatorsContainer: (provided: CSSObject, state: IndicatorContainerProps<OptionType, boolean, GroupType>) => ({
+          ...provided,
+          width: 30,
+          height: 30,
+          justifyContent: 'center',
+        }),
         control: (provided: CSSObject, state: ControlProps<OptionType, boolean, GroupType>) => {
           // state.isFocused
           return {
@@ -101,13 +111,22 @@ const SelectController: React.FC<Props> = ({
             boxShadow: 'none',
             borderRadius: 0,
             border: 'none',
-            borderBottom: `1px solid ${property ? theme.colors.teal['400'] : theme.colors.gray['200']}`,
+            // borderBottom: `1px solid ${property ? theme.colors.teal['400'] : theme.colors.gray['200']}`,
+            borderBottom: `1px solid ${state.isFocused && property ? theme.colors.teal['500'] : 'transparent'}`,
             cursor: 'pointer',
+            minHeight: undefined,
+            '&:hover': {
+              borderBottom: `1px solid ${property ? theme.colors.teal['500'] : theme.colors.gray['300']}`,
+            },
           }
         },
+        singleValue: (provided: CSSObject, props: SingleValueProps<OptionType, GroupType>) => ({
+          ...provided,
+          color: property ? theme.colors.teal['500'] : theme.colors.gray['400'],
+        }),
         valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
           ...provided,
-          // padding: 0,
+          padding: '2px 4px',
         }),
         placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
           ...provided,
@@ -117,10 +136,16 @@ const SelectController: React.FC<Props> = ({
           ...provided,
           margin: 0,
         }),
+        option: (provided: CSSObject, props: OptionProps<OptionType, IsMulti, GroupType>) => ({
+          ...provided,
+          padding: '4px 8px',
+        }),
       }}
       components={onMouseEnter ? { Option } : {}}
       placeholder={placeholder}
       isClearable
+      // menuIsOpen
+      isDisabled={isDisabled}
       options={
         typeof values[0] === 'string'
           ? (values as ReadonlyArray<string>).map((v) => ({ value: v, label: v.split('-').splice(-1)[0] }))
@@ -163,6 +188,7 @@ const SelectController: React.FC<Props> = ({
 }
 
 SelectController.defaultProps = {
+  isDisabled: false,
   onMouseEnter: true,
   cleanPropertys: [],
 }

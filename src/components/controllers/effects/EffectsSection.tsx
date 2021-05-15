@@ -23,14 +23,14 @@ const EffectsSection: React.FC = (): JSX.Element => {
       <Accordion defaultIndex={[0]} mt={4}>
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Effects
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <BoxShadow />
             <Opacity />
           </AccordionPanel>
@@ -38,14 +38,14 @@ const EffectsSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Transition
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <Transition />
             <Animation />
           </AccordionPanel>
@@ -53,28 +53,28 @@ const EffectsSection: React.FC = (): JSX.Element => {
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Transform
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <Transform />
           </AccordionPanel>
         </AccordionItem>
 
         <AccordionItem>
           <h2>
-            <AccordionButton>
+            <AccordionButton px={1}>
               <Box flex="1" textAlign="left">
                 Advanced
               </Box>
               <AccordionIcon />
             </AccordionButton>
           </h2>
-          <AccordionPanel alignItems="stretch" pb={4}>
+          <AccordionPanel p={0}>
             <MixBlend />
             <BackgroundBlend />
           </AccordionPanel>

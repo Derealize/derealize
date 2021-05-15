@@ -85,7 +85,7 @@ const spacingModel: SpacingModel = {
 
   maxWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.minWidth).map((v) => `max-w-${v}`)
+    return Object.keys(project.tailwindConfig.theme.maxWidth).map((v) => `max-w-${v}`)
   }),
   maxWidthPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.maxWidthValues],
@@ -104,7 +104,7 @@ const spacingModel: SpacingModel = {
 
   minHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.minWidth).map((v) => `min-h-${v}`)
+    return Object.keys(project.tailwindConfig.theme.minHeight).map((v) => `min-h-${v}`)
   }),
   minHeightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.minHeightValues],
@@ -113,7 +113,7 @@ const spacingModel: SpacingModel = {
 
   maxHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.minWidth).map((v) => `max-h-${v}`)
+    return Object.keys(project.tailwindConfig.theme.maxHeight).map((v) => `max-h-${v}`)
   }),
   maxHeightPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.maxHeightValues],

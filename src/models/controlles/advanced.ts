@@ -167,9 +167,6 @@ const advancedModel: AdvancedModel = {
 
   alreadyVariants: computed(
     [
-      (state: State<AdvancedModel>) => state.boxSizingPropertys,
-      (state: State<AdvancedModel>) => state.floatPropertys,
-      (state: State<AdvancedModel>) => state.clearPropertys,
       (state: State<AdvancedModel>) => state.overscrollPropertys,
       (state: State<AdvancedModel>) => state.divideYPropertys,
       (state: State<AdvancedModel>) => state.divideXPropertys,

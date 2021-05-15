@@ -393,7 +393,7 @@ const Frame: React.FC = (): JSX.Element => {
 
         <div
           className={cs(style.pl, {
-            [style.active]: target === Target.p || target === Target.px || target === Target.ml,
+            [style.active]: target === Target.p || target === Target.px || target === Target.pl,
           })}
           role="button"
           aria-hidden="true"

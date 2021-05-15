@@ -138,6 +138,7 @@ const derealizeListener = (e: Event) => {
 ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, { projectId, className }: ElementPayload) => {
   if (projectId === PROJECTID && activeElement) {
     activeElement.className = className
+    console.log('LiveUpdateClass', className)
     respElementActualStatus()
   }
 })
