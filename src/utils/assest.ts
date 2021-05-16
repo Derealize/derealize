@@ -1,9 +1,3 @@
-import type { PreloadWindow } from '../preload'
-
-declare const window: PreloadWindow
-
-export const crossCtrl = window.env.isMac ? '⌘' : 'CTRL'
-
 // eslint-disable-next-line import/prefer-default-export
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -23,6 +17,7 @@ export const IntEnumValues = (enumme: any): Array<string> => {
   return Object.keys(enumme).filter((value) => !Number.isNaN(Number(value)))
 }
 
+// https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
 export const ReplacedElementTagName = [
   'IMG',
   'IFRAME',
@@ -33,4 +28,44 @@ export const ReplacedElementTagName = [
   'CANVAS',
   'OBJECT',
   'APPLET',
+]
+
+// https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+export const EmptyElement = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+]
+
+export const DropzoneTags = [
+  'div',
+  'p',
+  'main',
+  'section',
+  'nav',
+  'footer',
+  'form',
+  'header',
+  'article',
+  'aside',
+  'body',
+  'col',
+  'fieldset',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
 ]

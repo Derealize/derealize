@@ -1,41 +1,44 @@
-# TIPS
+## Scripts
 
+```js
+yarn
+yarn postinstall_dll
+yarn start
+yarn cross-env PORT=8564 yarn start
+
+// 不编译 backend.ts 直接执行. 无 hotload、devtools debug:
+yarn cross-env BACKEND_SUBPROCESS=true yarn start
+
+yarn cross-env OPEN_ANALYZER=true yarn build
+
+// build 后不安装快速调试执行 [backend,preload,renderer].prod.js:
+yarn cross-env DEBUG_PROD=true yarn build
+yarn cross-env NODE_ENV=production DEBUG_PROD=true yarn start
+
+// [packaging](https://electron-react-boilerplate.js.org/docs/packaging)
+yarn package --all
+yarn cross-env DEBUG_PROD=true yarn package
+
+// [Build unpacked dir](https://www.electron.build/cli)
+yarn cross-env DEBUG_PROD=true yarn dir
+```
+
+## TIPS
+
+```js
 npm install --global --production windows-build-tools
-最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
+// 最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
+用 yarn，不要挂代理 // https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions
 
-用 yarn，不要挂代理
-<https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions/>
 rm yarn.lock src/yarn.lock
 rm -rf node_modules
 Remove-Item -Recurse -Force .\node_modules
 Remove-Item -Recurse -Force .\src\node_modules
 yarn cache clean
 yarn
-yarn electron-rebuild
+yarn postinstall_dll
+yarn rebuild
 yarn start
-
-node_modules/recast/parsers/babel.js 因为有动态加载，webpack 无法打包，需要：
-
-```js
-// try {
-//   return require('@babel/parser')
-// } catch (e) {
-//   return require('babylon')
-// }
-return __non_webpack_require__('@babel/parser')
-```
-
-node_modules/selector-generator/selector-generator.js 给 document.querySelector 用的字符串不需要 escape：
-
-```js
-// result += "[name=\"" + cssEscaper.escape(attributeName) + "\"]";
-result += "[name=\"" + attributeName + "\"]";
-// result += "." + cssEscaper.escape(prefixedName.substr(1));
-result += "." + prefixedName.substr(1).replaceAll(':', '\\:');
-// return "#" + cssEscaper.escape(id);
-return "#" + id.replaceAll(':', '\\:');
-// L569 withoutNthChild: true,
-withoutNthChild: false,
 ```
 
 webpack 配置文件关于 NODE_ENV 的原则：
@@ -48,28 +51,7 @@ webpack 配置文件关于 NODE_ENV 的原则：
 
 electron-builder 第一次运行需要下载 nsis、winCodeSign，自动下载很可能失败，可以[手动下载](https://github.com/electron-userland/electron-builder/issues/1859)
 
-# Scripts
-
-yarn start
-yarn cross-env PORT=8564 yarn start
-
-不编译 backend.ts 直接执行. 无 hotload、devtools debug:
-yarn cross-env BACKEND_SUBPROCESS=true yarn start
-
-yarn cross-env OPEN_ANALYZER=true yarn build
-
-build 后不安装快速调试执行 [backend,preload,renderer].prod.js:
-yarn cross-env DEBUG_PROD=true yarn build
-yarn cross-env NODE_ENV=production DEBUG_PROD=true yarn start
-
-[packaging](https://electron-react-boilerplate.js.org/docs/packaging)
-yarn package --all
-yarn cross-env DEBUG_PROD=true yarn package
-
-[Build unpacked dir](https://www.electron.build/cli)
-yarn cross-env DEBUG_PROD=true yarn dir
-
-# NodeGit
+## NodeGit
 
 fork/BrowserWindow main 进程时暂时无解决的问题：
 https://github.com/nodegit/nodegit/issues/1335
@@ -80,30 +62,22 @@ todo:这个问题可能只存在于 win 平台
 实测 nodegit 执行 electron-rebuild 没有任何区别
 实测不使用 fork/BrowserWindow 直接 main 进程引用 nodegit 没有问题
 
-# Other Issus
+## Other Issus
 
 erb 文档有不少错误，./app 应该是 ./src
-以下方式调试 package 应该是扯蛋的
-yarn cross-env DEBUG_PROD=true yarn build
-yarn cross-env DEBUG_PROD=true yarn start
 
 可以用 electron-builder build --dir 仅编译，不打包安装程序
+
 查看依赖包是不是 native 包，直接看源码是不是纯 js 就行
 
+```js
 解压 app.asat
 npm install -g asar
 asar extract app.asar 文件夹
+```
 
-# server-process
+## server-process
 
-[关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)：
-[方案](https://github.com/jlongster/electron-with-server-example) 即使 5.x 版本真的解决了 block 渲染线程的问题（可以用 git/npm 测试），把主要的 node 线程任务拆分出 elretorn 主线程依然是非常有必要的。elretorn 除了 UI 以外还有很多工作：任务栏菜单、快捷键、通知...还有 npm/git 任务崩溃的时候...
-与 webpack [集成方案参考](https://github.com/jlongster/electron-with-server-example/issues/6#issuecomment-611617665)：
-
-# todo
-
-cd src && yarn add nodegit
-no template named 'remove_cv_t' in namespace 'std'; did you mean 'remove_cv'?
-等待这个 pull request 发布到 0.28.0-alpha.1 版本
-https://github.com/nodegit/nodegit/pull/1810
-https://github.com/nodegit/nodegit/blob/master/package.json
+- [关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)
+- [方案](https://github.com/jlongster/electron-with-server-example) 即使 5.x 版本真的解决了 block 渲染线程的问题（可以用 git/npm 测试），把主要的 node 线程任务拆分出 elretorn 主线程依然是非常有必要的。elretorn 除了 UI 以外还有很多工作：任务栏菜单、快捷键、通知...还有 npm/git 任务崩溃的时候...
+- 与 webpack [集成方案参考](https://github.com/jlongster/electron-with-server-example/issues/6#issuecomment-611617665)
