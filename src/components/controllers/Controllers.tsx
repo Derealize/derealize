@@ -9,7 +9,6 @@ import { MdTransform, MdGridOn, MdFormatColorText } from 'react-icons/md'
 import { FcAddRow } from 'react-icons/fc'
 import { BiCrop } from 'react-icons/bi'
 import { useStoreActions, useStoreState } from '../../reduxStore'
-import ControllersContext from './ControllersContext'
 import type { Property } from '../../models/controlles/controlles'
 import AlreadySection from './AlreadySection'
 import LayoutSection from './layout/LayoutSection'
@@ -77,7 +76,7 @@ const Controllers: React.FC = (): JSX.Element => {
 
   return (
     <Tabs orientation="vertical" colorScheme="teal" index={tabIndex} onChange={(i) => setTabIndex(i)}>
-      <TabList>
+      <TabList bg="gray.50">
         <Tab p={3}>
           <Tooltip label="(Alt+1) Current">
             <Box>
@@ -144,9 +143,7 @@ const Controllers: React.FC = (): JSX.Element => {
       </TabList>
       <TabPanels className={style.panels}>
         <TabPanel>
-          <ControllersContext.Provider value={{ already: true }}>
-            <AlreadySection />
-          </ControllersContext.Provider>
+          <AlreadySection />
         </TabPanel>
         <TabPanel>
           <LayoutSection />

@@ -86,6 +86,8 @@ export type ListVariantsType = typeof ListVariants[number]
 export const OmitStoreProp = [
   'isOpened',
   'isFront',
+  'isEditing',
+  'status',
   'stage',
   'changes',
   'runningOutput',
@@ -95,6 +97,7 @@ export const OmitStoreProp = [
   'elements',
   'view',
   'startloading',
+  'jitClassName',
 ]
 
 const toast = createStandaloneToast({

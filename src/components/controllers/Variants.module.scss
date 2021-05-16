@@ -8,10 +8,7 @@ $teal500: #319795;
   @include space-bteween-y();
 }
 
-.screenVariants,
-.stateVariants,
-.listVariants,
-.customVariants {
+.variantsline {
   @include space-bteween-x(0.75rem);
 }
 
