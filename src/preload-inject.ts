@@ -1,5 +1,5 @@
 import { ipcRenderer, contextBridge } from 'electron'
-import { Droppable, DroppableEventNames, DroppableEvent } from '@shopify/draggable'
+import { Droppable, DroppableEventNames, DroppableDroppedEvent } from '@shopify/draggable'
 import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
@@ -114,19 +114,19 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
     tags.push('ol')
   }
 
+  // console.log('droppable?.destroy()')
   droppable?.destroy()
   droppable = new Droppable(document.querySelectorAll('body > *'), {
     draggable: '[data-active]',
-    handle: '[data-active] .de-handle',
-    dropzone: tags.join(','),
+    handle: '[data-active] i.de-handle',
+    dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
   })
-  droppable.on('droppable:dropped', (e: DroppableEvent) => console.log('droppable:dropped', e))
+  droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
+    console.log('dropped:dragEvent:source', e.dragEvent.source.getAttribute(dataCode))
+    console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource.getAttribute(dataCode))
+    console.log('dropped:dropzone', e.dropzone.getAttribute(dataCode))
+  })
   droppable.on('droppable:returned', () => console.log('droppable:returned'))
-
-  // activeElement.querySelector('ul.de-section i.de-handle')?.addEventListener('click', (e) => {
-  //   e.stopPropagation()
-  //   ipcRenderer.send(MainIpcChannel.TextTab, true)
-  // })
 }
 
 const derealizeListener = (e: Event) => {
@@ -166,10 +166,11 @@ const listenElement = () => {
   document.querySelectorAll(`[${dataCode}]`).forEach((el) => {
     el.removeEventListener('click', derealizeListener)
     el.addEventListener('click', derealizeListener)
-    el.removeEventListener('focus', derealizeListener)
-    el.addEventListener('focus', derealizeListener)
     el.removeEventListener('contextmenu', derealizeListener)
     el.addEventListener('contextmenu', derealizeListener)
+    // 重复执行 inspectActiveElement 导致 droppable 不流畅
+    // el.removeEventListener('focus', derealizeListener)
+    // el.addEventListener('focus', derealizeListener)
   })
 }
 

@@ -68,4 +68,6 @@ export const DropzoneTags = [
   'h4',
   'h5',
   'h6',
+  'blockquote',
+  'figcaption',
 ]
