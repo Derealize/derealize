@@ -1,6 +1,8 @@
 import { ipcRenderer, contextBridge } from 'electron'
+import { Droppable, DroppableEventNames, DroppableEvent } from '@shopify/draggable'
 import 'selector-generator'
-import { connectSocket, sendBackIpc, listenBackIpc } from './client-ipc'
+import { connectSocket, sendBackIpc } from './client-ipc'
+import { EmptyElement, DropzoneTags } from './utils/assest'
 import { Handler } from './backend/backend.interface'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
 import { cssText, sectionText } from './preload-inject-code'
@@ -11,24 +13,7 @@ let dataCode = 'data-code'
 let selector: string | undefined
 let activeElement: HTMLElement | null = null
 let hoverElement: Element | null = null
-
-// https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
-const EmptyElement = [
-  'area',
-  'base',
-  'br',
-  'col',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr',
-]
+let droppable: Droppable<DroppableEventNames> | undefined
 
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
@@ -108,25 +93,40 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   activeElement.setAttribute('data-active', 'true')
 
   respElementActualStatus()
+  if (ISWEAPP) return
 
-  if (!ISWEAPP) {
-    const viewportReact = activeElement.getBoundingClientRect()
-    activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26, supportText))
-    activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      if (window.confirm('Sure Delete?')) {
-        sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
-      }
-    })
-    activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      ipcRenderer.send(MainIpcChannel.InsertTab, true)
-    })
-    activeElement.querySelector('ul.de-section i.de-text')?.addEventListener('click', (e) => {
-      e.stopPropagation()
-      ipcRenderer.send(MainIpcChannel.TextTab, true)
-    })
+  const viewportReact = activeElement.getBoundingClientRect()
+  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26))
+  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
+    e.stopPropagation()
+    if (window.confirm('Sure Delete?')) {
+      sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
+    }
+  })
+  activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
+    e.stopPropagation()
+    ipcRenderer.send(MainIpcChannel.InsertTab, true)
+  })
+
+  const tags = DropzoneTags
+  if (tagName === 'LI') {
+    tags.push('ul')
+    tags.push('ol')
   }
+
+  droppable?.destroy()
+  droppable = new Droppable(document.querySelectorAll('body > *'), {
+    draggable: '[data-active]',
+    handle: '[data-active] .de-handle',
+    dropzone: tags.join(','),
+  })
+  droppable.on('droppable:dropped', (e: DroppableEvent) => console.log('droppable:dropped', e))
+  droppable.on('droppable:returned', () => console.log('droppable:returned'))
+
+  // activeElement.querySelector('ul.de-section i.de-handle')?.addEventListener('click', (e) => {
+  //   e.stopPropagation()
+  //   ipcRenderer.send(MainIpcChannel.TextTab, true)
+  // })
 }
 
 const derealizeListener = (e: Event) => {
