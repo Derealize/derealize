@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Select, VStack, Box, Text, Icon } from '@chakra-ui/react'
+import { Select, VStack, Box, Icon } from '@chakra-ui/react'
 import type { AlreadyVariants } from '../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../reduxStore'
+import ControllersContext from './ControllersContext'
 import Variants from './Variants'
 import ElementEdit from './ElementEdit'
 
@@ -42,64 +43,129 @@ import RowEnd from './grid/RowEnd'
 import AutoCols from './grid/AutoCols'
 import AutoRows from './grid/AutoRows'
 
-import Frame from './spacing/Frame'
-import SpaceBetween from './spacing/SpaceBetween'
-import Width from './spacing/Width'
-import Height from './spacing/Height'
+import SpacingSection from './spacing/SpacingSection'
+
+import Rounded from './border/Rounded'
+import Border from './border/Border'
+import Divide from './border/Divide'
+
+import FontFamily from './typography/FontFamily'
+import FontSize from './typography/FontSize'
+import FontWeight from './typography/FontWeight'
+import LineHeight from './typography/LineHeight'
+import LetterSpacing from './typography/LetterSpacing'
+import Placeholder from './typography/Placeholder'
+import Text from './typography/Text'
+import TextAlign from './typography/TextAlign'
+import TextColor from './typography/TextColor'
+import TextDecoration from './typography/TextDecoration'
+import TextOpacity from './typography/TextOpacity'
+import TextTransform from './typography/TextTransform'
+import FontSmoothing from './typography/FontSmoothing'
+import FontStyle from './typography/FontStyle'
+import FontVariantNumeric from './typography/FontVariantNumeric'
+import ListStyle from './typography/ListStyle'
+import TextOverflow from './typography/TextOverflow'
+import VerticalAlign from './typography/VerticalAlign'
+import WordBreak from './typography/WordBreak'
+
+import BackgroundSection from './background/BackgroundSection'
+
+import BoxShadow from './effects/BoxShadow'
+import Opacity from './effects/Opacity'
+import Transition from './effects/Transition'
+import Animation from './effects/Animation'
+import Transform from './effects/Transform'
+import MixBlend from './effects/MixBlend'
+import BackgroundBlend from './effects/BackgroundBlend'
 
 const AlreadySection: React.FC = (): JSX.Element => {
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.controlles.alreadyVariants)
 
   return (
-    <VStack alignItems="stretch">
-      <Variants alreadyVariants={alreadyVariants} />
-      <Display />
+    <ControllersContext.Provider value={{ already: true }}>
+      <VStack alignItems="stretch">
+        <Variants alreadyVariants={alreadyVariants} />
 
-      <FlexController />
-      <FlexDirection />
-      <FlexGrow />
-      <FlexShrink />
-      <FlexWrap />
-      <JustifyContent />
-      <Order />
-      <AlignContent />
-      <AlignItems />
-      <AlignSelf />
+        <ElementEdit />
+        <Display />
 
-      <GridCols />
-      <GridRows />
-      <Gap />
-      <GridFlow />
-      <ColSpan />
-      <ColStart />
-      <ColEnd />
-      <RowSpan />
-      <RowStart />
-      <RowEnd />
-      <AutoCols />
-      <AutoRows />
+        <FlexController />
+        <FlexDirection />
+        <FlexGrow />
+        <FlexShrink />
+        <FlexWrap />
+        <JustifyContent />
+        <Order />
+        <AlignContent />
+        <AlignItems />
+        <AlignSelf />
 
-      <Position />
-      <Inset />
+        <GridCols />
+        <GridRows />
+        <Gap />
+        <GridFlow />
+        <ColSpan />
+        <ColStart />
+        <ColEnd />
+        <RowSpan />
+        <RowStart />
+        <RowEnd />
+        <AutoCols />
+        <AutoRows />
 
-      <Float />
-      <Clear />
+        <Position />
+        <Inset />
 
-      <Visibility />
-      <Zindex />
-      <BoxSizing />
-      <Container />
-      <ObjectFit />
-      <ObjectPosition />
-      <Overflow />
+        <Float />
+        <Clear />
 
-      <Frame />
-      <Width />
-      <Height />
-      <SpaceBetween />
+        <Visibility />
+        <Zindex />
+        <BoxSizing />
+        <Container />
+        <ObjectFit />
+        <ObjectPosition />
+        <Overflow />
 
-      <ElementEdit />
-    </VStack>
+        <SpacingSection />
+
+        <Border />
+        <Rounded />
+        <Divide />
+
+        <FontFamily />
+        <FontSize />
+        <FontWeight />
+        <LineHeight />
+        <LetterSpacing />
+        <Placeholder />
+        <Text />
+        <TextAlign />
+        <TextColor />
+        <TextDecoration />
+        <TextOpacity />
+        <TextTransform />
+
+        <FontSmoothing />
+        <FontStyle />
+        <FontVariantNumeric />
+        <ListStyle />
+        <TextOverflow />
+        <VerticalAlign />
+        <WordBreak />
+
+        <BackgroundSection />
+
+        <BoxShadow />
+        <Opacity />
+        <Transition />
+        <Animation />
+        <Transform />
+        <MixBlend />
+        <BackgroundBlend />
+      </VStack>
+    </ControllersContext.Provider>
   )
 }
 

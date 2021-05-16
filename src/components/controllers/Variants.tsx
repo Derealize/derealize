@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import cs from 'classnames'
+import { IconButton, Collapse, Flex } from '@chakra-ui/react'
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
 import { StateVariants, ListVariants } from '../../models/project'
 import { AlreadyVariants } from '../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../reduxStore'
@@ -27,80 +29,112 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const setSelectCustomVariant = useStoreActions((actions) => actions.controlles.setSelectCustomVariant)
 
+  const expandVariants = useStoreState<boolean>((state) => state.controlles.expandVariants)
+  const setExpandVariants = useStoreActions((actions) => actions.controlles.setExpandVariants)
+
   return (
     <div className={style.variants}>
-      <div className={style.screenVariants}>
-        <span
-          className={cs(style.option, {
-            [style.active]: selectDark,
-            [style.already]: alreadyVariants.dark,
-          })}
-          onClick={() => setSelectDark(!selectDark)}
-          aria-hidden="true"
-        >
-          dark
-        </span>
-        {screenVariants.map((variant) => (
-          <span
-            key={variant}
-            className={cs(style.option, {
-              [style.active]: variant === selectScreenVariant,
-              [style.already]: alreadyVariants.screens.includes(variant),
-            })}
-            onClick={() => setSelectScreenVariant(variant)}
-            aria-hidden="true"
-          >
-            {variant}
-          </span>
-        ))}
-      </div>
-      <div className={style.stateVariants}>
-        {StateVariants.map((variant) => (
-          <span
-            key={variant}
-            className={cs(style.option, {
-              [style.active]: variant === selectStateVariant,
-              [style.already]: alreadyVariants.states.includes(variant),
-            })}
-            onClick={() => setSelectStateVariant(variant)}
-            aria-hidden="true"
-          >
-            {variant}
-          </span>
-        ))}
-      </div>
-      <div className={style.listVariants}>
-        {ListVariants.map((variant) => (
-          <span
-            key={variant}
-            className={cs(style.option, {
-              [style.active]: variant === selectListVariant,
-              [style.already]: alreadyVariants.lists.includes(variant),
-            })}
-            onClick={() => setSelectListVariant(variant)}
-            aria-hidden="true"
-          >
-            {variant}
-          </span>
-        ))}
-      </div>
-      {!!customVariants.length && (
-        <div className={style.customVariants}>
-          {customVariants.map((variant) => (
+      <Flex justifyContent="space-between" alignItems="center">
+        <div>
+          <div className={style.variantsline}>
+            <span
+              className={cs(style.option, {
+                [style.active]: selectDark,
+                [style.already]: alreadyVariants.dark,
+              })}
+              onClick={() => setSelectDark(!selectDark)}
+              aria-hidden="true"
+            >
+              dark
+            </span>
+            {screenVariants.map((variant) => (
+              <span
+                key={variant}
+                className={cs(style.option, {
+                  [style.active]: variant === selectScreenVariant,
+                  [style.already]: alreadyVariants.screens.includes(variant),
+                })}
+                onClick={() => setSelectScreenVariant(variant)}
+                aria-hidden="true"
+              >
+                {variant}
+              </span>
+            ))}
+          </div>
+          <div className={style.variantsline}>
+            {StateVariants.slice(0, 3).map((variant) => (
+              <span
+                key={variant}
+                className={cs(style.option, {
+                  [style.active]: variant === selectStateVariant,
+                  [style.already]: alreadyVariants.states.includes(variant),
+                })}
+                onClick={() => setSelectStateVariant(variant)}
+                aria-hidden="true"
+              >
+                {variant}
+              </span>
+            ))}
+          </div>
+        </div>
+        <IconButton
+          size="sm"
+          aria-label={expandVariants ? 'unfold' : 'fold'}
+          colorScheme="gray"
+          variant="ghost"
+          icon={expandVariants ? <IoChevronUp /> : <IoChevronDown />}
+          onClick={() => setExpandVariants(!expandVariants)}
+        />
+      </Flex>
+      <Collapse animateOpacity in={expandVariants}>
+        <div className={style.variantsline}>
+          {StateVariants.slice(3).map((variant) => (
             <span
               key={variant}
               className={cs(style.option, {
-                [style.active]: variant === selectCustomVariant,
-                [style.already]: alreadyVariants.customs.includes(variant),
+                [style.active]: variant === selectStateVariant,
+                [style.already]: alreadyVariants.states.includes(variant),
               })}
-              onClick={() => setSelectCustomVariant(variant)}
+              onClick={() => setSelectStateVariant(variant)}
               aria-hidden="true"
             >
               {variant}
             </span>
           ))}
         </div>
-      )}
+        <div className={style.variantsline}>
+          {ListVariants.map((variant) => (
+            <span
+              key={variant}
+              className={cs(style.option, {
+                [style.active]: variant === selectListVariant,
+                [style.already]: alreadyVariants.lists.includes(variant),
+              })}
+              onClick={() => setSelectListVariant(variant)}
+              aria-hidden="true"
+            >
+              {variant}
+            </span>
+          ))}
+        </div>
+        {!!customVariants.length && (
+          <div className={style.variantsline}>
+            {customVariants.map((variant) => (
+              <span
+                key={variant}
+                className={cs(style.option, {
+                  [style.active]: variant === selectCustomVariant,
+                  [style.already]: alreadyVariants.customs.includes(variant),
+                })}
+                onClick={() => setSelectCustomVariant(variant)}
+                aria-hidden="true"
+              >
+                {variant}
+              </span>
+            ))}
+          </div>
+        )}
+      </Collapse>
     </div>
   )
 }

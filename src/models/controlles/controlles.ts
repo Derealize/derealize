@@ -54,6 +54,9 @@ export interface ControllesModel {
   selectDark: boolean
   setSelectDark: Action<ControllesModel, boolean>
 
+  expandVariants: boolean
+  setExpandVariants: Action<ControllesModel, boolean>
+
   propertys: Computed<ControllesModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
 }
@@ -198,6 +201,11 @@ const controllesModel: ControllesModel = {
   selectDark: false,
   setSelectDark: action((state, payload) => {
     state.selectDark = payload
+  }),
+
+  expandVariants: false,
+  setExpandVariants: action((state, payload) => {
+    state.expandVariants = payload
   }),
 
   propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => element?.propertys || []),

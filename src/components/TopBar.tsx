@@ -200,12 +200,12 @@ const TopBar: React.FC = (): JSX.Element => {
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {project.status === ProjectStatus.Ready && (
           <Tooltip label="start">
-            <BarIconButton aria-label="Start" icon={<VscDebugStop />} onClick={() => startProject(project.id)} />
+            <BarIconButton aria-label="Start" icon={<VscDebugStart />} onClick={() => startProject(project.id)} />
           </Tooltip>
         )}
         {(project.status === ProjectStatus.Running || project.status === ProjectStatus.Starting) && (
           <Tooltip label="stop">
-            <BarIconButton aria-label="Stop" icon={<VscDebugStart />} onClick={() => stopProject(project.id)} />
+            <BarIconButton aria-label="Stop" icon={<VscDebugStop />} onClick={() => stopProject(project.id)} />
           </Tooltip>
         )}
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
