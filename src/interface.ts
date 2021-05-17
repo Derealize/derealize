@@ -20,11 +20,11 @@ export interface ElementActualStatus extends ProjectIdParam {
   codePosition: string
   tagName: string
   className: string
-  display?: string
-  position?: string
+  display: string
+  position: string
+  background: string
   parentTagName?: string
   parentDisplay?: string
-  background?: string
 }
 
 export enum InsertMode {

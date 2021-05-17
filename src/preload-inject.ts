@@ -4,8 +4,8 @@ import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
 import { Handler } from './backend/backend.interface'
-import { ElementPayload, MoveElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
-import { cssText, sectionText } from './preload-inject-code'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { preloadCSS, sectionHTML } from './preload-inject-code'
 
 let PROJECTID: string | undefined
 let ISWEAPP = false
@@ -20,25 +20,25 @@ const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
 }
 
-const respElementActualStatus = () => {
-  if (!PROJECTID || !activeElement) return
+const respElementActualStatus = (): ElementActualStatus | null => {
+  if (!PROJECTID || !activeElement) return null
   const codePosition = activeElement.getAttribute(dataCode)
-  if (!codePosition) return
+  if (!codePosition) return null
 
   const { tagName, className } = activeElement
-  const payload: ElementActualStatus = { projectId: PROJECTID, codePosition, className, tagName }
-
   // https://stackoverflow.com/a/11495671
   // getComputedStyle() 不支持伪类查询，任何伪类style都会被检索。目前只能使用tailwindcss classname
   // 但parentDeclaration还无法被tailwindcss classname取代
   const declaration = getComputedStyle(activeElement)
-  payload.display = declaration.getPropertyValue('display')
-  payload.position = declaration.getPropertyValue('position')
-  payload.background = declaration.getPropertyValue('background-image')
-  if (payload.position === 'static') {
-    activeElement.style.cssText = 'position: relative'
+  const payload: ElementActualStatus = {
+    projectId: PROJECTID,
+    codePosition,
+    className,
+    tagName,
+    display: declaration.getPropertyValue('display'),
+    position: declaration.getPropertyValue('position'),
+    background: declaration.getPropertyValue('background-image'),
   }
-
   if (activeElement.parentElement) {
     payload.parentTagName = activeElement.parentElement.tagName
     const parentDeclaration = getComputedStyle(activeElement.parentElement)
@@ -46,6 +46,7 @@ const respElementActualStatus = () => {
   }
 
   ipcRenderer.send(MainIpcChannel.RespElementStatus, payload)
+  return payload
 }
 
 const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
@@ -56,6 +57,11 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
     activeElement.removeAttribute('data-active')
     activeElement.querySelector('ul.de-section')?.remove()
     activeElement = null
+    const wrapper = document.querySelector('div.de-wrapper')
+    if (wrapper) {
+      wrapper.parentNode?.insertBefore(wrapper.children[1], wrapper)
+      wrapper.remove()
+    }
   }
 
   if (typeof targetOrSelector === 'string') {
@@ -92,11 +98,34 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
   activeElement.setAttribute('data-active', 'true')
 
-  respElementActualStatus()
+  const actualStatus = respElementActualStatus()
+  if (!actualStatus) throw new Error('actualStatus null')
+
+  const isEmptyElement = EmptyElement.includes(tagName.toLowerCase())
+
+  if (!isEmptyElement && actualStatus.position === 'static') {
+    activeElement.style.cssText = 'position: relative'
+  }
+
+  // todo: for weapp...
   if (ISWEAPP) return
 
-  const viewportReact = activeElement.getBoundingClientRect()
-  activeElement.insertAdjacentHTML('afterbegin', sectionText(viewportReact.top < 26))
+  if (isEmptyElement) {
+    const wrapper = document.createElement('div')
+
+    wrapper.className = `de-wrapper ${className}`
+    wrapper.style.cssText = `
+      display: ${actualStatus.display};
+      position: ${actualStatus.position === 'static' ? 'relative' : actualStatus.position}`
+
+    activeElement.parentNode?.insertBefore(wrapper, activeElement)
+    wrapper.appendChild(activeElement)
+
+    wrapper.insertAdjacentHTML('afterbegin', sectionHTML(wrapper.getBoundingClientRect().top < 26))
+  } else {
+    activeElement.insertAdjacentHTML('afterbegin', sectionHTML(activeElement.getBoundingClientRect().top < 26))
+  }
+
   activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
     e.stopPropagation()
     if (window.confirm('Sure Delete?')) {
@@ -117,8 +146,8 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   // console.log('droppable?.destroy()')
   droppable?.destroy()
   droppable = new Droppable(document.querySelectorAll('body > *'), {
-    draggable: '[data-active]',
-    handle: '[data-active] i.de-handle',
+    draggable: isEmptyElement ? 'div.de-wrapper' : '[data-active]',
+    handle: isEmptyElement ? 'div.de-wrapper i.de-handle' : '[data-active] i.de-handle',
     dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
   })
   droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
@@ -128,7 +157,7 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
 
     const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
     if (!PROJECTID || !dropzoneCodePosition) return
-    const mpayload: MoveElementPayload = {
+    const mpayload: ElementPayload = {
       projectId: PROJECTID,
       codePosition,
       dropzoneCodePosition,
@@ -191,7 +220,7 @@ const listenElement = () => {
 
 // document.addEventListener('DOMContentLoaded', () => {
 //   const style = document.createElement('style')
-//   style.appendChild(document.createTextNode(cssText))
+//   style.appendChild(document.createTextNode(preloadCSS))
 //   document.head.appendChild(style)
 //   listenElement()
 // })
@@ -204,7 +233,7 @@ ipcRenderer.on('setParams', (event: Event, socketId, projectId, activeSelector, 
   ipcRenderer.send(MainIpcChannel.Flush, PROJECTID)
 
   const style = document.createElement('style')
-  style.appendChild(document.createTextNode(cssText))
+  style.appendChild(document.createTextNode(preloadCSS))
   document.head.appendChild(style)
   listenElement()
 

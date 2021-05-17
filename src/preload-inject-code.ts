@@ -1,7 +1,7 @@
 // <li class="de-button" title="text">
 //   <i class="de-icon de-text" aria-hidden="true"> ✎ </i>
 // </li>
-export const sectionText = (inside: boolean) => `
+export const sectionHTML = (inside: boolean) => `
 <ul class="de-section ${inside ? 'de-inside' : ''}">
   <li class="de-button" title="insert">
     <i class="de-icon de-insert" aria-hidden="true"> ✚ </i>
@@ -15,7 +15,7 @@ export const sectionText = (inside: boolean) => `
 </ul>
 `
 
-export const cssText = `
+export const preloadCSS = `
 [data-hover],
 [data-code]:hover {
   box-shadow: 0 0 0 2px #e2e8f0;
