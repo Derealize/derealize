@@ -18,7 +18,7 @@ import type {
   GitFileChanges,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ElementPayload, MoveElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
+import { ElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -159,7 +159,7 @@ export interface ProjectModel {
   cleanElements: Action<ProjectModel, string>
   savedElements: Action<ProjectModel, string>
 
-  droppedActiveElement: Action<ProjectModel, MoveElementPayload>
+  droppedActiveElement: Action<ProjectModel, ElementPayload>
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
 
@@ -616,7 +616,7 @@ const projectModel: ProjectModel = {
       actions.closeProject()
     })
 
-    listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: MoveElementPayload) => {
+    listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
       actions.droppedActiveElement(payload)
     })
   }),
