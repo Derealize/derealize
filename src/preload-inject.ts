@@ -122,9 +122,9 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
     dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
   })
   droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
-    console.log('dropped:dragEvent:source', e.dragEvent.source)
-    console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
-    console.log('dropped:dropzone', e.dropzone)
+    // console.log('dropped:dragEvent:source', e.dragEvent.source)
+    // console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
+    // console.log('dropped:dropzone', e.dropzone)
 
     const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
     if (!PROJECTID || !dropzoneCodePosition) return
@@ -144,13 +144,17 @@ const derealizeListener = (e: Event) => {
   if (!e.currentTarget || !PROJECTID) return
   e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
 
+  if (e.type === 'click') {
+    const href = (e.currentTarget as HTMLElement).getAttribute('href')
+    if (href) return
+  }
   inspectActiveElement(e.currentTarget as HTMLElement)
 }
 
 ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, { projectId, className }: ElementPayload) => {
   if (projectId === PROJECTID && activeElement) {
     activeElement.className = className
-    console.log('LiveUpdateClass', className)
+    // console.log('LiveUpdateClass', className)
     respElementActualStatus()
   }
 })

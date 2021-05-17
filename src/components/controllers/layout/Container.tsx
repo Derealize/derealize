@@ -30,7 +30,7 @@ const Container: React.FC = (): JSX.Element => {
 
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
-  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
+  const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
@@ -53,7 +53,7 @@ const Container: React.FC = (): JSX.Element => {
         } else if (!e.target.checked && property) {
           deleteProperty(property.id)
         }
-        shiftClassName()
+        liveApplyClassName()
       }}
     >
       Container

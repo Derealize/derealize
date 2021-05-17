@@ -22,7 +22,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
-  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
+  const savedElements = useStoreActions((actions) => actions.project.savedElements)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
@@ -124,7 +124,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
               {pendingElements?.length !== 0 && (
                 <Text mb={10}>
                   Here are {pendingElements?.length} elements waiting to be saved
-                  <Button ml={4} lefticon={<VscRepoPush />} onClick={() => shiftClassName()}>
+                  <Button ml={4} lefticon={<VscRepoPush />} onClick={() => savedElements(project.id)}>
                     Save
                   </Button>
                 </Text>
