@@ -30,7 +30,7 @@ const Inset: React.FC = (): JSX.Element => {
   const propertyRight = useComputeProperty(propertysRight)
 
   if (already && !propertyTop && !propertyBottom && !propertyLeft && !propertyRight) return <></>
-  if (!InsetPositions.some((name) => element?.actualStatus?.position?.includes(name))) return <></>
+  if (!InsetPositions.some((name) => element?.actualStatus?.position.includes(name))) return <></>
 
   return (
     <>
