@@ -13,6 +13,7 @@ export enum Handler {
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
   ReplaceElement = 'ReplaceElement',
+  MoveElement = 'MoveElement',
   TextElement = 'TextElement',
   JitTigger = 'JitTigger',
 }

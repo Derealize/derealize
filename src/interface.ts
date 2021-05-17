@@ -33,7 +33,7 @@ export enum InsertMode {
   // Prepend = 'Prepend',
 }
 
-export enum InsertElementType {
+export enum ElementTagType {
   div = 'div',
   span = 'span',
   a = 'a',
@@ -42,8 +42,16 @@ export enum InsertElementType {
 }
 
 export interface InsertElementPayload extends ElementPayload {
-  insertElementType: InsertElementType
+  insertTagType: ElementTagType
   insertMode?: InsertMode
+}
+
+export interface ReplaceElementPayload extends ElementPayload {
+  replaceTagType: ElementTagType
+}
+
+export interface MoveElementPayload extends ElementPayload {
+  dropzoneCodePosition: string
 }
 
 export interface BreadcrumbPayload extends ProjectIdParam {
@@ -79,6 +87,7 @@ export enum MainIpcChannel {
   LiveUpdateClass = 'LiveUpdateClass',
   InsertTab = 'InsertTab',
   TextTab = 'TextTab',
+  Dropped = 'Dropped',
 }
 
 export const ControllerShortcut = [

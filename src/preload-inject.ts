@@ -4,7 +4,7 @@ import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
 import { Handler } from './backend/backend.interface'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, MoveElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
 import { cssText, sectionText } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -122,9 +122,20 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
     dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
   })
   droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
-    console.log('dropped:dragEvent:source', e.dragEvent.source.getAttribute(dataCode))
-    console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource.getAttribute(dataCode))
-    console.log('dropped:dropzone', e.dropzone.getAttribute(dataCode))
+    console.log('dropped:dragEvent:source', e.dragEvent.source)
+    console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
+    console.log('dropped:dropzone', e.dropzone)
+
+    const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
+    if (!PROJECTID || !dropzoneCodePosition) return
+    const mpayload: MoveElementPayload = {
+      projectId: PROJECTID,
+      codePosition,
+      dropzoneCodePosition,
+      className,
+      selector: selector || '',
+    }
+    ipcRenderer.send(MainIpcChannel.Dropped, mpayload)
   })
   droppable.on('droppable:returned', () => console.log('droppable:returned'))
 }

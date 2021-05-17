@@ -4,12 +4,19 @@ import { types, parse, print, visit } from 'recast'
 import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
-import { ElementPayload, InsertMode, InsertElementPayload, InsertElementType } from '../interface'
+import {
+  ElementPayload,
+  InsertMode,
+  InsertElementPayload,
+  ElementTagType,
+  ReplaceElementPayload,
+  MoveElementPayload,
+} from '../interface'
 import log from './log'
 
 const { builders, namedTypes } = types
 
-export const ApplyClass = (projectPath: string, payloads: Array<ElementPayload>) => {
+export const ApplyClassName = async (projectPath: string, payloads: Array<ElementPayload>) => {
   const firstCodePosition = payloads[0].codePosition
   const firstPosition = firstCodePosition.split(':')
   const filePath = path.resolve(projectPath, firstPosition[0])
@@ -67,7 +74,7 @@ export const ApplyClass = (projectPath: string, payloads: Array<ElementPayload>)
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
 
 const parseCodePosition = (
@@ -87,7 +94,7 @@ const parseCodePosition = (
   return { ast, targetLine, targetColumn, filePath }
 }
 
-export const Insert = (projectPath: string, { codePosition, insertElementType, insertMode }: InsertElementPayload) => {
+export const Insert = (projectPath: string, { codePosition, insertTagType, insertMode }: InsertElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -95,20 +102,20 @@ export const Insert = (projectPath: string, { codePosition, insertElementType, i
       const { node } = astPath
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(insertElementType)
+        const jsxId = builders.jsxIdentifier(insertTagType)
         const close = builders.jsxClosingElement(jsxId)
 
         const open = builders.jsxOpeningElement(jsxId)
         let className = 'bg-green-100'
-        switch (insertElementType) {
-          case InsertElementType.div:
+        switch (insertTagType) {
+          case ElementTagType.div:
             className = 'bg-green-100 my-2 py-2'
             break
-          case InsertElementType.span:
-          case InsertElementType.a:
+          case ElementTagType.span:
+          case ElementTagType.a:
             className = 'bg-green-100 mx-2 px-2'
             break
-          case InsertElementType.button:
+          case ElementTagType.button:
             className = 'bg-green-100 m-2 p-2'
             break
           default:
@@ -147,7 +154,7 @@ export const Insert = (projectPath: string, { codePosition, insertElementType, i
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
 
 export const Delete = (projectPath: string, { codePosition }: ElementPayload) => {
@@ -168,10 +175,10 @@ export const Delete = (projectPath: string, { codePosition }: ElementPayload) =>
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
 
-export const Replace = (projectPath: string, { codePosition, insertElementType }: InsertElementPayload) => {
+export const Replace = (projectPath: string, { codePosition, replaceTagType }: ReplaceElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -179,7 +186,7 @@ export const Replace = (projectPath: string, { codePosition, insertElementType }
       const { node } = astPath
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(insertElementType)
+        const jsxId = builders.jsxIdentifier(replaceTagType)
         node.name = jsxId
         node.openingElement.name = jsxId
         if (node.closingElement) {
@@ -194,7 +201,57 @@ export const Replace = (projectPath: string, { codePosition, insertElementType }
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+}
+
+export const Move = (projectPath: string, { codePosition, dropzoneCodePosition }: MoveElementPayload) => {
+  const position = codePosition.split(':')
+  const filePath = path.resolve(projectPath, position[0])
+
+  const targetLine = parseInt(position[1], 10)
+  const targetColumn = parseInt(position[2], 10)
+
+  const content = fs.readFileSync(filePath, 'utf8')
+  const ast = parse(content, {
+    parser,
+  })
+
+  const zonePosition = dropzoneCodePosition.split(':')
+  const zoneTargetLine = parseInt(zonePosition[1], 10)
+  const zoneTargetColumn = parseInt(zonePosition[2], 10)
+
+  let sourceNode: TnamedTypes.JSXElement
+  visit(ast, {
+    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+      const { node } = astPath
+      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+        sourceNode = node
+        return false
+      }
+
+      this.traverse(astPath)
+      return undefined
+    },
+  })
+
+  visit(ast, {
+    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+      const { node } = astPath
+      if (node.loc?.start.line === zoneTargetLine && node.loc.start.column === zoneTargetColumn) {
+        if (!node.children) {
+          node.children = []
+        }
+        node.children.push(sourceNode)
+        return false
+      }
+
+      this.traverse(astPath)
+      return undefined
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
 
 export const Text = (projectPath: string, { codePosition, text }: ElementPayload) => {
@@ -224,5 +281,5 @@ export const Text = (projectPath: string, { codePosition, text }: ElementPayload
   })
 
   const output = print(ast)
-  fs.writeFileSync(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
