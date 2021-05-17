@@ -162,7 +162,6 @@ export interface ProjectModel {
   droppedActiveElement: Action<ProjectModel, MoveElementPayload>
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
-  shiftClassName: Thunk<ProjectModel, boolean | undefined, void, StoreModel>
 
   setFrontProject: Action<ProjectModel, string | null>
   startProject: Thunk<ProjectModel, string>
@@ -387,17 +386,14 @@ const projectModel: ProjectModel = {
           className += `${variants + name} `
         })
 
-        const { selected, propertys, ...payload } = element
+        const { selected, propertys, actualStatus, pending, ...payload } = element
         payload.className = className
         payloads.push(payload)
+        element.pending = undefined
       })
 
-    sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
-
+    sendBackIpc(Handler.ApplyElements, payloads as any)
     project.elements = project.elements?.filter((el) => el.selected)
-    project.elements?.forEach((el) => {
-      el.pending = undefined
-    })
   }),
 
   droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
@@ -428,44 +424,6 @@ const projectModel: ProjectModel = {
     const element = project.elements?.find((el) => el.selected)
     if (!element) return
     element.propertys = element.propertys.filter((p) => p.id !== propertyId)
-  }),
-  shiftClassName: thunk(async (actions, none, { getState }) => {
-    const { frontProject } = getState()
-    if (!frontProject || !frontProject.elements) return
-
-    const payloads: Array<ElementPayload> = []
-    frontProject.elements.forEach((element) => {
-      let className = ''
-      element.propertys.forEach((property) => {
-        const { screen, state, list, custom, dark, classname: name } = property
-        if (!name) return
-
-        let variants = ''
-        if (screen) {
-          variants += `${screen}:`
-        }
-        if (state) {
-          variants += `${state}:`
-        }
-        if (list) {
-          variants += `${list}:`
-        }
-        if (custom) {
-          variants += `${custom}:`
-        }
-        if (dark) {
-          variants += `dark:`
-        }
-        className += `${variants + name} `
-      })
-
-      const { selected, propertys, ...payload } = element
-      payload.className = className
-      payloads.push(payload)
-    })
-
-    await sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
-    actions.savedElements(frontProject.id)
   }),
 
   setFrontProject: action((state, projectId) => {
@@ -649,7 +607,8 @@ const projectModel: ProjectModel = {
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
       if (key === 'Save') {
-        actions.shiftClassName()
+        const { frontProject } = getState()
+        if (frontProject) actions.savedElements(frontProject.id)
       }
     })
 

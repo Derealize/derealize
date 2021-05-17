@@ -55,7 +55,7 @@ const TopBar: React.FC = (): JSX.Element => {
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
-  const shiftClassName = useStoreActions((actions) => actions.project.shiftClassName)
+  const savedElements = useStoreActions((actions) => actions.project.savedElements)
 
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
@@ -147,7 +147,12 @@ const TopBar: React.FC = (): JSX.Element => {
         </Tooltip>
 
         <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!pendingElements?.length}>
-          <Button borderRadius="full" mr="-px" disabled={!pendingElements?.length} onClick={() => shiftClassName()}>
+          <Button
+            borderRadius="full"
+            mr="-px"
+            disabled={!pendingElements?.length}
+            onClick={() => savedElements(project.id)}
+          >
             Save
           </Button>
           <IconButton

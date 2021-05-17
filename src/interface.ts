@@ -13,6 +13,7 @@ export interface ElementPayload extends ProjectIdParam {
   className: string
   selector: string
   text?: string
+  dropzoneCodePosition?: string
 }
 
 export interface ElementActualStatus extends ProjectIdParam {
@@ -48,10 +49,6 @@ export interface InsertElementPayload extends ElementPayload {
 
 export interface ReplaceElementPayload extends ElementPayload {
   replaceTagType: ElementTagType
-}
-
-export interface MoveElementPayload extends ElementPayload {
-  dropzoneCodePosition: string
 }
 
 export interface BreadcrumbPayload extends ProjectIdParam {

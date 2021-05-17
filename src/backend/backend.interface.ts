@@ -9,11 +9,10 @@ export enum Handler {
   Push = 'Push',
   History = 'History',
   GetTailwindConfig = 'GetTailwindConfig',
-  ApplyElementsClassName = 'ApplyElementsClassName',
+  ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
   ReplaceElement = 'ReplaceElement',
-  MoveElement = 'MoveElement',
   TextElement = 'TextElement',
   JitTigger = 'JitTigger',
 }

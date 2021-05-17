@@ -1,22 +1,16 @@
 import fs from 'fs'
 import path from 'path'
+import clone from 'lodash.clonedeep'
 import { types, parse, print, visit } from 'recast'
 import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
-import {
-  ElementPayload,
-  InsertMode,
-  InsertElementPayload,
-  ElementTagType,
-  ReplaceElementPayload,
-  MoveElementPayload,
-} from '../interface'
+import { ElementPayload, InsertMode, InsertElementPayload, ElementTagType, ReplaceElementPayload } from '../interface'
 import log from './log'
 
 const { builders, namedTypes } = types
 
-export const ApplyClassName = async (projectPath: string, payloads: Array<ElementPayload>) => {
+export const Apply = async (projectPath: string, payloads: Array<ElementPayload>) => {
   const firstCodePosition = payloads[0].codePosition
   const firstPosition = firstCodePosition.split(':')
   const filePath = path.resolve(projectPath, firstPosition[0])
@@ -25,8 +19,7 @@ export const ApplyClassName = async (projectPath: string, payloads: Array<Elemen
     parser,
   })
 
-  payloads.forEach((payload) => {
-    const { codePosition, className } = payload
+  payloads.forEach(({ codePosition, className, dropzoneCodePosition }) => {
     const position = codePosition.split(':')
     const targetLine = parseInt(position[1], 10)
     const targetColumn = parseInt(position[2], 10)
@@ -71,6 +64,43 @@ export const ApplyClassName = async (projectPath: string, payloads: Array<Elemen
         return undefined
       },
     })
+
+    if (dropzoneCodePosition) {
+      const zonePosition = dropzoneCodePosition.split(':')
+      const zoneTargetLine = parseInt(zonePosition[1], 10)
+      const zoneTargetColumn = parseInt(zonePosition[2], 10)
+
+      let sourceNode: TnamedTypes.JSXElement
+      visit(ast, {
+        visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+          const { node } = astPath
+          if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
+            sourceNode = clone(node)
+            astPath.prune()
+            return false
+          }
+
+          this.traverse(astPath)
+          return undefined
+        },
+      })
+
+      visit(ast, {
+        visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
+          const { node } = astPath
+          if (node.loc?.start.line === zoneTargetLine && node.loc.start.column === zoneTargetColumn) {
+            if (!node.children) {
+              node.children = []
+            }
+            node.children.push(sourceNode)
+            return false
+          }
+
+          this.traverse(astPath)
+          return undefined
+        },
+      })
+    }
   })
 
   const output = print(ast)
@@ -192,56 +222,6 @@ export const Replace = (projectPath: string, { codePosition, replaceTagType }: R
         if (node.closingElement) {
           node.closingElement.name = jsxId
         }
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
-}
-
-export const Move = (projectPath: string, { codePosition, dropzoneCodePosition }: MoveElementPayload) => {
-  const position = codePosition.split(':')
-  const filePath = path.resolve(projectPath, position[0])
-
-  const targetLine = parseInt(position[1], 10)
-  const targetColumn = parseInt(position[2], 10)
-
-  const content = fs.readFileSync(filePath, 'utf8')
-  const ast = parse(content, {
-    parser,
-  })
-
-  const zonePosition = dropzoneCodePosition.split(':')
-  const zoneTargetLine = parseInt(zonePosition[1], 10)
-  const zoneTargetColumn = parseInt(zonePosition[2], 10)
-
-  let sourceNode: TnamedTypes.JSXElement
-  visit(ast, {
-    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
-      const { node } = astPath
-      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        sourceNode = node
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  visit(ast, {
-    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
-      const { node } = astPath
-      if (node.loc?.start.line === zoneTargetLine && node.loc.start.column === zoneTargetColumn) {
-        if (!node.children) {
-          node.children = []
-        }
-        node.children.push(sourceNode)
         return false
       }
 
