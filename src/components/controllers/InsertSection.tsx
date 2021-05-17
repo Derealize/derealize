@@ -3,20 +3,20 @@ import React, { useState, useCallback } from 'react'
 import { HStack, VStack, Select, Button, IconButton, Tooltip, useToast } from '@chakra-ui/react'
 import { CgInsertAfterR, CgInsertBeforeR } from 'react-icons/cg'
 import { BiAddToQueue } from 'react-icons/bi'
-import { ElementPayload, InsertMode, InsertElementType, InsertElementPayload } from '../../interface'
+import { ElementPayload, InsertMode, ElementTagType, InsertElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpc } = window.derealize
+const { sendBackIpc } = window.derealize
 
 const Insert: React.FC = (): JSX.Element => {
   const toast = useToast()
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
 
   const [selInsertMode, setSelInsertMode] = useState(InsertMode.After)
-  const [selElementType, setSelElementType] = useState(InsertElementType.div)
+  const [selTagType, setSelTagType] = useState(ElementTagType.div)
 
   const handleInsert = useCallback(() => {
     if (!element) {
@@ -30,10 +30,10 @@ const Insert: React.FC = (): JSX.Element => {
     const payload: InsertElementPayload = {
       ...element,
       insertMode: selInsertMode,
-      insertElementType: selElementType,
+      insertTagType: selTagType,
     }
     sendBackIpc(Handler.InsertElement, payload as any)
-  }, [element, selElementType, selInsertMode, toast])
+  }, [element, selInsertMode, selTagType, toast])
 
   return (
     <VStack alignItems="stretch">
@@ -74,10 +74,10 @@ const Insert: React.FC = (): JSX.Element => {
 
       <Select
         placeholder="Element Type"
-        value={selElementType}
-        onChange={(e) => setSelElementType(e.target.value as InsertElementType)}
+        value={selTagType}
+        onChange={(e) => setSelTagType(e.target.value as ElementTagType)}
       >
-        {Object.keys(InsertElementType).map((value) => (
+        {Object.keys(ElementTagType).map((value) => (
           <option key={value} value={value}>
             {value}
           </option>

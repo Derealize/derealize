@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { HStack, VStack, Select, Button } from '@chakra-ui/react'
-import { InsertElementType, InsertElementPayload } from '../../interface'
+import { ElementTagType, ReplaceElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
@@ -13,7 +13,7 @@ const ElementEdit: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
 
   const elementType = useMemo(
-    () => (element?.actualStatus?.tagName.toLowerCase() || InsertElementType.div) as InsertElementType,
+    () => (element?.actualStatus?.tagName.toLowerCase() || ElementTagType.div) as ElementTagType,
     [element],
   )
 
@@ -25,7 +25,7 @@ const ElementEdit: React.FC = (): JSX.Element => {
 
   const handleReplace = useCallback(() => {
     if (!element) return
-    const payload: InsertElementPayload = { ...element, insertElementType: selElementType }
+    const payload: ReplaceElementPayload = { ...element, replaceTagType: selElementType }
     sendBackIpc(Handler.ReplaceElement, payload as any)
   }, [element, selElementType])
 
@@ -42,9 +42,9 @@ const ElementEdit: React.FC = (): JSX.Element => {
         <Select
           placeholder="Element Type"
           value={selElementType}
-          onChange={(e) => setSelElementType(e.target.value as InsertElementType)}
+          onChange={(e) => setSelElementType(e.target.value as ElementTagType)}
         >
-          {Object.keys(InsertElementType).map((value) => (
+          {Object.keys(ElementTagType).map((value) => (
             <option key={value} value={value}>
               {value}
             </option>

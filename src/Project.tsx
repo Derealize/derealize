@@ -133,13 +133,15 @@ const ProjectPage: React.FC = (): JSX.Element => {
                 {pendingElements?.map((el) => {
                   return (
                     <ListItem
-                      key={el.selector}
+                      key={el.codePosition}
                       className={style.listitem}
                       color={el.selected ? 'teal.400' : 'gray.400'}
                     >
-                      <span className={style.data}>{el.tagName}</span>
-                      <span className={style.author}>{el.codePosition}</span>
-                      <span className={style.message}>{el.className}</span>
+                      <span className={style.data}>{el.codePosition}</span>
+                      <span className={style.author}>{el.selector}</span>
+                      <span className={style.message}>
+                        {el.dropzoneCodePosition ? `drop to:${el.dropzoneCodePosition}` : el.className}
+                      </span>
                     </ListItem>
                   )
                 })}

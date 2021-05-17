@@ -6,8 +6,14 @@ import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayload } from '../interface'
-import { ElementPayload, InsertElementPayload, JitTiggerPayload } from '../interface'
-import { ApplyClass, Insert, Delete, Replace, Text } from './shift'
+import {
+  ElementPayload,
+  InsertElementPayload,
+  ReplaceElementPayload,
+  MoveElementPayload,
+  JitTiggerPayload,
+} from '../interface'
+import { ApplyClassName, Insert, Delete, Replace, Move, Text } from './shift'
 import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
@@ -99,7 +105,7 @@ export const GetTailwindConfig = async ({ projectId }: ProjectIdParam): Promise<
 export const ApplyElementsClassName = async (payloads: Array<ElementPayload>) => {
   if (!payloads.length) return
   const project = getProject(payloads[0].projectId)
-  ApplyClass(project.path, payloads)
+  ApplyClassName(project.path, payloads)
 }
 
 export const InsertElement = async (payload: InsertElementPayload) => {
@@ -116,10 +122,14 @@ export const DeleteElement = async (payload: ElementPayload) => {
   npmStart(project.path, project.config.formatScript)
 }
 
-export const ReplaceElement = async (payload: InsertElementPayload) => {
+export const ReplaceElement = async (payload: ReplaceElementPayload) => {
   const project = getProject(payload.projectId)
-
   Replace(project.path, payload)
+}
+
+export const MoveElement = async (payload: MoveElementPayload) => {
+  const project = getProject(payload.projectId)
+  Move(project.path, payload)
 }
 
 export const TextElement = async (payload: ElementPayload) => {

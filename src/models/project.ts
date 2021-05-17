@@ -18,7 +18,7 @@ import type {
   GitFileChanges,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
+import { ElementPayload, MoveElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -40,6 +40,7 @@ export interface ElementState extends ElementPayload {
   propertys: Array<Property>
   actualStatus?: ElementActualStatus
   pending?: boolean
+  dropzoneCodePosition?: string
 }
 
 export interface Project {
@@ -153,11 +154,12 @@ export interface ProjectModel {
   customVariants: Computed<ProjectModel, Array<string>, StoreModel>
 
   unSelectedAllElements: Action<ProjectModel, string>
-  focusElement: Action<ProjectModel, { projectId: string; element: ElementPayload }>
-  respElementStatus: Action<ProjectModel, { projectId: string; status: ElementActualStatus }>
+  focusElement: Action<ProjectModel, ElementPayload>
+  respElementStatus: Action<ProjectModel, ElementActualStatus>
   cleanElements: Action<ProjectModel, string>
   savedElements: Action<ProjectModel, string>
 
+  droppedActiveElement: Action<ProjectModel, MoveElementPayload>
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
   shiftClassName: Thunk<ProjectModel, boolean | undefined, void, StoreModel>
@@ -293,8 +295,8 @@ const projectModel: ProjectModel = {
       el.selected = false
     })
   }),
-  focusElement: action((state, { projectId, element }) => {
-    const project = state.projects.find((p) => p.id === projectId)
+  focusElement: action((state, element) => {
+    const project = state.projects.find((p) => p.id === element.projectId)
     if (!project) return
 
     project.elements?.forEach((el) => {
@@ -340,8 +342,8 @@ const projectModel: ProjectModel = {
       project.elements?.push(elstate)
     }
   }),
-  respElementStatus: action((state, { projectId, status }) => {
-    const project = state.projects.find((p) => p.id === projectId)
+  respElementStatus: action((state, status) => {
+    const project = state.projects.find((p) => p.id === status.projectId)
     if (!project) return
     const el = project.elements?.find((e) => e.codePosition === status.codePosition)
     if (el) {
@@ -355,11 +357,56 @@ const projectModel: ProjectModel = {
   }),
   savedElements: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
+    if (!project || !project.elements) return
+
+    const payloads: Array<ElementPayload> = []
+    project.elements
+      .filter((el) => el.pending)
+      .forEach((element) => {
+        let className = ''
+        element.propertys.forEach((property) => {
+          const { screen, state: estate, list, custom, dark, classname: name } = property
+          if (!name) return
+
+          let variants = ''
+          if (screen) {
+            variants += `${screen}:`
+          }
+          if (estate) {
+            variants += `${estate}:`
+          }
+          if (list) {
+            variants += `${list}:`
+          }
+          if (custom) {
+            variants += `${custom}:`
+          }
+          if (dark) {
+            variants += `dark:`
+          }
+          className += `${variants + name} `
+        })
+
+        const { selected, propertys, ...payload } = element
+        payload.className = className
+        payloads.push(payload)
+      })
+
+    sendBackIpc(Handler.ApplyElementsClassName, payloads as any)
+
     project.elements = project.elements?.filter((el) => el.selected)
     project.elements?.forEach((el) => {
       el.pending = undefined
     })
+  }),
+
+  droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    const element = project.elements?.find((el) => el.codePosition === codePosition)
+    if (!element) return
+    element.dropzoneCodePosition = dropzoneCodePosition
+    element.pending = true
   }),
 
   setActiveElementProperty: action((state, property) => {
@@ -585,31 +632,19 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
-      const project = getState().projects.find((p) => p.id === element.projectId)
-      if (project) {
-        actions.focusElement({ projectId: project.id, element })
-      }
+      actions.focusElement(element)
     })
 
     listenMainIpc(MainIpcChannel.RespElementStatus, (event: IpcRendererEvent, status: ElementActualStatus) => {
-      const project = getState().projects.find((p) => p.id === status.projectId)
-      if (project) {
-        actions.respElementStatus({ projectId: project.id, status })
-      }
+      actions.respElementStatus(status)
     })
 
     listenMainIpc(MainIpcChannel.BlurElement, (event: IpcRendererEvent, projectId: string) => {
-      const project = getState().projects.find((p) => p.id === projectId)
-      if (project) {
-        actions.unSelectedAllElements(project.id)
-      }
+      actions.unSelectedAllElements(projectId)
     })
 
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
-      const project = getState().projects.find((p) => p.id === projectId)
-      if (project) {
-        actions.cleanElements(project.id)
-      }
+      actions.cleanElements(projectId)
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
@@ -620,6 +655,10 @@ const projectModel: ProjectModel = {
 
     listenMainIpc(MainIpcChannel.CloseFrontProject, (event: IpcRendererEvent) => {
       actions.closeProject()
+    })
+
+    listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: MoveElementPayload) => {
+      actions.droppedActiveElement(payload)
     })
   }),
 
@@ -632,6 +671,7 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
+    unlistenMainIpc(MainIpcChannel.Dropped)
   }),
 
   importModalDisclosure: false,
