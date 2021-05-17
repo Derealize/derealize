@@ -26,7 +26,7 @@ const Width: React.FC = (): JSX.Element => {
   const minProperty = useComputeProperty(minPropertys)
 
   if (already && !property && !maxProperty && !minProperty) return <></>
-  if (!SupportDisplays.some((name) => element?.actualStatus?.display?.includes(name))) return <></>
+  if (!SupportDisplays.some((name) => element?.actualStatus?.display.includes(name))) return <></>
 
   return (
     <Box>

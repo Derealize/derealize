@@ -15,7 +15,7 @@ const RowEnd: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display?.includes('grid')) return <></>
+  if (!element?.actualStatus?.display.includes('grid')) return <></>
 
   return <SelectController placeholder="row-end" values={values} property={property} />
 }

@@ -16,7 +16,7 @@ const ColSpan: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display?.includes('grid')) return <></>
+  if (!element?.actualStatus?.display.includes('grid')) return <></>
 
   return <SelectController placeholder="col-span" values={values} property={property} />
 }

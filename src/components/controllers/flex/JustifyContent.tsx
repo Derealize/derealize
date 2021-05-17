@@ -15,7 +15,7 @@ const JustifyContent: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display?.includes('flex')) return <></>
+  if (!element?.actualStatus?.display.includes('flex')) return <></>
 
   return <SelectController placeholder="justify-content" values={JustifyContentValues} property={property} />
 }

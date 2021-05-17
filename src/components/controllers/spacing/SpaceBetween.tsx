@@ -20,7 +20,7 @@ const SpaceBetween: React.FC = (): JSX.Element => {
   const propertyY = useComputeProperty(propertysY)
 
   if (already && !propertyX && !propertyY) return <></>
-  if (!element?.actualStatus?.display?.includes('block')) return <></>
+  if (!element?.actualStatus?.display.includes('block')) return <></>
 
   return (
     <HStack>
