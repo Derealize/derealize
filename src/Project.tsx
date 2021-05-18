@@ -137,10 +137,12 @@ const ProjectPage: React.FC = (): JSX.Element => {
                       className={style.listitem}
                       color={el.selected ? 'teal.400' : 'gray.400'}
                     >
-                      <span className={style.data}>{el.codePosition}</span>
+                      <span className={style.data}>{el.codePosition.split('/').slice(-1)}</span>
                       <span className={style.author}>{el.selector}</span>
                       <span className={style.message}>
-                        {el.dropzoneCodePosition ? `drop to:${el.dropzoneCodePosition}` : el.className}
+                        {el.dropzoneCodePosition
+                          ? `move to:${el.dropzoneCodePosition.split('/').slice(-1)}`
+                          : el.className}
                       </span>
                     </ListItem>
                   )

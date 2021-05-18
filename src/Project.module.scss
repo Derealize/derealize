@@ -41,15 +41,11 @@ body.maximized {
   & > .author,
   & > .message {
     display: inline-block;
-    width: 100px;
+    width: 200px;
     @include ellipsis();
   }
-
-  & > .author {
-    width: 200px;
-  }
-  & > .message {
-    width: 200px;
+  & > .data {
+    width: 100px;
   }
 }
 
