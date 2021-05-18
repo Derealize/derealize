@@ -7,6 +7,7 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
 import { ElementState } from '../../../models/project'
+import { InlineDisplays } from '../../../utils/assest'
 
 const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
   const array = value.split('-')
@@ -27,7 +28,7 @@ const Overscroll: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display.includes('block')) return <></>
+  if (InlineDisplays.some((v) => element?.actualStatus?.display === v)) return <></>
 
   return <SelectController placeholder="overscroll" values={OverscrollOptions} property={property} />
 }

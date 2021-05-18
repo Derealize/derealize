@@ -17,6 +17,9 @@ export const IntEnumValues = (enumme: any): Array<string> => {
   return Object.keys(enumme).filter((value) => !Number.isNaN(Number(value)))
 }
 
+export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
+export const InlineDisplays = ['inline', 'none', 'contents']
+
 // https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
 export const ReplacedElementTagName = [
   'IMG',

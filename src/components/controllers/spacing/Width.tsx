@@ -6,8 +6,7 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementState } from '../../../models/project'
-
-export const SupportDisplays = ['flex', 'block', 'table', 'grid']
+import { InlineDisplays } from '../../../utils/assest'
 
 const Width: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -26,7 +25,7 @@ const Width: React.FC = (): JSX.Element => {
   const minProperty = useComputeProperty(minPropertys)
 
   if (already && !property && !maxProperty && !minProperty) return <></>
-  if (!SupportDisplays.some((name) => element?.actualStatus?.display.includes(name))) return <></>
+  if (InlineDisplays.some((v) => element?.actualStatus?.display === v)) return <></>
 
   return (
     <Box>
