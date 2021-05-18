@@ -184,7 +184,7 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, { projectId, class
   if (projectId === PROJECTID && activeElement) {
     activeElement.className = className
     // console.log('LiveUpdateClass', className)
-    respElementActualStatus()
+    // respElementActualStatus() // 性能不好
   }
 })
 

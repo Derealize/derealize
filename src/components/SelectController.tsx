@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
 import { nanoid } from 'nanoid'
+import clone from 'lodash.clone'
 import Select, {
   GroupTypeBase,
   OptionTypeBase,
@@ -19,7 +20,7 @@ import Select, {
 import { CSSObject } from '@emotion/serialize'
 import styles from './SelectController.module.scss'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project } from '../models/project'
+import type { Project, ElementState } from '../models/project'
 import type { Property } from '../models/controlles/controlles'
 import theme from '../theme'
 import { Handler } from '../backend/backend.interface'
@@ -62,21 +63,28 @@ const SelectController: React.FC<Props> = ({
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
+  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
   const setJitClassName = useStoreActions((actions) => actions.project.setJitClassName)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
   const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
+  const propertys = useMemo(() => {
+    return clone(element?.propertys?.filter((pp) => !(cleanPropertys?.map((p) => p.id) || []).includes(pp.id)))
+  }, [cleanPropertys, element?.propertys])
+
   const onOptionEnter = useCallback(
     async (value: string) => {
+      if (!project || !propertys) return
       liveUpdateClassName({
+        propertys,
         propertyId: property?.id || '',
         classname: value,
-        cleanPropertyIds: cleanPropertys?.map((p) => p.id) || [],
+        projectId: project.id,
       })
     },
-    [cleanPropertys, property, liveUpdateClassName],
+    [project, liveUpdateClassName, propertys, property?.id],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
