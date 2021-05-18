@@ -6,6 +6,7 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementState } from '../../../models/project'
+import { InlineDisplays } from '../../../utils/assest'
 
 const SpaceBetween: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
@@ -20,7 +21,7 @@ const SpaceBetween: React.FC = (): JSX.Element => {
   const propertyY = useComputeProperty(propertysY)
 
   if (already && !propertyX && !propertyY) return <></>
-  if (!element?.actualStatus?.display.includes('block')) return <></>
+  if (InlineDisplays.some((v) => element?.actualStatus?.display === v)) return <></>
 
   return (
     <HStack>

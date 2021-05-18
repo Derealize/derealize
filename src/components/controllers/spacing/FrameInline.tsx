@@ -24,28 +24,16 @@ enum Target {
   pr,
 }
 
-const Frame: React.FC = (): JSX.Element => {
+const FrameInline: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
   const mValues = useStoreState<Array<string>>((state) => state.spacing.marginValues)
   const mPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginPropertys)
   const mProperty = useComputeProperty(mPropertys)
 
-  const myValues = useStoreState<Array<string>>((state) => state.spacing.marginYValues)
-  const myPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginYPropertys)
-  const myProperty = useComputeProperty(myPropertys)
-
   const mxValues = useStoreState<Array<string>>((state) => state.spacing.marginXValues)
   const mxPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginXPropertys)
   const mxProperty = useComputeProperty(mxPropertys)
-
-  const mtValues = useStoreState<Array<string>>((state) => state.spacing.marginTopValues)
-  const mtPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginTopPropertys)
-  const mtProperty = useComputeProperty(mtPropertys)
-
-  const mbValues = useStoreState<Array<string>>((state) => state.spacing.marginBottomValues)
-  const mbPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginBottomPropertys)
-  const mbProperty = useComputeProperty(mbPropertys)
 
   const mlValues = useStoreState<Array<string>>((state) => state.spacing.marginLeftValues)
   const mlPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginLeftPropertys)
@@ -90,18 +78,12 @@ const Frame: React.FC = (): JSX.Element => {
     switch (target) {
       case Target.m:
         return mProperty
-      case Target.my:
-        return myProperty
       case Target.mx:
         return mxProperty
-      case Target.mt:
-        return mtProperty
       case Target.ml:
         return mlProperty
       case Target.mr:
         return mrProperty
-      case Target.mb:
-        return mbProperty
       case Target.p:
         return pProperty
       case Target.py:
@@ -121,12 +103,9 @@ const Frame: React.FC = (): JSX.Element => {
     }
   }, [
     mProperty,
-    mbProperty,
     mlProperty,
     mrProperty,
-    mtProperty,
     mxProperty,
-    myProperty,
     pProperty,
     pbProperty,
     plProperty,
@@ -140,11 +119,7 @@ const Frame: React.FC = (): JSX.Element => {
   const cleanPropertys = useMemo<Array<Property>>(() => {
     switch (target) {
       case Target.m:
-        return [myProperty, mxProperty, mtProperty, mbProperty, mlProperty, mrProperty].filter(
-          Boolean,
-        ) as Array<Property>
-      case Target.my:
-        return [mtProperty, mbProperty].filter(Boolean) as Array<Property>
+        return [mxProperty, mlProperty, mrProperty].filter(Boolean) as Array<Property>
       case Target.mx:
         return [mlProperty, mrProperty].filter(Boolean) as Array<Property>
       case Target.mt:
@@ -169,12 +144,9 @@ const Frame: React.FC = (): JSX.Element => {
         return []
     }
   }, [
-    mbProperty,
     mlProperty,
     mrProperty,
-    mtProperty,
     mxProperty,
-    myProperty,
     pbProperty,
     plProperty,
     prProperty,
@@ -185,10 +157,7 @@ const Frame: React.FC = (): JSX.Element => {
   ])
 
   const [mHover, setMHover] = useState(false)
-  const [myHover, setMyHover] = useState(false)
   const [mxHover, setMxHover] = useState(false)
-  const [mtHover, setMtHover] = useState(false)
-  const [mbHover, setMbHover] = useState(false)
   const [mlHover, setMlHover] = useState(false)
   const [mrHover, setMrHover] = useState(false)
   const [pHover, setPHover] = useState(false)
@@ -202,12 +171,9 @@ const Frame: React.FC = (): JSX.Element => {
   if (
     already &&
     !mProperty &&
-    !mbProperty &&
     !mlProperty &&
     !mrProperty &&
-    !mtProperty &&
     !mxProperty &&
-    !myProperty &&
     !pProperty &&
     !pbProperty &&
     !plProperty &&
@@ -221,59 +187,6 @@ const Frame: React.FC = (): JSX.Element => {
   return (
     <div className={style.component}>
       <div className={style.frame}>
-        <div
-          className={cs(style.mtl, {
-            [style.active]:
-              target === Target.m ||
-              target === Target.my ||
-              target === Target.mx ||
-              target === Target.mt ||
-              target === Target.ml,
-            [style.hover]: mtHover || mlHover,
-          })}
-        />
-        <div
-          className={cs(style.mt_column_span3, {
-            [style.active]: target === Target.m || target === Target.my || target === Target.mt,
-          })}
-          role="button"
-          aria-hidden="true"
-          onClick={(e) => {
-            e.stopPropagation()
-            setSelValues(mtValues)
-            setTarget(Target.mt)
-          }}
-          onMouseEnter={() => setMtHover(true)}
-          onMouseLeave={() => setMtHover(false)}
-        >
-          <span className={cs(style.mt_value)}>
-            {mtProperty?.classname || myProperty?.classname || mProperty?.classname}
-          </span>
-          <div
-            className={cs(style.stick, { [style.hover]: myHover })}
-            role="button"
-            aria-hidden="true"
-            onClick={(e) => {
-              e.stopPropagation()
-              setSelValues(myValues)
-              setTarget(Target.my)
-            }}
-            onMouseEnter={() => setMyHover(true)}
-            onMouseLeave={() => setMyHover(false)}
-          />
-        </div>
-        <div
-          className={cs(style.mtr, {
-            [style.active]:
-              target === Target.m ||
-              target === Target.my ||
-              target === Target.mx ||
-              target === Target.mt ||
-              target === Target.mr,
-            [style.hover]: mtHover || mrHover,
-          })}
-        />
-
         <div
           className={cs(style.ml_row_span3, {
             [style.active]: target === Target.m || target === Target.mx || target === Target.ml,
@@ -421,30 +334,6 @@ const Frame: React.FC = (): JSX.Element => {
         </div>
         <div className={style.center}>
           <div
-            className={cs(style.stick, style.stick_my, { [style.hover]: mHover })}
-            role="button"
-            aria-hidden="true"
-            onClick={(e) => {
-              e.stopPropagation()
-              setSelValues(mValues)
-              setTarget(Target.m)
-            }}
-            onMouseEnter={() => setMHover(true)}
-            onMouseLeave={() => setMHover(false)}
-          />
-          <div
-            className={cs(style.stick, style.stick_mx, { [style.hover]: mHover })}
-            role="button"
-            aria-hidden="true"
-            onClick={(e) => {
-              e.stopPropagation()
-              setSelValues(mValues)
-              setTarget(Target.m)
-            }}
-            onMouseEnter={() => setMHover(true)}
-            onMouseLeave={() => setMHover(false)}
-          />
-          <div
             className={cs(style.stick, style.stick_py, { [style.hover]: pHover })}
             role="button"
             aria-hidden="true"
@@ -552,59 +441,6 @@ const Frame: React.FC = (): JSX.Element => {
             [style.hover]: pbHover || prHover,
           })}
         />
-
-        <div
-          className={cs(style.mbl, {
-            [style.active]:
-              target === Target.m ||
-              target === Target.my ||
-              target === Target.mx ||
-              target === Target.mb ||
-              target === Target.ml,
-            [style.hover]: mbHover || mlHover,
-          })}
-        />
-        <div
-          className={cs(style.mb_column_span3, {
-            [style.active]: target === Target.m || target === Target.mb || target === Target.my,
-          })}
-          role="button"
-          aria-hidden="true"
-          onClick={(e) => {
-            e.stopPropagation()
-            setSelValues(mbValues)
-            setTarget(Target.mb)
-          }}
-          onMouseEnter={() => setMbHover(true)}
-          onMouseLeave={() => setMbHover(false)}
-        >
-          <span className={cs(style.mb_value)}>
-            {mbProperty?.classname || myProperty?.classname || mProperty?.classname}
-          </span>
-          <div
-            className={cs(style.stick, { [style.hover]: myHover })}
-            role="button"
-            aria-hidden="true"
-            onClick={(e) => {
-              e.stopPropagation()
-              setSelValues(myValues)
-              setTarget(Target.my)
-            }}
-            onMouseEnter={() => setMyHover(true)}
-            onMouseLeave={() => setMyHover(false)}
-          />
-        </div>
-        <div
-          className={cs(style.mbr, {
-            [style.active]:
-              target === Target.m ||
-              target === Target.my ||
-              target === Target.mx ||
-              target === Target.mb ||
-              target === Target.mr,
-            [style.hover]: mbHover || mrHover,
-          })}
-        />
       </div>
 
       <SelectController
@@ -617,4 +453,4 @@ const Frame: React.FC = (): JSX.Element => {
   )
 }
 
-export default Frame
+export default FrameInline

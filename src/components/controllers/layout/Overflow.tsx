@@ -7,6 +7,7 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementState } from '../../../models/project'
+import { InlineDisplays } from '../../../utils/assest'
 
 const OverflowGroups = groupBy<string>(OverflowValues, (value) => {
   const array = value.split('-')
@@ -27,7 +28,7 @@ const Overflow: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display.includes('block')) return <></>
+  if (InlineDisplays.some((v) => element?.actualStatus?.display === v)) return <></>
 
   return <SelectController placeholder="overflow" values={OverflowOptions} property={property} />
 }
