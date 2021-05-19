@@ -39,11 +39,13 @@ class Project {
   config: ProjectConfig = {
     runScript: 'dev',
     formatScript: 'format',
-    lunchUrl: 'http://localhost:3000',
+    baseUrl: 'http://localhost:3000',
     port: 3000,
     pages: [],
     assets: '',
     applyCssFile: '',
+    assetsPublicPath: '',
+    isWeapp: false,
   }
 
   productName: string | undefined

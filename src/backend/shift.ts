@@ -264,7 +264,7 @@ export const Text = (projectPath: string, { codePosition, text }: ElementPayload
   fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
 
-export const ThemeBackgroundImage = (themeFilePath: string, key: string, value: string) => {
+export const SetImage = (themeFilePath: string, key: string, value: string) => {
   const filePath = path.resolve(themeFilePath)
   const content = fs.readFileSync(filePath, 'utf8')
   const ast = parse(content, {
@@ -310,6 +310,61 @@ export const ThemeBackgroundImage = (themeFilePath: string, key: string, value: 
             }
           } else {
             log('Property.check(extend) && ObjectExpression.check(extend.value) fail')
+          }
+        } else {
+          log('ObjectExpression.check(node.value) fail')
+        }
+
+        return false
+      }
+
+      this.traverse(astPath)
+      return undefined
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+}
+
+export const RemoveImage = (themeFilePath: string, key: string) => {
+  const filePath = path.resolve(themeFilePath)
+  const content = fs.readFileSync(filePath, 'utf8')
+  const ast = parse(content, {
+    parser,
+  })
+
+  visit(ast, {
+    visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
+      const { node } = astPath
+
+      if (namedTypes.Identifier.check(node.key) && node.key.name === 'theme') {
+        if (namedTypes.ObjectExpression.check(node.value)) {
+          const extend = node.value.properties.find(
+            (p) => namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === 'extend',
+          )
+
+          if (namedTypes.ObjectProperty.check(extend) && namedTypes.ObjectExpression.check(extend.value)) {
+            const backgroundImage = extend.value.properties.find(
+              (p) =>
+                namedTypes.ObjectProperty.check(p) &&
+                namedTypes.Identifier.check(p.key) &&
+                p.key.name === 'backgroundImage',
+            )
+
+            if (
+              namedTypes.ObjectProperty.check(backgroundImage) &&
+              namedTypes.ObjectExpression.check(backgroundImage.value)
+            ) {
+              backgroundImage.value.properties = backgroundImage.value.properties.filter(
+                (p) =>
+                  !(namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === key),
+              )
+            } else {
+              log('ObjectProperty.check(backgroundImage) && ObjectExpression.check(backgroundImage.value) fail')
+            }
+          } else {
+            log('ObjectProperty.check(extend) && ObjectExpression.check(extend.value) fail')
           }
         } else {
           log('ObjectExpression.check(node.value) fail')

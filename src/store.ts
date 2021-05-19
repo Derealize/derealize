@@ -36,16 +36,13 @@ const store = new Store({
           path: {
             type: 'string',
           },
-          editedTime: {
-            type: 'string',
-          },
           name: {
             type: 'string',
           },
-          page: {
+          editedTime: {
             type: 'string',
           },
-          lunchUrl: {
+          branch: {
             type: 'string',
           },
           username: {
@@ -53,9 +50,6 @@ const store = new Store({
           },
           password: {
             type: 'string',
-          },
-          isOpened: {
-            type: 'boolean',
           },
           tailwindVersion: {
             type: 'string',

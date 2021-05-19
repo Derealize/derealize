@@ -15,6 +15,8 @@ export enum Handler {
   ReplaceElement = 'ReplaceElement',
   TextElement = 'TextElement',
   JitTigger = 'JitTigger',
+  ThemeSetImage = 'ThemeSetImage',
+  ThemeRemoveImage = 'ThemeRemoveImage',
 }
 
 export enum Broadcast {
@@ -26,7 +28,7 @@ export enum Broadcast {
 export interface ProjectConfig {
   runScript: string
   formatScript: string
-  lunchUrl: string
+  baseUrl: string
   port: number
   pages: Array<string>
   assets: string
