@@ -263,3 +263,66 @@ export const Text = (projectPath: string, { codePosition, text }: ElementPayload
   const output = print(ast)
   fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
 }
+
+export const ThemeBackgroundImage = (themeFilePath: string, key: string, value: string) => {
+  const filePath = path.resolve(themeFilePath)
+  const content = fs.readFileSync(filePath, 'utf8')
+  const ast = parse(content, {
+    parser,
+  })
+
+  visit(ast, {
+    visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
+      const { node } = astPath
+
+      if (namedTypes.Identifier.check(node.key) && node.key.name === 'theme') {
+        if (namedTypes.ObjectExpression.check(node.value)) {
+          const extend = node.value.properties.find(
+            (p) => namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === 'extend',
+          )
+
+          if (namedTypes.ObjectProperty.check(extend) && namedTypes.ObjectExpression.check(extend.value)) {
+            let backgroundImage = extend.value.properties.find(
+              (p) =>
+                namedTypes.ObjectProperty.check(p) &&
+                namedTypes.Identifier.check(p.key) &&
+                p.key.name === 'backgroundImage',
+            )
+
+            if (!backgroundImage) {
+              const bKey = builders.identifier('backgroundImage')
+              const bValue = builders.objectExpression([])
+              const property = builders.objectProperty(bKey, bValue)
+              backgroundImage = property
+              extend.value.properties.push(property)
+            }
+
+            if (
+              namedTypes.ObjectProperty.check(backgroundImage) &&
+              namedTypes.ObjectExpression.check(backgroundImage.value)
+            ) {
+              const bKey = builders.stringLiteral(key)
+              const bValue = builders.stringLiteral(value)
+              const property = builders.objectProperty(bKey, bValue)
+              backgroundImage.value.properties.push(property)
+            } else {
+              log('Property.check(backgroundImage) && ObjectExpression.check(backgroundImage.value) fail')
+            }
+          } else {
+            log('Property.check(extend) && ObjectExpression.check(extend.value) fail')
+          }
+        } else {
+          log('ObjectExpression.check(node.value) fail')
+        }
+
+        return false
+      }
+
+      this.traverse(astPath)
+      return undefined
+    },
+  })
+
+  const output = print(ast)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+}

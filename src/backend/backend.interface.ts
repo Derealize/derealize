@@ -30,6 +30,7 @@ export interface ProjectConfig {
   port: number
   pages: Array<string>
   assets: string
+  assetsPublicPath: string
   applyCssFile: string
   isWeapp: boolean
 }
