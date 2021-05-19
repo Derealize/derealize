@@ -32,6 +32,9 @@ const BackgroundImage: React.FC = (): JSX.Element => {
 
   return (
     <Box>
+      <Button colorScheme="teal" variant="ghost" onClick={() => toggleModal(true)}>
+        Manage Images
+      </Button>
       <SelectController placeholder="bg-image" values={values} property={property} />
       {!!element?.actualStatus?.background && element?.actualStatus?.background !== 'none' && (
         <>
@@ -40,9 +43,6 @@ const BackgroundImage: React.FC = (): JSX.Element => {
           <SelectController placeholder="to" values={toValues} property={toProperty} />
         </>
       )}
-      <Button colorScheme="teal" variant="ghost" onClick={() => toggleModal(true)}>
-        Manage Images
-      </Button>
     </Box>
   )
 }

@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 import clone from 'lodash.clonedeep'
 import { types, parse, print, visit } from 'recast'
@@ -6,6 +6,7 @@ import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
 import { ElementPayload, InsertMode, InsertElementPayload, ElementTagType, ReplaceElementPayload } from '../interface'
+import type { BoolReply } from './backend.interface'
 import log from './log'
 
 const { builders, namedTypes } = types
@@ -14,7 +15,7 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
   const firstCodePosition = payloads[0].codePosition
   const firstPosition = firstCodePosition.split(':')
   const filePath = path.resolve(projectPath, firstPosition[0])
-  const content = fs.readFileSync(filePath, 'utf8')
+  const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, {
     parser,
   })
@@ -104,19 +105,19 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
   })
 
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
-const parseCodePosition = (
+const parseCodePosition = async (
   projectPath: string,
   codePosition: string,
-): { ast: any; targetLine: number; targetColumn: number; filePath: string } => {
+): Promise<{ ast: any; targetLine: number; targetColumn: number; filePath: string }> => {
   const position = codePosition.split(':')
   const filePath = path.resolve(projectPath, position[0])
   const targetLine = parseInt(position[1], 10)
   const targetColumn = parseInt(position[2], 10)
 
-  const content = fs.readFileSync(filePath, 'utf8')
+  const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, {
     parser,
   })
@@ -124,8 +125,11 @@ const parseCodePosition = (
   return { ast, targetLine, targetColumn, filePath }
 }
 
-export const Insert = (projectPath: string, { codePosition, insertTagType, insertMode }: InsertElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+export const Insert = async (
+  projectPath: string,
+  { codePosition, insertTagType, insertMode }: InsertElementPayload,
+) => {
+  const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
     visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
@@ -184,11 +188,11 @@ export const Insert = (projectPath: string, { codePosition, insertTagType, inser
   })
 
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
-export const Delete = (projectPath: string, { codePosition }: ElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+export const Delete = async (projectPath: string, { codePosition }: ElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
     visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
@@ -205,11 +209,11 @@ export const Delete = (projectPath: string, { codePosition }: ElementPayload) =>
   })
 
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
-export const Replace = (projectPath: string, { codePosition, replaceTagType }: ReplaceElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+export const Replace = async (projectPath: string, { codePosition, replaceTagType }: ReplaceElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
     visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
@@ -231,11 +235,11 @@ export const Replace = (projectPath: string, { codePosition, replaceTagType }: R
   })
 
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
-export const Text = (projectPath: string, { codePosition, text }: ElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = parseCodePosition(projectPath, codePosition)
+export const Text = async (projectPath: string, { codePosition, text }: ElementPayload) => {
+  const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
     visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
@@ -261,15 +265,16 @@ export const Text = (projectPath: string, { codePosition, text }: ElementPayload
   })
 
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
 }
 
-export const SetImage = (themeFilePath: string, key: string, value: string) => {
-  const filePath = path.resolve(themeFilePath)
-  const content = fs.readFileSync(filePath, 'utf8')
+export const SetImage = async (projectPath: string, key: string, value: string): Promise<BoolReply> => {
+  const filePath = path.resolve(projectPath, 'tailwind.config.js')
+  const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, {
     parser,
   })
+  let error = ''
 
   visit(ast, {
     visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
@@ -306,13 +311,13 @@ export const SetImage = (themeFilePath: string, key: string, value: string) => {
               const property = builders.objectProperty(bKey, bValue)
               backgroundImage.value.properties.push(property)
             } else {
-              log('Property.check(backgroundImage) && ObjectExpression.check(backgroundImage.value) fail')
+              error = 'check(backgroundImage) fail'
             }
           } else {
-            log('Property.check(extend) && ObjectExpression.check(extend.value) fail')
+            error = 'check(extend) fail'
           }
         } else {
-          log('ObjectExpression.check(node.value) fail')
+          error = 'check(node) fail'
         }
 
         return false
@@ -323,16 +328,22 @@ export const SetImage = (themeFilePath: string, key: string, value: string) => {
     },
   })
 
+  if (error) {
+    return { result: false, error }
+  }
+
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  await fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  return { result: true }
 }
 
-export const RemoveImage = (themeFilePath: string, key: string) => {
-  const filePath = path.resolve(themeFilePath)
-  const content = fs.readFileSync(filePath, 'utf8')
+export const RemoveImage = async (projectPath: string, key: string): Promise<BoolReply> => {
+  const filePath = path.resolve(projectPath, 'tailwind.config.js')
+  const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, {
     parser,
   })
+  let error = ''
 
   visit(ast, {
     visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
@@ -361,13 +372,13 @@ export const RemoveImage = (themeFilePath: string, key: string) => {
                   !(namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === key),
               )
             } else {
-              log('ObjectProperty.check(backgroundImage) && ObjectExpression.check(backgroundImage.value) fail')
+              error = 'check(backgroundImage) fail'
             }
           } else {
-            log('ObjectProperty.check(extend) && ObjectExpression.check(extend.value) fail')
+            error = 'check(extend) fail'
           }
         } else {
-          log('ObjectExpression.check(node.value) fail')
+          error = 'check(node) fail'
         }
 
         return false
@@ -378,6 +389,11 @@ export const RemoveImage = (themeFilePath: string, key: string) => {
     },
   })
 
+  if (error) {
+    return { result: false, error }
+  }
+
   const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' }, () => null)
+  await fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
+  return { result: true }
 }

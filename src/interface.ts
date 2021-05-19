@@ -60,9 +60,15 @@ export interface JitTiggerPayload extends ProjectIdParam {
   className: string
 }
 
-export interface ThemeImagePayload extends ProjectIdParam {
+export interface ThemeSetImagePayload extends ProjectIdParam {
   key: string
-  value?: string
+  path: string
+  fileName: string
+}
+
+export interface ThemeRemoveImagePayload extends ProjectIdParam {
+  key: string
+  webPath: string
 }
 
 export enum MainIpcChannel {

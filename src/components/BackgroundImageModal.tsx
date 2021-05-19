@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   useToast,
   Modal,
@@ -18,18 +18,19 @@ import {
   Text,
   Grid,
   Icon,
+  HStack,
 } from '@chakra-ui/react'
 
 import { useForm } from 'react-hook-form'
 import { FiFile } from 'react-icons/fi'
 
 import FileUpload from './FileUpload'
-import { Handler } from '../backend/backend.interface'
+import { Handler, TailwindConfigReply } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project, BackgroundImage } from '../models/project'
 import style from './BackgroundImageModal.module.scss'
 import type { PreloadWindow } from '../preload'
-import { ThemeImagePayload } from '../interface'
+import { ThemeSetImagePayload, ThemeRemoveImagePayload } from '../interface'
 
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpcSync } = window.derealize
@@ -59,14 +60,27 @@ const Images = (): JSX.Element => {
   const backgroundImages = useStoreState<BackgroundImage[]>((state) => state.project.backgroundImages)
   const modalDisclosure = useStoreState<boolean>((state) => state.project.backgroundsModalDisclosure)
   const toggleModal = useStoreActions((actions) => actions.project.toggleBackgroundsModal)
+  const setTailwindConfig = useStoreActions((actions) => actions.project.setTailwindConfig)
 
   const onRemove = useCallback(
-    async (key) => {
-      if (!project) return
-      const payload: ThemeImagePayload = { projectId: project.id, key }
-      await sendBackIpc(Handler.ThemeRemoveImage, payload as any)
+    async (b: BackgroundImage) => {
+      if (!project || !project.config) return
+
+      const payload: ThemeRemoveImagePayload = { projectId: project.id, key: b.name, webPath: b.webPath }
+      const reply = (await sendBackIpc(Handler.ThemeRemoveImage, payload as any)) as TailwindConfigReply
+      if (reply.error) {
+        toast({
+          title: `remove image error: ${reply.error}`,
+          status: 'error',
+        })
+        return
+      }
+
+      if (reply.result) {
+        setTailwindConfig({ projectId: project.id, config: reply.result })
+      }
     },
-    [project],
+    [project, setTailwindConfig, toast],
   )
 
   const {
@@ -76,14 +90,29 @@ const Images = (): JSX.Element => {
   } = useForm<{ image: FileList; name: string }>()
 
   const onAdd = handleSubmit(async (data) => {
-    if (!project?.config?.assetsPublicPath) return
-    console.log('data', data)
-    const payload: ThemeImagePayload = {
+    if (!project?.config?.assetsUrl) return
+    // console.log('data', data)
+
+    const { name, path } = data.image[0]
+
+    const payload: ThemeSetImagePayload = {
       projectId: project.id,
       key: data.name,
-      value: `url(${project?.config?.assetsPublicPath + data.image[0]})`,
+      path,
+      fileName: name,
     }
-    await sendBackIpc(Handler.ThemeSetImage, payload as any)
+    const reply = (await sendBackIpc(Handler.ThemeSetImage, payload as any)) as TailwindConfigReply
+    if (reply.error) {
+      toast({
+        title: `add image error: ${reply.error}`,
+        status: 'error',
+      })
+      return
+    }
+
+    if (reply.result) {
+      setTailwindConfig({ projectId: project.id, config: reply.result })
+    }
   })
 
   return (
@@ -97,15 +126,15 @@ const Images = (): JSX.Element => {
             <Grid templateColumns="repeat(4, 1fr)" gap={6}>
               {backgroundImages.map((b) => (
                 <Flex key={b.name} direction="column" alignItems="center" className={style.imageItem}>
-                  <Image src={project?.config?.baseUrl + b.path} />
+                  <Image src={project?.config?.baseUrl + b.webPath} />
                   <Text>{b.name}</Text>
-                  <CloseButton className={style.removeBtn} onClick={() => onRemove(b.name)} />
+                  <CloseButton className={style.removeBtn} onClick={() => onRemove(b)} />
                 </Flex>
               ))}
             </Grid>
           </ModalBody>
           <ModalFooter justifyContent="center">
-            <form onSubmit={onAdd}>
+            <HStack spacing={2}>
               <FormControl isInvalid={!!errors.image} isRequired>
                 <FileUpload register={register('image', { validate: validateFiles })}>
                   <Button leftIcon={<Icon as={FiFile} />}>Select Image</Button>
@@ -118,15 +147,15 @@ const Images = (): JSX.Element => {
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...register('name', { required: true })}
                   type="text"
-                  colorScheme="gray"
+                  placeholder="key-name"
                 />
                 <FormErrorMessage>{errors.name && errors?.name.message}</FormErrorMessage>
               </FormControl>
 
-              <Button colorScheme="teal" size="lg" variant="solid" type="submit" ml={6}>
+              <Button colorScheme="teal" size="lg" variant="ghost" type="submit" onClick={onAdd}>
                 Add
               </Button>
-            </form>
+            </HStack>
           </ModalFooter>
         </ModalContent>
       </Modal>

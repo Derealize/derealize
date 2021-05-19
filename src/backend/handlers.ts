@@ -1,20 +1,22 @@
 /* eslint-disable no-restricted-syntax */
-import fs, { WriteFileOptions } from 'fs'
+import fs, { WriteFileOptions } from 'fs/promises'
 import sysPath from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
-import type { HistoryReply, BoolReply } from './backend.interface'
+import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayload } from '../interface'
 import {
   ElementPayload,
   InsertElementPayload,
   ReplaceElementPayload,
   JitTiggerPayload,
-  ThemeImagePayload,
+  ThemeSetImagePayload,
+  ThemeRemoveImagePayload,
 } from '../interface'
 import { Apply, Insert, Delete, Replace, Text, SetImage, RemoveImage } from './shift'
 import { npmStart } from './npm'
+import { CssUrlReg } from '../utils/assest'
 
 const projectsMap = new Map<string, Project>()
 
@@ -111,14 +113,14 @@ export const ApplyElements = async (payloads: Array<ElementPayload>) => {
 export const InsertElement = async (payload: InsertElementPayload) => {
   const project = getProject(payload.projectId)
 
-  Insert(project.path, payload)
+  await Insert(project.path, payload)
   npmStart(project.path, project.config.formatScript)
 }
 
 export const DeleteElement = async (payload: ElementPayload) => {
   const project = getProject(payload.projectId)
 
-  Delete(project.path, payload)
+  await Delete(project.path, payload)
   npmStart(project.path, project.config.formatScript)
 }
 
@@ -129,7 +131,6 @@ export const ReplaceElement = async (payload: ReplaceElementPayload) => {
 
 export const TextElement = async (payload: ElementPayload) => {
   const project = getProject(payload.projectId)
-
   Text(project.path, payload)
 }
 
@@ -137,16 +138,36 @@ export const JitTigger = async ({ projectId, className }: JitTiggerPayload) => {
   const project = getProject(projectId)
 
   const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
-  fs.writeFile(filePath, `<a class="${className}"></a>`, { encoding: 'utf8' }, () => null)
+  fs.writeFile(filePath, `<a class="${className}"></a>`, { encoding: 'utf8' })
 }
 
-export const ThemeSetImage = async ({ projectId, key, value }: ThemeImagePayload) => {
+export const ThemeSetImage = async ({
+  projectId,
+  key,
+  path,
+  fileName,
+}: ThemeSetImagePayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
-  if (!value) return
-  SetImage(project.path, key, value)
+
+  const filePath = sysPath.resolve(project.path, project.config.assetsPath)
+  fs.copyFile(path, filePath)
+
+  const cssUrl = `url(${project.config.assetsUrl + fileName})`
+  const { result, error } = await SetImage(project.path, key, cssUrl)
+  return result ? { result: project.GetTailwindConfig() } : { error }
 }
 
-export const ThemeRemoveImage = async ({ projectId, key }: ThemeImagePayload) => {
+export const ThemeRemoveImage = async ({
+  projectId,
+  key,
+  webPath,
+}: ThemeRemoveImagePayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
-  RemoveImage(project.path, key)
+
+  const { assetsPath, assetsUrl } = project.config
+  const path = sysPath.resolve(project.path, webPath.replace(assetsUrl, assetsPath))
+  fs.unlink(path)
+
+  const { result, error } = await RemoveImage(project.path, key)
+  return result ? { result: project.GetTailwindConfig() } : { error }
 }

@@ -17,6 +17,8 @@ export const IntEnumValues = (enumme: any): Array<string> => {
   return Object.keys(enumme).filter((value) => !Number.isNaN(Number(value)))
 }
 
+export const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
+
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
 
