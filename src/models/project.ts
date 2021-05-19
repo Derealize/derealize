@@ -65,6 +65,13 @@ export interface Project {
   jitClassName?: string
 }
 
+export interface BackgroundImage {
+  name: string
+  path: string
+}
+
+const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
+
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
 export const StateVariants = [
@@ -120,7 +127,7 @@ const mainFrontView = (project?: Project) => {
     sendMainIpc(
       MainIpcChannel.FrontView,
       project.id,
-      project.config.lunchUrl,
+      project.config.baseUrl,
       [...project.config.pages],
       project.config.isWeapp,
     )
@@ -178,6 +185,10 @@ export interface ProjectModel {
 
   importModalDisclosure: boolean
   toggleImportModal: Action<ProjectModel, boolean | undefined>
+
+  backgroundsModalDisclosure: boolean
+  toggleBackgroundsModal: Action<ProjectModel, boolean | undefined>
+  backgroundImages: Computed<ProjectModel, BackgroundImage[]>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -642,6 +653,31 @@ const projectModel: ProjectModel = {
       mainFrontView(undefined)
       state.importModalDisclosure = true
     }
+  }),
+
+  backgroundsModalDisclosure: false,
+  toggleBackgroundsModal: action((state, open) => {
+    if (open === false || state.backgroundsModalDisclosure) {
+      mainFrontView(state.frontProject)
+      state.backgroundsModalDisclosure = false
+    } else {
+      mainFrontView(undefined)
+      state.backgroundsModalDisclosure = true
+    }
+  }),
+  backgroundImages: computed((state) => {
+    if (!state.frontProject?.tailwindConfig) return []
+    const images: Array<BackgroundImage> = []
+    for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
+      const regValues = CssUrlReg.exec(value)
+      if (regValues && regValues.length > 1) {
+        images.push({
+          name,
+          path: regValues[1],
+        })
+      }
+    }
+    return images
   }),
 
   historys: [],

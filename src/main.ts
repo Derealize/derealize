@@ -89,7 +89,7 @@ const setBrowserViewBounds = (mainwin: BrowserWindow) => {
 
 interface ProjectHost {
   view: BrowserView
-  lunchUrl: string
+  baseUrl: string
   pages: Array<string>
   activeSelector?: string
 }
@@ -103,7 +103,7 @@ const frontMain = () => {
 
 ipcMain.on(
   MainIpcChannel.FrontView,
-  (event: any, projectId: string | null, lunchUrl: string, pages: Array<string>, isWeapp: boolean) => {
+  (event: any, projectId: string | null, baseUrl: string, pages: Array<string>, isWeapp: boolean) => {
     if (!mainWindow) return
     if (!projectId) {
       frontMain()
@@ -125,14 +125,14 @@ ipcMain.on(
       })
       view.setBackgroundColor('#fff') // todo: invalid
 
-      projects.set(projectId, { view, lunchUrl, pages })
+      projects.set(projectId, { view, baseUrl, pages })
       mainWindow.setBrowserView(view)
       setBrowserViewBounds(mainWindow)
       if (isDebug) {
         view.webContents.openDevTools()
       }
 
-      // view.webContents.loadURL(lunchUrl)
+      // view.webContents.loadURL(baseUrl)
       view.webContents.on('did-finish-load', () => {
         const loadedProject = projects.get(projectId)
         if (loadedProject) {
@@ -165,7 +165,7 @@ ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: nu
 const loadURL = (projectId: string, url: string) => {
   const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.loadURL(project.lunchUrl + url)
+    project.view.webContents.loadURL(project.baseUrl + url)
   }
 }
 

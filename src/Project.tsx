@@ -10,6 +10,7 @@ import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
 import Controllers from './components/controllers/Controllers'
+import BackgroundImageModal from './components/BackgroundImageModal'
 import style from './Project.module.scss'
 import type { PreloadWindow } from './preload'
 
@@ -152,6 +153,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
           )}
         </div>
       </div>
+      <BackgroundImageModal />
     </>
   )
 }

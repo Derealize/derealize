@@ -60,6 +60,11 @@ export interface JitTiggerPayload extends ProjectIdParam {
   className: string
 }
 
+export interface ThemeImagePayload extends ProjectIdParam {
+  key: string
+  value?: string
+}
+
 export enum MainIpcChannel {
   Shortcut = 'Shortcut',
   ControllerShortcut = 'ControllerShortcut',

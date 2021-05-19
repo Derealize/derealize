@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Box } from '@chakra-ui/react'
+import { Box, Button } from '@chakra-ui/react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -10,6 +10,7 @@ import { ElementState } from '../../../models/project'
 const BackgroundImage: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleBackgroundsModal)
 
   const values = useStoreState<Array<string>>((state) => state.background.backgroundImageValues)
   const propertys = useStoreState<Array<Property>>((state) => state.background.backgroundImagePropertys)
@@ -39,6 +40,9 @@ const BackgroundImage: React.FC = (): JSX.Element => {
           <SelectController placeholder="to" values={toValues} property={toProperty} />
         </>
       )}
+      <Button colorScheme="teal" variant="ghost" onClick={() => toggleModal(true)}>
+        Manage Images
+      </Button>
     </Box>
   )
 }

@@ -6,8 +6,14 @@ import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayload } from '../interface'
-import { ElementPayload, InsertElementPayload, ReplaceElementPayload, JitTiggerPayload } from '../interface'
-import { Apply, Insert, Delete, Replace, Text } from './shift'
+import {
+  ElementPayload,
+  InsertElementPayload,
+  ReplaceElementPayload,
+  JitTiggerPayload,
+  ThemeImagePayload,
+} from '../interface'
+import { Apply, Insert, Delete, Replace, Text, SetImage, RemoveImage } from './shift'
 import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
@@ -132,4 +138,15 @@ export const JitTigger = async ({ projectId, className }: JitTiggerPayload) => {
 
   const filePath = sysPath.resolve(project.path, 'derealize-jit.html')
   fs.writeFile(filePath, `<a class="${className}"></a>`, { encoding: 'utf8' }, () => null)
+}
+
+export const ThemeSetImage = async ({ projectId, key, value }: ThemeImagePayload) => {
+  const project = getProject(projectId)
+  if (!value) return
+  SetImage(project.path, key, value)
+}
+
+export const ThemeRemoveImage = async ({ projectId, key }: ThemeImagePayload) => {
+  const project = getProject(projectId)
+  RemoveImage(project.path, key)
 }
