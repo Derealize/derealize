@@ -20,6 +20,7 @@ import type {
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
 import type { Property } from './controlles/controlles'
+import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -67,10 +68,8 @@ export interface Project {
 
 export interface BackgroundImage {
   name: string
-  path: string
+  webPath: string
 }
-
-const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
@@ -156,6 +155,7 @@ export interface ProjectModel {
   emptyRunningOutput: Action<ProjectModel, string>
   setStartLoading: Action<ProjectModel, { projectId: string; loading: boolean }>
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
+  setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
 
   screenVariants: Computed<ProjectModel, Array<string>, StoreModel>
   customVariants: Computed<ProjectModel, Array<string>, StoreModel>
@@ -279,6 +279,11 @@ const projectModel: ProjectModel = {
     if (project.id === state.frontProject?.id) {
       mainFrontView(project)
     }
+  }),
+  setTailwindConfig: action((state, { projectId, config }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.tailwindConfig = config
   }),
 
   screenVariants: computed((state) => {
@@ -673,7 +678,7 @@ const projectModel: ProjectModel = {
       if (regValues && regValues.length > 1) {
         images.push({
           name,
-          path: regValues[1],
+          webPath: regValues[1],
         })
       }
     }

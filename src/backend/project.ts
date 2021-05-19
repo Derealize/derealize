@@ -42,9 +42,9 @@ class Project {
     baseUrl: 'http://localhost:3000',
     port: 3000,
     pages: [],
-    assets: '',
+    assetsPath: '',
+    assetsUrl: '',
     applyCssFile: '',
-    assetsPublicPath: '',
     isWeapp: false,
   }
 

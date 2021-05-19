@@ -1,3 +1,5 @@
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+
 export enum Handler {
   Import = 'Import',
   Remove = 'Remove',
@@ -31,8 +33,8 @@ export interface ProjectConfig {
   baseUrl: string
   port: number
   pages: Array<string>
-  assets: string
-  assetsPublicPath: string
+  assetsPath: string
+  assetsUrl: string
   applyCssFile: string
   isWeapp: boolean
 }
@@ -92,5 +94,10 @@ export interface HistoryReply {
 
 export interface BoolReply {
   result: boolean
+  error?: string
+}
+
+export interface TailwindConfigReply {
+  result?: TailwindConfig
   error?: string
 }
