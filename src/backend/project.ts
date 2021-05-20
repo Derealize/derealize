@@ -20,7 +20,6 @@ import emit from './emit'
 import log from './log'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
-const debugEmitStatus = false
 
 export enum Broadcast {
   Status = 'Status',
@@ -52,6 +51,8 @@ class Project {
 
   tailwindVersion: string | undefined
 
+  tailwindConfig: TailwindConfig | undefined
+
   installProcess: ChildProcessWithoutNullStreams | undefined
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
@@ -65,6 +66,7 @@ class Project {
       status: this.status,
       productName: this.productName,
       tailwindVersion: this.tailwindVersion,
+      tailwindConfig: this.tailwindConfig,
       config: this.config,
     } as StatusPayload)
   }
@@ -82,27 +84,33 @@ class Project {
         // todo:parse and check min supported version
         return { result: false, error: 'project not imported tailwindcss' }
       }
-    } catch (error) {
-      log('assignConfig error', error)
-      return { result: false, error: error.message }
+    } catch (err) {
+      log('assignConfig error', err)
+      return { result: false, error: err.message }
     }
 
     return { result: true }
   }
 
-  GetTailwindConfig(): TailwindConfig | undefined {
+  resolveTailwindConfig(): BoolReply {
     try {
+      fs.readFile(sysPath.resolve(this.path, './tailwind.config.js'), (err, content) => {
+        log(`resolveTailwindConfig:${content}`)
+      })
+
       // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
       const config = __non_webpack_require__(sysPath.resolve(this.path, './tailwind.config'))
       // const config = await import(sysPath.resolve(this.path, './tailwind.config.js'))
-      return resolveConfig(config)
+      this.tailwindConfig = resolveConfig(config)
+      console.log('this.tailwindConfig.theme.backgroundImage', this.tailwindConfig.theme.backgroundImage)
+      return { result: true }
     } catch (err) {
-      log(`GetTailwindConfig:${this.path}`, err)
+      log(`resolveTailwindConfig:${this.path}`, err)
+      return { result: false, error: err.message }
     }
-    return undefined
   }
 
-  async CheckStatus(): Promise<BoolReply> {
+  async Flush(): Promise<BoolReply> {
     if (!this.repo) return { result: false, error: 'repo null' }
 
     try {
@@ -112,8 +120,11 @@ class Project {
       return { result: false, error: err.message }
     }
 
-    const reply = this.assignConfig()
-    if (!reply.result) return reply
+    const configReply = this.assignConfig()
+    if (!configReply.result) return configReply
+
+    const tailwindConfigReply = this.resolveTailwindConfig()
+    if (!tailwindConfigReply.result) return tailwindConfigReply
 
     try {
       const statuses = await this.repo.getStatus()
@@ -128,7 +139,6 @@ class Project {
       return { result: false, error: err.message }
     }
 
-    if (debugEmitStatus) log('CheckStatus EmitStatus')
     this.EmitStatus()
     return { result: true }
   }
@@ -150,7 +160,7 @@ class Project {
       }
     }
 
-    const reply = await this.CheckStatus()
+    const reply = await this.Flush()
     if (!reply.result) return reply
 
     this.status = ProjectStatus.Initialized
@@ -186,7 +196,6 @@ class Project {
       if (!hasError) {
         log('status = ProjectStatus.Ready')
         this.status = ProjectStatus.Ready
-        if (debugEmitStatus) log('Install EmitStatus')
         this.EmitStatus()
       }
     })
@@ -212,7 +221,6 @@ class Project {
       if (this.status !== ProjectStatus.Running && compiledMessage.some((m) => message.includes(m))) {
         this.status = ProjectStatus.Running
       }
-      if (debugEmitStatus) log(`Start data EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
@@ -229,14 +237,12 @@ class Project {
       log('starting error', error)
       emit(Broadcast.Starting, { projectId: this.projectId, error: error.message } as ProcessPayload)
       this.status = ProjectStatus.Ready
-      if (debugEmitStatus) log(`Start error EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
     this.runningProcess.on('exit', (exit) => {
       emit(Broadcast.Starting, { projectId: this.projectId, exit } as ProcessPayload)
       this.status = ProjectStatus.Ready
-      if (debugEmitStatus) log(`Start exit EmitStatus ${this.status}`)
       this.EmitStatus()
     })
 
@@ -260,7 +266,7 @@ class Project {
   async Pull(): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    const reply = await this.CheckStatus()
+    const reply = await this.Flush()
     if (!reply.result) return reply
 
     if (this.changes.length) {
@@ -284,7 +290,7 @@ class Project {
   async Push(msg: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    const reply = await this.CheckStatus()
+    const reply = await this.Flush()
     if (!reply.result) return reply
 
     try {
@@ -294,7 +300,7 @@ class Project {
 
       await gitPull(this.repo)
 
-      const reply2 = await this.CheckStatus()
+      const reply2 = await this.Flush()
       if (!reply2.result) return reply2
 
       if (this.changes.length) {
