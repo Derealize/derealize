@@ -4,13 +4,12 @@ export enum Handler {
   Import = 'Import',
   Remove = 'Remove',
   Install = 'Install',
-  CheckStatus = 'CheckStatus',
+  Flush = 'Flush',
   Start = 'Start',
   Stop = 'Stop',
   Pull = 'Pull',
   Push = 'Push',
   History = 'History',
-  GetTailwindConfig = 'GetTailwindConfig',
   ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
@@ -68,7 +67,7 @@ export interface StatusPayload {
   changes: Array<GitFileChanges>
   status: ProjectStatus
   tailwindVersion: string
-  tailwindConfigPath: string
+  tailwindConfig: TailwindConfig
   config: ProjectConfig
 }
 

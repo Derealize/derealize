@@ -165,7 +165,7 @@ ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: nu
 const loadURL = (projectId: string, url: string) => {
   const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.loadURL(project.baseUrl + url)
+    project.view.webContents.loadURL(path.join(project.baseUrl, url))
   }
 }
 

@@ -74,6 +74,13 @@ export default class MenuBuilder {
             },
           },
           {
+            label: '&Flush Project',
+            accelerator: 'Ctrl+F',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Flush)
+            },
+          },
+          {
             label: '&Close Project',
             accelerator: 'Ctrl+W',
             click: () => {
@@ -130,16 +137,16 @@ export default class MenuBuilder {
 
     const viewMenus: MenuItemConstructorOptions[] = [
       {
+        label: 'Close All BrowserView',
+        click: () => {
+          this.frontMainView()
+        },
+      },
+      {
         label: 'Toggle &Full Screen',
         accelerator: 'F11',
         click: () => {
           this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
-        },
-      },
-      {
-        label: 'Close All BrowserView',
-        click: () => {
-          this.frontMainView()
         },
       },
       {

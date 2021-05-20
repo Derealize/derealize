@@ -170,6 +170,7 @@ export interface ProjectModel {
   setActiveElementProperty: Action<ProjectModel, Property>
   deleteActiveElementProperty: Action<ProjectModel, string>
 
+  flushProject: Action<ProjectModel, string>
   setFrontProject: Action<ProjectModel, string | null>
   startProject: Thunk<ProjectModel, string>
   stopProject: Action<ProjectModel, string>
@@ -442,6 +443,12 @@ const projectModel: ProjectModel = {
     element.propertys = element.propertys.filter((p) => p.id !== propertyId)
   }),
 
+  flushProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      sendBackIpc(Handler.Flush, { projectId: project.id })
+    }
+  }),
   setFrontProject: action((state, projectId) => {
     state.projects.forEach((p) => {
       p.isFront = false
@@ -450,7 +457,7 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isFront = true
-      sendBackIpc(Handler.CheckStatus, { projectId: project.id })
+      sendBackIpc(Handler.Flush, { projectId: project.id })
     }
     mainFrontView(project)
   }),
@@ -532,7 +539,6 @@ const projectModel: ProjectModel = {
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })
-          project.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId })) as TailwindConfig
         } else {
           toast({
             title: `Import error: ${error}`,
@@ -561,6 +567,7 @@ const projectModel: ProjectModel = {
     project.status = payload.status
     project.changes = payload.changes
     project.tailwindVersion = payload.tailwindVersion
+    project.tailwindConfig = payload.tailwindConfig
     storeProject(state.projects)
   }),
 
@@ -617,7 +624,7 @@ const projectModel: ProjectModel = {
       actions.unSelectedAllElements(projectId)
     })
 
-    listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
+    listenMainIpc(MainIpcChannel.Refresh, (event: IpcRendererEvent, projectId: string) => {
       actions.cleanElements(projectId)
     })
 
@@ -634,6 +641,10 @@ const projectModel: ProjectModel = {
 
     listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
       actions.droppedActiveElement(payload)
+    })
+
+    listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
+      actions.flushProject(projectId)
     })
   }),
 
@@ -673,6 +684,7 @@ const projectModel: ProjectModel = {
   backgroundImages: computed((state) => {
     if (!state.frontProject?.tailwindConfig) return []
     const images: Array<BackgroundImage> = []
+    console.log('computed backgroundImages', state.frontProject.tailwindConfig.theme.backgroundImage)
     for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
       const regValues = CssUrlReg.exec(value)
       if (regValues && regValues.length > 1) {

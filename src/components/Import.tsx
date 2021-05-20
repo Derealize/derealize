@@ -81,6 +81,7 @@ const ImportProject = (): JSX.Element => {
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
+  const removeProject = useStoreActions((actions) => actions.project.removeProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
 
   const watchUrl = watch('url')
@@ -151,30 +152,31 @@ const ImportProject = (): JSX.Element => {
       setImportloading(true)
       const id = nanoid()
       setProjectId(id)
+
+      const newProject: Project = {
+        id,
+        url,
+        path,
+        name,
+        branch,
+        editedTime: dayjs().toString(),
+        status: ProjectStatus.Initialized,
+      }
+      addProject(newProject)
+
       const payload: ImportPayload = { projectId: id, url, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+
       if (result) {
-        const newProject: Project = {
-          id,
-          url,
-          path,
-          name,
-          branch,
-          editedTime: dayjs().toString(),
-          status: ProjectStatus.Initialized,
-        }
-        newProject.tailwindConfig = (await sendBackIpc(Handler.GetTailwindConfig, { projectId: id })) as
-          | TailwindConfig
-          | undefined
-        addProject(newProject)
         await sendBackIpc(Handler.Install, { projectId: id })
       } else {
         setImportloading(false)
         installOutput.push(`import error: ${error}`)
         setInstallOutput(installOutput)
+        removeProject(id)
       }
     },
-    [projects, onOpenExistsAlert, addProject, installOutput],
+    [projects, addProject, onOpenExistsAlert, installOutput, removeProject],
   )
 
   const open = useCallback(() => {

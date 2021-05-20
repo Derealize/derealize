@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import fs, { WriteFileOptions } from 'fs/promises'
+import fs from 'fs/promises'
 import sysPath from 'path'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
@@ -16,7 +16,6 @@ import {
 } from '../interface'
 import { Apply, Insert, Delete, Replace, Text, SetImage, RemoveImage } from './shift'
 import { npmStart } from './npm'
-import { CssUrlReg } from '../utils/assest'
 
 const projectsMap = new Map<string, Project>()
 
@@ -48,9 +47,9 @@ export const Install = async ({ projectId }: ProjectIdParam): Promise<BoolReply>
   return result
 }
 
-export const CheckStatus = async ({ projectId }: ProjectIdParam) => {
+export const Flush = async ({ projectId }: ProjectIdParam) => {
   const project = getProject(projectId)
-  await project.CheckStatus()
+  await project.Flush()
 }
 
 export const Start = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
@@ -96,12 +95,6 @@ export const DisposeAll = async () => {
   }
   await Promise.all(promises)
   log('DisposeAll')
-}
-
-export const GetTailwindConfig = async ({ projectId }: ProjectIdParam): Promise<TailwindConfig | undefined> => {
-  const project = getProject(projectId)
-  const config = project.GetTailwindConfig()
-  return config
 }
 
 export const ApplyElements = async (payloads: Array<ElementPayload>) => {
@@ -154,7 +147,8 @@ export const ThemeSetImage = async ({
 
   const cssUrl = `url(${project.config.assetsUrl + fileName})`
   const { result, error } = await SetImage(project.path, key, cssUrl)
-  return result ? { result: project.GetTailwindConfig() } : { error }
+  project.resolveTailwindConfig()
+  return result ? { result: project.tailwindConfig } : { error }
 }
 
 export const ThemeRemoveImage = async ({
@@ -169,5 +163,10 @@ export const ThemeRemoveImage = async ({
   fs.unlink(path)
 
   const { result, error } = await RemoveImage(project.path, key)
-  return result ? { result: project.GetTailwindConfig() } : { error }
+  console.log('RemoveImage', result, error)
+  if (result) {
+    project.resolveTailwindConfig()
+    return { result: project.tailwindConfig }
+  }
+  return { error }
 }
