@@ -1,7 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
@@ -147,7 +146,7 @@ export const ThemeSetImage = async ({
 
   const cssUrl = `url(${project.config.assetsUrl + fileName})`
   const { result, error } = await SetImage(project.path, key, cssUrl)
-  project.resolveTailwindConfig()
+  project.ResolveTailwindConfig()
   return result ? { result: project.tailwindConfig } : { error }
 }
 
@@ -163,9 +162,8 @@ export const ThemeRemoveImage = async ({
   fs.unlink(path)
 
   const { result, error } = await RemoveImage(project.path, key)
-  console.log('RemoveImage', result, error)
   if (result) {
-    project.resolveTailwindConfig()
+    project.ResolveTailwindConfig()
     return { result: project.tailwindConfig }
   }
   return { error }

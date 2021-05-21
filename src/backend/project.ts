@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { Repository } from 'nodegit'
@@ -71,11 +71,10 @@ class Project {
     } as StatusPayload)
   }
 
-  private assignConfig(): BoolReply {
+  private async assignConfig(): Promise<BoolReply> {
     try {
-      const jsonraw = fs.readFileSync(sysPath.join(this.path, './package.json'), 'utf8')
+      const jsonraw = await fs.readFile(sysPath.join(this.path, './package.json'), 'utf8')
       const pacakge = JSON.parse(jsonraw)
-
       Object.assign(this.config, pacakge.derealize)
 
       this.productName = pacakge.productName || pacakge.name
@@ -92,20 +91,18 @@ class Project {
     return { result: true }
   }
 
-  resolveTailwindConfig(): BoolReply {
+  ResolveTailwindConfig(): BoolReply {
     try {
-      fs.readFile(sysPath.resolve(this.path, './tailwind.config.js'), (err, content) => {
-        log(`resolveTailwindConfig:${content}`)
-      })
+      const configPath = sysPath.resolve(this.path, './tailwind.config.js')
 
+      // https://cnodejs.org/topic/52aa6e78a9526bff2232aaa9
+      delete __non_webpack_require__.cache[configPath]
       // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
-      const config = __non_webpack_require__(sysPath.resolve(this.path, './tailwind.config'))
-      // const config = await import(sysPath.resolve(this.path, './tailwind.config.js'))
+      const config = __non_webpack_require__(configPath)
       this.tailwindConfig = resolveConfig(config)
-      console.log('this.tailwindConfig.theme.backgroundImage', this.tailwindConfig.theme.backgroundImage)
       return { result: true }
     } catch (err) {
-      log(`resolveTailwindConfig:${this.path}`, err)
+      log(`ResolveTailwindConfig fail:${this.path}`, err)
       return { result: false, error: err.message }
     }
   }
@@ -120,10 +117,10 @@ class Project {
       return { result: false, error: err.message }
     }
 
-    const configReply = this.assignConfig()
+    const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
 
-    const tailwindConfigReply = this.resolveTailwindConfig()
+    const tailwindConfigReply = this.ResolveTailwindConfig()
     if (!tailwindConfigReply.result) return tailwindConfigReply
 
     try {
