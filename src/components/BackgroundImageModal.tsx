@@ -77,7 +77,6 @@ const Images = (): JSX.Element => {
       }
 
       if (reply.result) {
-        console.log('setTailwindConfig', reply.result.theme.backgroundImage)
         setTailwindConfig({ projectId: project.id, config: reply.result })
       }
     },

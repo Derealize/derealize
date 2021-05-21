@@ -684,7 +684,6 @@ const projectModel: ProjectModel = {
   backgroundImages: computed((state) => {
     if (!state.frontProject?.tailwindConfig) return []
     const images: Array<BackgroundImage> = []
-    console.log('computed backgroundImages', state.frontProject.tailwindConfig.theme.backgroundImage)
     for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
       const regValues = CssUrlReg.exec(value)
       if (regValues && regValues.length > 1) {
