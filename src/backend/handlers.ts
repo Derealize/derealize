@@ -141,10 +141,16 @@ export const ThemeSetImage = async ({
 }: ThemeSetImagePayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
 
-  const filePath = sysPath.resolve(project.path, project.config.assetsPath)
-  fs.copyFile(path, filePath)
+  const { assetsPath, assetsUrl } = project.config
+  const filePath = sysPath.resolve(project.path, assetsPath, fileName)
 
-  const cssUrl = `url(${project.config.assetsUrl + fileName})`
+  try {
+    fs.copyFile(path, filePath)
+  } catch (err) {
+    log('ThemeSetImage', err)
+  }
+
+  const cssUrl = `url(${sysPath.posix.join(assetsUrl, fileName)})`
   const { result, error } = await SetImage(project.path, key, cssUrl)
   project.ResolveTailwindConfig()
   return result ? { result: project.tailwindConfig } : { error }
@@ -157,14 +163,20 @@ export const ThemeRemoveImage = async ({
 }: ThemeRemoveImagePayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
 
-  const { assetsPath, assetsUrl } = project.config
-  const path = sysPath.resolve(project.path, webPath.replace(assetsUrl, assetsPath))
-  fs.unlink(path)
+  const { assetsPath } = project.config
+  const filePath = sysPath.resolve(project.path, assetsPath, sysPath.basename(webPath))
+
+  try {
+    fs.unlink(filePath)
+  } catch (err) {
+    log('ThemeRemoveImage', err)
+  }
 
   const { result, error } = await RemoveImage(project.path, key)
   if (result) {
     project.ResolveTailwindConfig()
     return { result: project.tailwindConfig }
   }
+
   return { error }
 }

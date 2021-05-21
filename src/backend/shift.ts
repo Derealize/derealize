@@ -367,10 +367,17 @@ export const RemoveImage = async (projectPath: string, key: string): Promise<Boo
               namedTypes.ObjectProperty.check(backgroundImage) &&
               namedTypes.ObjectExpression.check(backgroundImage.value)
             ) {
-              backgroundImage.value.properties = backgroundImage.value.properties.filter(
-                (p) =>
-                  !(namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === key),
-              )
+              backgroundImage.value.properties = backgroundImage.value.properties.filter((p) => {
+                if (namedTypes.ObjectProperty.check(p)) {
+                  if (namedTypes.Identifier.check(p.key)) {
+                    return p.key.name !== key
+                  }
+                  if (namedTypes.StringLiteral.check(p.key)) {
+                    return p.key.value !== key
+                  }
+                }
+                return true
+              })
             } else {
               error = 'check(backgroundImage) fail'
             }
