@@ -94,7 +94,6 @@ export enum MainIpcChannel {
   Refresh = 'Refresh',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
-  InsertTab = 'InsertTab',
   TextTab = 'TextTab',
   Dropped = 'Dropped',
 }
@@ -108,5 +107,5 @@ export const ControllerShortcut = [
   { key: 'Alt+6', label: 'Background Panel' },
   { key: 'Alt+7', label: 'Effects Panel' },
   { key: 'Alt+8', label: 'Components Panel' },
-  { key: 'Alt+9', label: 'Add Panel' },
+  { key: 'Alt+9', label: 'Insert Panel' },
 ]

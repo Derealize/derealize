@@ -21,14 +21,14 @@ const BackgroundSection: React.FC = (): JSX.Element => {
     <>
       {!already && <Variants alreadyVariants={alreadyVariants} />}
       <VStack mt={4} alignItems="stretch">
-        <BackgroundColor />
         <BackgroundImage />
-        <BackgroundOpacity />
+        <BackgroundSize />
+        <BackgroundColor />
 
+        <BackgroundAttachment />
+        <BackgroundOpacity />
         <BackgroundPosition />
         <BackgroundRepeat />
-        <BackgroundSize />
-        <BackgroundAttachment />
         <BackgroundClip />
       </VStack>
     </>

@@ -629,9 +629,13 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
+      const { frontProject } = getState()
+      if (!frontProject) return
+
       if (key === 'Save') {
-        const { frontProject } = getState()
-        if (frontProject) actions.savedElements(frontProject.id)
+        actions.savedElements(frontProject.id)
+      } else if (key === 'Image Modal') {
+        actions.toggleBackgroundsModal(undefined)
       }
     })
 

@@ -34,7 +34,6 @@ enum ControllerTab {
   Background,
   Effects,
   Components,
-  Advanced,
   Insert,
 }
 
@@ -44,12 +43,6 @@ const Controllers: React.FC = (): JSX.Element => {
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
-    listenMainIpc(MainIpcChannel.InsertTab, (e: IpcRendererEvent, payload: boolean) => {
-      if (payload) {
-        setTabIndex(ControllerTab.Insert)
-      }
-    })
-
     if (tabIndex === ControllerTab.Typography && element?.text === undefined) {
       setTabIndex(ControllerTab.Already)
     }
@@ -68,7 +61,6 @@ const Controllers: React.FC = (): JSX.Element => {
     })
 
     return () => {
-      unlistenMainIpc(MainIpcChannel.InsertTab)
       unlistenMainIpc(MainIpcChannel.TextTab)
       unlistenMainIpc(MainIpcChannel.ControllerShortcut)
     }
