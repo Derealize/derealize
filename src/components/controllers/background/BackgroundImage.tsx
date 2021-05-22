@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Box, Button } from '@chakra-ui/react'
+import { Flex, Button } from '@chakra-ui/react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -31,7 +31,7 @@ const BackgroundImage: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
 
   return (
-    <Box>
+    <Flex alignItems="stretch" flexDirection="column">
       <Button colorScheme="teal" variant="ghost" onClick={() => toggleModal(true)}>
         Manage Images
       </Button>
@@ -43,7 +43,7 @@ const BackgroundImage: React.FC = (): JSX.Element => {
           <SelectController placeholder="to" values={toValues} property={toProperty} />
         </>
       )}
-    </Box>
+    </Flex>
   )
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { ReactNode, useRef } from 'react'
 import { InputGroup } from '@chakra-ui/react'
 import { UseFormRegisterReturn } from 'react-hook-form'
@@ -15,16 +16,13 @@ const FileUpload = (props: FileUploadProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const { ref, ...rest } = register as { ref: (instance: HTMLInputElement | null) => void }
 
-  const handleClick = () => inputRef.current?.click()
-
   return (
-    <InputGroup onClick={handleClick}>
+    <InputGroup onClick={() => inputRef.current?.click()}>
       <input
         type="file"
         multiple={multiple || false}
         hidden
         accept={accept}
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...rest}
         ref={(e) => {
           ref(e)

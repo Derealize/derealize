@@ -67,7 +67,7 @@ export default class MenuBuilder {
         label: '&File',
         submenu: [
           {
-            label: '&Import',
+            label: 'Import',
             accelerator: 'Ctrl+O',
             click: () => {
               this.mainWindow.webContents.send(MainIpcChannel.OpenImport)
@@ -111,10 +111,10 @@ export default class MenuBuilder {
           },
         },
         {
-          label: '&Insert',
+          label: '&Image',
           accelerator: isDarwin ? 'Cmd+I' : 'Ctrl+I',
           click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.InsertTab)
+            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Image Modal')
           },
         },
       ],
