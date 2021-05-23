@@ -167,7 +167,8 @@ export interface ProjectModel {
   savedElements: Action<ProjectModel, string>
 
   droppedActiveElement: Action<ProjectModel, ElementPayload>
-  setActiveElementProperty: Action<ProjectModel, Property>
+  pushActiveElementProperty: Action<ProjectModel, Property>
+  setActiveElementPropertyClassName: Action<ProjectModel, { propertyId: string; classname: string }>
   deleteActiveElementProperty: Action<ProjectModel, string>
 
   flushProject: Action<ProjectModel, string>
@@ -422,17 +423,23 @@ const projectModel: ProjectModel = {
     element.pending = true
   }),
 
-  setActiveElementProperty: action((state, property) => {
+  pushActiveElementProperty: action((state, property) => {
     const project = state.projects.find((p) => p.isFront)
     if (!project) return
     const element = project.elements?.find((el) => el.selected)
     if (!element) return
     element.pending = true
-    const target = element.propertys.find((p) => p.id === property.id)
+    element.propertys.push(property)
+  }),
+  setActiveElementPropertyClassName: action((state, { propertyId, classname }) => {
+    const project = state.projects.find((p) => p.isFront)
+    if (!project) return
+    const element = project.elements?.find((el) => el.selected)
+    if (!element) return
+    element.pending = true
+    const target = element.propertys.find((p) => p.id === propertyId)
     if (target) {
-      Object.assign(target, property)
-    } else {
-      element.propertys.push(property)
+      target.classname = classname
     }
   }),
   deleteActiveElementProperty: action((state, propertyId) => {
