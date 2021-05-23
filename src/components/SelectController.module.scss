@@ -1,3 +1,5 @@
+@import '../styles/variable';
+
 .select {
   width: 100%;
 }
@@ -19,4 +21,29 @@
   min-width: 1px;
   padding: 0.16666666666667em 0.5em;
   text-align: center;
+}
+
+.colorGroup {
+  & > div > div:nth-child(2) {
+    display: flex;
+    padding: 0 2px;
+  }
+  .colorOption {
+    flex-basis: 100%;
+
+    // https://stackoverflow.com/a/471538
+    text-indent: 400%;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &:hover {
+      box-shadow: 0px 0px 3px 1px $teal-500;
+      z-index: 1;
+    }
+
+    & > div {
+      cursor: pointer;
+      background-color: transparent !important;
+    }
+  }
 }

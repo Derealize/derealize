@@ -1,7 +1,9 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
+import type { TailwindColorGroup } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
+import type { GroupType } from '../../components/SelectController'
 
 export const TextAlignValues = ['text-left', 'text-center', 'text-right', 'text-justify']
 export const TextDecorationValues = ['underline', 'line-through', 'no-underline']
@@ -67,7 +69,7 @@ export interface TypographyModel {
 
   textAlignPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
 
-  textColorValues: Computed<TypographyModel, Array<string>, StoreModel>
+  textColorValues: Computed<TypographyModel, Array<GroupType>, StoreModel>
   textColorPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
 
   textOpacityValues: Computed<TypographyModel, Array<string>, StoreModel>
@@ -162,11 +164,24 @@ const typographyModel: TypographyModel = {
 
   textColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.textColor).map((v) => `text-${v}`)
+    return Object.entries(project.tailwindConfig.theme.textColor).map(([label, value]) => ({
+      label,
+      options:
+        typeof value === 'string'
+          ? [{ value: `text-${label}`, label: value }]
+          : Object.entries(value as TailwindColorGroup).map(([l, v]) => ({ value: `text-${label}-${l}`, label: v })),
+    }))
   }),
   textColorPropertys: computed(
     [(state, storeState) => storeState.controlles.propertys, (state) => state.textColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    (propertys, values) => {
+      if (!values.length) return []
+      const valuesString = values
+        .map((v) => v.options)
+        .reduce((pre, cur) => pre.concat(cur))
+        .map((o) => o.value)
+      return propertys.filter(({ classname }) => valuesString.includes(classname))
+    },
   ),
 
   textOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
