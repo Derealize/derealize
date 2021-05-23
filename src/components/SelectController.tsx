@@ -5,8 +5,6 @@ import clone from 'lodash.clone'
 import Select, {
   GroupTypeBase,
   OptionTypeBase,
-  ActionMeta,
-  ValueType,
   ValueContainerProps,
   ControlProps,
   OptionProps,
@@ -16,6 +14,7 @@ import Select, {
   IndicatorContainerProps,
   SingleValueProps,
   components,
+  GroupProps,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
 import styles from './SelectController.module.scss'
@@ -28,7 +27,7 @@ import type { PreloadWindow } from '../preload'
 import { JitTiggerPayload } from '../interface'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpc } = window.derealize
+const { sendBackIpc } = window.derealize
 
 export interface OptionType extends OptionTypeBase {
   label: string
@@ -49,9 +48,9 @@ type Props = {
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
   isDisabled?: boolean
+  isColors?: boolean
   onMouseEnter?: boolean
   cleanPropertys?: Array<Property>
-  // onChange: (value: ValueType<OptionType, boolean>, actionMeta: ActionMeta<OptionType>) => void
 }
 
 const SelectController: React.FC<Props> = ({
@@ -59,6 +58,7 @@ const SelectController: React.FC<Props> = ({
   values,
   property,
   isDisabled,
+  isColors,
   onMouseEnter,
   cleanPropertys,
 }: Props): JSX.Element => {
@@ -88,12 +88,26 @@ const SelectController: React.FC<Props> = ({
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
+    const {
+      data: { label, value },
+    } = props
+
     return (
-      <div onMouseEnter={() => onOptionEnter(props.data.value)}>
+      <div
+        className={isColors ? styles.colorOption : undefined}
+        style={isColors ? { backgroundColor: label } : undefined}
+        onMouseEnter={() => onOptionEnter(value)}
+      >
         <components.Option {...props} />
       </div>
     )
   }
+
+  const Group = (props: GroupProps<OptionType, boolean, GroupType>) => (
+    <div className={styles.colorGroup}>
+      <components.Group {...props} />
+    </div>
+  )
 
   return (
     <Select
@@ -150,7 +164,10 @@ const SelectController: React.FC<Props> = ({
           padding: '4px 8px',
         }),
       }}
-      components={onMouseEnter ? { Option } : {}}
+      components={{
+        Option: onMouseEnter ? Option : components.Option,
+        Group: isColors ? Group : components.Group,
+      }}
       placeholder={placeholder}
       isClearable
       // menuIsOpen
@@ -201,6 +218,7 @@ const SelectController: React.FC<Props> = ({
 
 SelectController.defaultProps = {
   isDisabled: false,
+  isColors: false,
   onMouseEnter: true,
   cleanPropertys: [],
 }

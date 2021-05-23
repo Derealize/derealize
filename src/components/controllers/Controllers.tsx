@@ -43,10 +43,6 @@ const Controllers: React.FC = (): JSX.Element => {
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
-    if (tabIndex === ControllerTab.Typography && element?.text === undefined) {
-      setTabIndex(ControllerTab.Already)
-    }
-
     listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
       if (payload && element?.text !== undefined) {
         setTabIndex(ControllerTab.Typography)
