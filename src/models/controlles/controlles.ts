@@ -1,4 +1,5 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
+import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
 import { MainIpcChannel } from '../../interface'
 import { StateVariantsType, ListVariantsType } from '../project'
@@ -27,7 +28,7 @@ export interface AlreadyVariants {
 }
 
 export interface ControllesModel {
-  setProperty: Thunk<ControllesModel, { propertyId: string; classname: string }, void, StoreModel>
+  pushNewProperty: Thunk<ControllesModel, string, void, StoreModel>
   liveUpdateClassName: Thunk<
     ControllesModel,
     { propertys: Array<Property>; propertyId: string; classname: string; projectId: string },
@@ -61,10 +62,10 @@ export interface ControllesModel {
 }
 
 const controllesModel: ControllesModel = {
-  setProperty: thunk(async (actions, { propertyId, classname }, { getState, getStoreActions }) => {
+  pushNewProperty: thunk(async (actions, classname, { getState, getStoreActions }) => {
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
     const property = {
-      id: propertyId,
+      id: nanoid(),
       classname,
       screen: selectScreenVariant,
       state: selectStateVariant,
@@ -72,7 +73,7 @@ const controllesModel: ControllesModel = {
       custom: selectCustomVariant,
       dark: selectDark ? true : undefined,
     }
-    getStoreActions().project.setActiveElementProperty(property)
+    getStoreActions().project.pushActiveElementProperty(property)
   }),
 
   liveUpdateClassName: thunk(async (actions, { propertys, propertyId, classname, projectId }, { getState }) => {

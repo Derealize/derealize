@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
-import { nanoid } from 'nanoid'
 import clone from 'lodash.clone'
 import Select, {
   GroupTypeBase,
@@ -66,7 +65,10 @@ const SelectController: React.FC<Props> = ({
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
   const setJitClassName = useStoreActions((actions) => actions.project.setJitClassName)
   const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
+  const setActiveElementPropertyClassName = useStoreActions(
+    (actions) => actions.project.setActiveElementPropertyClassName,
+  )
+  const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
@@ -204,9 +206,9 @@ const SelectController: React.FC<Props> = ({
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
-            setProperty({ propertyId: property.id, classname })
+            setActiveElementPropertyClassName({ propertyId: property.id, classname })
           } else {
-            setProperty({ propertyId: nanoid(), classname })
+            pushNewProperty(classname)
           }
         }
         cleanPropertys?.forEach((p) => p && deleteProperty(p.id))

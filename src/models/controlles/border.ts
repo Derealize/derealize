@@ -166,7 +166,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.borderOpacity).map((v) => `border-opacity-${v}`)
   }),
   borderOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderColorValues],
+    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
