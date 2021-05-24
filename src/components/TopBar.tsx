@@ -13,16 +13,14 @@ import {
   ButtonGroup,
   Button,
 } from '@chakra-ui/react'
-import flatten from 'lodash.flatten'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
-import { CgSelectR, CgMenu } from 'react-icons/cg'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { BiRectangle, BiDevices } from 'react-icons/bi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { IoIosArrowDown } from 'react-icons/io'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
-import { Project, ProjectView } from '../models/project'
+import { Project, ProjectView } from '../models/project.interface'
+import type { ElementState } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import { ElementPayload, MainIpcChannel, BreadcrumbPayload } from '../interface'
@@ -54,16 +52,13 @@ const TopBar: React.FC = (): JSX.Element => {
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
-  const savedElements = useStoreActions((actions) => actions.project.savedElements)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
+  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
+  const savedElements = useStoreActions((actions) => actions.element.savedElements)
 
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
-
-  const pendingElements = useMemo(() => {
-    return project?.elements?.filter((el) => el.pending)
-  }, [project?.elements])
 
   const callPull = useCallback(async () => {
     if (!project) return null

@@ -107,7 +107,7 @@ export default class MenuBuilder {
           label: '&Save',
           accelerator: isDarwin ? 'Cmd+S' : 'Ctrl+S',
           click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Save')
+            this.mainWindow.webContents.send(MainIpcChannel.ElementShortcut, 'Save')
           },
         },
         {

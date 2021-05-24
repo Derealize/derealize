@@ -1,25 +1,21 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
-import { nanoid } from 'nanoid'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
-import clone from 'lodash.clonedeep'
-import omit from 'lodash.omit'
-import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
+import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
 import type {
-  ProjectConfig,
   ProcessPayload,
   CommitLog,
   StatusPayload,
   PayloadError,
   HistoryReply,
   BoolReply,
-  GitFileChanges,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ElementPayload, ElementActualStatus, MainIpcChannel, ImportPayload } from '../interface'
-import type { Property } from './controlles/controlles'
+import { ProjectView, Project, BackgroundImage } from './project.interface'
+import { MainIpcChannel, ImportPayload } from '../interface'
+import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
 
@@ -27,98 +23,12 @@ declare const window: PreloadWindow
 const { sendBackIpc, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc, sendMainIpc, sendMainIpcSync } =
   window.derealize
 
-// export type Element = Omit<ElementPayload, 'projectId'>
-
-export enum ProjectView {
-  Debugging,
-  FileStatus,
-  BrowserView,
-  Elements,
-}
-
-export interface ElementState extends ElementPayload {
-  selected: boolean
-  propertys: Array<Property>
-  actualStatus?: ElementActualStatus
-  pending?: boolean
-  dropzoneCodePosition?: string
-}
-
-export interface Project {
-  id: string
-  url: string
-  path: string
-  editedTime: string
-  name: string
-  branch: string
-  isOpened?: boolean
-  isFront?: boolean
-  isEditing?: boolean
-  status?: ProjectStatus
-  tailwindConfig?: TailwindConfig
-  tailwindVersion?: string
-  config?: ProjectConfig
-  changes?: Array<GitFileChanges>
-  elements?: Array<ElementState>
-  view?: ProjectView
-  startloading?: boolean
-  runningOutput?: Array<string>
-  jitClassName?: string
-}
-
-export interface BackgroundImage {
-  name: string
-  webPath: string
-}
-
-// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
-// 本质上所有variant都可以多选应用在同一个属性上
-export const StateVariants = [
-  'hover',
-  'focus',
-  'active',
-  'disabled',
-  'visited',
-  'checked',
-  'group-hover', // 需要父元素设置 'group' class
-  'group-focus',
-  'focus-within',
-  'focus-visible',
-] as const
-export type StateVariantsType = typeof StateVariants[number]
-
-export const ListVariants = ['first', 'last', 'odd', 'even'] as const
-export type ListVariantsType = typeof ListVariants[number]
-
-export const OmitStoreProp = [
-  'isOpened',
-  'isFront',
-  'isEditing',
-  'status',
-  'stage',
-  'changes',
-  'runningOutput',
-  'installOutput',
-  'config',
-  'tailwindConfig',
-  'elements',
-  'view',
-  'startloading',
-  'jitClassName',
-]
-
 const toast = createStandaloneToast({
   defaultOptions: {
     duration: 6000,
     isClosable: true,
   },
 })
-
-const storeProject = (projects: Array<Project>) => {
-  // proxy object can't serialize https://stackoverflow.com/a/60344844
-  const omitProjects = projects.map((p) => omit(p, OmitStoreProp))
-  sendMainIpc(MainIpcChannel.SetStore, { projects: clone(omitProjects) })
-}
 
 const mainFrontView = (project?: Project) => {
   if (project?.view === ProjectView.BrowserView) {
@@ -141,11 +51,11 @@ export interface ProjectModel {
 
   editingProject: Computed<ProjectModel, Project | undefined>
   setEditingProject: Action<ProjectModel, string | null>
+  editProject: Action<ProjectModel, { displayname: string; branch: string }>
 
   openedProjects: Computed<ProjectModel, Array<Project>>
   frontProject: Computed<ProjectModel, Project | undefined>
   isReady: Computed<ProjectModel, (id: string) => boolean | undefined>
-  activeElement: Computed<ProjectModel, ElementState | undefined>
 
   addProject: Action<ProjectModel, Project>
   removeProject: Action<ProjectModel, string>
@@ -157,20 +67,6 @@ export interface ProjectModel {
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
   setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
 
-  screenVariants: Computed<ProjectModel, Array<string>, StoreModel>
-  customVariants: Computed<ProjectModel, Array<string>, StoreModel>
-
-  unSelectedAllElements: Action<ProjectModel, string>
-  focusElement: Action<ProjectModel, ElementPayload>
-  respElementStatus: Action<ProjectModel, ElementActualStatus>
-  cleanElements: Action<ProjectModel, string>
-  savedElements: Action<ProjectModel, string>
-
-  droppedActiveElement: Action<ProjectModel, ElementPayload>
-  pushActiveElementProperty: Action<ProjectModel, Property>
-  setActiveElementPropertyClassName: Action<ProjectModel, { propertyId: string; classname: string }>
-  deleteActiveElementProperty: Action<ProjectModel, string>
-
   flushProject: Action<ProjectModel, string>
   setFrontProject: Action<ProjectModel, string | null>
   startProject: Thunk<ProjectModel, string>
@@ -180,7 +76,7 @@ export interface ProjectModel {
   openProject: Thunk<ProjectModel, string>
   closeProject: Thunk<ProjectModel, string | undefined>
 
-  setProjectStatue: Action<ProjectModel, StatusPayload>
+  setProjectStatus: Action<ProjectModel, StatusPayload>
   loadStore: Thunk<ProjectModel>
   listen: Thunk<ProjectModel, void, void, StoreModel>
   unlisten: Action<ProjectModel>
@@ -222,6 +118,14 @@ const projectModel: ProjectModel = {
       mainFrontView(state.frontProject)
     }
   }),
+  editProject: action((state, { displayname, branch }) => {
+    const project = state.projects.find((p) => p.isEditing)
+    if (!project) return
+
+    project.name = displayname
+    project.branch = branch
+    storeProject(state.projects)
+  }),
 
   openedProjects: computed((state) => {
     return state.projects.filter((p) => p.isOpened)
@@ -231,9 +135,6 @@ const projectModel: ProjectModel = {
   }),
   isReady: computed((state) => (id) => {
     return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
-  }),
-  activeElement: computed((state) => {
-    return state.frontProject?.elements?.find((el) => el.selected)
   }),
 
   addProject: action((state, project) => {
@@ -288,168 +189,6 @@ const projectModel: ProjectModel = {
     project.tailwindConfig = config
   }),
 
-  screenVariants: computed((state) => {
-    if (!state.frontProject?.tailwindConfig) return []
-    return Object.keys(state.frontProject.tailwindConfig.theme.screens)
-  }),
-
-  customVariants: computed((state) => {
-    if (!state.frontProject?.tailwindConfig) return []
-    let result: Array<string> = []
-    for (const [name, variants] of Object.entries(state.frontProject.tailwindConfig.variants)) {
-      const leftVariants = (variants as Variant[]).filter(
-        (v) =>
-          v !== 'responsive' && v !== 'dark' && !StateVariants.includes(v as any) && !ListVariants.includes(v as any),
-      )
-      result = result.concat(leftVariants)
-    }
-    return [...new Set(result)]
-  }),
-
-  unSelectedAllElements: action((state, projectId) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    project?.elements?.forEach((el) => {
-      el.selected = false
-    })
-  }),
-  focusElement: action((state, element) => {
-    const project = state.projects.find((p) => p.id === element.projectId)
-    if (!project) return
-
-    project.elements?.forEach((el) => {
-      el.selected = false
-    })
-
-    const propertys: Array<Property> = []
-    if (element?.className) {
-      element.className.split(/\s+/).forEach((name) => {
-        const names = name.split(':')
-        const property: Property = {
-          id: nanoid(),
-          classname: names.splice(-1)[0],
-        }
-        names.forEach((variant) => {
-          if (state.screenVariants.includes(variant)) {
-            property.screen = variant
-          }
-          if (StateVariants.includes(variant as StateVariantsType)) {
-            property.state = variant as StateVariantsType
-          }
-          if (ListVariants.includes(variant as ListVariantsType)) {
-            property.list = variant as ListVariantsType
-          }
-          if (state.customVariants.includes(variant)) {
-            property.custom = variant
-          }
-          if (variant === 'dark') {
-            property.dark = true
-          }
-        })
-        propertys.push(property)
-      })
-    }
-
-    const elstate = { ...element, propertys, selected: true }
-
-    const el = project.elements?.find((e) => e.codePosition === element.codePosition)
-    if (el) {
-      Object.assign(el, elstate)
-    } else {
-      if (!project.elements) project.elements = []
-      project.elements?.push(elstate)
-    }
-  }),
-  respElementStatus: action((state, status) => {
-    const project = state.projects.find((p) => p.id === status.projectId)
-    if (!project) return
-    const el = project.elements?.find((e) => e.codePosition === status.codePosition)
-    if (el) {
-      el.actualStatus = status
-    }
-  }),
-  cleanElements: action((state, projectId) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.elements = []
-  }),
-  savedElements: action((state, projectId) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project || !project.elements) return
-
-    const payloads: Array<ElementPayload> = []
-    project.elements
-      .filter((el) => el.pending)
-      .forEach((element) => {
-        let className = ''
-        element.propertys.forEach((property) => {
-          const { screen, state: estate, list, custom, dark, classname: name } = property
-          if (!name) return
-
-          let variants = ''
-          if (screen) {
-            variants += `${screen}:`
-          }
-          if (estate) {
-            variants += `${estate}:`
-          }
-          if (list) {
-            variants += `${list}:`
-          }
-          if (custom) {
-            variants += `${custom}:`
-          }
-          if (dark) {
-            variants += `dark:`
-          }
-          className += `${variants + name} `
-        })
-
-        const { selected, propertys, actualStatus, pending, ...payload } = element
-        payload.className = className
-        payloads.push(payload)
-        element.pending = undefined
-      })
-
-    sendBackIpc(Handler.ApplyElements, payloads as any)
-    project.elements = project.elements?.filter((el) => el.selected)
-  }),
-
-  droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    const element = project.elements?.find((el) => el.codePosition === codePosition)
-    if (!element) return
-    element.dropzoneCodePosition = dropzoneCodePosition
-    element.pending = true
-  }),
-
-  pushActiveElementProperty: action((state, property) => {
-    const project = state.projects.find((p) => p.isFront)
-    if (!project) return
-    const element = project.elements?.find((el) => el.selected)
-    if (!element) return
-    element.pending = true
-    element.propertys.push(property)
-  }),
-  setActiveElementPropertyClassName: action((state, { propertyId, classname }) => {
-    const project = state.projects.find((p) => p.isFront)
-    if (!project) return
-    const element = project.elements?.find((el) => el.selected)
-    if (!element) return
-    element.pending = true
-    const property = element.propertys.find((p) => p.id === propertyId)
-    if (property) {
-      property.classname = classname
-    }
-  }),
-  deleteActiveElementProperty: action((state, propertyId) => {
-    const project = state.projects.find((p) => p.isFront)
-    if (!project) return
-    const element = project.elements?.find((el) => el.selected)
-    if (!element) return
-    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
-  }),
-
   flushProject: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
@@ -496,9 +235,6 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.isOpened = open
-    if (!open) {
-      project.elements = []
-    }
   }),
   openProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
@@ -558,7 +294,7 @@ const projectModel: ProjectModel = {
     actions.setProjects(projects)
   }),
 
-  setProjectStatue: action((state, payload) => {
+  setProjectStatus: action((state, payload) => {
     const project = state.projects.find((p) => p.id === payload.projectId)
     if (!project) return
 
@@ -590,7 +326,7 @@ const projectModel: ProjectModel = {
         return
       }
 
-      actions.setProjectStatue(payload as StatusPayload)
+      actions.setProjectStatus(payload as StatusPayload)
     })
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
@@ -619,39 +355,17 @@ const projectModel: ProjectModel = {
       }
     })
 
-    listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
-      actions.focusElement(element)
-    })
-
-    listenMainIpc(MainIpcChannel.RespElementStatus, (event: IpcRendererEvent, status: ElementActualStatus) => {
-      actions.respElementStatus(status)
-    })
-
-    listenMainIpc(MainIpcChannel.BlurElement, (event: IpcRendererEvent, projectId: string) => {
-      actions.unSelectedAllElements(projectId)
-    })
-
-    listenMainIpc(MainIpcChannel.Refresh, (event: IpcRendererEvent, projectId: string) => {
-      actions.cleanElements(projectId)
-    })
-
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
       const { frontProject } = getState()
       if (!frontProject) return
 
-      if (key === 'Save') {
-        actions.savedElements(frontProject.id)
-      } else if (key === 'Image Modal') {
+      if (key === 'Image Modal') {
         actions.toggleBackgroundsModal(undefined)
       }
     })
 
     listenMainIpc(MainIpcChannel.CloseFrontProject, (event: IpcRendererEvent) => {
       actions.closeProject()
-    })
-
-    listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
-      actions.droppedActiveElement(payload)
     })
 
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
@@ -662,13 +376,9 @@ const projectModel: ProjectModel = {
   unlisten: action(() => {
     unlistenBackIpc(Broadcast.Status)
     unlistenBackIpc(Broadcast.Starting)
-    unlistenMainIpc(MainIpcChannel.FocusElement)
-    unlistenMainIpc(MainIpcChannel.RespElementStatus)
-    unlistenMainIpc(MainIpcChannel.BlurElement)
-    unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
-    unlistenMainIpc(MainIpcChannel.Dropped)
+    unlistenMainIpc(MainIpcChannel.Flush)
   }),
 
   importModalDisclosure: false,

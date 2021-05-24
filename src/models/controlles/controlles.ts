@@ -2,7 +2,7 @@ import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
 import { MainIpcChannel } from '../../interface'
-import { StateVariantsType, ListVariantsType } from '../project'
+import { StateVariantsType, ListVariantsType } from '../element'
 import type { PreloadWindow } from '../../preload'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
@@ -57,12 +57,14 @@ export interface ControllesModel {
   expandVariants: boolean
   setExpandVariants: Action<ControllesModel, boolean>
 
-  propertys: Computed<ControllesModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
 }
 
 const controllesModel: ControllesModel = {
-  pushNewProperty: thunk(async (actions, classname, { getState, getStoreActions }) => {
+  pushNewProperty: thunk(async (actions, classname, { getState, getStoreState, getStoreActions }) => {
+    const { frontProject } = getStoreState().project
+    if (!frontProject) return
+
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
     const property = {
       id: nanoid(),
@@ -73,7 +75,7 @@ const controllesModel: ControllesModel = {
       custom: selectCustomVariant,
       dark: selectDark ? true : undefined,
     }
-    getStoreActions().project.pushActiveElementProperty(property)
+    getStoreActions().element.pushActiveElementProperty({ projectId: frontProject.id, property })
   }),
 
   liveUpdateClassName: thunk(async (actions, { propertysClone, propertyId, classname, projectId }, { getState }) => {
@@ -124,8 +126,13 @@ const controllesModel: ControllesModel = {
   }),
 
   liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const { activeElement, frontProject } = getStoreState().project
-    if (!activeElement || !frontProject) return
+    const {
+      project: { frontProject },
+      element: { activeElement },
+    } = getStoreState()
+
+    if (!frontProject || !activeElement) return
+
     const { selectStateVariant } = getState()
 
     let className = ''
@@ -202,11 +209,7 @@ const controllesModel: ControllesModel = {
     state.expandVariants = payload
   }),
 
-  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => {
-    return element?.propertys || []
-  }),
-
-  alreadyVariants: computed([(state) => state.propertys], (propertys) => {
+  alreadyVariants: computed([(state, storeState) => storeState.element.activePropertys], (propertys) => {
     const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)
     const states = propertys.filter((property) => property.state).map((property) => property.state as string)
     const lists = propertys.filter((property) => property.list).map((property) => property.list as string)
