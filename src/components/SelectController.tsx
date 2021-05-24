@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
-import clone from 'lodash.clone'
+// import clone from 'lodash.clone'
+import clone from 'lodash.clonedeep'
 import Select, {
   GroupTypeBase,
   OptionTypeBase,
@@ -206,6 +207,7 @@ const SelectController: React.FC<Props> = ({
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
+            console.log('onChange setActiveElementPropertyClassName', property.id, classname)
             setActiveElementPropertyClassName({ propertyId: property.id, classname })
           } else {
             pushNewProperty(classname)

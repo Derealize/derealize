@@ -125,6 +125,7 @@ const controllesModel: ControllesModel = {
   }),
 
   liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+    console.log('liveApplyClassName')
     const { activeElement, frontProject } = getStoreState().project
     if (!activeElement || !frontProject) return
     const { selectStateVariant } = getState()
@@ -203,7 +204,10 @@ const controllesModel: ControllesModel = {
     state.expandVariants = payload
   }),
 
-  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => element?.propertys || []),
+  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => {
+    console.log('activeElement?.propertys', element?.propertys)
+    return element?.propertys || []
+  }),
 
   alreadyVariants: computed([(state) => state.propertys], (propertys) => {
     const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)
