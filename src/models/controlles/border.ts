@@ -80,35 +80,35 @@ const borderModel: BorderModel = {
     return roundedSuffix.map((v) => `rounded-${v}`)
   }),
   roundedPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.roundedValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   roundedTopLeftValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-tl-${v}`)
   }),
   roundedTopLeftPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedTopLeftValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.roundedTopLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   roundedTopRightValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-tr-${v}`)
   }),
   roundedTopRightPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedTopRightValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.roundedTopRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   roundedBottomLeftValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-bl-${v}`)
   }),
   roundedBottomLeftPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedBottomLeftValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.roundedBottomLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   roundedBottomRightValues: computed([(state) => state.roundedSuffix], (roundedSuffix) => {
     return roundedSuffix.map((v) => `rounded-br-${v}`)
   }),
   roundedBottomRightPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.roundedBottomRightValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.roundedBottomRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -120,35 +120,35 @@ const borderModel: BorderModel = {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border' : `border-${v}`))
   }),
   borderPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   borderTopValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-t' : `border-t-${v}`))
   }),
   borderTopPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderTopValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderTopValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   borderBottomValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-b' : `border-b-${v}`))
   }),
   borderBottomPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderBottomValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderBottomValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   borderLeftValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-l' : `border-l-${v}`))
   }),
   borderLeftPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderLeftValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderLeftValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   borderRightValues: computed([(state) => state.borderSuffix], (borderSuffix) => {
     return borderSuffix.map((v) => (v === 'DEFAULT' ? 'border-r' : `border-r-${v}`))
   }),
   borderRightPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderRightValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderRightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -157,7 +157,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.borderColor).map((v) => `border-${v}`)
   }),
   borderColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -166,11 +166,11 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.borderOpacity).map((v) => `border-opacity-${v}`)
   }),
   borderOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.borderOpacityValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.borderOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  borderStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  borderStylePropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => BorderStyleValues.includes(classname)),
   ),
 
@@ -179,7 +179,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.ringWidth).map((v) => (v === 'DEFAULT' ? 'ring' : `ring-${v}`))
   }),
   ringWidthPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.ringWidthValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringWidthValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -189,7 +189,7 @@ const borderModel: BorderModel = {
     return Object.keys(Object.assign(ringColor, colors)).map((v) => `ring-offset-${v}`)
   }),
   ringColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.ringColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -198,7 +198,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.ringOpacity).map((v) => `ring-opacity-${v}`)
   }),
   ringOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.ringOpacityValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -207,7 +207,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.ringOffsetWidth).map((v) => `ring-offset-${v}`)
   }),
   ringOffsetPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.ringOffsetValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringOffsetValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -217,7 +217,7 @@ const borderModel: BorderModel = {
     return Object.keys(Object.assign(ringOffsetColor, colors)).map((v) => `ring-offset-${v}`)
   }),
   ringOffsetColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.ringOffsetValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringOffsetValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -230,14 +230,14 @@ const borderModel: BorderModel = {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-y' : `divide-y-${v}`))
   }),
   divideYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideYValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.divideYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   divideXValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-x' : `divide-x-${v}`))
   }),
   divideXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideXValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.divideXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -246,7 +246,7 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.divideColor).map((v) => `divide-${v}`)
   }),
   divideColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.divideColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -255,11 +255,11 @@ const borderModel: BorderModel = {
     return Object.keys(project.tailwindConfig.theme.divideOpacity).map((v) => `divide-opacity-${v}`)
   }),
   divideOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.divideOpacityValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.divideOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  divideStylePropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  divideStylePropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => DivideStyleValues.includes(classname)),
   ),
 

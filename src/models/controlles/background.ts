@@ -49,11 +49,11 @@ export interface BackgroundModel {
 }
 
 const backgroundModel: BackgroundModel = {
-  backgroundAttachmentPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  backgroundAttachmentPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => BackgroundAttachmentValues.includes(classname)),
   ),
 
-  backgroundClipPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  backgroundClipPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => BackgroundClipValues.includes(classname)),
   ),
 
@@ -63,7 +63,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(Object.assign(backgroundColor, colors)).map((v) => `bg-${v}`)
   }),
   backgroundColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.backgroundColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -73,7 +73,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(Object.assign(backgroundOpacity, opacity)).map((v) => `bg-opacity-${v}`)
   }),
   backgroundOpacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.backgroundOpacityValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -82,11 +82,11 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundPosition).map((v) => `bg-${v}`)
   }),
   backgroundPositionPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.backgroundPositionValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundPositionValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  backgroundRepeatPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  backgroundRepeatPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => BackgroundRepeatValues.includes(classname)),
   ),
 
@@ -95,7 +95,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundSize).map((v) => `bg-${v}`)
   }),
   backgroundSizePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.backgroundSizeValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundSizeValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -104,7 +104,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundImage).map((v) => `bg-${v}`)
   }),
   backgroundImagePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.backgroundImageValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundImageValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -114,7 +114,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `from-${v}`)
   }),
   fromColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.fromColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.fromColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -124,7 +124,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `via-${v}`)
   }),
   viaColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.viaColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.viaColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -134,7 +134,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `to-${v}`)
   }),
   toColorPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.toColorValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.toColorValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 

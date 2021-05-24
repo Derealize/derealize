@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import dayjs from 'dayjs'
 import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } from '@chakra-ui/react'
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
-import { Project, ProjectView } from './models/project'
+import { Project, ProjectView } from './models/project.interface'
+import type { ElementState } from './models/element'
 import type { ElementPayload } from './interface'
 import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
@@ -21,16 +22,13 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
+  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
-  const savedElements = useStoreActions((actions) => actions.project.savedElements)
+  const savedElements = useStoreActions((actions) => actions.element.savedElements)
 
   const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
-
-  const pendingElements = useMemo(() => {
-    return project?.elements?.filter((el) => el.pending)
-  }, [project?.elements])
 
   const callPush = useCallback(async () => {
     if (!project) return null

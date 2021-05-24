@@ -19,7 +19,8 @@ import Select, {
 import { CSSObject } from '@emotion/serialize'
 import styles from './SelectController.module.scss'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project, ElementState } from '../models/project'
+import type { Project } from '../models/project.interface'
+import type { ElementState } from '../models/element'
 import type { Property } from '../models/controlles/controlles'
 import theme from '../theme'
 import { Handler } from '../backend/backend.interface'
@@ -63,11 +64,11 @@ const SelectController: React.FC<Props> = ({
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const setJitClassName = useStoreActions((actions) => actions.project.setJitClassName)
-  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
   const setActiveElementPropertyClassName = useStoreActions(
-    (actions) => actions.project.setActiveElementPropertyClassName,
+    (actions) => actions.element.setActiveElementPropertyClassName,
   )
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
@@ -204,18 +205,18 @@ const SelectController: React.FC<Props> = ({
         liveApplyClassName()
       }}
       onChange={(ovalue, { action }) => {
+        if (!project) return
         if (action === 'clear' && property) {
-          deleteProperty(property.id)
+          deleteProperty({ projectId: project.id, propertyId: property.id })
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
-            console.log('onChange setActiveElementPropertyClassName', property.id, classname)
-            setActiveElementPropertyClassName({ propertyId: property.id, classname })
+            setActiveElementPropertyClassName({ projectId: project.id, propertyId: property.id, classname })
           } else {
             pushNewProperty(classname)
           }
         }
-        cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
+        cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
         liveApplyClassName()
       }}
     />

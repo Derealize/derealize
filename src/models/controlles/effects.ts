@@ -91,7 +91,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.boxShadow).map((v) => (v === 'DEFAULT' ? 'shadow' : `shadow-${v}`))
   }),
   boxShadowPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.boxShadowValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.boxShadowValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -100,7 +100,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.opacity).map((v) => `opacity-${v}`)
   }),
   opacityPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.opacityValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.opacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -112,7 +112,7 @@ const effectsModel: EffectsModel = {
     )
   }),
   transitionPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.transitionValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.transitionValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -121,7 +121,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.transitionDuration).map((v) => `duration-${v}`)
   }),
   durationPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.durationValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.durationValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -130,7 +130,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.transitionTimingFunction).map((v) => `ease-${v}`)
   }),
   easePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.easeValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.easeValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -139,7 +139,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.transitionDelay).map((v) => `delay-${v}`)
   }),
   delayPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.delayValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.delayValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   // #endregion
@@ -149,12 +149,12 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.animation).map((v) => `animate-${v}`)
   }),
   animatePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.animateValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.animateValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   // #region transform
-  transformPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  transformPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => TransformValues.includes(classname)),
   ),
 
@@ -163,7 +163,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.transformOrigin).map((v) => `origin-${v}`)
   }),
   originPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.originValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.originValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -172,7 +172,7 @@ const effectsModel: EffectsModel = {
     return Object.keys(project.tailwindConfig.theme.scale).map((v) => `scale-${v}`)
   }),
   scalePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.scaleValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.scaleValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -183,7 +183,7 @@ const effectsModel: EffectsModel = {
     )
   }),
   rotatePropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.rotateValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.rotateValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -196,14 +196,14 @@ const effectsModel: EffectsModel = {
     suffix.map((v) => (v.startsWith('-') ? `-translate-y-${v.slice(1)}` : `translate-y-${v}`)),
   ),
   translateYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.translateYValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.translateYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   translateXValues: computed([(state) => state.translateSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-translate-x-${v.slice(1)}` : `translate-x-${v}`)),
   ),
   translateXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.translateXValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.translateXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -215,24 +215,24 @@ const effectsModel: EffectsModel = {
     suffix.map((v) => (v.startsWith('-') ? `-skew-y-${v.slice(1)}` : `skew-y-${v}`)),
   ),
   skewYPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.skewYValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.skewYValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   skewXValues: computed([(state) => state.skewSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-skew-x-${v.slice(1)}` : `skew-x-${v}`)),
   ),
   skewXPropertys: computed(
-    [(state, storeState) => storeState.controlles.propertys, (state) => state.skewXValues],
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.skewXValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
   // #endregion
 
   // #region advanced
-  mixBlendPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  mixBlendPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => MixBlendValues.includes(classname)),
   ),
 
-  backgroundBlendPropertys: computed([(state, storeState) => storeState.controlles.propertys], (propertys) =>
+  backgroundBlendPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
     propertys.filter(({ classname }) => BackgroundBlendValues.includes(classname)),
   ),
   // #endregion
