@@ -227,20 +227,12 @@ const projectModel: ProjectModel = {
     return state.projects.filter((p) => p.isOpened)
   }),
   frontProject: computed((state) => {
-    console.log(
-      'frontProject',
-      state.projects.find((p) => p.isFront),
-    )
     return state.projects.find((p) => p.isFront)
   }),
   isReady: computed((state) => (id) => {
     return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
   }),
   activeElement: computed((state) => {
-    console.log(
-      'activeElement',
-      state.frontProject?.elements?.find((el) => el.selected),
-    )
     return state.frontProject?.elements?.find((el) => el.selected)
   }),
 
@@ -445,10 +437,8 @@ const projectModel: ProjectModel = {
     const element = project.elements?.find((el) => el.selected)
     if (!element) return
     element.pending = true
-    // const property = element.propertys.find((p) => p.id === propertyId)
-    const property = element.propertys.find((p, i) => i === 0)
+    const property = element.propertys.find((p) => p.id === propertyId)
     if (property) {
-      console.log('setActiveElementPropertyClassName', property.classname, classname)
       property.classname = classname
     }
   }),
