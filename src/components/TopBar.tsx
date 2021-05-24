@@ -57,6 +57,10 @@ const TopBar: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
   const savedElements = useStoreActions((actions) => actions.project.savedElements)
 
+  const setActiveElementPropertyClassName = useStoreActions(
+    (actions) => actions.project.setActiveElementPropertyClassName,
+  )
+
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
@@ -111,6 +115,16 @@ const TopBar: React.FC = (): JSX.Element => {
           icon={<IoBookmarksOutline />}
           onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
         />
+
+        <Button
+          onClick={() =>
+            setActiveElementPropertyClassName({ propertyId: 'asdasd', classname: ` w-100-${new Date().getTime()}` })
+          }
+          colorScheme="pink"
+          variant="solid"
+        >
+          setActiveElementPropertyClassName
+        </Button>
 
         <Tooltip label="files status and history">
           <BarIconButton

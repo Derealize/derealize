@@ -19,6 +19,9 @@ const App = (): JSX.Element => {
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
+  const projects = useStoreState<Array<Project>>((state) => state.project.projects)
+  console.log('App projects', projects)
+
   useEffect(() => {
     profileLoadStore()
     projectLoadStore()

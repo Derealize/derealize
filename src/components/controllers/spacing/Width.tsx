@@ -5,12 +5,14 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState, Project } from '../../../models/project'
 import { InlineDisplays } from '../../../utils/assest'
 
 const Width: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  // const projects = useStoreState<Array<Project>>((state) => state.project.projects)
+  // console.log('projects', projects)
 
   const values = useStoreState<Array<string>>((state) => state.spacing.widthValues)
   const propertys = useStoreState<Array<Property>>((state) => state.spacing.widthPropertys)
