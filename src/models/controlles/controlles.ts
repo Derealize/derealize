@@ -31,7 +31,7 @@ export interface ControllesModel {
   pushNewProperty: Thunk<ControllesModel, string, void, StoreModel>
   liveUpdateClassName: Thunk<
     ControllesModel,
-    { propertys: Array<Property>; propertyId: string; classname: string; projectId: string },
+    { propertysClone: Array<Property>; propertyId: string; classname: string; projectId: string },
     void,
     StoreModel
   >
@@ -76,30 +76,29 @@ const controllesModel: ControllesModel = {
     getStoreActions().project.pushActiveElementProperty(property)
   }),
 
-  liveUpdateClassName: thunk(async (actions, { propertys, propertyId, classname, projectId }, { getState }) => {
-    const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
+  liveUpdateClassName: thunk(async (actions, { propertysClone, propertyId, classname, projectId }, { getState }) => {
+    const { selectStateVariant } = getState()
 
-    const gProperty: Property = {
-      id: propertyId,
-      classname,
-      screen: selectScreenVariant,
-      state: selectStateVariant,
-      list: selectListVariant,
-      custom: selectCustomVariant,
-      dark: selectDark ? true : undefined,
-    }
+    const property = propertysClone.find((p) => p.id === propertyId)
 
-    const target = propertys.find((p) => p.id === propertyId)
-
-    if (target) {
-      Object.assign(target, gProperty)
+    if (property) {
+      property.classname = classname
     } else {
-      propertys.push(gProperty)
+      const { selectScreenVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
+      propertysClone.push({
+        id: propertyId,
+        classname,
+        screen: selectScreenVariant,
+        state: selectStateVariant,
+        list: selectListVariant,
+        custom: selectCustomVariant,
+        dark: selectDark ? true : undefined,
+      })
     }
 
     let className = ''
-    propertys.forEach((property) => {
-      const { screen, state, list, custom, dark, classname: name } = property
+    propertysClone.forEach((item) => {
+      const { screen, state, list, custom, dark, classname: name } = item
       if (!name) return
 
       let variants = ''
@@ -125,7 +124,6 @@ const controllesModel: ControllesModel = {
   }),
 
   liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    console.log('liveApplyClassName')
     const { activeElement, frontProject } = getStoreState().project
     if (!activeElement || !frontProject) return
     const { selectStateVariant } = getState()
@@ -205,7 +203,6 @@ const controllesModel: ControllesModel = {
   }),
 
   propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => {
-    console.log('activeElement?.propertys', element?.propertys)
     return element?.propertys || []
   }),
 

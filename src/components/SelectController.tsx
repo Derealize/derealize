@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
-// import clone from 'lodash.clone'
+// import clone from 'lodash.clone' // 巨坑：不是100%的clone，导致liveUpdateClassName更新了state对象
 import clone from 'lodash.clonedeep'
 import Select, {
   GroupTypeBase,
@@ -73,21 +73,23 @@ const SelectController: React.FC<Props> = ({
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
-  const propertys = useMemo(() => {
-    return clone(element?.propertys?.filter((pp) => !(cleanPropertys?.map((p) => p.id) || []).includes(pp.id)))
+  const propertysClone = useMemo(() => {
+    const clean = cleanPropertys?.map((p) => p.id) || []
+    const result = element?.propertys?.filter((p) => !clean.includes(p.id))
+    return clone(result)
   }, [cleanPropertys, element?.propertys])
 
   const onOptionEnter = useCallback(
     async (value: string) => {
-      if (!project || !propertys) return
+      if (!project || !propertysClone) return
       liveUpdateClassName({
-        propertys,
+        propertysClone,
         propertyId: property?.id || '',
         classname: value,
         projectId: project.id,
       })
     },
-    [project, liveUpdateClassName, propertys, property?.id],
+    [project, liveUpdateClassName, propertysClone, property?.id],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
