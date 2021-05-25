@@ -2,6 +2,8 @@ import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
+import type { GroupType } from '../../components/SelectController'
+import { buildColorOptions, filterColorPropertys } from '../../utils/color-options'
 
 export const BackgroundAttachmentValues = ['bg-fixed', 'bg-local', 'bg-scroll']
 export const BackgroundClipValues = ['bg-clip-border', 'bg-clip-padding', 'bg-clip-content', 'bg-clip-text']
@@ -19,7 +21,7 @@ export interface BackgroundModel {
 
   backgroundClipPropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
-  backgroundColorValues: Computed<BackgroundModel, Array<string>, StoreModel>
+  backgroundColorValues: Computed<BackgroundModel, Array<GroupType>, StoreModel>
   backgroundColorPropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
   backgroundOpacityValues: Computed<BackgroundModel, Array<string>, StoreModel>
@@ -36,13 +38,13 @@ export interface BackgroundModel {
   backgroundImageValues: Computed<BackgroundModel, Array<string>, StoreModel>
   backgroundImagePropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
-  fromColorValues: Computed<BackgroundModel, Array<string>, StoreModel>
+  fromColorValues: Computed<BackgroundModel, Array<GroupType>, StoreModel>
   fromColorPropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
-  viaColorValues: Computed<BackgroundModel, Array<string>, StoreModel>
+  viaColorValues: Computed<BackgroundModel, Array<GroupType>, StoreModel>
   viaColorPropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
-  toColorValues: Computed<BackgroundModel, Array<string>, StoreModel>
+  toColorValues: Computed<BackgroundModel, Array<GroupType>, StoreModel>
   toColorPropertys: Computed<BackgroundModel, Array<Property>, StoreModel>
 
   alreadyVariants: Computed<BackgroundModel, AlreadyVariants, StoreModel>
@@ -59,18 +61,16 @@ const backgroundModel: BackgroundModel = {
 
   backgroundColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { colors, backgroundColor } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(backgroundColor, colors)).map((v) => `bg-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.backgroundColor, 'bg')
   }),
   backgroundColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   backgroundOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { opacity, backgroundOpacity } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(backgroundOpacity, opacity)).map((v) => `bg-opacity-${v}`)
+    return Object.keys(project.tailwindConfig.theme.backgroundOpacity).map((v) => `bg-opacity-${v}`)
   }),
   backgroundOpacityPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundOpacityValues],
@@ -110,32 +110,29 @@ const backgroundModel: BackgroundModel = {
 
   fromColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { colors, gradientColorStops } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `from-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'from')
   }),
   fromColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.fromColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   viaColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { colors, gradientColorStops } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `via-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'via')
   }),
   viaColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.viaColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   toColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { colors, gradientColorStops } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(gradientColorStops, colors)).map((v) => `to-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'to')
   }),
   toColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.toColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   alreadyVariants: computed(

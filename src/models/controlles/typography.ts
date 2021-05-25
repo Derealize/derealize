@@ -1,9 +1,9 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
-import type { TailwindColorGroup } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 import type { GroupType } from '../../components/SelectController'
+import { buildColorOptions, filterColorPropertys } from '../../utils/color-options'
 
 export const TextAlignValues = ['text-left', 'text-center', 'text-right', 'text-justify']
 export const TextDecorationValues = ['underline', 'line-through', 'no-underline']
@@ -61,8 +61,8 @@ export interface TypographyModel {
   lineHeightValues: Computed<TypographyModel, Array<string>, StoreModel>
   lineHeightPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
 
-  placeholderValues: Computed<TypographyModel, Array<string>, StoreModel>
-  placeholderPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
+  placeholderColorValues: Computed<TypographyModel, Array<GroupType>, StoreModel>
+  placeholderColorPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
 
   placeholderOpacityValues: Computed<TypographyModel, Array<string>, StoreModel>
   placeholderOpacityPropertys: Computed<TypographyModel, Array<Property>, StoreModel>
@@ -139,13 +139,13 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  placeholderValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  placeholderColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.placeholderColor).map((v) => `placeholder-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.placeholderColor, 'placeholder')
   }),
-  placeholderPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.placeholderValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+  placeholderColorPropertys: computed(
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.placeholderColorValues],
+    filterColorPropertys,
   ),
 
   placeholderOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -164,30 +164,16 @@ const typographyModel: TypographyModel = {
 
   textColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.entries(project.tailwindConfig.theme.textColor).map(([label, value]) => ({
-      label,
-      options:
-        typeof value === 'string'
-          ? [{ value: `text-${label}`, label: value }]
-          : Object.entries(value as TailwindColorGroup).map(([l, v]) => ({ value: `text-${label}-${l}`, label: v })),
-    }))
+    return buildColorOptions(project.tailwindConfig.theme.textColor, 'text')
   }),
   textColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.textColorValues],
-    (propertys, values) => {
-      if (!values.length) return []
-      const valuesString = values
-        .map((v) => v.options)
-        .reduce((pre, cur) => pre.concat(cur))
-        .map((o) => o.value)
-      return propertys.filter(({ classname }) => valuesString.includes(classname))
-    },
+    filterColorPropertys,
   ),
 
   textOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { textOpacity, opacity } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(textOpacity, opacity)).map((v) => `text-opacity-${v}`)
+    return Object.keys(project.tailwindConfig.theme.textOpacity).map((v) => `text-opacity-${v}`)
   }),
   textOpacityPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.textOpacityValues],
@@ -246,7 +232,7 @@ const typographyModel: TypographyModel = {
       (state: State<TypographyModel>) => state.fontWeightPropertys,
       (state: State<TypographyModel>) => state.letterSpacingPropertys,
       (state: State<TypographyModel>) => state.lineHeightPropertys,
-      (state: State<TypographyModel>) => state.placeholderPropertys,
+      (state: State<TypographyModel>) => state.placeholderColorPropertys,
       (state: State<TypographyModel>) => state.placeholderOpacityValues,
       (state: State<TypographyModel>) => state.textAlignPropertys,
       (state: State<TypographyModel>) => state.textColorPropertys,

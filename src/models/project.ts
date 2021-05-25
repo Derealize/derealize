@@ -88,6 +88,9 @@ export interface ProjectModel {
   toggleBackgroundsModal: Action<ProjectModel, boolean | undefined>
   backgroundImages: Computed<ProjectModel, BackgroundImage[]>
 
+  colorsModalDisclosure: boolean
+  toggleColorsModal: Action<ProjectModel, boolean | undefined>
+
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
   callHistory: Thunk<ProjectModel>
@@ -415,6 +418,17 @@ const projectModel: ProjectModel = {
       }
     }
     return images
+  }),
+
+  colorsModalDisclosure: false,
+  toggleColorsModal: action((state, open) => {
+    if (open === false || state.colorsModalDisclosure) {
+      mainFrontView(state.frontProject)
+      state.colorsModalDisclosure = false
+    } else {
+      mainFrontView(undefined)
+      state.colorsModalDisclosure = true
+    }
   }),
 
   historys: [],
