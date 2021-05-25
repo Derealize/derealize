@@ -22,6 +22,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
+
   const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)

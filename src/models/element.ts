@@ -3,7 +3,7 @@ import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
-import { Broadcast, Handler } from '../backend/backend.interface'
+import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
 import { ElementPayload, ElementActualStatus, MainIpcChannel } from '../interface'
 import type { Property } from './controlles/controlles'
@@ -67,17 +67,11 @@ const elementModel: ElementModel = {
   elements: [],
   activeElement: computed(
     [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, frontProject) => {
-      if (!frontProject) return undefined
-      return elements.find((el) => el.projectId === frontProject.id && el.selected)
-    },
+    (elements, frontProject) => elements.find((el) => el.projectId === frontProject?.id && el.selected),
   ),
   activePendingElements: computed(
     [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, frontProject) => {
-      if (!frontProject) return []
-      return elements.filter((el) => el.projectId === frontProject.id && el.pending)
-    },
+    (elements, frontProject) => elements.filter((el) => el.projectId === frontProject?.id && el.pending),
   ),
   activePropertys: computed((state) => {
     return state.activeElement?.propertys || []
@@ -148,7 +142,7 @@ const elementModel: ElementModel = {
     if (el) {
       Object.assign(el, elstate)
     } else {
-      elements.push(elstate)
+      state.elements.push(elstate)
     }
   }),
   respElementStatus: action((state, status) => {
@@ -229,7 +223,7 @@ const elementModel: ElementModel = {
     element.propertys = element.propertys.filter((p) => p.id !== propertyId)
   }),
 
-  listen: thunk(async (actions, none, { getState, getStoreState }) => {
+  listen: thunk(async (actions, none, { getStoreState }) => {
     actions.unlisten()
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {

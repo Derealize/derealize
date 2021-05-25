@@ -43,11 +43,11 @@ const Controllers: React.FC = (): JSX.Element => {
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
-    listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
-      if (payload && element?.text !== undefined) {
-        setTabIndex(ControllerTab.Typography)
-      }
-    })
+    // listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
+    //   if (payload && element?.text !== undefined) {
+    //     setTabIndex(ControllerTab.Typography)
+    //   }
+    // })
 
     listenMainIpc(MainIpcChannel.ControllerShortcut, (e: IpcRendererEvent, key: string) => {
       if (key.startsWith('Alt+')) {
@@ -57,7 +57,7 @@ const Controllers: React.FC = (): JSX.Element => {
     })
 
     return () => {
-      unlistenMainIpc(MainIpcChannel.TextTab)
+      // unlistenMainIpc(MainIpcChannel.TextTab)
       unlistenMainIpc(MainIpcChannel.ControllerShortcut)
     }
   }, [element, tabIndex])
