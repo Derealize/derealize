@@ -17,6 +17,9 @@ const App = (): JSX.Element => {
   const projectListen = useStoreActions((actions) => actions.project.listen)
   const projectUnListen = useStoreActions((actions) => actions.project.unlisten)
 
+  const elementListen = useStoreActions((actions) => actions.element.listen)
+  const elementUnListen = useStoreActions((actions) => actions.element.unlisten)
+
   const frontProject = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
   useEffect(() => {
@@ -26,8 +29,21 @@ const App = (): JSX.Element => {
     libraryLoadStore()
 
     projectListen()
-    return projectUnListen
-  }, [workspaceLoadStore, profileLoadStore, libraryLoadStore, projectLoadStore, projectListen, projectUnListen])
+    elementListen()
+    return () => {
+      projectUnListen()
+      elementUnListen()
+    }
+  }, [
+    workspaceLoadStore,
+    profileLoadStore,
+    libraryLoadStore,
+    projectLoadStore,
+    projectListen,
+    projectUnListen,
+    elementListen,
+    elementUnListen,
+  ])
 
   return (
     <div className="app">

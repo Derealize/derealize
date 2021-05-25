@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import cs from 'classnames'
 import { IconButton, Collapse, Flex } from '@chakra-ui/react'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
-import { StateVariants, ListVariants } from '../../models/project'
+import { StateVariants, ListVariants } from '../../models/element'
 import { AlreadyVariants } from '../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import style from './Variants.module.scss'
@@ -12,7 +12,7 @@ type Props = {
 }
 
 const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
-  const screenVariants = useStoreState<Array<string>>((state) => state.project.screenVariants)
+  const screenVariants = useStoreState<Array<string>>((state) => state.element.screenVariants)
   const selectScreenVariant = useStoreState<string | undefined>((state) => state.controlles.selectScreenVariant)
   const setSelectScreenVariant = useStoreActions((actions) => actions.controlles.setSelectScreenVariantWithDevice)
 
@@ -25,7 +25,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const selectDark = useStoreState<boolean | undefined>((state) => state.controlles.selectDark)
   const setSelectDark = useStoreActions((actions) => actions.controlles.setSelectDark)
 
-  const customVariants = useStoreState<Array<string>>((state) => state.project.customVariants)
+  const customVariants = useStoreState<Array<string>>((state) => state.element.customVariants)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const setSelectCustomVariant = useStoreActions((actions) => actions.controlles.setSelectCustomVariant)
 

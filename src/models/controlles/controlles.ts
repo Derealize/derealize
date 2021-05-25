@@ -1,13 +1,15 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
-import { MainIpcChannel } from '../../interface'
-import { StateVariantsType, ListVariantsType } from '../project'
+import { MainIpcChannel, JitTiggerPayload } from '../../interface'
+import { StateVariantsType, ListVariantsType } from '../element'
 import type { PreloadWindow } from '../../preload'
+import { Handler } from '../../backend/backend.interface'
+import type { Project } from '../project.interface'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
-const { sendMainIpc } = window.derealize
+const { sendMainIpc, sendBackIpc } = window.derealize
 
 export interface Property {
   id: string
@@ -36,6 +38,7 @@ export interface ControllesModel {
     StoreModel
   >
   liveApplyClassName: Thunk<ControllesModel, void, void, StoreModel>
+  jitClassNames: Thunk<ControllesModel, { project: Project; classNames: Array<string> }, void, StoreModel>
 
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
@@ -57,12 +60,14 @@ export interface ControllesModel {
   expandVariants: boolean
   setExpandVariants: Action<ControllesModel, boolean>
 
-  propertys: Computed<ControllesModel, Array<Property>, StoreModel>
   alreadyVariants: Computed<ControllesModel, AlreadyVariants, StoreModel>
 }
 
 const controllesModel: ControllesModel = {
-  pushNewProperty: thunk(async (actions, classname, { getState, getStoreActions }) => {
+  pushNewProperty: thunk(async (actions, classname, { getState, getStoreState, getStoreActions }) => {
+    const { frontProject } = getStoreState().project
+    if (!frontProject) return
+
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
     const property = {
       id: nanoid(),
@@ -73,7 +78,7 @@ const controllesModel: ControllesModel = {
       custom: selectCustomVariant,
       dark: selectDark ? true : undefined,
     }
-    getStoreActions().project.pushActiveElementProperty(property)
+    getStoreActions().element.pushActiveElementProperty({ projectId: frontProject.id, property })
   }),
 
   liveUpdateClassName: thunk(async (actions, { propertysClone, propertyId, classname, projectId }, { getState }) => {
@@ -124,8 +129,13 @@ const controllesModel: ControllesModel = {
   }),
 
   liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
-    const { activeElement, frontProject } = getStoreState().project
-    if (!activeElement || !frontProject) return
+    const {
+      project: { frontProject },
+      element: { activeElement },
+    } = getStoreState()
+
+    if (!frontProject || !activeElement) return
+
     const { selectStateVariant } = getState()
 
     let className = ''
@@ -153,6 +163,37 @@ const controllesModel: ControllesModel = {
     })
 
     sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId: frontProject.id, className } as any)
+  }),
+  jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
+    const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
+    let className = ''
+    classNames.forEach((name) => {
+      if (!name) return
+
+      let variants = ''
+      if (selectScreenVariant) {
+        variants += `${selectScreenVariant}:`
+      }
+      if (selectStateVariant) {
+        variants += `${selectStateVariant}:`
+      }
+      if (selectListVariant) {
+        variants += `${selectListVariant}:`
+      }
+      if (selectCustomVariant) {
+        variants += `${selectCustomVariant}:`
+      }
+      if (selectDark) {
+        variants += `dark:`
+      }
+      className += `${variants + name} `
+    })
+
+    if (project.jitClassName === className) return
+
+    const payload: JitTiggerPayload = { projectId: project.id, className }
+    getStoreActions().project.setJitClassName(payload)
+    sendBackIpc(Handler.JitTigger, payload as any)
   }),
 
   selectScreenVariant: undefined,
@@ -202,9 +243,7 @@ const controllesModel: ControllesModel = {
     state.expandVariants = payload
   }),
 
-  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => element?.propertys || []),
-
-  alreadyVariants: computed([(state) => state.propertys], (propertys) => {
+  alreadyVariants: computed([(state, storeState) => storeState.element.activePropertys], (propertys) => {
     const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)
     const states = propertys.filter((property) => property.state).map((property) => property.state as string)
     const lists = propertys.filter((property) => property.list).map((property) => property.list as string)
