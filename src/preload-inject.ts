@@ -134,7 +134,7 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   })
   activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
     e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.InsertTab, true)
+    ipcRenderer.send(MainIpcChannel.ControllerShortcut, 'Alt+9')
   })
 
   const tags = DropzoneTags

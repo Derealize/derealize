@@ -2,7 +2,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import {
-  useToast,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,7 +17,7 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project } from '../models/project'
+import type { Project } from '../models/project.interface'
 
 type Inputs = {
   displayname: string
@@ -35,18 +34,15 @@ const EditProject = (): JSX.Element => {
 
   const project = useStoreState<Project | undefined>((state) => state.project.editingProject)
   const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
-  const setProject = useStoreActions((actions) => actions.project.setProject)
+  const editProject = useStoreActions((actions) => actions.project.editProject)
 
   const submit = useCallback(
     (data) => {
       if (!project) return
-      project.name = data.displayname
-      project.branch = data.branch
-      project.isEditing = false
-      setProject(project)
+      editProject(data)
       setEditingProject(null)
     },
-    [project, setEditingProject, setProject],
+    [project, setEditingProject, editProject],
   )
 
   return (

@@ -38,16 +38,16 @@ enum ControllerTab {
 }
 
 const Controllers: React.FC = (): JSX.Element => {
-  const propertys = useStoreState<Array<Property>>((state) => state.controlles.propertys)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const propertys = useStoreState<Array<Property>>((state) => state.element.activePropertys)
+  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
-    listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
-      if (payload && element?.text !== undefined) {
-        setTabIndex(ControllerTab.Typography)
-      }
-    })
+    // listenMainIpc(MainIpcChannel.TextTab, (e: IpcRendererEvent, payload: boolean) => {
+    //   if (payload && element?.text !== undefined) {
+    //     setTabIndex(ControllerTab.Typography)
+    //   }
+    // })
 
     listenMainIpc(MainIpcChannel.ControllerShortcut, (e: IpcRendererEvent, key: string) => {
       if (key.startsWith('Alt+')) {
@@ -57,7 +57,7 @@ const Controllers: React.FC = (): JSX.Element => {
     })
 
     return () => {
-      unlistenMainIpc(MainIpcChannel.TextTab)
+      // unlistenMainIpc(MainIpcChannel.TextTab)
       unlistenMainIpc(MainIpcChannel.ControllerShortcut)
     }
   }, [element, tabIndex])

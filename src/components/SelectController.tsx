@@ -19,15 +19,10 @@ import Select, {
 import { CSSObject } from '@emotion/serialize'
 import styles from './SelectController.module.scss'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project, ElementState } from '../models/project'
+import type { Project } from '../models/project.interface'
+import type { ElementState } from '../models/element'
 import type { Property } from '../models/controlles/controlles'
 import theme from '../theme'
-import { Handler } from '../backend/backend.interface'
-import type { PreloadWindow } from '../preload'
-import { JitTiggerPayload } from '../interface'
-
-declare const window: PreloadWindow
-const { sendBackIpc } = window.derealize
 
 export interface OptionType extends OptionTypeBase {
   label: string
@@ -63,11 +58,12 @@ const SelectController: React.FC<Props> = ({
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
-  const setJitClassName = useStoreActions((actions) => actions.project.setJitClassName)
-  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+
+  const jitClassNames = useStoreActions((actions) => actions.controlles.jitClassNames)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
   const setActiveElementPropertyClassName = useStoreActions(
-    (actions) => actions.project.setActiveElementPropertyClassName,
+    (actions) => actions.element.setActiveElementPropertyClassName,
   )
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
@@ -188,33 +184,34 @@ const SelectController: React.FC<Props> = ({
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onFocus={() => {
-        if (!project) return
-        const className =
+        if (!project || !values.length) return
+
+        const classNames: Array<string> =
           typeof values[0] === 'string'
-            ? (values as ReadonlyArray<string>).join(' ')
+            ? (values as ReadonlyArray<string>)
             : (values as ReadonlyArray<OptionType | GroupType>)
-                .map((g) => g.options.map((o: any) => o.value).join(' '))
-                .join(' ')
-        if (project.jitClassName === className) return
-        const payload: JitTiggerPayload = { projectId: project.id, className }
-        setJitClassName(payload)
-        sendBackIpc(Handler.JitTigger, payload as any)
+                .map((v) => v.options)
+                .reduce((pre, cur) => pre.concat(cur))
+                .map((o: OptionType) => o.value)
+
+        jitClassNames({ project, classNames })
       }}
       onBlur={() => {
         liveApplyClassName()
       }}
       onChange={(ovalue, { action }) => {
+        if (!project) return
         if (action === 'clear' && property) {
-          deleteProperty(property.id)
+          deleteProperty({ projectId: project.id, propertyId: property.id })
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
-            setActiveElementPropertyClassName({ propertyId: property.id, classname })
+            setActiveElementPropertyClassName({ projectId: project.id, propertyId: property.id, classname })
           } else {
             pushNewProperty(classname)
           }
         }
-        cleanPropertys?.forEach((p) => p && deleteProperty(p.id))
+        cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
         liveApplyClassName()
       }}
     />

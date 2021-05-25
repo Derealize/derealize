@@ -73,6 +73,7 @@ export interface ThemeRemoveImagePayload extends ProjectIdParam {
 
 export enum MainIpcChannel {
   Shortcut = 'Shortcut',
+  ElementShortcut = 'ElementShortcut',
   ControllerShortcut = 'ControllerShortcut',
   OpenImport = 'OpenImport',
   GetStore = 'GetStore',

@@ -4,13 +4,13 @@ import { ElementTagType, ReplaceElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
-import { ElementState } from '../../models/project'
+import { ElementState } from '../../models/element'
 
 declare const window: PreloadWindow
 const { sendBackIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const elementType = useMemo(
     () => (element?.actualStatus?.tagName.toLowerCase() || ElementTagType.div) as ElementTagType,

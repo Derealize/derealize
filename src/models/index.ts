@@ -1,5 +1,6 @@
 import profileModel, { ProfileModel } from './profile'
 import projectModel, { ProjectModel } from './project'
+import elementModel, { ElementModel } from './element'
 import libraryModel, { LibraryModel } from './library'
 import workspaceModel, { WorkspaceModel } from './workspace'
 import controllesModel, { ControllesModel } from './controlles/controlles'
@@ -13,6 +14,7 @@ import effectsModel, { EffectsModel } from './controlles/effects'
 export interface StoreModel {
   profile: ProfileModel
   project: ProjectModel
+  element: ElementModel
   library: LibraryModel
   workspace: WorkspaceModel
   controlles: ControllesModel
@@ -27,6 +29,7 @@ export interface StoreModel {
 const storeModel: StoreModel = {
   profile: profileModel,
   project: projectModel,
+  element: elementModel,
   library: libraryModel,
   workspace: workspaceModel,
   controlles: controllesModel,
