@@ -66,8 +66,7 @@ export interface SpacingModel {
 const spacingModel: SpacingModel = {
   widthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, width } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(width, spacing)).map((v) => `w-${v}`)
+    return Object.keys(project.tailwindConfig.theme.width).map((v) => `w-${v}`)
   }),
   widthPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.widthValues],
@@ -94,8 +93,7 @@ const spacingModel: SpacingModel = {
 
   heightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, height } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(height, spacing)).map((v) => `h-${v}`)
+    return Object.keys(project.tailwindConfig.theme.height).map((v) => `h-${v}`)
   }),
   heightPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.heightValues],
@@ -122,8 +120,7 @@ const spacingModel: SpacingModel = {
 
   marginSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, margin } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(margin, spacing))
+    return Object.keys(project.tailwindConfig.theme.margin)
   }),
   marginValues: computed([(state) => state.marginSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-m-${v.slice(1)}` : `m-${v}`)),
@@ -177,8 +174,7 @@ const spacingModel: SpacingModel = {
 
   paddingSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, padding } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(padding, spacing))
+    return Object.keys(project.tailwindConfig.theme.padding)
   }),
   paddingValues: computed([(state) => state.paddingSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-p-${v.slice(1)}` : `p-${v}`)),
@@ -232,8 +228,7 @@ const spacingModel: SpacingModel = {
 
   spaceSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, space } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(space, spacing))
+    return Object.keys(project.tailwindConfig.theme.space)
   }),
   spaceYValues: computed([(state) => state.spaceSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-space-y-${v.slice(1)}` : `space-y-${v}`)),

@@ -38,6 +38,12 @@ const formatGroupLabel = (data: GroupTypeBase<OptionType>) => (
   </div>
 )
 
+const Group = (props: GroupProps<OptionType, boolean, GroupType>) => (
+  <div className={styles.colorGroup}>
+    <components.Group {...props} />
+  </div>
+)
+
 type Props = {
   placeholder: string
   values: ReadonlyArray<string | OptionType | GroupType>
@@ -103,12 +109,6 @@ const SelectController: React.FC<Props> = ({
       </div>
     )
   }
-
-  const Group = (props: GroupProps<OptionType, boolean, GroupType>) => (
-    <div className={styles.colorGroup}>
-      <components.Group {...props} />
-    </div>
-  )
 
   return (
     <Select

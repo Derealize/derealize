@@ -2,6 +2,8 @@ import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
+import type { GroupType } from '../../components/SelectController'
+import { buildColorOptions, filterColorPropertys } from '../../utils/color-options'
 
 export const BorderStyleValues = ['border-solid', 'border-dashed', 'border-dotted', 'border-double', 'border-none']
 export const DivideStyleValues = ['divide-solid', 'divide-dashed', 'divide-dotted', 'divide-double', 'divide-none']
@@ -31,7 +33,7 @@ export interface BorderModel {
   borderRightValues: Computed<BorderModel, Array<string>, StoreModel>
   borderRightPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
-  borderColorValues: Computed<BorderModel, Array<string>, StoreModel>
+  borderColorValues: Computed<BorderModel, Array<GroupType>, StoreModel>
   borderColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   borderOpacityValues: Computed<BorderModel, Array<string>, StoreModel>
@@ -42,7 +44,7 @@ export interface BorderModel {
   ringWidthValues: Computed<BorderModel, Array<string>, StoreModel>
   ringWidthPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
-  ringColorValues: Computed<BorderModel, Array<string>, StoreModel>
+  ringColorValues: Computed<BorderModel, Array<GroupType>, StoreModel>
   ringColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   ringOpacityValues: Computed<BorderModel, Array<string>, StoreModel>
@@ -51,7 +53,7 @@ export interface BorderModel {
   ringOffsetValues: Computed<BorderModel, Array<string>, StoreModel>
   ringOffsetPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
-  ringOffsetColorValues: Computed<BorderModel, Array<string>, StoreModel>
+  ringOffsetColorValues: Computed<BorderModel, Array<GroupType>, StoreModel>
   ringOffsetColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   divideSuffix: Computed<BorderModel, Array<string>, StoreModel>
@@ -60,7 +62,7 @@ export interface BorderModel {
   divideXValues: Computed<BorderModel, Array<string>, StoreModel>
   divideXPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
-  divideColorValues: Computed<BorderModel, Array<string>, StoreModel>
+  divideColorValues: Computed<BorderModel, Array<GroupType>, StoreModel>
   divideColorPropertys: Computed<BorderModel, Array<Property>, StoreModel>
 
   divideOpacityValues: Computed<BorderModel, Array<string>, StoreModel>
@@ -154,11 +156,11 @@ const borderModel: BorderModel = {
 
   borderColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.borderColor).map((v) => `border-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.borderColor, 'border')
   }),
   borderColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.borderColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   borderOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -185,12 +187,11 @@ const borderModel: BorderModel = {
 
   ringColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { ringColor, colors } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(ringColor, colors)).map((v) => `ring-offset-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.ringColor, 'ring')
   }),
   ringColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.ringColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   ringOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -213,18 +214,16 @@ const borderModel: BorderModel = {
 
   ringOffsetColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { colors, ringOffsetColor } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(ringOffsetColor, colors)).map((v) => `ring-offset-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.ringOffsetColor, 'ring-offset')
   }),
   ringOffsetColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringOffsetValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.ringOffsetColorValues],
+    filterColorPropertys,
   ),
 
   divideSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { divideWidth, borderWidth } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(divideWidth, borderWidth))
+    return Object.keys(project.tailwindConfig.theme.divideWidth)
   }),
   divideYValues: computed([(state) => state.divideSuffix], (divideSuffix) => {
     return divideSuffix.map((v) => (v === 'DEFAULT' ? 'divide-y' : `divide-y-${v}`))
@@ -243,11 +242,11 @@ const borderModel: BorderModel = {
 
   divideColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    return Object.keys(project.tailwindConfig.theme.divideColor).map((v) => `divide-${v}`)
+    return buildColorOptions(project.tailwindConfig.theme.divideColor, 'divide')
   }),
   divideColorPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.divideColorValues],
-    (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
+    filterColorPropertys,
   ),
 
   divideOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {

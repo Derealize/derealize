@@ -377,8 +377,7 @@ const layoutModel: LayoutModel = {
 
   gapValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, gap } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(gap, spacing)).map((v) => `gap-${v}`)
+    return Object.keys(project.tailwindConfig.theme.gap).map((v) => `gap-${v}`)
   }),
   gapPropertys: computed(
     [(state, storeState) => storeState.element.activePropertys, (state) => state.gapValues],

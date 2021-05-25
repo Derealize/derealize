@@ -189,8 +189,7 @@ const effectsModel: EffectsModel = {
 
   translateSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
-    const { spacing, translate } = project.tailwindConfig.theme
-    return Object.keys(Object.assign(translate, spacing))
+    return Object.keys(project.tailwindConfig.theme.translate)
   }),
   translateYValues: computed([(state) => state.translateSuffix], (suffix) =>
     suffix.map((v) => (v.startsWith('-') ? `-translate-y-${v.slice(1)}` : `translate-y-${v}`)),
