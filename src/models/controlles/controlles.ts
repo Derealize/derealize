@@ -1,13 +1,15 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import { nanoid } from 'nanoid'
 import type { StoreModel } from '../index'
-import { MainIpcChannel } from '../../interface'
+import { MainIpcChannel, JitTiggerPayload } from '../../interface'
 import { StateVariantsType, ListVariantsType } from '../element'
 import type { PreloadWindow } from '../../preload'
+import { Handler } from '../../backend/backend.interface'
+import type { Project } from '../project.interface'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
 declare const window: PreloadWindow
-const { sendMainIpc } = window.derealize
+const { sendMainIpc, sendBackIpc } = window.derealize
 
 export interface Property {
   id: string
@@ -36,6 +38,7 @@ export interface ControllesModel {
     StoreModel
   >
   liveApplyClassName: Thunk<ControllesModel, void, void, StoreModel>
+  jitClassNames: Thunk<ControllesModel, { project: Project; classNames: Array<string> }, void, StoreModel>
 
   selectScreenVariant: string | undefined
   setSelectScreenVariant: Action<ControllesModel, string | undefined>
@@ -160,6 +163,37 @@ const controllesModel: ControllesModel = {
     })
 
     sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId: frontProject.id, className } as any)
+  }),
+  jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
+    const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
+    let className = ''
+    classNames.forEach((name) => {
+      if (!name) return
+
+      let variants = ''
+      if (selectScreenVariant) {
+        variants += `${selectScreenVariant}:`
+      }
+      if (selectStateVariant) {
+        variants += `${selectStateVariant}:`
+      }
+      if (selectListVariant) {
+        variants += `${selectListVariant}:`
+      }
+      if (selectCustomVariant) {
+        variants += `${selectCustomVariant}:`
+      }
+      if (selectDark) {
+        variants += `dark:`
+      }
+      className += `${variants + name} `
+    })
+
+    if (project.jitClassName === className) return
+
+    const payload: JitTiggerPayload = { projectId: project.id, className }
+    getStoreActions().project.setJitClassName(payload)
+    sendBackIpc(Handler.JitTigger, payload as any)
   }),
 
   selectScreenVariant: undefined,
