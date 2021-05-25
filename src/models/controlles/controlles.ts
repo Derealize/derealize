@@ -202,9 +202,7 @@ const controllesModel: ControllesModel = {
     state.expandVariants = payload
   }),
 
-  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => {
-    return element?.propertys || []
-  }),
+  propertys: computed([(state, storeState) => storeState.project.activeElement], (element) => element?.propertys || []),
 
   alreadyVariants: computed([(state) => state.propertys], (propertys) => {
     const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)

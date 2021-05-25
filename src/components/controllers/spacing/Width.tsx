@@ -5,7 +5,7 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState, Project } from '../../../models/project'
+import { ElementState } from '../../../models/project'
 import { InlineDisplays } from '../../../utils/assest'
 
 const Width: React.FC = (): JSX.Element => {

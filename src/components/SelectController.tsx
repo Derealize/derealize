@@ -209,7 +209,6 @@ const SelectController: React.FC<Props> = ({
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
-            console.log('onChange setActiveElementPropertyClassName', property.id, classname)
             setActiveElementPropertyClassName({ propertyId: property.id, classname })
           } else {
             pushNewProperty(classname)
