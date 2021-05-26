@@ -71,6 +71,11 @@ export interface ThemeRemoveImagePayload extends ProjectIdParam {
   webPath: string
 }
 
+export interface ThemeColorPayload extends ProjectIdParam {
+  key: string
+  value: string
+}
+
 export enum MainIpcChannel {
   Shortcut = 'Shortcut',
   ElementShortcut = 'ElementShortcut',

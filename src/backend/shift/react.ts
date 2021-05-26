@@ -5,9 +5,14 @@ import { types, parse, print, visit } from 'recast'
 import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
-import { ElementPayload, InsertMode, InsertElementPayload, ElementTagType, ReplaceElementPayload } from '../interface'
-import type { BoolReply } from './backend.interface'
-import log from './log'
+import {
+  ElementPayload,
+  InsertMode,
+  InsertElementPayload,
+  ElementTagType,
+  ReplaceElementPayload,
+} from '../../interface'
+import log from '../log'
 
 const { builders, namedTypes } = types
 
@@ -266,141 +271,4 @@ export const Text = async (projectPath: string, { codePosition, text }: ElementP
 
   const output = print(ast)
   fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
-}
-
-export const SetImage = async (projectPath: string, key: string, value: string): Promise<BoolReply> => {
-  const filePath = path.resolve(projectPath, 'tailwind.config.js')
-  const content = await fs.readFile(filePath, 'utf8')
-  const ast = parse(content, {
-    parser,
-  })
-  let error = ''
-
-  visit(ast, {
-    visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
-      const { node } = astPath
-
-      if (namedTypes.Identifier.check(node.key) && node.key.name === 'theme') {
-        if (namedTypes.ObjectExpression.check(node.value)) {
-          const extend = node.value.properties.find(
-            (p) => namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === 'extend',
-          )
-
-          if (namedTypes.ObjectProperty.check(extend) && namedTypes.ObjectExpression.check(extend.value)) {
-            let backgroundImage = extend.value.properties.find(
-              (p) =>
-                namedTypes.ObjectProperty.check(p) &&
-                namedTypes.Identifier.check(p.key) &&
-                p.key.name === 'backgroundImage',
-            )
-
-            if (!backgroundImage) {
-              const bKey = builders.identifier('backgroundImage')
-              const bValue = builders.objectExpression([])
-              const property = builders.objectProperty(bKey, bValue)
-              backgroundImage = property
-              extend.value.properties.push(property)
-            }
-
-            if (
-              namedTypes.ObjectProperty.check(backgroundImage) &&
-              namedTypes.ObjectExpression.check(backgroundImage.value)
-            ) {
-              const bKey = builders.stringLiteral(key)
-              const bValue = builders.stringLiteral(value)
-              const property = builders.objectProperty(bKey, bValue)
-              backgroundImage.value.properties.push(property)
-            } else {
-              error = 'check(backgroundImage) fail'
-            }
-          } else {
-            error = 'check(extend) fail'
-          }
-        } else {
-          error = 'check(node) fail'
-        }
-
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  if (error) {
-    return { result: false, error }
-  }
-
-  const output = print(ast)
-  await fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
-  return { result: true }
-}
-
-export const RemoveImage = async (projectPath: string, key: string): Promise<BoolReply> => {
-  const filePath = path.resolve(projectPath, 'tailwind.config.js')
-  const content = await fs.readFile(filePath, 'utf8')
-  const ast = parse(content, {
-    parser,
-  })
-  let error = ''
-
-  visit(ast, {
-    visitObjectProperty(astPath: NodePath<TnamedTypes.ObjectProperty>) {
-      const { node } = astPath
-
-      if (namedTypes.Identifier.check(node.key) && node.key.name === 'theme') {
-        if (namedTypes.ObjectExpression.check(node.value)) {
-          const extend = node.value.properties.find(
-            (p) => namedTypes.ObjectProperty.check(p) && namedTypes.Identifier.check(p.key) && p.key.name === 'extend',
-          )
-
-          if (namedTypes.ObjectProperty.check(extend) && namedTypes.ObjectExpression.check(extend.value)) {
-            const backgroundImage = extend.value.properties.find(
-              (p) =>
-                namedTypes.ObjectProperty.check(p) &&
-                namedTypes.Identifier.check(p.key) &&
-                p.key.name === 'backgroundImage',
-            )
-
-            if (
-              namedTypes.ObjectProperty.check(backgroundImage) &&
-              namedTypes.ObjectExpression.check(backgroundImage.value)
-            ) {
-              backgroundImage.value.properties = backgroundImage.value.properties.filter((p) => {
-                if (namedTypes.ObjectProperty.check(p)) {
-                  if (namedTypes.Identifier.check(p.key)) {
-                    return p.key.name !== key
-                  }
-                  if (namedTypes.StringLiteral.check(p.key)) {
-                    return p.key.value !== key
-                  }
-                }
-                return true
-              })
-            } else {
-              error = 'check(backgroundImage) fail'
-            }
-          } else {
-            error = 'check(extend) fail'
-          }
-        } else {
-          error = 'check(node) fail'
-        }
-
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  if (error) {
-    return { result: false, error }
-  }
-
-  const output = print(ast)
-  await fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
-  return { result: true }
 }
