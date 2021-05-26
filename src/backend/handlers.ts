@@ -12,8 +12,11 @@ import {
   JitTiggerPayload,
   ThemeSetImagePayload,
   ThemeRemoveImagePayload,
+  ThemeColorPayload,
 } from '../interface'
-import { Apply, Insert, Delete, Replace, Text, SetImage, RemoveImage } from './shift'
+import { Apply, Insert, Delete, Replace, Text } from './shift/react'
+import { SetImage, RemoveImage } from './shift/image'
+import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
@@ -178,5 +181,29 @@ export const ThemeRemoveImage = async ({
     return { result: project.tailwindConfig }
   }
 
+  return { error }
+}
+
+export const ThemeSetColor = async ({ projectId, key, value }: ThemeColorPayload): Promise<TailwindConfigReply> => {
+  const project = getProject(projectId)
+
+  const { result, error } = await SetColor(project.path, key, value)
+
+  if (result) {
+    project.ResolveTailwindConfig()
+    return { result: project.tailwindConfig }
+  }
+  return { error }
+}
+
+export const ThemeRemoveColor = async ({ projectId, key }: ThemeColorPayload): Promise<TailwindConfigReply> => {
+  const project = getProject(projectId)
+
+  const { result, error } = await RemoveColor(project.path, key)
+
+  if (result) {
+    project.ResolveTailwindConfig()
+    return { result: project.tailwindConfig }
+  }
   return { error }
 }
