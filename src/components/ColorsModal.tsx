@@ -11,15 +11,11 @@ import {
   ModalFooter,
   FormControl,
   FormErrorMessage,
-  Image,
-  CloseButton,
   Input,
   Button,
-  Flex,
   Text,
   Box,
   VStack,
-  Tooltip,
 } from '@chakra-ui/react'
 
 import { useForm } from 'react-hook-form'
@@ -37,10 +33,12 @@ const ColorsModal = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const colors = useStoreState<Colors | undefined>((state) => state.project.colorsModalDisclosure)
+  const colorsModalDisclosure = useStoreState<Colors | undefined>((state) => state.project.colorsModalDisclosure)
   const toggleModal = useStoreActions((actions) => actions.project.toggleColorsModal)
   const setTailwindConfig = useStoreActions((actions) => actions.project.setTailwindConfig)
   const [editing, setEditing] = useState(false)
+
+  const colors = colorsModalDisclosure || project?.tailwindConfig?.theme.colors
 
   const {
     register,
@@ -49,26 +47,26 @@ const ColorsModal = (): JSX.Element => {
     formState: { errors },
   } = useForm<{ key: string; value: string }>()
 
-  const onRemove = useCallback(
-    async (key: string) => {
-      if (!project || !project.config) return
+  const onDelete = handleSubmit(async (data) => {
+    if (!window.confirm('Sure Delete?')) return
 
-      const payload: ThemeColorPayload = { projectId: project.id, key, value: '' }
-      const reply = (await sendBackIpc(Handler.ThemeRemoveColor, payload as any)) as TailwindConfigReply
-      if (reply.error) {
-        toast({
-          title: `remove color error: ${reply.error}`,
-          status: 'error',
-        })
-        return
-      }
+    if (!project) return
+    const { key } = data
 
-      if (reply.result) {
-        setTailwindConfig({ projectId: project.id, config: reply.result })
-      }
-    },
-    [project, setTailwindConfig, toast],
-  )
+    const payload: ThemeColorPayload = { projectId: project.id, key, value: '' }
+    const reply = (await sendBackIpc(Handler.ThemeRemoveColor, payload as any)) as TailwindConfigReply
+    if (reply.error) {
+      toast({
+        title: `delete color error: ${reply.error}`,
+        status: 'error',
+      })
+      return
+    }
+
+    if (reply.result) {
+      setTailwindConfig({ projectId: project.id, config: reply.result })
+    }
+  })
 
   const onSet = handleSubmit(async (data) => {
     if (!project) return
@@ -108,23 +106,51 @@ const ColorsModal = (): JSX.Element => {
                 <Box key={group}>
                   <Text>{group}</Text>
                   <div className={style.colorList}>
-                    {typeof values === 'string' && <div style={{ backgroundColor: values }} />}
+                    {typeof values === 'string' && (
+                      <div
+                        style={{ backgroundColor: values }}
+                        onClick={() => {
+                          reset({ key: group, value: values })
+                          setEditing(true)
+                        }}
+                        role="button"
+                        aria-hidden="true"
+                      />
+                    )}
                     {typeof values !== 'string' &&
                       Object.entries(values).map(([prefix, value]) => (
-                        <div key={prefix} style={{ backgroundColor: value }} />
+                        <div
+                          key={prefix}
+                          style={{ backgroundColor: value as string }}
+                          onClick={() => {
+                            reset({ key: `${group}/${prefix}`, value: value as string })
+                            setEditing(true)
+                          }}
+                          role="button"
+                          aria-hidden="true"
+                        />
                       ))}
                   </div>
                 </Box>
               ))}
           </ModalBody>
           <ModalFooter justifyContent="center">
-            <Button colorScheme="gray" onClick={() => toggleModal(undefined)}>
+            <Button colorScheme="gray" variant="outline" onClick={() => toggleModal(undefined)}>
               Close
+            </Button>
+            <Button
+              colorScheme="teal"
+              onClick={() => {
+                reset({ key: '', value: '' })
+                setEditing(true)
+              }}
+            >
+              Add
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Modal isOpen={editing} onClose={() => setEditing(false)} size="xl">
+      <Modal isOpen={!!editing} onClose={() => setEditing(false)} size="xl">
         <ModalContent>
           <ModalHeader textAlign="center">Set Color</ModalHeader>
           <ModalCloseButton />
@@ -133,6 +159,7 @@ const ColorsModal = (): JSX.Element => {
               <FormControl isInvalid={!!errors.key} isRequired>
                 <Input {...register('key', { required: true })} type="text" placeholder="color key name" />
                 <FormErrorMessage>{errors.key?.message}</FormErrorMessage>
+                <Text>Use a slash &apos;/&apos; to group colors, for example: blue/500</Text>
               </FormControl>
 
               <FormControl isInvalid={!!errors.key} isRequired>
@@ -142,7 +169,10 @@ const ColorsModal = (): JSX.Element => {
             </VStack>
           </ModalBody>
           <ModalFooter justifyContent="center">
-            <Button colorScheme="teal" size="lg" variant="ghost" type="submit" onClick={onSet}>
+            <Button colorScheme="teal" size="lg" variant="ghost" type="submit" onClick={onDelete}>
+              Delete
+            </Button>
+            <Button colorScheme="teal" size="lg" type="submit" onClick={onSet}>
               Submit
             </Button>
           </ModalFooter>
