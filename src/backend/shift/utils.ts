@@ -36,7 +36,7 @@ export const removeByKey = (properties: Property[], key: string): Property[] => 
   })
 }
 
-const parseExtendProperty = (theme: TnamedTypes.ObjectProperty): TnamedTypes.ObjectExpression => {
+export const parseExtendProperty = (theme: TnamedTypes.ObjectProperty, name: string): TnamedTypes.ObjectExpression => {
   if (!ObjectExpression.check(theme.value)) {
     throw new Error('ObjectExpression.check(theme.value) fail')
   }
@@ -49,60 +49,20 @@ const parseExtendProperty = (theme: TnamedTypes.ObjectProperty): TnamedTypes.Obj
     throw new Error('extend && ObjectExpression.check(extend.value) fail')
   }
 
-  return extend.value
-}
-
-export const parseColorsProperty = (theme: TnamedTypes.ObjectProperty): TnamedTypes.ObjectExpression => {
-  const extendValue = parseExtendProperty(theme)
-
-  let colors = extendValue.properties.find(
-    (p) => ObjectProperty.check(p) && Identifier.check(p.key) && p.key.name === 'colors',
+  let property = extend.value.properties.find(
+    (p) => ObjectProperty.check(p) && Identifier.check(p.key) && p.key.name === name,
   ) as TnamedTypes.ObjectProperty | undefined
 
-  if (!colors) {
-    const bKey = builders.identifier('colors')
+  if (!property) {
+    const bKey = builders.identifier(name)
     const bValue = builders.objectExpression([])
-    colors = builders.objectProperty(bKey, bValue)
-    extendValue.properties.push(colors)
+    property = builders.objectProperty(bKey, bValue)
+    extend.value.properties.push(property)
   }
 
-  if (!ObjectExpression.check(colors.value)) {
-    throw new Error('ObjectExpression.check(colors.value) fail')
+  if (!ObjectExpression.check(property.value)) {
+    throw new Error(`ObjectExpression.check(${name}.value) fail`)
   }
 
-  return colors.value
-}
-
-export const parseBackgroundImageProperty = (theme: TnamedTypes.ObjectProperty): TnamedTypes.ObjectExpression => {
-  const extendValue = parseExtendProperty(theme)
-
-  let backgroundImage = extendValue.properties.find(
-    (p) => ObjectProperty.check(p) && Identifier.check(p.key) && p.key.name === 'backgroundImage',
-  ) as TnamedTypes.ObjectProperty | undefined
-
-  if (!backgroundImage) {
-    const bKey = builders.identifier('backgroundImage')
-    const bValue = builders.objectExpression([])
-    backgroundImage = builders.objectProperty(bKey, bValue)
-    extendValue.properties.push(backgroundImage)
-  }
-
-  if (!ObjectExpression.check(backgroundImage.value)) {
-    throw new Error('ObjectExpression.check(backgroundImage.value) fail')
-  }
-
-  return backgroundImage.value
-}
-
-export const parseColorsKey = (key: string): { group: string; prefix: string } => {
-  const keys = key.split('/')
-  let group = keys.slice(-1)[0]
-  let prefix = ''
-  if (keys.length > 1) {
-    prefix = group
-    keys.splice(-1)
-    group = keys.join('/')
-  }
-
-  return { group, prefix }
+  return property.value
 }

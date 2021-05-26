@@ -18,6 +18,8 @@ export enum Handler {
   JitTigger = 'JitTigger',
   ThemeSetImage = 'ThemeSetImage',
   ThemeRemoveImage = 'ThemeRemoveImage',
+  ThemeSetColor = 'ThemeSetColor',
+  ThemeRemoveColor = 'ThemeRemoveColor',
 }
 
 export enum Broadcast {

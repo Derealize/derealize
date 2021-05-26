@@ -5,12 +5,25 @@ import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
 import type { BoolReply } from '../backend.interface'
-import { findByKey, removeByKey, parseColorsKey, parseColorsProperty } from './utils'
+import { findByKey, removeByKey, parseExtendProperty } from './utils'
 
 const {
   builders,
   namedTypes: { Identifier, ObjectExpression, ObjectProperty, StringLiteral },
 } = types
+
+export const parseColorsKey = (key: string): { group: string; prefix: string } => {
+  const keys = key.split('/')
+  let group = keys.slice(-1)[0]
+  let prefix = ''
+  if (keys.length > 1) {
+    prefix = group
+    keys.splice(-1)
+    group = keys.join('/')
+  }
+
+  return { group, prefix }
+}
 
 export const SetColor = async (projectPath: string, key: string, value: string): Promise<BoolReply> => {
   const filePath = path.resolve(projectPath, 'tailwind.config.js')
@@ -28,7 +41,7 @@ export const SetColor = async (projectPath: string, key: string, value: string):
 
       let colorsValue
       try {
-        colorsValue = parseColorsProperty(astPath.node)
+        colorsValue = parseExtendProperty(astPath.node, 'colors')
       } catch (err) {
         error = err.message
         return false
@@ -108,7 +121,7 @@ export const RemoveColor = async (projectPath: string, key: string): Promise<Boo
 
       let colorsValue
       try {
-        colorsValue = parseColorsProperty(astPath.node)
+        colorsValue = parseExtendProperty(astPath.node, 'colors')
       } catch (err) {
         error = err.message
         return false

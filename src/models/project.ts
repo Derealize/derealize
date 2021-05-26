@@ -13,7 +13,7 @@ import type {
   BoolReply,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ProjectView, Project, BackgroundImage } from './project.interface'
+import { ProjectView, Project, BackgroundImage, Colors } from './project.interface'
 import { MainIpcChannel, ImportPayload } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
@@ -84,12 +84,12 @@ export interface ProjectModel {
   importModalDisclosure: boolean
   toggleImportModal: Action<ProjectModel, boolean | undefined>
 
-  backgroundsModalDisclosure: boolean
-  toggleBackgroundsModal: Action<ProjectModel, boolean | undefined>
-  backgroundImages: Computed<ProjectModel, BackgroundImage[]>
+  imagesModalDisclosure: boolean
+  toggleImagesModal: Action<ProjectModel, boolean | undefined>
+  modalImages: Computed<ProjectModel, BackgroundImage[]>
 
-  colorsModalDisclosure: boolean
-  toggleColorsModal: Action<ProjectModel, boolean | undefined>
+  colorsModalDisclosure: Colors | undefined
+  toggleColorsModal: Action<ProjectModel, Colors | undefined>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -362,8 +362,10 @@ const projectModel: ProjectModel = {
       const { frontProject } = getState()
       if (!frontProject) return
 
-      if (key === 'Image Modal') {
-        actions.toggleBackgroundsModal(undefined)
+      if (key === 'Image Manager') {
+        actions.toggleImagesModal(undefined)
+      } else if (key === 'Colors Manager') {
+        actions.toggleColorsModal(undefined)
       }
     })
 
@@ -395,17 +397,17 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  backgroundsModalDisclosure: false,
-  toggleBackgroundsModal: action((state, open) => {
-    if (open === false || state.backgroundsModalDisclosure) {
+  imagesModalDisclosure: false,
+  toggleImagesModal: action((state, open) => {
+    if (open === false || state.imagesModalDisclosure) {
       mainFrontView(state.frontProject)
-      state.backgroundsModalDisclosure = false
+      state.imagesModalDisclosure = false
     } else {
       mainFrontView(undefined)
-      state.backgroundsModalDisclosure = true
+      state.imagesModalDisclosure = true
     }
   }),
-  backgroundImages: computed((state) => {
+  modalImages: computed((state) => {
     if (!state.frontProject?.tailwindConfig) return []
     const images: Array<BackgroundImage> = []
     for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
@@ -420,14 +422,14 @@ const projectModel: ProjectModel = {
     return images
   }),
 
-  colorsModalDisclosure: false,
-  toggleColorsModal: action((state, open) => {
-    if (open === false || state.colorsModalDisclosure) {
+  colorsModalDisclosure: undefined,
+  toggleColorsModal: action((state, colors) => {
+    if (!colors) {
       mainFrontView(state.frontProject)
-      state.colorsModalDisclosure = false
+      state.colorsModalDisclosure = undefined
     } else {
       mainFrontView(undefined)
-      state.colorsModalDisclosure = true
+      state.colorsModalDisclosure = colors
     }
   }),
 

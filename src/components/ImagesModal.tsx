@@ -31,7 +31,7 @@ import FileUpload from './FileUpload'
 import { Handler, TailwindConfigReply } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project, BackgroundImage } from '../models/project.interface'
-import style from './BackgroundImageModal.module.scss'
+import style from './ImagesModal.module.scss'
 import type { PreloadWindow } from '../preload'
 import { ThemeSetImagePayload, ThemeRemoveImagePayload } from '../interface'
 
@@ -56,13 +56,13 @@ const validateFiles = (files: FileList) => {
   return error || true
 }
 
-const Images = (): JSX.Element => {
+const ImagesModal = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const backgroundImages = useStoreState<BackgroundImage[]>((state) => state.project.backgroundImages)
-  const modalDisclosure = useStoreState<boolean>((state) => state.project.backgroundsModalDisclosure)
-  const toggleModal = useStoreActions((actions) => actions.project.toggleBackgroundsModal)
+  const images = useStoreState<BackgroundImage[]>((state) => state.project.modalImages)
+  const modalDisclosure = useStoreState<boolean>((state) => state.project.imagesModalDisclosure)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleImagesModal)
   const setTailwindConfig = useStoreActions((actions) => actions.project.setTailwindConfig)
 
   const {
@@ -157,7 +157,7 @@ const Images = (): JSX.Element => {
               </VStack>
               <Box w="75%">
                 <Grid templateColumns="repeat(4, 1fr)" gap={6}>
-                  {backgroundImages.map((b) => (
+                  {images.map((b) => (
                     <Flex key={b.name} direction="column" alignItems="center" className={style.imageItem}>
                       <Image src={project?.config?.baseUrl + b.webPath} />
                       <Text>{b.name}</Text>
@@ -179,4 +179,4 @@ const Images = (): JSX.Element => {
   )
 }
 
-export default Images
+export default ImagesModal

@@ -112,9 +112,16 @@ export default class MenuBuilder {
         },
         {
           label: '&Image',
-          accelerator: isDarwin ? 'Cmd+I' : 'Ctrl+I',
+          accelerator: isDarwin ? 'Cmd+Shift+I' : 'Ctrl+Shift+I',
           click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Image Modal')
+            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Image Manager')
+          },
+        },
+        {
+          label: '&Colors',
+          accelerator: isDarwin ? 'Cmd+Shift+C' : 'Ctrl+Shift+I',
+          click: () => {
+            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Colors Manager')
           },
         },
       ],
