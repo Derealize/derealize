@@ -1,4 +1,4 @@
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import type { TailwindConfig, TailwindColorConfig, TailwindColorGroup } from 'tailwindcss/tailwind-config'
 import type { ProjectConfig, GitFileChanges } from '../backend/backend.interface'
 import { ProjectStatus } from '../backend/backend.interface'
 
@@ -33,4 +33,9 @@ export interface Project {
 export interface BackgroundImage {
   name: string
   webPath: string
+}
+
+export interface Colors extends TailwindColorConfig {
+  DEFAULT: string
+  [key: string]: string | TailwindColorGroup
 }

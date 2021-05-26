@@ -3,28 +3,28 @@ import { Flex, Button } from '@chakra-ui/react'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
-import SelectController from '../../SelectController'
+import SelectController, { GroupType } from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const BackgroundImage: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
-  const toggleModal = useStoreActions((actions) => actions.project.toggleBackgroundsModal)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const toggleModal = useStoreActions((actions) => actions.project.toggleImagesModal)
 
   const values = useStoreState<Array<string>>((state) => state.background.backgroundImageValues)
   const propertys = useStoreState<Array<Property>>((state) => state.background.backgroundImagePropertys)
   const property = useComputeProperty(propertys)
 
-  const fromValues = useStoreState<Array<string>>((state) => state.background.fromColorValues)
+  const fromValues = useStoreState<Array<GroupType>>((state) => state.background.fromColorValues)
   const fromPropertys = useStoreState<Array<Property>>((state) => state.background.fromColorPropertys)
   const fromProperty = useComputeProperty(fromPropertys)
 
-  const viaValues = useStoreState<Array<string>>((state) => state.background.viaColorValues)
+  const viaValues = useStoreState<Array<GroupType>>((state) => state.background.viaColorValues)
   const viaPropertys = useStoreState<Array<Property>>((state) => state.background.viaColorPropertys)
   const viaProperty = useComputeProperty(viaPropertys)
 
-  const toValues = useStoreState<Array<string>>((state) => state.background.toColorValues)
+  const toValues = useStoreState<Array<GroupType>>((state) => state.background.toColorValues)
   const toPropertys = useStoreState<Array<Property>>((state) => state.background.toColorPropertys)
   const toProperty = useComputeProperty(toPropertys)
 

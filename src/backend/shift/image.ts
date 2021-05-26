@@ -5,7 +5,7 @@ import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
 import type { BoolReply } from '../backend.interface'
-import { findByKey, removeByKey, parseBackgroundImageProperty } from './utils'
+import { findByKey, removeByKey, parseExtendProperty } from './utils'
 
 const {
   builders,
@@ -27,7 +27,7 @@ export const SetImage = async (projectPath: string, key: string, value: string):
 
       let backgroundImageValue
       try {
-        backgroundImageValue = parseBackgroundImageProperty(astPath.node)
+        backgroundImageValue = parseExtendProperty(astPath.node, 'backgroundImages')
       } catch (err) {
         error = err.message
         return false
@@ -73,7 +73,7 @@ export const RemoveImage = async (projectPath: string, key: string): Promise<Boo
 
       let backgroundImageValue
       try {
-        backgroundImageValue = parseBackgroundImageProperty(astPath.node)
+        backgroundImageValue = parseExtendProperty(astPath.node, 'backgroundImage')
       } catch (err) {
         error = err.message
         return false
