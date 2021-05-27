@@ -3,7 +3,8 @@ import React, { useState, useCallback } from 'react'
 import { HStack, VStack, Select, Button, IconButton, Tooltip, useToast } from '@chakra-ui/react'
 import { CgInsertAfterR, CgInsertBeforeR } from 'react-icons/cg'
 import { BiAddToQueue } from 'react-icons/bi'
-import { ElementPayload, InsertMode, ElementTagType, InsertElementPayload } from '../../interface'
+import type { ElementState } from '../../models/element'
+import { InsertMode, ElementTagType, InsertElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
@@ -13,7 +14,7 @@ const { sendBackIpc } = window.derealize
 
 const Insert: React.FC = (): JSX.Element => {
   const toast = useToast()
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const [selInsertMode, setSelInsertMode] = useState(InsertMode.After)
   const [selTagType, setSelTagType] = useState(ElementTagType.div)

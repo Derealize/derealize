@@ -18,7 +18,8 @@ import TypographySection from './typography/TypographySection'
 import BackgroundSection from './background/BackgroundSection'
 import EffectsSection from './effects/EffectsSection'
 import InsertSection from './InsertSection'
-import { ElementPayload, MainIpcChannel } from '../../interface'
+import type { ElementState } from '../../models/element'
+import { MainIpcChannel } from '../../interface'
 import style from './Controllers.module.scss'
 import type { PreloadWindow } from '../../preload'
 
@@ -39,7 +40,7 @@ enum ControllerTab {
 
 const Controllers: React.FC = (): JSX.Element => {
   const propertys = useStoreState<Array<Property>>((state) => state.element.activePropertys)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {
