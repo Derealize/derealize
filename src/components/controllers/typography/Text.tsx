@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { HStack, VStack, Textarea, Button, useToast } from '@chakra-ui/react'
-import { ElementPayload } from '../../../interface'
 import { Handler } from '../../../backend/backend.interface'
+import type { ElementState } from '../../../models/element'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import type { PreloadWindow } from '../../../preload'
 
@@ -11,7 +11,7 @@ const { sendBackIpc } = window.derealize
 const Text: React.FC = (): JSX.Element => {
   const toast = useToast()
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const [text, setText] = useState<string | undefined>(element?.text)
 

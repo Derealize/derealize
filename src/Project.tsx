@@ -6,7 +6,6 @@ import { PuffLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project, ProjectView } from './models/project.interface'
 import type { ElementState } from './models/element'
-import type { ElementPayload } from './interface'
 import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar'
@@ -24,7 +23,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
-  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)

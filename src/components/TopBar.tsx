@@ -23,7 +23,7 @@ import { Project, ProjectView } from '../models/project.interface'
 import type { ElementState } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
-import { ElementPayload, MainIpcChannel, BreadcrumbPayload } from '../interface'
+import { MainIpcChannel, BreadcrumbPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
@@ -52,7 +52,7 @@ const TopBar: React.FC = (): JSX.Element => {
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callHistory = useStoreActions((actions) => actions.project.callHistory)
-  const element = useStoreState<ElementPayload | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
 
