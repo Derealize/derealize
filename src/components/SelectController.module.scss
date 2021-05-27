@@ -47,3 +47,15 @@
     }
   }
 }
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 6px 4px;
+  & > svg {
+    cursor: pointer;
+    &:hover {
+      background-color: $gray-400;
+    }
+  }
+}

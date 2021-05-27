@@ -42,7 +42,7 @@ import type { ImportPayload } from '../interface'
 import { Handler, ProjectStatus, Broadcast, ProcessPayload } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project } from '../models/project.interface'
-import style from './Import.module.scss'
+import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
 

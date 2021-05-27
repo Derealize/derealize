@@ -119,7 +119,7 @@ export default class MenuBuilder {
         },
         {
           label: '&Colors',
-          accelerator: isDarwin ? 'Cmd+Shift+C' : 'Ctrl+Shift+I',
+          accelerator: isDarwin ? 'Cmd+Shift+C' : 'Ctrl+Shift+C',
           click: () => {
             this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Colors Manager')
           },

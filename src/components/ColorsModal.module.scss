@@ -1,0 +1,19 @@
+@import '../styles/variable';
+
+.groupName {
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.colorList {
+  display: flex;
+  .colorItem {
+    height: 32px;
+    flex-basis: 100%;
+    cursor: pointer;
+    &:hover {
+      box-shadow: 0px 0px 3px 1px $teal-500;
+      z-index: 1;
+    }
+  }
+}

@@ -36,6 +36,6 @@ export interface BackgroundImage {
 }
 
 export interface Colors extends TailwindColorConfig {
-  DEFAULT: string
+  // DEFAULT: string
   [key: string]: string | TailwindColorGroup
 }
