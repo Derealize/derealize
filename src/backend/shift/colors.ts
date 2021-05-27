@@ -25,7 +25,7 @@ export const parseColorsKey = (key: string): { group: string; prefix: string } =
   return { group, prefix }
 }
 
-export const SetColor = async (projectPath: string, key: string, value: string): Promise<BoolReply> => {
+export const SetColor = async (projectPath: string, theme: string, key: string, value: string): Promise<BoolReply> => {
   const filePath = path.resolve(projectPath, 'tailwind.config.js')
   const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, { parser })
@@ -41,7 +41,7 @@ export const SetColor = async (projectPath: string, key: string, value: string):
 
       let colorsValue
       try {
-        colorsValue = parseExtendProperty(astPath.node, 'colors')
+        colorsValue = parseExtendProperty(astPath.node, theme)
       } catch (err) {
         error = err.message
         return false
@@ -105,7 +105,7 @@ export const SetColor = async (projectPath: string, key: string, value: string):
   return { result: true }
 }
 
-export const RemoveColor = async (projectPath: string, key: string): Promise<BoolReply> => {
+export const RemoveColor = async (projectPath: string, theme: string, key: string): Promise<BoolReply> => {
   const filePath = path.resolve(projectPath, 'tailwind.config.js')
   const content = await fs.readFile(filePath, 'utf8')
   const ast = parse(content, { parser })
@@ -121,29 +121,29 @@ export const RemoveColor = async (projectPath: string, key: string): Promise<Boo
 
       let colorsValue
       try {
-        colorsValue = parseExtendProperty(astPath.node, 'colors')
+        colorsValue = parseExtendProperty(astPath.node, theme)
       } catch (err) {
         error = err.message
         return false
       }
 
       const exist = findByKey(colorsValue.properties, group)
-
-      if (!prefix) {
-        if (exist) {
-          colorsValue.properties = removeByKey(colorsValue.properties, group)
-        }
+      if (!exist) {
+        RemoveColor(projectPath, 'colors', key)
         return false
       }
 
-      if (exist) {
-        if (!ObjectExpression.check(exist.value)) {
-          error = 'group: ObjectExpression.check(existGroup.value) fail'
-          return false
-        }
-        exist.value.properties = removeByKey(exist.value.properties, prefix)
+      if (!prefix) {
+        colorsValue.properties = removeByKey(colorsValue.properties, group)
+        return false
       }
 
+      if (!ObjectExpression.check(exist.value)) {
+        error = 'group: ObjectExpression.check(existGroup.value) fail'
+        return false
+      }
+
+      exist.value.properties = removeByKey(exist.value.properties, prefix)
       return false
     },
   })

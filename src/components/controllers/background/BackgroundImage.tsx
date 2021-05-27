@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { Flex, Button } from '@chakra-ui/react'
+import type { Project } from '../../../models/project.interface'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
@@ -9,6 +10,7 @@ import { ElementState } from '../../../models/element'
 
 const BackgroundImage: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const toggleModal = useStoreActions((actions) => actions.project.toggleImagesModal)
 
@@ -38,9 +40,27 @@ const BackgroundImage: React.FC = (): JSX.Element => {
       <SelectController placeholder="bg-image" values={values} property={property} />
       {!!element?.actualStatus?.background && element?.actualStatus?.background !== 'none' && (
         <>
-          <SelectController placeholder="from" values={fromValues} property={fromProperty} />
-          <SelectController placeholder="via" values={viaValues} property={viaProperty} />
-          <SelectController placeholder="to" values={toValues} property={toProperty} />
+          <SelectController
+            placeholder="from"
+            values={fromValues}
+            property={fromProperty}
+            colors={project?.tailwindConfig?.theme.gradientColorStops}
+            colorsTheme="gradientColorStops"
+          />
+          <SelectController
+            placeholder="via"
+            values={viaValues}
+            property={viaProperty}
+            colors={project?.tailwindConfig?.theme.gradientColorStops}
+            colorsTheme="gradientColorStops"
+          />
+          <SelectController
+            placeholder="to"
+            values={toValues}
+            property={toProperty}
+            colors={project?.tailwindConfig?.theme.gradientColorStops}
+            colorsTheme="gradientColorStops"
+          />
         </>
       )}
     </Flex>

@@ -1,15 +1,17 @@
 import React, { useState, useContext } from 'react'
 import { HStack, Center, Box, Text, Icon } from '@chakra-ui/react'
 import { IoLink, IoUnlink } from 'react-icons/io5'
+import type { Project } from '../../../models/project.interface'
 import ControllersContext from '../ControllersContext'
 import { BorderStyleValues } from '../../../models/controlles/border'
 import type { Property } from '../../../models/controlles/controlles'
-import SelectController from '../../SelectController'
+import SelectController, { GroupType } from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 
 const Border: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const [bind, setBind] = useState(false)
 
   const borderValues = useStoreState<Array<string>>((state) => state.border.borderValues)
@@ -35,7 +37,7 @@ const Border: React.FC = (): JSX.Element => {
   const propertysStyle = useStoreState<Array<Property>>((state) => state.border.borderStylePropertys)
   const propertyStyle = useComputeProperty(propertysStyle)
 
-  const valuesColor = useStoreState<Array<string>>((state) => state.border.borderColorValues)
+  const valuesColor = useStoreState<Array<GroupType>>((state) => state.border.borderColorValues)
   const propertysColor = useStoreState<Array<Property>>((state) => state.border.borderColorPropertys)
   const propertyColor = useComputeProperty(propertysColor)
 
@@ -100,7 +102,13 @@ const Border: React.FC = (): JSX.Element => {
       </div>
       <div>
         <SelectController placeholder="border-style" values={BorderStyleValues} property={propertyStyle} />
-        <SelectController placeholder="border-color" values={valuesColor} property={propertyColor} />
+        <SelectController
+          placeholder="border-color"
+          values={valuesColor}
+          property={propertyColor}
+          colors={project?.tailwindConfig?.theme.borderColor}
+          colorsTheme="borderColor"
+        />
         <SelectController placeholder="border-opacity" values={valuesOpacity} property={propertyOpacity} />
       </div>
     </>

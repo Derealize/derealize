@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import { useStoreActions, useStoreState } from './reduxStore'
-import type { Project } from './models/project'
+import type { Project } from './models/project.interface'
 import Home from './Home'
 import TabBar from './components/TabBar'
-import ImportProject from './components/Import'
+import ImportModal from './components/ImportModal'
 import EditProject from './components/Edit'
 import ProjectView from './Project'
 import style from './App.module.scss'
@@ -49,7 +49,7 @@ const App = (): JSX.Element => {
     <div className="app">
       <TabBar />
       <div className={style.main}>{frontProject ? <ProjectView /> : <Home />}</div>
-      <ImportProject />
+      <ImportModal />
       <EditProject />
     </div>
   )

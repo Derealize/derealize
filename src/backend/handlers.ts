@@ -184,10 +184,15 @@ export const ThemeRemoveImage = async ({
   return { error }
 }
 
-export const ThemeSetColor = async ({ projectId, key, value }: ThemeColorPayload): Promise<TailwindConfigReply> => {
+export const ThemeSetColor = async ({
+  projectId,
+  theme,
+  key,
+  value,
+}: ThemeColorPayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
 
-  const { result, error } = await SetColor(project.path, key, value)
+  const { result, error } = await SetColor(project.path, theme, key, value)
 
   if (result) {
     project.ResolveTailwindConfig()
@@ -196,10 +201,10 @@ export const ThemeSetColor = async ({ projectId, key, value }: ThemeColorPayload
   return { error }
 }
 
-export const ThemeRemoveColor = async ({ projectId, key }: ThemeColorPayload): Promise<TailwindConfigReply> => {
+export const ThemeRemoveColor = async ({ projectId, theme, key }: ThemeColorPayload): Promise<TailwindConfigReply> => {
   const project = getProject(projectId)
 
-  const { result, error } = await RemoveColor(project.path, key)
+  const { result, error } = await RemoveColor(project.path, theme, key)
 
   if (result) {
     project.ResolveTailwindConfig()

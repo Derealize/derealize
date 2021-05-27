@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useCallback } from 'react'
 // import clone from 'lodash.clone' // 巨坑：不是100%的clone，导致liveUpdateClassName更新了state对象
 import clone from 'lodash.clonedeep'
+import { Icon } from '@chakra-ui/react'
 import Select, {
   GroupTypeBase,
   OptionTypeBase,
@@ -15,11 +16,13 @@ import Select, {
   SingleValueProps,
   components,
   GroupProps,
+  MenuProps,
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
+import { AiOutlineControl, AiFillControl } from 'react-icons/ai'
 import styles from './SelectController.module.scss'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project } from '../models/project.interface'
+import type { Project, Colors } from '../models/project.interface'
 import type { ElementState } from '../models/element'
 import type { Property } from '../models/controlles/controlles'
 import theme from '../theme'
@@ -49,7 +52,8 @@ type Props = {
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
   isDisabled?: boolean
-  isColors?: boolean
+  colors?: Colors
+  colorsTheme?: string
   onMouseEnter?: boolean
   cleanPropertys?: Array<Property>
 }
@@ -59,12 +63,15 @@ const SelectController: React.FC<Props> = ({
   values,
   property,
   isDisabled,
-  isColors,
+  colors,
+  colorsTheme,
   onMouseEnter,
   cleanPropertys,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+
+  const toggleColorsModal = useStoreActions((actions) => actions.project.colorsModalToggle)
 
   const jitClassNames = useStoreActions((actions) => actions.controlles.jitClassNames)
   const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
@@ -101,8 +108,8 @@ const SelectController: React.FC<Props> = ({
 
     return (
       <div
-        className={isColors ? styles.colorOption : undefined}
-        style={isColors ? { backgroundColor: label } : undefined}
+        className={colors ? styles.colorOption : undefined}
+        style={colors ? { backgroundColor: label } : undefined}
         onMouseEnter={() => onOptionEnter(value)}
       >
         <components.Option {...props} />
@@ -110,8 +117,79 @@ const SelectController: React.FC<Props> = ({
     )
   }
 
+  const Menu = (props: MenuProps<OptionType, boolean, GroupType>) => {
+    const { children } = props
+    return (
+      <>
+        <components.Menu {...props}>
+          <>
+            <div className={styles.controls}>
+              <Icon
+                as={AiOutlineControl}
+                boxSize={6}
+                onClick={() => toggleColorsModal({ show: true, colors, theme: colorsTheme })}
+              />
+              {/* <Icon as={AiFillControl} boxSize={6} onClick={() => toggleColorsModal({ show: true })} /> */}
+            </div>
+            {children}
+          </>
+        </components.Menu>
+      </>
+    )
+  }
+
   return (
     <Select
+      components={{
+        Option: onMouseEnter ? Option : components.Option,
+        Group: colors ? Group : components.Group,
+        Menu: colors ? Menu : components.Menu,
+      }}
+      placeholder={placeholder}
+      isClearable
+      // menuIsOpen
+      isDisabled={isDisabled}
+      options={
+        typeof values[0] === 'string'
+          ? (values as ReadonlyArray<string>).map((v) => ({
+              value: v,
+              label: v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-'),
+            }))
+          : (values as ReadonlyArray<OptionType | GroupType>)
+      }
+      value={property ? { value: property.classname, label: property.classname } : null}
+      formatGroupLabel={formatGroupLabel}
+      onFocus={() => {
+        if (!project || !values.length) return
+
+        const classNames: Array<string> =
+          typeof values[0] === 'string'
+            ? (values as ReadonlyArray<string>)
+            : (values as ReadonlyArray<OptionType | GroupType>)
+                .map((v) => v.options)
+                .reduce((pre, cur) => pre.concat(cur))
+                .map((o: OptionType) => o.value)
+
+        jitClassNames({ project, classNames })
+      }}
+      onBlur={() => {
+        liveApplyClassName()
+      }}
+      onChange={(ovalue, { action }) => {
+        if (!project) return
+        if (action === 'clear' && property) {
+          deleteProperty({ projectId: project.id, propertyId: property.id })
+        } else if (action === 'select-option') {
+          const classname = (ovalue as OptionType).value
+          if (property) {
+            setActiveElementPropertyClassName({ projectId: project.id, propertyId: property.id, classname })
+          } else {
+            pushNewProperty(classname)
+          }
+        }
+        cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
+        liveApplyClassName()
+      }}
       className={styles.select}
       styles={{
         // https://react-select.com/styles#provided-styles-and-state
@@ -165,62 +243,14 @@ const SelectController: React.FC<Props> = ({
           padding: '4px 8px',
         }),
       }}
-      components={{
-        Option: onMouseEnter ? Option : components.Option,
-        Group: isColors ? Group : components.Group,
-      }}
-      placeholder={placeholder}
-      isClearable
-      // menuIsOpen
-      isDisabled={isDisabled}
-      options={
-        typeof values[0] === 'string'
-          ? (values as ReadonlyArray<string>).map((v) => ({
-              value: v,
-              label: v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-'),
-            }))
-          : (values as ReadonlyArray<OptionType | GroupType>)
-      }
-      value={property ? { value: property.classname, label: property.classname } : null}
-      formatGroupLabel={formatGroupLabel}
-      onFocus={() => {
-        if (!project || !values.length) return
-
-        const classNames: Array<string> =
-          typeof values[0] === 'string'
-            ? (values as ReadonlyArray<string>)
-            : (values as ReadonlyArray<OptionType | GroupType>)
-                .map((v) => v.options)
-                .reduce((pre, cur) => pre.concat(cur))
-                .map((o: OptionType) => o.value)
-
-        jitClassNames({ project, classNames })
-      }}
-      onBlur={() => {
-        liveApplyClassName()
-      }}
-      onChange={(ovalue, { action }) => {
-        if (!project) return
-        if (action === 'clear' && property) {
-          deleteProperty({ projectId: project.id, propertyId: property.id })
-        } else if (action === 'select-option') {
-          const classname = (ovalue as OptionType).value
-          if (property) {
-            setActiveElementPropertyClassName({ projectId: project.id, propertyId: property.id, classname })
-          } else {
-            pushNewProperty(classname)
-          }
-        }
-        cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
-        liveApplyClassName()
-      }}
     />
   )
 }
 
 SelectController.defaultProps = {
   isDisabled: false,
-  isColors: false,
+  colors: undefined,
+  colorsTheme: '',
   onMouseEnter: true,
   cleanPropertys: [],
 }

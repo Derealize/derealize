@@ -72,6 +72,7 @@ export interface ThemeRemoveImagePayload extends ProjectIdParam {
 }
 
 export interface ThemeColorPayload extends ProjectIdParam {
+  theme: string
   key: string
   value: string
 }

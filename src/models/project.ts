@@ -88,8 +88,9 @@ export interface ProjectModel {
   toggleImagesModal: Action<ProjectModel, boolean | undefined>
   modalImages: Computed<ProjectModel, BackgroundImage[]>
 
-  colorsModalDisclosure: Colors | undefined
-  toggleColorsModal: Action<ProjectModel, Colors | undefined>
+  colorsModalShow: boolean
+  colorsModalData: { colors: Colors; theme: string } | undefined
+  colorsModalToggle: Action<ProjectModel, { show: boolean; colors?: Colors; theme?: string }>
 
   historys: Array<CommitLog>
   setHistorys: Action<ProjectModel, Array<CommitLog>>
@@ -359,13 +360,13 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
-      const { frontProject } = getState()
+      const { frontProject, colorsModalShow } = getState()
       if (!frontProject) return
 
       if (key === 'Image Manager') {
         actions.toggleImagesModal(undefined)
       } else if (key === 'Colors Manager') {
-        actions.toggleColorsModal(undefined)
+        actions.colorsModalToggle({ show: !colorsModalShow })
       }
     })
 
@@ -422,14 +423,19 @@ const projectModel: ProjectModel = {
     return images
   }),
 
-  colorsModalDisclosure: undefined,
-  toggleColorsModal: action((state, colors) => {
-    if (!colors) {
-      mainFrontView(state.frontProject)
-      state.colorsModalDisclosure = undefined
-    } else {
+  colorsModalShow: false,
+  colorsModalData: undefined,
+  colorsModalToggle: action((state, { show, colors, theme }) => {
+    if (show) {
       mainFrontView(undefined)
-      state.colorsModalDisclosure = colors
+      state.colorsModalShow = true
+      if (colors && theme) {
+        state.colorsModalData = { colors, theme }
+      }
+    } else {
+      mainFrontView(state.frontProject)
+      state.colorsModalShow = false
+      state.colorsModalData = undefined
     }
   }),
 
