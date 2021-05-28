@@ -37,8 +37,8 @@ npm-debug.log.*
 *.sass.d.ts
 *.scss.d.ts
 
-yarn.lock
-src/yarn.lock
+# yarn.lock
+# src/yarn.lock
 **/yarn
 
 assets/node-win
