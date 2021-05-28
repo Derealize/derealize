@@ -1,10 +1,9 @@
-import react from 'react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { useStoreState } from '../../reduxStore'
-import { Project } from '../../models/project'
-import { StateVariantsType, ListVariantsType } from '../../models/controlles/controlles'
+import { Project } from '../../models/project.interface'
+import { StateVariantsType, ListVariantsType } from '../../models/element'
 
-export type VariantsPropertyNames = keyof TailwindConfig['variants']
+export type VariantsPropertyNames = keyof Omit<TailwindConfig['variants'], 'extend'>
 
 const useMatchVariants = (prop: VariantsPropertyNames) => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)

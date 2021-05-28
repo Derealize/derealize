@@ -5,11 +5,11 @@ import { AlignItemsValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const AlignItems: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.alignItemsPropertys)
   const property = useComputeProperty(propertys)

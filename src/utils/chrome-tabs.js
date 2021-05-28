@@ -279,7 +279,8 @@ class ChromeTabs {
 
     tabEls.forEach((tabEl, originalIndex) => {
       if (tabEl.getAttribute('draggable') === 'false') {
-        tabEl.addEventListener('click', () => {
+        tabEl.addEventListener('click', (e) => {
+          if (['svg', 'path'].includes(e.target.tagName)) return
           this.setCurrentTab(tabEl)
         })
         return

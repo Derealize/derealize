@@ -5,13 +5,13 @@ import { ListStyleValues, ListStylePositionValues } from '../../../models/contro
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const Tags = ['ul', 'ol', 'dl']
 
 const ListStyle: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.typography.listStylePropertys)
   const property = useComputeProperty(propertys)

@@ -9,14 +9,14 @@ import FrameInline from './FrameInline'
 import SpaceBetween from './SpaceBetween'
 import Width from './Width'
 import Height from './Height'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 import { InlineDisplays } from '../../../utils/assest'
 
 const SpacingSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.spacing.alreadyVariants)
 
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const isInline = useMemo(() => InlineDisplays.some((v) => element?.actualStatus?.display === v), [element])
 
   return (

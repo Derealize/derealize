@@ -6,11 +6,11 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { ElementPayload } from '../../../interface'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const ColStart: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.layout.colStartValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.colStartPropertys)

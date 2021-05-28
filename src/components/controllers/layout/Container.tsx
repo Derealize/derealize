@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useContext, ChangeEvent } from 'react'
 import { Checkbox } from '@chakra-ui/react'
-import { nanoid } from 'nanoid'
 import ControllersContext from '../ControllersContext'
+import type { Project } from '../../../models/project.interface'
 import type { Property } from '../../../models/controlles/controlles'
 import { ContainerValue } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 // import useMatchVariants from '../useMatchVariants'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const Tags = [
   'div',
@@ -28,11 +28,12 @@ const Tags = [
 const Container: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
   const property = useComputeProperty(propertys)
 
@@ -45,13 +46,11 @@ const Container: React.FC = (): JSX.Element => {
       colorScheme="teal"
       checked={!!property}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
+        if (!project) return
         if (e.target.checked && !property) {
-          setProperty({
-            propertyId: nanoid(),
-            classname: ContainerValue,
-          })
+          pushNewProperty(ContainerValue)
         } else if (!e.target.checked && property) {
-          deleteProperty(property.id)
+          deleteProperty({ projectId: project.id, propertyId: property.id })
         }
         liveApplyClassName()
       }}
