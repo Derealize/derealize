@@ -6,7 +6,7 @@ import { OverscrollValues } from '../../../models/controlles/layout'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 import { InlineDisplays } from '../../../utils/assest'
 
 const OverscrollGroups = groupBy<string>(OverscrollValues, (value) => {
@@ -22,7 +22,7 @@ const OverscrollOptions = Object.entries(OverscrollGroups).map(([label, values])
 
 const Overscroll: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.overscrollPropertys)
   const property = useComputeProperty(propertys)

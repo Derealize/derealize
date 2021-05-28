@@ -5,11 +5,11 @@ import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import { GridFlowValues } from '../../../models/controlles/layout'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const GridFlow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.gridFlowPropertys)
   const property = useComputeProperty(propertys)

@@ -9,23 +9,25 @@ $teal500: #319795;
 }
 
 .variantsline {
-  @include space-bteween-x(0.75rem);
+  @include space-bteween-x(0.1rem);
+  @include space-bteween-y(0.1rem);
 }
 
 .option {
   color: $gray-500;
   cursor: pointer;
   display: inline-block;
+  padding: 0 0.3rem;
   &:hover {
-    color: black;
-  }
-  &.active {
     color: $pink-500;
   }
   &.already {
-    @include linelink($gray-500);
-    &.active {
-      @include linelink($pink-500);
-    }
+    @include linelink($pink-500, 0.6);
+  }
+  &.active {
+    background-color: $pink-500;
+    color: white;
+    border-radius: 4px;
+    box-shadow: none;
   }
 }

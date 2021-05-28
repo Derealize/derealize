@@ -4,11 +4,11 @@ import type { Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import SelectController from '../../SelectController'
 import useComputeProperty from '../useComputeProperty'
-import { ElementState } from '../../../models/project'
+import { ElementState } from '../../../models/element'
 
 const Transition: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.project.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const values = useStoreState<Array<string>>((state) => state.effects.transitionValues)
   const propertys = useStoreState<Array<Property>>((state) => state.effects.transitionPropertys)
