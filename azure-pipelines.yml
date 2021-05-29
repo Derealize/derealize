@@ -1,14 +1,25 @@
 variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
+strategy:
+  matrix:
+    mac:
+      imageName: 'macOS-latest'
+      nodeVersion: '14.x'
+      buildPlatform: 'mac'
+    windows:
+      imageName: 'windows-latest'
+      nodeVersion: '14.x'
+      buildPlatform: 'win'
+
 pool:
-  vmImage: windows-latest
+  vmImage: $(imageName)
 
 steps:
   # Set node version
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: $(nodeVersion)
   # Cache yarn deps
   - task: Cache@2
     inputs:
@@ -29,4 +40,4 @@ steps:
     env:
       DISPLAY: ':99.0'
   # Build package
-  - script: yarn package --win
+  - script: yarn package --$(buildPlatform)
