@@ -8,6 +8,7 @@ strategy:
       nodeVersion: '14.x'
       buildPlatform: 'mac'
     windows:
+      # https://github.com/nodegit/nodegit/issues/1842
       imageName: 'vs2017-win2016'
       nodeVersion: '14.x'
       buildPlatform: 'win'
