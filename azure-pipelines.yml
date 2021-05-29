@@ -1,6 +1,3 @@
-variables:
-  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
-
 strategy:
   matrix:
     mac:
@@ -12,6 +9,10 @@ strategy:
       imageName: 'vs2017-win2016'
       nodeVersion: '14.x'
       buildPlatform: 'win'
+
+variables:
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn/$(imageName)
+  YARN_CACHE_ARG: --cache-folder $(YARN_CACHE_FOLDER)
 
 pool:
   vmImage: $(imageName)
@@ -37,8 +38,8 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   # Install deps with yarn
-  - script: yarn --frozen-lockfile && yarn postinstall_dll
+  - script: yarn --frozen-lockfile $(YARN_CACHE_ARG) && yarn $(YARN_CACHE_ARG) postinstall_dll
     env:
       DISPLAY: ':99.0'
   # Build package
-  - script: yarn package --$(buildPlatform)
+  - script: yarn package --$(buildPlatform) $(YARN_CACHE_ARG)
