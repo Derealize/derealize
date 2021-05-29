@@ -1,9 +1,6 @@
 variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
-pool:
-  vmImage: vs2017-win2016
-
 steps:
   # Set node version
   - task: NodeTool@0
