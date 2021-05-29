@@ -8,7 +8,7 @@ strategy:
       nodeVersion: '14.x'
       buildPlatform: 'mac'
     windows:
-      imageName: 'windows-latest'
+      imageName: 'vs2017-win2016'
       nodeVersion: '14.x'
       buildPlatform: 'win'
 
