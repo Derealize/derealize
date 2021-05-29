@@ -36,7 +36,8 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   # Install deps with yarn
-  - script: yarn --frozen-lockfile && yarn postinstall_dll
+  # - script: yarn --frozen-lockfile && yarn postinstall_dll
+  - script: yarn --frozen-lockfile
     env:
       DISPLAY: ':99.0'
   # Build package
