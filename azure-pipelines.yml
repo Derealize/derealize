@@ -11,8 +11,7 @@ strategy:
       buildPlatform: 'win'
 
 variables:
-  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn/$(imageName)
-  YARN_CACHE_ARG: --cache-folder $(YARN_CACHE_FOLDER)
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 pool:
   vmImage: $(imageName)
@@ -28,7 +27,6 @@ steps:
       key: 'yarn | "$(Agent.OS)" | yarn.lock'
       restoreKeys: |
         yarn | "$(Agent.OS)"
-        yarn
       path: $(YARN_CACHE_FOLDER)
     displayName: Cache Yarn packages
   # Start virtual framebuffer server
@@ -38,8 +36,8 @@ steps:
     displayName: Start xvfb
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   # Install deps with yarn
-  - script: yarn --frozen-lockfile $(YARN_CACHE_ARG) && yarn $(YARN_CACHE_ARG) postinstall_dll
+  - script: yarn --frozen-lockfile && yarn postinstall_dll
     env:
       DISPLAY: ':99.0'
   # Build package
-  - script: yarn package --$(buildPlatform) $(YARN_CACHE_ARG)
+  - script: yarn package --$(buildPlatform)
