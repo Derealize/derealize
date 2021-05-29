@@ -238,6 +238,7 @@
     "node-loader": "^2.0.0",
     "opencollective-postinstall": "^2.0.3",
     "prettier": "^2.0.5",
+    "qiniu": "^7.3.3",
     "react-refresh": "^0.10.0",
     "react-test-renderer": "^17.0.1",
     "rimraf": "^3.0.0",

@@ -41,3 +41,6 @@ steps:
       DISPLAY: ':99.0'
   # Build package
   - script: yarn package --$(buildPlatform)
+  # Publish qiniu
+  - script: yarn run publish:qiniu
+    workingDirectory: ./src
