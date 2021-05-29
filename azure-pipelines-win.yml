@@ -1,0 +1,34 @@
+variables:
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+pool:
+  vmImage: vs2017-win2016
+
+steps:
+  # Set node version
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 14.x
+  # Cache yarn deps
+  - task: Cache@2
+    inputs:
+      key: 'yarn | "$(Agent.OS)" | yarn.lock'
+      restoreKeys: |
+        yarn | "$(Agent.OS)"
+      path: $(YARN_CACHE_FOLDER)
+    displayName: Cache Yarn packages
+  # Start virtual framebuffer server
+  - bash: |
+      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      echo ">>> Started xvfb"
+    displayName: Start xvfb
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+  # Install deps with yarn
+  - script: yarn --frozen-lockfile
+    env:
+      DISPLAY: ':99.0'
+  # Build package
+  - script: yarn package --win
+  # Publish qiniu
+  - script: yarn run publish:qiniu
+    workingDirectory: ./src
