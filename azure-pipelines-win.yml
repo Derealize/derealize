@@ -7,7 +7,7 @@ steps:
     inputs:
       versionSpec: 14.x
   # Install yarn
-  - script: node i -g yarn
+  - script: npm i -g yarn
     displayName: npm install yarn
   # Cache yarn deps
   - task: Cache@2
