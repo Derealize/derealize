@@ -107,7 +107,7 @@ class Project {
     }
   }
 
-  async Flush(): Promise<BoolReply> {
+  async FlushGit(): Promise<BoolReply> {
     if (!this.repo) return { result: false, error: 'repo null' }
 
     try {
@@ -116,12 +116,6 @@ class Project {
       log('git branch error', err)
       return { result: false, error: err.message }
     }
-
-    const configReply = await this.assignConfig()
-    if (!configReply.result) return configReply
-
-    const tailwindConfigReply = this.ResolveTailwindConfig()
-    if (!tailwindConfigReply.result) return tailwindConfigReply
 
     try {
       const statuses = await this.repo.getStatus()
@@ -135,6 +129,20 @@ class Project {
       log('git status error', err)
       return { result: false, error: err.message }
     }
+
+    this.EmitStatus()
+    return { result: true }
+  }
+
+  async Flush(): Promise<BoolReply> {
+    const reply = await this.FlushGit()
+    if (!reply.result) return reply
+
+    const configReply = await this.assignConfig()
+    if (!configReply.result) return configReply
+
+    const tailwindConfigReply = this.ResolveTailwindConfig()
+    if (!tailwindConfigReply.result) return tailwindConfigReply
 
     this.EmitStatus()
     return { result: true }
@@ -157,10 +165,15 @@ class Project {
       }
     }
 
-    const reply = await this.Flush()
+    const reply = await this.FlushGit()
     if (!reply.result) return reply
 
+    const configReply = await this.assignConfig()
+    if (!configReply.result) return configReply
+
     this.status = ProjectStatus.Initialized
+    this.EmitStatus()
+
     return { result: true }
   }
 
@@ -263,7 +276,7 @@ class Project {
   async Pull(): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    const reply = await this.Flush()
+    const reply = await this.FlushGit()
     if (!reply.result) return reply
 
     if (this.changes.length) {
@@ -287,7 +300,7 @@ class Project {
   async Push(msg: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
 
-    const reply = await this.Flush()
+    const reply = await this.FlushGit()
     if (!reply.result) return reply
 
     try {
@@ -297,7 +310,7 @@ class Project {
 
       await gitPull(this.repo)
 
-      const reply2 = await this.Flush()
+      const reply2 = await this.FlushGit()
       if (!reply2.result) return reply2
 
       if (this.changes.length) {
