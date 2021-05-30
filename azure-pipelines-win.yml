@@ -2,19 +2,13 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 steps:
-  # Set Git Proxy
-  - script: git config --global http.https://github.com.proxy socks5://127.0.0.1:1080
-    displayName: Set Git Proxy
-  # Set node version
   - task: NodeTool@0
     inputs:
       versionSpec: 14.x
-  # Install yarn
   - script: |
       npm i -g yarn
       yarn config set registry https://registry.npm.taobao.org
-    displayName: npm install yarn
-  # Cache yarn deps
+    displayName: Install yarn
   - task: Cache@2
     inputs:
       key: 'yarn | "$(Agent.OS)" | yarn.lock'
@@ -22,15 +16,12 @@ steps:
         yarn | "$(Agent.OS)"
       path: $(YARN_CACHE_FOLDER)
     displayName: Cache Yarn packages
-  # Install deps with yarn
   - script: yarn --frozen-lockfile
     env:
       DISPLAY: ':99.0'
     displayName: yarn
-  # Build package
   - script: yarn package --win
     displayName: yarn package
-  # Publish qiniu
   - script: yarn run publish:qiniu
     workingDirectory: ./src
     displayName: yarn publish:qiniu

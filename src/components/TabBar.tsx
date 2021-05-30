@@ -37,7 +37,7 @@ const TabBar = (): JSX.Element => {
 
   return (
     <header className={css.tabbar}>
-      <div className="chrome-tabs">
+      <div className={cs('chrome-tabs', { [css.macPlatform]: window.env.isMac })}>
         <div className="chrome-tabs-content">
           <div
             draggable={false}
@@ -103,65 +103,81 @@ const TabBar = (): JSX.Element => {
         </div>
       </div>
 
-      <div className={css.controls}>
+      <div className={cs(css.controls, { [css.macPlatform]: window.env.isMac })}>
         <div
-          className={cs(css.button, css.minButton)}
+          className={cs(css.button, css.minButton, { [css.winPlatform]: !window.env.isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'minimize')
           }}
           role="button"
           aria-hidden="true"
         >
-          <img
-            srcSet="styles/icons/min-k-10.png 1x, styles/icons/min-k-12.png 1.25x, styles/icons/min-k-15.png 1.5x, styles/icons/min-k-15.png 1.75x, styles/icons/min-k-20.png 2x, styles/icons/min-k-20.png 2.25x, styles/icons/min-k-24.png 2.5x, styles/icons/min-k-30.png 3x, styles/icons/min-k-30.png 3.5x"
-            draggable="false"
-            alt="icon"
-          />
+          {window.env.isMac ? (
+            <div className={css.macMinimizeIcon} draggable="false" />
+          ) : (
+            <img
+              srcSet="styles/icons/min-k-10.png 1x, styles/icons/min-k-12.png 1.25x, styles/icons/min-k-15.png 1.5x, styles/icons/min-k-15.png 1.75x, styles/icons/min-k-20.png 2x, styles/icons/min-k-20.png 2.25x, styles/icons/min-k-24.png 2.5x, styles/icons/min-k-30.png 3x, styles/icons/min-k-30.png 3.5x"
+              draggable="false"
+              alt="icon"
+            />
+          )}
         </div>
 
         <div
-          className={cs(css.button, css.maxButton)}
+          className={cs(css.button, css.maxButton, { [css.winPlatform]: !window.env.isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'maximize')
           }}
           role="button"
           aria-hidden="true"
         >
-          <img
-            srcSet="styles/icons/max-k-10.png 1x, styles/icons/max-k-12.png 1.25x, styles/icons/max-k-15.png 1.5x, styles/icons/max-k-15.png 1.75x, styles/icons/max-k-20.png 2x, styles/icons/max-k-20.png 2.25x, styles/icons/max-k-24.png 2.5x, styles/icons/max-k-30.png 3x, styles/icons/max-k-30.png 3.5x"
-            draggable="false"
-            alt="icon"
-          />
+          {window.env.isMac ? (
+            <div className={css.macMaximizeIcon} draggable="false" />
+          ) : (
+            <img
+              srcSet="styles/icons/max-k-10.png 1x, styles/icons/max-k-12.png 1.25x, styles/icons/max-k-15.png 1.5x, styles/icons/max-k-15.png 1.75x, styles/icons/max-k-20.png 2x, styles/icons/max-k-20.png 2.25x, styles/icons/max-k-24.png 2.5x, styles/icons/max-k-30.png 3x, styles/icons/max-k-30.png 3.5x"
+              draggable="false"
+              alt="icon"
+            />
+          )}
         </div>
 
         <div
-          className={cs(css.button, css.restoreButton)}
+          className={cs(css.button, css.restoreButton, { [css.winPlatform]: !window.env.isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'unmaximize')
           }}
           role="button"
           aria-hidden="true"
         >
-          <img
-            srcSet="styles/icons/restore-k-10.png 1x, styles/icons/restore-k-12.png 1.25x, styles/icons/restore-k-15.png 1.5x, styles/icons/restore-k-15.png 1.75x, styles/icons/restore-k-20.png 2x, styles/icons/restore-k-20.png 2.25x, styles/icons/restore-k-24.png 2.5x, styles/icons/restore-k-30.png 3x, styles/icons/restore-k-30.png 3.5x"
-            draggable="false"
-            alt="icon"
-          />
+          {window.env.isMac ? (
+            <div className={css.macMaximizeIcon} draggable="false" />
+          ) : (
+            <img
+              srcSet="styles/icons/restore-k-10.png 1x, styles/icons/restore-k-12.png 1.25x, styles/icons/restore-k-15.png 1.5x, styles/icons/restore-k-15.png 1.75x, styles/icons/restore-k-20.png 2x, styles/icons/restore-k-20.png 2.25x, styles/icons/restore-k-24.png 2.5x, styles/icons/restore-k-30.png 3x, styles/icons/restore-k-30.png 3.5x"
+              draggable="false"
+              alt="icon"
+            />
+          )}
         </div>
 
         <div
-          className={cs(css.button, css.closeButton)}
+          className={cs(css.button, css.closeButton, { [css.winPlatform]: !window.env.isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'close')
           }}
           role="button"
           aria-hidden="true"
         >
-          <img
-            srcSet="styles/icons/close-k-10.png 1x, styles/icons/close-k-12.png 1.25x, styles/icons/close-k-15.png 1.5x, styles/icons/close-k-15.png 1.75x, styles/icons/close-k-20.png 2x, styles/icons/close-k-20.png 2.25x, styles/icons/close-k-24.png 2.5x, styles/icons/close-k-30.png 3x, styles/icons/close-k-30.png 3.5x"
-            draggable="false"
-            alt="icon"
-          />
+          {window.env.isMac ? (
+            <div className={css.macCloseIcon} draggable="false" />
+          ) : (
+            <img
+              srcSet="styles/icons/close-k-10.png 1x, styles/icons/close-k-12.png 1.25x, styles/icons/close-k-15.png 1.5x, styles/icons/close-k-15.png 1.75x, styles/icons/close-k-20.png 2x, styles/icons/close-k-20.png 2.25x, styles/icons/close-k-24.png 2.5x, styles/icons/close-k-30.png 3x, styles/icons/close-k-30.png 3.5x"
+              draggable="false"
+              alt="icon"
+            />
+          )}
         </div>
       </div>
     </header>
