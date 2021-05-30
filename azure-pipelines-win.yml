@@ -6,6 +6,9 @@ steps:
   - task: NodeTool@0
     inputs:
       versionSpec: 14.x
+  # Install yarn
+  - script: node i -g yarn
+    displayName: npm install yarn
   # Cache yarn deps
   - task: Cache@2
     inputs:
@@ -14,18 +17,15 @@ steps:
         yarn | "$(Agent.OS)"
       path: $(YARN_CACHE_FOLDER)
     displayName: Cache Yarn packages
-  # Start virtual framebuffer server
-  - bash: |
-      /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      echo ">>> Started xvfb"
-    displayName: Start xvfb
-    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
   # Install deps with yarn
   - script: yarn --frozen-lockfile
     env:
       DISPLAY: ':99.0'
+    displayName: yarn
   # Build package
   - script: yarn package --win
+    displayName: yarn package
   # Publish qiniu
   - script: yarn run publish:qiniu
     workingDirectory: ./src
+    displayName: yarn publish:qiniu
