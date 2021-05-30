@@ -16,7 +16,7 @@
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir src",
-    "postinstall": "shx cp .erb/scripts/recast_parsers_babel.rep node_modules/recast/parsers/babel.js && shx cp .erb/scripts/selector_generator.rep node_modules/selector-generator/selector-generator.js",
+    "postinstall": "shx cp .erb/scripts/recast_fix.js node_modules/recast/parsers/babel.js && shx cp .erb/scripts/selector_fix.js node_modules/selector-generator/selector-generator.js",
     "postinstall_dll": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "prepare": "husky install"
@@ -261,6 +261,7 @@
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
     "@shopify/draggable": "^1.0.0-beta.12",
+    "@tailwindcss/forms": "^0.3.2",
     "classnames": "^2.2.6",
     "dayjs": "^1.10.5",
     "draggabilly": "^2.3.0",

@@ -2481,6 +2481,13 @@
   dependencies:
     defer-to-connect "^2.0.0"
 
+"@tailwindcss/forms@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.nlark.com/@tailwindcss/forms/download/@tailwindcss/forms-0.3.2.tgz#e28c4514a53e69f725416a5a2a6d0f221683f069"
+  integrity sha1-4oxFFKU+afclQWpaKm0PIhaD8Gk=
+  dependencies:
+    mini-svg-data-uri "^1.2.3"
+
 "@teamsupercell/typings-for-css-modules-loader@^2.4.0":
   version "2.5.1"
   resolved "https://registry.npm.taobao.org/@teamsupercell/typings-for-css-modules-loader/download/@teamsupercell/typings-for-css-modules-loader-2.5.1.tgz#9a8c5f9667de5edbc18a5e5d4c1a5c38a09ca004"
@@ -9333,6 +9340,11 @@ mini-css-extract-plugin@^1.3.9:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
     webpack-sources "^1.1.0"
+
+mini-svg-data-uri@^1.2.3:
+  version "1.3.3"
+  resolved "https://registry.nlark.com/mini-svg-data-uri/download/mini-svg-data-uri-1.3.3.tgz#91d2c09f45e056e5e1043340b8b37ba7b50f4fac"
+  integrity sha1-kdLAn0XgVuXhBDNAuLN7p7UPT6w=
 
 minimalistic-assert@^1.0.0:
   version "1.0.1"

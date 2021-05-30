@@ -6,6 +6,7 @@ let ISMAXIMIZED = false
 
 contextBridge.exposeInMainWorld('env', {
   isMac: process.platform === 'darwin',
+  // isMac: true,
   isDev: process.env.NODE_ENV === 'development',
   port: process.env.PORT || 1212,
   isMaximized: () => ISMAXIMIZED,
