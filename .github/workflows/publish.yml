@@ -28,7 +28,7 @@ jobs:
 
       - name: Build releases
         run: |
-          yarn package --${{ matrix.os == 'macos-latest' ? 'mac' : 'win' }}
+          yarn package --${{ matrix.os == 'macos-latest' && 'mac' || 'win' }}
       - name: Publish qiniu
         run: yarn run publish:qiniu
         working-directory: ./src
