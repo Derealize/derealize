@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, win2016]
+        os: [macos-latest, windows-2016]
 
     steps:
       - name: Checkout git repo
