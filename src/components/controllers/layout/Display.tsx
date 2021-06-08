@@ -14,7 +14,15 @@ const Display: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="display" values={DisplayValues} property={property} onMouseEnter={false} />
+  return (
+    <SelectController
+      placeholder="display"
+      values={DisplayValues}
+      property={property}
+      onMouseEnter={false}
+      ignorePrefix={false}
+    />
+  )
 }
 
 export default Display
