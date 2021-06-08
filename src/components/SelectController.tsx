@@ -51,6 +51,7 @@ type Props = {
   placeholder: string
   values: ReadonlyArray<string | OptionType | GroupType>
   property: Property | undefined
+  ignorePrefix?: boolean
   isDisabled?: boolean
   colors?: Colors
   colorsTheme?: string
@@ -62,6 +63,7 @@ const SelectController: React.FC<Props> = ({
   placeholder,
   values,
   property,
+  ignorePrefix,
   isDisabled,
   colors,
   colorsTheme,
@@ -87,6 +89,22 @@ const SelectController: React.FC<Props> = ({
     const result = element?.propertys?.filter((p) => !clean.includes(p.id))
     return clone(result)
   }, [cleanPropertys, element?.propertys])
+
+  const options = useMemo(() => {
+    if (typeof values[0] === 'string') {
+      return (values as ReadonlyArray<string>).map((v) => {
+        let label = v
+        if (ignorePrefix) {
+          label = v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-')
+        }
+        return {
+          value: v,
+          label,
+        }
+      })
+    }
+    return values as ReadonlyArray<OptionType | GroupType>
+  }, [ignorePrefix, values])
 
   const onOptionEnter = useCallback(
     async (value: string) => {
@@ -149,14 +167,7 @@ const SelectController: React.FC<Props> = ({
       isClearable
       // menuIsOpen
       isDisabled={isDisabled}
-      options={
-        typeof values[0] === 'string'
-          ? (values as ReadonlyArray<string>).map((v) => ({
-              value: v,
-              label: v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-'),
-            }))
-          : (values as ReadonlyArray<OptionType | GroupType>)
-      }
+      options={options}
       value={property ? { value: property.classname, label: property.classname } : null}
       formatGroupLabel={formatGroupLabel}
       onFocus={() => {
@@ -248,6 +259,7 @@ const SelectController: React.FC<Props> = ({
 }
 
 SelectController.defaultProps = {
+  ignorePrefix: true,
   isDisabled: false,
   colors: undefined,
   colorsTheme: '',
