@@ -8,7 +8,6 @@ import type { ProjectIdParam, ImportPayload } from '../interface'
 import {
   ElementPayload,
   InsertElementPayload,
-  ReplaceElementPayload,
   JitTiggerPayload,
   ThemeSetImagePayload,
   ThemeRemoveImagePayload,
@@ -117,16 +116,6 @@ export const DeleteElement = async (payload: ElementPayload) => {
 
   await Delete(project.path, payload)
   npmStart(project.path, project.config.formatScript)
-}
-
-export const ReplaceElement = async (payload: ReplaceElementPayload) => {
-  const project = getProject(payload.projectId)
-  Replace(project.path, payload)
-}
-
-export const TextElement = async (payload: ElementPayload) => {
-  const project = getProject(payload.projectId)
-  Text(project.path, payload)
 }
 
 export const JitTigger = async ({ projectId, className }: JitTiggerPayload) => {

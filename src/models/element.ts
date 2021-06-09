@@ -5,7 +5,7 @@ import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
-import { ElementPayload, ElementActualStatus, MainIpcChannel } from '../interface'
+import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -57,6 +57,8 @@ export interface ElementModel {
   droppedActiveElement: Action<ElementModel, ElementPayload>
   pushActiveElementProperty: Action<ElementModel, { projectId: string; property: Property }>
   setActiveElementPropertyClassName: Action<ElementModel, { projectId: string; propertyId: string; classname: string }>
+  setActiveElementText: Action<ElementModel, { projectId: string; text: string }>
+  setActiveElementTag: Action<ElementModel, { projectId: string; tag: ElementTag }>
   deleteActiveElementProperty: Action<ElementModel, { projectId: string; propertyId: string }>
 
   listen: Thunk<ElementModel, void, void, StoreModel>
@@ -216,6 +218,18 @@ const elementModel: ElementModel = {
     if (property) {
       property.classname = classname
     }
+  }),
+  setActiveElementText: action((state, { projectId, text }) => {
+    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
+    if (!element) return
+    element.pending = true
+    element.text = text
+  }),
+  setActiveElementTag: action((state, { projectId, tag }) => {
+    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
+    if (!element) return
+    element.pending = true
+    element.replaceTag = tag
   }),
   deleteActiveElementProperty: action((state, { projectId, propertyId }) => {
     const element = state.elements.find((el) => el.projectId === projectId && el.selected)

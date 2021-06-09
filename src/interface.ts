@@ -8,12 +8,20 @@ export interface ImportPayload extends ProjectIdParam {
   branch: string
 }
 
+export enum ElementTag {
+  div = 'div',
+  span = 'span',
+  a = 'a',
+  button = 'button',
+  input = 'input',
+}
 export interface ElementPayload extends ProjectIdParam {
   codePosition: string
   className: string
   selector: string
   text?: string
   dropzoneCodePosition?: string
+  replaceTag: ElementTag
 }
 
 export interface ElementActualStatus extends ProjectIdParam {
@@ -34,21 +42,9 @@ export enum InsertMode {
   // Prepend = 'Prepend',
 }
 
-export enum ElementTagType {
-  div = 'div',
-  span = 'span',
-  a = 'a',
-  button = 'button',
-  input = 'input',
-}
-
 export interface InsertElementPayload extends ElementPayload {
-  insertTagType: ElementTagType
+  insertTag: ElementTag
   insertMode?: InsertMode
-}
-
-export interface ReplaceElementPayload extends ElementPayload {
-  replaceTagType: ElementTagType
 }
 
 export interface BreadcrumbPayload extends ProjectIdParam {
