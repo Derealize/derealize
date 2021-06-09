@@ -1,19 +1,15 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { HStack, VStack, Select, Button } from '@chakra-ui/react'
-import { ElementTagType, ReplaceElementPayload } from '../../interface'
-import { Handler } from '../../backend/backend.interface'
+import { ElementTag } from '../../interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
-import type { PreloadWindow } from '../../preload'
 import { ElementState } from '../../models/element'
-
-declare const window: PreloadWindow
-const { sendBackIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const setActiveElementTag = useStoreActions((actions) => actions.element.setActiveElementTag)
 
   const elementType = useMemo(
-    () => (element?.actualStatus?.tagName.toLowerCase() || ElementTagType.div) as ElementTagType,
+    () => (element?.actualStatus?.tagName.toLowerCase() || ElementTag.div) as ElementTag,
     [element],
   )
 
@@ -25,9 +21,8 @@ const ElementEdit: React.FC = (): JSX.Element => {
 
   const handleReplace = useCallback(() => {
     if (!element) return
-    const payload: ReplaceElementPayload = { ...element, replaceTagType: selElementType }
-    sendBackIpc(Handler.ReplaceElement, payload as any)
-  }, [element, selElementType])
+    setActiveElementTag({ projectId: element.projectId, tag: selElementType })
+  }, [element, selElementType, setActiveElementTag])
 
   // const handleDelete = useCallback(() => {
   //   if (!element) return
@@ -42,9 +37,9 @@ const ElementEdit: React.FC = (): JSX.Element => {
         <Select
           placeholder="Element Type"
           value={selElementType}
-          onChange={(e) => setSelElementType(e.target.value as ElementTagType)}
+          onChange={(e) => setSelElementType(e.target.value as ElementTag)}
         >
-          {Object.keys(ElementTagType).map((value) => (
+          {Object.keys(ElementTag).map((value) => (
             <option key={value} value={value}>
               {value}
             </option>

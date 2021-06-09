@@ -13,8 +13,6 @@ export enum Handler {
   ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
-  ReplaceElement = 'ReplaceElement',
-  TextElement = 'TextElement',
   JitTigger = 'JitTigger',
   ThemeSetImage = 'ThemeSetImage',
   ThemeRemoveImage = 'ThemeRemoveImage',

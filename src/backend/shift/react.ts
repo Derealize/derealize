@@ -5,13 +5,7 @@ import { types, parse, print, visit } from 'recast'
 import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
-import {
-  ElementPayload,
-  InsertMode,
-  InsertElementPayload,
-  ElementTagType,
-  ReplaceElementPayload,
-} from '../../interface'
+import { ElementPayload, InsertMode, InsertElementPayload, ElementTag } from '../../interface'
 import log from '../log'
 
 const { builders, namedTypes } = types
@@ -25,7 +19,7 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
     parser,
   })
 
-  payloads.forEach(({ codePosition, className, dropzoneCodePosition }) => {
+  payloads.forEach(({ codePosition, className, text, dropzoneCodePosition, replaceTag }) => {
     const position = codePosition.split(':')
     const targetLine = parseInt(position[1], 10)
     const targetColumn = parseInt(position[2], 10)
@@ -36,12 +30,20 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
 
         if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
           const onode = node.openingElement
+
+          if (replaceTag) {
+            const jsxId = builders.jsxIdentifier(replaceTag)
+            node.name = jsxId
+            node.openingElement.name = jsxId
+            if (node.closingElement) {
+              node.closingElement.name = jsxId
+            }
+          }
+
           if (!onode.attributes) {
             onode.attributes = []
           }
-
           const attr = onode.attributes.find((n) => namedTypes.JSXAttribute.check(n) && n.name.name === 'className')
-
           if (!attr) {
             if (className) {
               onode.attributes.push(
@@ -61,6 +63,14 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
             } else if (!attr.value) {
               attr.value = builders.stringLiteral(className)
             }
+          }
+
+          if (text !== undefined) {
+            if (node.openingElement.selfClosing) {
+              node.closingElement = builders.jsxClosingElement(node.openingElement.name)
+              node.openingElement.selfClosing = false
+            }
+            node.children = [builders.jsxText(text)]
           }
 
           return false
@@ -130,10 +140,7 @@ const parseCodePosition = async (
   return { ast, targetLine, targetColumn, filePath }
 }
 
-export const Insert = async (
-  projectPath: string,
-  { codePosition, insertTagType, insertMode }: InsertElementPayload,
-) => {
+export const Insert = async (projectPath: string, { codePosition, insertTag, insertMode }: InsertElementPayload) => {
   const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
 
   visit(ast, {
@@ -141,20 +148,20 @@ export const Insert = async (
       const { node } = astPath
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(insertTagType)
+        const jsxId = builders.jsxIdentifier(insertTag)
         const close = builders.jsxClosingElement(jsxId)
 
         const open = builders.jsxOpeningElement(jsxId)
         let className = 'bg-green-100'
-        switch (insertTagType) {
-          case ElementTagType.div:
+        switch (insertTag) {
+          case ElementTag.div:
             className = 'bg-green-100 my-2 py-2'
             break
-          case ElementTagType.span:
-          case ElementTagType.a:
+          case ElementTag.span:
+          case ElementTag.a:
             className = 'bg-green-100 mx-2 px-2'
             break
-          case ElementTagType.button:
+          case ElementTag.button:
             className = 'bg-green-100 m-2 p-2'
             break
           default:
@@ -205,32 +212,6 @@ export const Delete = async (projectPath: string, { codePosition }: ElementPaylo
 
       if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
         astPath.prune()
-        return false
-      }
-
-      this.traverse(astPath)
-      return undefined
-    },
-  })
-
-  const output = print(ast)
-  fs.writeFile(filePath, output.code.replace(/\r\n/g, '\n'), { encoding: 'utf8' })
-}
-
-export const Replace = async (projectPath: string, { codePosition, replaceTagType }: ReplaceElementPayload) => {
-  const { ast, targetLine, targetColumn, filePath } = await parseCodePosition(projectPath, codePosition)
-
-  visit(ast, {
-    visitJSXElement(astPath: NodePath<TnamedTypes.JSXElement>) {
-      const { node } = astPath
-
-      if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
-        const jsxId = builders.jsxIdentifier(replaceTagType)
-        node.name = jsxId
-        node.openingElement.name = jsxId
-        if (node.closingElement) {
-          node.closingElement.name = jsxId
-        }
         return false
       }
 
