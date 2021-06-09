@@ -1,31 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { HStack, VStack, Textarea, Button, useToast } from '@chakra-ui/react'
-import { Handler } from '../../../backend/backend.interface'
+import { VStack, Textarea, Button } from '@chakra-ui/react'
 import type { ElementState } from '../../../models/element'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
-import type { PreloadWindow } from '../../../preload'
-
-declare const window: PreloadWindow
-const { sendBackIpc } = window.derealize
 
 const Text: React.FC = (): JSX.Element => {
-  const toast = useToast()
-
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const setActiveElementText = useStoreActions((actions) => actions.element.setActiveElementText)
 
   const [text, setText] = useState<string | undefined>(element?.text)
 
   const handleInsert = useCallback(() => {
-    if (!element) {
-      toast({
-        title: 'Element is not selected',
-        status: 'error',
-      })
-      return
-    }
-
-    sendBackIpc(Handler.TextElement, { ...element, text } as any)
-  }, [element, text, toast])
+    if (!element || text === undefined) return
+    setActiveElementText({ projectId: element.projectId, text })
+  }, [element, setActiveElementText, text])
 
   useEffect(() => {
     setText(element?.text)

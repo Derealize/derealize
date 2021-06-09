@@ -4,7 +4,7 @@ import { HStack, VStack, Select, Button, IconButton, Tooltip, useToast } from '@
 import { CgInsertAfterR, CgInsertBeforeR } from 'react-icons/cg'
 import { BiAddToQueue } from 'react-icons/bi'
 import type { ElementState } from '../../models/element'
-import { InsertMode, ElementTagType, InsertElementPayload } from '../../interface'
+import { InsertMode, ElementTag, InsertElementPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import type { PreloadWindow } from '../../preload'
@@ -17,7 +17,7 @@ const Insert: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
 
   const [selInsertMode, setSelInsertMode] = useState(InsertMode.After)
-  const [selTagType, setSelTagType] = useState(ElementTagType.div)
+  const [selTagType, setSelTagType] = useState(ElementTag.div)
 
   const handleInsert = useCallback(() => {
     if (!element) {
@@ -31,7 +31,7 @@ const Insert: React.FC = (): JSX.Element => {
     const payload: InsertElementPayload = {
       ...element,
       insertMode: selInsertMode,
-      insertTagType: selTagType,
+      insertTag: selTagType,
     }
     sendBackIpc(Handler.InsertElement, payload as any)
   }, [element, selInsertMode, selTagType, toast])
@@ -76,9 +76,9 @@ const Insert: React.FC = (): JSX.Element => {
       <Select
         placeholder="Element Type"
         value={selTagType}
-        onChange={(e) => setSelTagType(e.target.value as ElementTagType)}
+        onChange={(e) => setSelTagType(e.target.value as ElementTag)}
       >
-        {Object.keys(ElementTagType).map((value) => (
+        {Object.keys(ElementTag).map((value) => (
           <option key={value} value={value}>
             {value}
           </option>
