@@ -77,9 +77,7 @@ const SelectController: React.FC<Props> = ({
 
   const jitClassNames = useStoreActions((actions) => actions.controlles.jitClassNames)
   const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
-  const setActiveElementPropertyClassName = useStoreActions(
-    (actions) => actions.element.setActiveElementPropertyClassName,
-  )
+  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyClassName)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
@@ -193,7 +191,7 @@ const SelectController: React.FC<Props> = ({
         } else if (action === 'select-option') {
           const classname = (ovalue as OptionType).value
           if (property) {
-            setActiveElementPropertyClassName({ projectId: project.id, propertyId: property.id, classname })
+            setProperty({ projectId: project.id, propertyId: property.id, classname })
           } else {
             pushNewProperty(classname)
           }
