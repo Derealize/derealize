@@ -11,6 +11,7 @@ import {
   AccordionPanel,
   AccordionIcon,
 } from '@chakra-ui/react'
+import type { Project } from '../../../models/project.interface'
 import type { AlreadyVariants, Property } from '../../../models/controlles/controlles'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import ControllersContext from '../ControllersContext'
@@ -60,6 +61,7 @@ import theme from '../../../theme'
 
 const LayoutSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
+  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.layout.alreadyVariants)
 
@@ -67,8 +69,11 @@ const LayoutSection: React.FC = (): JSX.Element => {
   const displayProperty = useComputeProperty(displayPropertys)
 
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
-  const setProperty = useStoreActions((actions) => actions.controlles.setProperty)
-  const deleteProperty = useStoreActions((actions) => actions.project.deleteActiveElementProperty)
+  const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
+  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyClassName)
+
+  if (!project) return <></>
 
   return (
     <>
@@ -96,12 +101,12 @@ const LayoutSection: React.FC = (): JSX.Element => {
                 onChange={(check) => {
                   if (check) {
                     if (displayProperty) {
-                      setProperty({ propertyId: displayProperty.id, classname: 'flex' })
+                      setProperty({ projectId: project.id, propertyId: displayProperty.id, classname: 'flex' })
                     } else {
-                      setProperty({ propertyId: nanoid(), classname: 'flex' })
+                      pushNewProperty('flex')
                     }
                   } else if (displayProperty) {
-                    deleteProperty(displayProperty.id)
+                    deleteProperty({ projectId: project.id, propertyId: displayProperty.id })
                   }
                   liveApplyClassName()
                 }}
@@ -148,14 +153,15 @@ const LayoutSection: React.FC = (): JSX.Element => {
               <Switch
                 checked={displayProperty?.classname === 'grid'}
                 onChange={(check) => {
+                  if (!project) return
                   if (check) {
                     if (displayProperty) {
-                      setProperty({ propertyId: displayProperty.id, classname: 'grid' })
+                      setProperty({ projectId: project.id, propertyId: displayProperty.id, classname: 'grid' })
                     } else {
-                      setProperty({ propertyId: nanoid(), classname: 'grid' })
+                      pushNewProperty('grid')
                     }
                   } else if (displayProperty) {
-                    deleteProperty(displayProperty.id)
+                    deleteProperty({ projectId: project.id, propertyId: displayProperty.id })
                   }
                   liveApplyClassName()
                 }}

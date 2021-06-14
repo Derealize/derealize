@@ -38,6 +38,7 @@ const Container: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   // if (!useMatchVariants('container')) return <></>
+  if (!project) return <></>
   if (already && !property) return <></>
   if (!Tags.includes(element?.actualStatus?.tagName || '')) return <></>
 
@@ -46,7 +47,6 @@ const Container: React.FC = (): JSX.Element => {
       colorScheme="teal"
       checked={!!property}
       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-        if (!project) return
         if (e.target.checked && !property) {
           pushNewProperty(ContainerValue)
         } else if (!e.target.checked && property) {
