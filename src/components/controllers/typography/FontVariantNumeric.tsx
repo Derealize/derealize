@@ -14,7 +14,14 @@ const FontVariantNumeric: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="font-variant-numeric" values={FontVariantNumericValues} property={property} />
+  return (
+    <SelectController
+      placeholder="font-variant-numeric"
+      values={FontVariantNumericValues}
+      ignorePrefix={false}
+      property={property}
+    />
+  )
 }
 
 export default FontVariantNumeric

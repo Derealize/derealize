@@ -14,7 +14,14 @@ const TextTransform: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="text-transform" values={TextTransformValues} property={property} />
+  return (
+    <SelectController
+      placeholder="text-transform"
+      values={TextTransformValues}
+      ignorePrefix={false}
+      property={property}
+    />
+  )
 }
 
 export default TextTransform

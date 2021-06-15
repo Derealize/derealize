@@ -46,7 +46,7 @@ const Transform: React.FC = (): JSX.Element => {
 
   return (
     <>
-      <SelectController placeholder="transform" values={TransformValues} property={property} />
+      <SelectController placeholder="transform" values={TransformValues} ignorePrefix={false} property={property} />
       {element?.actualStatus?.className.includes('transform') && (
         <>
           <SelectController placeholder="origin" values={originValues} property={originProperty} />

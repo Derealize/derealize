@@ -14,7 +14,14 @@ const TextDecoration: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="text-decoration" values={TextDecorationValues} property={property} />
+  return (
+    <SelectController
+      placeholder="text-decoration"
+      values={TextDecorationValues}
+      ignorePrefix={false}
+      property={property}
+    />
+  )
 }
 
 export default TextDecoration

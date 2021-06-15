@@ -13,7 +13,7 @@ import {
   ThemeRemoveImagePayload,
   ThemeColorPayload,
 } from '../interface'
-import { Apply, Insert, Delete, Replace, Text } from './shift/react'
+import { Apply, Insert, Delete } from './shift/react'
 import { SetImage, RemoveImage } from './shift/image'
 import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'

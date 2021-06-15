@@ -16,7 +16,13 @@ const Visibility: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
 
   return (
-    <SelectController placeholder="visibility" values={VisibilityValues} property={property} onMouseEnter={false} />
+    <SelectController
+      placeholder="visibility"
+      values={VisibilityValues}
+      ignorePrefix={false}
+      property={property}
+      onMouseEnter={false}
+    />
   )
 }
 
