@@ -15,7 +15,15 @@ const Position: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="position" values={PositionValues} property={property} onMouseEnter={false} />
+  return (
+    <SelectController
+      placeholder="position"
+      values={PositionValues}
+      ignorePrefix={false}
+      property={property}
+      onMouseEnter={false}
+    />
+  )
 }
 
 export default Position

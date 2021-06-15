@@ -14,7 +14,7 @@ const FontStyle: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="font-style" values={FontStyleValues} property={property} />
+  return <SelectController placeholder="font-style" values={FontStyleValues} ignorePrefix={false} property={property} />
 }
 
 export default FontStyle
