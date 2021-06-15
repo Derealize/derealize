@@ -441,11 +441,11 @@ ipcMain.on(MainIpcChannel.Flush, (event, projectId: string) => {
   }
 })
 
-ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, payload: ElementPayload) => {
+ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, projectId, className, needRespStatus) => {
   if (!mainWindow) return
-  const project = projects.get(payload.projectId)
+  const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.send(MainIpcChannel.LiveUpdateClass, payload)
+    project.view.webContents.send(MainIpcChannel.LiveUpdateClass, className, needRespStatus)
   }
 })
 

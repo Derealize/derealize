@@ -21,7 +21,7 @@ export interface ElementPayload extends ProjectIdParam {
   selector: string
   text?: string
   dropzoneCodePosition?: string
-  replaceTag: ElementTag
+  replaceTag?: ElementTag
 }
 
 export interface ElementActualStatus extends ProjectIdParam {

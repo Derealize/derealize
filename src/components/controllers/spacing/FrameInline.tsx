@@ -5,31 +5,11 @@ import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
+import { Target } from './Frame'
 import style from './Frame.module.scss'
-
-enum Target {
-  m,
-  my,
-  mx,
-  mt,
-  mb,
-  ml,
-  mr,
-  p,
-  py,
-  px,
-  pt,
-  pb,
-  pl,
-  pr,
-}
 
 const FrameInline: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-
-  const mValues = useStoreState<Array<string>>((state) => state.spacing.marginValues)
-  const mPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginPropertys)
-  const mProperty = useComputeProperty(mPropertys)
 
   const mxValues = useStoreState<Array<string>>((state) => state.spacing.marginXValues)
   const mxPropertys = useStoreState<Array<Property>>((state) => state.spacing.marginXPropertys)
@@ -76,8 +56,6 @@ const FrameInline: React.FC = (): JSX.Element => {
   const [target, setTarget] = useState<Target | undefined>()
   const selProperty = useMemo<Property | undefined>(() => {
     switch (target) {
-      case Target.m:
-        return mProperty
       case Target.mx:
         return mxProperty
       case Target.ml:
@@ -102,7 +80,6 @@ const FrameInline: React.FC = (): JSX.Element => {
         return undefined
     }
   }, [
-    mProperty,
     mlProperty,
     mrProperty,
     mxProperty,
@@ -156,7 +133,6 @@ const FrameInline: React.FC = (): JSX.Element => {
     target,
   ])
 
-  const [mHover, setMHover] = useState(false)
   const [mxHover, setMxHover] = useState(false)
   const [mlHover, setMlHover] = useState(false)
   const [mrHover, setMrHover] = useState(false)
@@ -170,7 +146,6 @@ const FrameInline: React.FC = (): JSX.Element => {
 
   if (
     already &&
-    !mProperty &&
     !mlProperty &&
     !mrProperty &&
     !mxProperty &&
@@ -186,7 +161,7 @@ const FrameInline: React.FC = (): JSX.Element => {
 
   return (
     <div className={style.component}>
-      <div className={style.frame}>
+      <div className={cs(style.frame, style.inline)}>
         <div
           className={cs(style.ml_row_span3, {
             [style.active]: target === Target.m || target === Target.mx || target === Target.ml,
@@ -201,9 +176,7 @@ const FrameInline: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMlHover(true)}
           onMouseLeave={() => setMlHover(false)}
         >
-          <span className={cs(style.ml_value)}>
-            {mlProperty?.classname || mxProperty?.classname || mProperty?.classname}
-          </span>
+          <span className={cs(style.ml_value)}>{mlProperty?.classname || mxProperty?.classname}</span>
           <div
             className={cs(style.stick, { [style.hover]: mxHover })}
             role="button"
@@ -285,9 +258,7 @@ const FrameInline: React.FC = (): JSX.Element => {
           onMouseEnter={() => setMrHover(true)}
           onMouseLeave={() => setMrHover(false)}
         >
-          <span className={cs(style.mr_value)}>
-            {mrProperty?.classname || mxProperty?.classname || mProperty?.classname}
-          </span>
+          <span className={cs(style.mr_value)}>{mrProperty?.classname || mxProperty?.classname}</span>
           <div
             className={cs(style.stick, { [style.hover]: mxHover })}
             role="button"

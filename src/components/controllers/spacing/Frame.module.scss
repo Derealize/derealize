@@ -9,6 +9,11 @@
   height: 212px;
   grid-template-columns: 1fr 1fr 3fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 3fr 1fr 1fr;
+  &.inline {
+    height: 151px;
+    grid-template-columns: 1fr 1fr 3fr 1fr 1fr;
+    grid-template-rows: 1fr 3fr 1fr;
+  }
 
   .mt_column_span3,
   .ml_row_span3,
