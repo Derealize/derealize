@@ -19,7 +19,12 @@ const TextOverflow: React.FC = (): JSX.Element => {
 
   return (
     <>
-      <SelectController placeholder="text-overflow" values={TextOverflowValues} property={property} />
+      <SelectController
+        placeholder="text-overflow"
+        values={TextOverflowValues}
+        ignorePrefix={false}
+        property={property}
+      />
       <SelectController placeholder="whitespace" values={WhitespaceValues} property={whitespaceProperty} />
     </>
   )

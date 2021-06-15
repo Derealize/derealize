@@ -14,7 +14,14 @@ const FontSmoothing: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="font-smoothing" values={FontSmoothingValues} property={property} />
+  return (
+    <SelectController
+      placeholder="font-smoothing"
+      values={FontSmoothingValues}
+      ignorePrefix={false}
+      property={property}
+    />
+  )
 }
 
 export default FontSmoothing

@@ -1,4 +1,9 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile } from 'nodegit'
+import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile, ProxyOptions } from 'nodegit'
+import type { CommitLog } from './backend.interface'
+
+const proxyOpts = {}
+// const proxyOpts = new ProxyOptions()
+// proxyOpts.url = 'socks5://127.0.0.1:10808'
 
 export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
@@ -17,7 +22,12 @@ export const gitOpen = async (path: string): Promise<Repository> => {
 }
 
 export const gitClone = async (url: string, path: string, branch: string): Promise<Repository> => {
-  const repo = await Clone.clone(url, path, { checkoutBranch: branch })
+  const repo = await Clone.clone(url, path, {
+    checkoutBranch: branch,
+    fetchOpts: {
+      proxyOpts,
+    },
+  })
   return repo
 }
 
@@ -35,6 +45,7 @@ export const gitCommit = async (repo: Repository, msg: string) => {
 
 export const gitPull = async (repo: Repository) => {
   await repo.fetch('origin', {
+    proxyOpts,
     callbacks: {
       credentials(_url: any, userName: string) {
         return Cred.sshKeyFromAgent(userName)
@@ -50,6 +61,7 @@ export const gitPush = async (repo: Repository) => {
   // https://github.com/nodegit/nodegit/blob/master/examples/push.js
   const remote = await repo.getRemote('derealize')
   const pushId = await remote.push(['refs/heads/derealize:refs/heads/derealize'], {
+    proxyOpts,
     callbacks: {
       credentials(_url: any, userName: string) {
         return Cred.sshKeyFromAgent(userName)
@@ -59,7 +71,7 @@ export const gitPush = async (repo: Repository) => {
 }
 
 // recommend engineers use 'rebase' instead 'merge' when merging code into the derealize branch
-export const gitHistory = (repo: Repository): Promise<Array<CommitHistory>> => {
+export const gitHistory = (repo: Repository): Promise<Array<CommitLog>> => {
   // https://github.com/nodegit/nodegit/blob/master/examples/walk-history.js
   return new Promise((resolve, reject) => {
     repo
