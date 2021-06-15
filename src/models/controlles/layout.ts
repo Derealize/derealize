@@ -67,7 +67,7 @@ export const AlignContentValues = [
 ]
 export const AlignSelfValues = ['self-auto', 'self-start', 'self-end', 'self-center', 'self-stretch']
 
-export const GridFlowValues = ['grid-flow-row', 'grid-flow-col', 'grid-flow-row-dense', 'grid-flow-col-dense']
+export const GridAutoFlowValues = ['grid-flow-row', 'grid-flow-col', 'grid-flow-row-dense', 'grid-flow-col-dense']
 
 export const BoxSizingValues = ['box-border', 'box-content']
 
@@ -147,11 +147,11 @@ export interface LayoutModel {
   // #endregion
 
   // #region grid
-  gridColsValues: Computed<LayoutModel, Array<string>, StoreModel>
-  gridColsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  templateColsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  templateColsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  gridRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
-  gridRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  templateRowsValues: Computed<LayoutModel, Array<string>, StoreModel>
+  templateRowsPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   colSpanValues: Computed<LayoutModel, Array<string>, StoreModel>
   colSpanPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -171,7 +171,7 @@ export interface LayoutModel {
   rowEndValues: Computed<LayoutModel, Array<string>, StoreModel>
   rowEndPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
-  gridFlowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
+  autoFlowPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
 
   gapValues: Computed<LayoutModel, Array<string>, StoreModel>
   gapPropertys: Computed<LayoutModel, Array<Property>, StoreModel>
@@ -299,21 +299,21 @@ const layoutModel: LayoutModel = {
   // #endregion
 
   // #region grid
-  gridColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  templateColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.gridTemplateColumns).map((v) => `grid-cols-${v}`)
   }),
-  gridColsPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.gridColsValues],
+  templateColsPropertys: computed(
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.templateColsValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  gridRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
+  templateRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
     if (!project?.tailwindConfig) return []
     return Object.keys(project.tailwindConfig.theme.gridTemplateRows).map((v) => `grid-rows-${v}`)
   }),
-  gridRowsPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.gridColsValues],
+  templateRowsPropertys: computed(
+    [(state, storeState) => storeState.element.activePropertys, (state) => state.templateRowsValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -371,8 +371,8 @@ const layoutModel: LayoutModel = {
     (propertys, vlaues) => propertys.filter(({ classname }) => vlaues.includes(classname)),
   ),
 
-  gridFlowPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
-    propertys.filter(({ classname }) => GridFlowValues.includes(classname)),
+  autoFlowPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+    propertys.filter(({ classname }) => GridAutoFlowValues.includes(classname)),
   ),
 
   gapValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -468,15 +468,15 @@ const layoutModel: LayoutModel = {
       (state: State<LayoutModel>) => state.alignContentPropertys,
       (state: State<LayoutModel>) => state.alignSelfPropertys,
 
-      (state: State<LayoutModel>) => state.gridColsPropertys,
-      (state: State<LayoutModel>) => state.gridRowsPropertys,
+      (state: State<LayoutModel>) => state.templateColsPropertys,
+      (state: State<LayoutModel>) => state.templateRowsPropertys,
       (state: State<LayoutModel>) => state.colSpanPropertys,
       (state: State<LayoutModel>) => state.colStartPropertys,
       (state: State<LayoutModel>) => state.colEndPropertys,
       (state: State<LayoutModel>) => state.rowSpanPropertys,
       (state: State<LayoutModel>) => state.rowStartPropertys,
       (state: State<LayoutModel>) => state.rowEndPropertys,
-      (state: State<LayoutModel>) => state.gridFlowPropertys,
+      (state: State<LayoutModel>) => state.autoFlowPropertys,
       (state: State<LayoutModel>) => state.gapPropertys,
       (state: State<LayoutModel>) => state.autoColsPropertys,
       (state: State<LayoutModel>) => state.autoRowsPropertys,

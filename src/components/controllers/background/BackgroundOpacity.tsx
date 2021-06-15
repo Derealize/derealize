@@ -14,7 +14,7 @@ const BackgroundOpacity: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-opacity" values={values} property={property} />
+  return <SelectController placeholder="background-opacity" values={values} property={property} />
 }
 
 export default BackgroundOpacity

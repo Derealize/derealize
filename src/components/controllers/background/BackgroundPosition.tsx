@@ -14,7 +14,7 @@ const BackgroundPosition: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-position" values={values} property={property} />
+  return <SelectController placeholder="background-position" values={values} property={property} />
 }
 
 export default BackgroundPosition

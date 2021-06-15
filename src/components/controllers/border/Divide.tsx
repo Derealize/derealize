@@ -35,8 +35,8 @@ const DivideX: React.FC = (): JSX.Element => {
   return (
     <>
       <div>
-        <SelectController placeholder="divide-y" values={valuesY} property={propertyY} />
-        <SelectController placeholder="divide-x" values={valuesX} property={propertyX} />
+        <SelectController placeholder="divide-y" values={valuesY} property={propertyY} doclink="divide-width" />
+        <SelectController placeholder="divide-x" values={valuesX} property={propertyX} doclink="divide-width" />
       </div>
       <div>
         <SelectController

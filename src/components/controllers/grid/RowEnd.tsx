@@ -17,7 +17,7 @@ const RowEnd: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.display.includes('grid')) return <></>
 
-  return <SelectController placeholder="row-end" values={values} property={property} />
+  return <SelectController placeholder="row-end" values={values} doclink="grid-row" property={property} />
 }
 
 export default RowEnd

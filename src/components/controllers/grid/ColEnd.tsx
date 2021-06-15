@@ -18,7 +18,7 @@ const ColEnd: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.parentDisplay?.includes('grid')) return <></>
 
-  return <SelectController placeholder="col-end" values={values} property={property} />
+  return <SelectController placeholder="col-end" values={values} doclink="grid-column" property={property} />
 }
 
 export default ColEnd

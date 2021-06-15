@@ -2,6 +2,7 @@ import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile, Prox
 import type { CommitLog } from './backend.interface'
 
 const proxyOpts = {}
+// https://github.com/nodegit/nodegit/blob/master/CHANGELOG.md#changes-or-improvements
 // const proxyOpts = new ProxyOptions()
 // proxyOpts.url = 'socks5://127.0.0.1:10808'
 

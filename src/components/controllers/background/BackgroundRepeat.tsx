@@ -14,7 +14,7 @@ const BackgroundRepeat: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-repeat" values={BackgroundRepeatValues} property={property} />
+  return <SelectController placeholder="background-repeat" values={BackgroundRepeatValues} property={property} />
 }
 
 export default BackgroundRepeat
