@@ -125,7 +125,7 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId, className } as any)
+    sendMainIpc(MainIpcChannel.LiveUpdateClass, projectId, className)
   }),
 
   liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
@@ -162,7 +162,7 @@ const controllesModel: ControllesModel = {
       className += `${variants + name} `
     })
 
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, { projectId: frontProject.id, className } as any)
+    sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, className, true)
   }),
   jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()

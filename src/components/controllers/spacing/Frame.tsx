@@ -7,7 +7,7 @@ import { useStoreActions, useStoreState } from '../../../reduxStore'
 import useComputeProperty from '../useComputeProperty'
 import style from './Frame.module.scss'
 
-enum Target {
+export enum Target {
   m,
   my,
   mx,
