@@ -46,11 +46,12 @@ const Rounded: React.FC = (): JSX.Element => {
   return (
     <Box>
       <Flex justifyContent="space-between">
-        <Box w="46%">
+        <Box w="52%">
           <SelectController
             placeholder={bind ? 'radius' : 'radius-tl'}
             values={bind ? roundedValues : roundedTopLeftValues}
             property={bind ? roundedProperty : roundedTopLeftProperty}
+            doclink="border-radius"
           />
         </Box>
         <Box w="46%">
@@ -58,6 +59,7 @@ const Rounded: React.FC = (): JSX.Element => {
             placeholder={bind ? 'radius' : 'radius-tr'}
             values={bind ? roundedValues : roundedTopRightValues}
             property={bind ? roundedProperty : roundedTopRightProperty}
+            doclink={false}
           />
         </Box>
       </Flex>
@@ -74,6 +76,7 @@ const Rounded: React.FC = (): JSX.Element => {
             placeholder={bind ? 'radius' : 'radius-bl'}
             values={bind ? roundedValues : roundedBottomLeftValues}
             property={bind ? roundedProperty : roundedBottomLeftProperty}
+            doclink={false}
           />
         </Box>
         <Box w="46%">
@@ -81,6 +84,7 @@ const Rounded: React.FC = (): JSX.Element => {
             placeholder={bind ? 'radius' : 'radius-br'}
             values={bind ? roundedValues : roundedBottomRightValues}
             property={bind ? roundedProperty : roundedBottomRightProperty}
+            doclink={false}
           />
         </Box>
       </Flex>

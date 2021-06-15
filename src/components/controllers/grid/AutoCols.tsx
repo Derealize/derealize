@@ -17,7 +17,7 @@ const AutoCols: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.display.includes('grid')) return <></>
 
-  return <SelectController placeholder="auto-cols" values={values} property={property} />
+  return <SelectController placeholder="auto-cols" values={values} doclink="grid-auto-columns" property={property} />
 }
 
 export default AutoCols

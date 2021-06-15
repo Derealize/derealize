@@ -1,7 +1,22 @@
 @import '../styles/variable';
 
-.select {
+.wapper {
   width: 100%;
+  display: flex;
+  align-items: center;
+  &:hover {
+    .doclink {
+      visibility: visible;
+    }
+  }
+}
+
+.doclink {
+  visibility: hidden;
+}
+
+.select {
+  flex-grow: 1;
 }
 
 .groupStyles {

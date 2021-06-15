@@ -14,7 +14,14 @@ const BackgroundBlend: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="background-blend" values={BackgroundBlendValues} property={property} />
+  return (
+    <SelectController
+      placeholder="background-blend"
+      doclink="background-blend-mode"
+      values={BackgroundBlendValues}
+      property={property}
+    />
+  )
 }
 
 export default BackgroundBlend

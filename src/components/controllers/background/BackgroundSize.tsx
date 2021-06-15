@@ -14,7 +14,7 @@ const BackgroundSize: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-size" values={values} property={property} />
+  return <SelectController placeholder="background-size" values={values} property={property} />
 }
 
 export default BackgroundSize

@@ -64,6 +64,7 @@ const Border: React.FC = (): JSX.Element => {
               placeholder={bind ? 'border' : 'border-t'}
               values={bind ? borderValues : borderTopValues}
               property={bind ? borderProperty : borderTopProperty}
+              doclink="border-width"
             />
           </Box>
         </Center>
@@ -73,6 +74,7 @@ const Border: React.FC = (): JSX.Element => {
               placeholder={bind ? 'border' : 'border-l'}
               values={bind ? borderValues : borderLeftValues}
               property={bind ? borderProperty : borderLeftProperty}
+              doclink={false}
             />
           </Box>
           <Center w="12%">
@@ -87,6 +89,7 @@ const Border: React.FC = (): JSX.Element => {
               placeholder={bind ? 'border' : 'border-r'}
               values={bind ? borderValues : borderRightValues}
               property={bind ? borderProperty : borderRightProperty}
+              doclink={false}
             />
           </Box>
         </HStack>
@@ -96,6 +99,7 @@ const Border: React.FC = (): JSX.Element => {
               placeholder={bind ? 'border' : 'border-b'}
               values={bind ? borderValues : borderBottomValues}
               property={bind ? borderProperty : borderBottomProperty}
+              doclink={false}
             />
           </Box>
         </Center>

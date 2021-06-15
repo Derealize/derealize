@@ -30,12 +30,27 @@ const Transition: React.FC = (): JSX.Element => {
 
   return (
     <>
-      <SelectController placeholder="transition" values={values} property={property} />
+      <SelectController placeholder="transition" values={values} doclink="transition-property" property={property} />
       {element?.actualStatus?.className.includes('transition') && (
         <>
-          <SelectController placeholder="duration" values={durationValues} property={durationProperty} />
-          <SelectController placeholder="timing-function" values={easeValues} property={easeProperty} />
-          <SelectController placeholder="delay" values={delayValues} property={delayProperty} />
+          <SelectController
+            placeholder="duration"
+            doclink="transition-duration"
+            values={durationValues}
+            property={durationProperty}
+          />
+          <SelectController
+            placeholder="timing-function"
+            doclink="transition-timing-function"
+            values={easeValues}
+            property={easeProperty}
+          />
+          <SelectController
+            placeholder="delay"
+            doclink="transition-delay"
+            values={delayValues}
+            property={delayProperty}
+          />
         </>
       )}
     </>

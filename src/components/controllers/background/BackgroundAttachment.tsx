@@ -14,7 +14,9 @@ const BackgroundAttachment: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-attachment" values={BackgroundAttachmentValues} property={property} />
+  return (
+    <SelectController placeholder="background-attachment" values={BackgroundAttachmentValues} property={property} />
+  )
 }
 
 export default BackgroundAttachment

@@ -20,6 +20,7 @@ import Select, {
 } from 'react-select'
 import { CSSObject } from '@emotion/serialize'
 import { AiOutlineControl, AiFillControl } from 'react-icons/ai'
+import { HiOutlineExternalLink } from 'react-icons/hi'
 import styles from './SelectController.module.scss'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project, Colors } from '../models/project.interface'
@@ -57,6 +58,7 @@ type Props = {
   colorsTheme?: string
   onMouseEnter?: boolean
   cleanPropertys?: Array<Property>
+  doclink?: string | boolean
 }
 
 const SelectController: React.FC<Props> = ({
@@ -69,6 +71,7 @@ const SelectController: React.FC<Props> = ({
   colorsTheme,
   onMouseEnter,
   cleanPropertys,
+  doclink,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
@@ -95,10 +98,7 @@ const SelectController: React.FC<Props> = ({
         if (ignorePrefix) {
           label = v.startsWith('-') ? `-${v.split('-').splice(2).join('-')}` : v.split('-').splice(1).join('-')
         }
-        return {
-          value: v,
-          label,
-        }
+        return { value: v, label }
       })
     }
     return values as ReadonlyArray<OptionType | GroupType>
@@ -155,104 +155,118 @@ const SelectController: React.FC<Props> = ({
   }
 
   return (
-    <Select
-      components={{
-        Option: onMouseEnter ? Option : components.Option,
-        Group: colors ? Group : components.Group,
-        Menu: colors ? Menu : components.Menu,
-      }}
-      placeholder={placeholder}
-      isClearable
-      // menuIsOpen
-      isDisabled={isDisabled}
-      options={options}
-      value={property ? { value: property.classname, label: property.classname } : null}
-      formatGroupLabel={formatGroupLabel}
-      onFocus={() => {
-        if (!project || !values.length) return
+    <div className={styles.wapper}>
+      <Select
+        components={{
+          Option: onMouseEnter ? Option : components.Option,
+          Group: colors ? Group : components.Group,
+          Menu: colors ? Menu : components.Menu,
+        }}
+        placeholder={placeholder}
+        isClearable
+        // menuIsOpen
+        isDisabled={isDisabled}
+        options={options}
+        value={property ? { value: property.classname, label: property.classname } : null}
+        formatGroupLabel={formatGroupLabel}
+        onFocus={() => {
+          if (!project || !values.length) return
 
-        const classNames: Array<string> =
-          typeof values[0] === 'string'
-            ? (values as ReadonlyArray<string>)
-            : (values as ReadonlyArray<OptionType | GroupType>)
-                .map((v) => v.options)
-                .reduce((pre, cur) => pre.concat(cur))
-                .map((o: OptionType) => o.value)
+          const classNames: Array<string> =
+            typeof values[0] === 'string'
+              ? (values as ReadonlyArray<string>)
+              : (values as ReadonlyArray<OptionType | GroupType>)
+                  .map((v) => v.options)
+                  .reduce((pre, cur) => pre.concat(cur))
+                  .map((o: OptionType) => o.value)
 
-        jitClassNames({ project, classNames })
-      }}
-      onBlur={() => {
-        liveApplyClassName()
-      }}
-      onChange={(ovalue, { action }) => {
-        if (!project) return
-        if (action === 'clear' && property) {
-          deleteProperty({ projectId: project.id, propertyId: property.id })
-        } else if (action === 'select-option') {
-          const classname = (ovalue as OptionType).value
-          if (property) {
-            setProperty({ projectId: project.id, propertyId: property.id, classname })
-          } else {
-            pushNewProperty(classname)
+          jitClassNames({ project, classNames })
+        }}
+        onBlur={() => {
+          liveApplyClassName()
+        }}
+        onChange={(ovalue, { action }) => {
+          if (!project) return
+          if (action === 'clear' && property) {
+            deleteProperty({ projectId: project.id, propertyId: property.id })
+          } else if (action === 'select-option') {
+            const classname = (ovalue as OptionType).value
+            if (property) {
+              setProperty({ projectId: project.id, propertyId: property.id, classname })
+            } else {
+              pushNewProperty(classname)
+            }
           }
-        }
-        cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
-        liveApplyClassName()
-      }}
-      className={styles.select}
-      styles={{
-        // https://react-select.com/styles#provided-styles-and-state
-        dropdownIndicator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
-          display: 'none',
-        }),
-        indicatorSeparator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
-          display: 'none',
-        }),
-        indicatorsContainer: (provided: CSSObject, state: IndicatorContainerProps<OptionType, boolean, GroupType>) => ({
-          ...provided,
-          width: 30,
-          height: 30,
-          justifyContent: 'center',
-        }),
-        control: (provided: CSSObject, state: ControlProps<OptionType, boolean, GroupType>) => {
-          // state.isFocused
-          return {
+          cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))
+          liveApplyClassName()
+        }}
+        className={styles.select}
+        styles={{
+          // https://react-select.com/styles#provided-styles-and-state
+          dropdownIndicator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
+            display: 'none',
+          }),
+          indicatorSeparator: (provided: CSSObject, state: IndicatorProps<OptionType, boolean, GroupType>) => ({
+            display: 'none',
+          }),
+          indicatorsContainer: (
+            provided: CSSObject,
+            state: IndicatorContainerProps<OptionType, boolean, GroupType>,
+          ) => ({
             ...provided,
-            boxShadow: 'none',
-            borderRadius: 0,
-            border: 'none',
-            // borderBottom: `1px solid ${property ? theme.colors.teal['400'] : theme.colors.gray['200']}`,
-            borderBottom: `1px solid ${state.isFocused && property ? theme.colors.teal['500'] : 'transparent'}`,
-            cursor: 'pointer',
-            minHeight: undefined,
-            '&:hover': {
-              borderBottom: `1px solid ${property ? theme.colors.teal['500'] : theme.colors.gray['300']}`,
-            },
-          }
-        },
-        singleValue: (provided: CSSObject, props: SingleValueProps<OptionType, GroupType>) => ({
-          ...provided,
-          margin: 0,
-          color: property ? theme.colors.teal['500'] : theme.colors.gray['400'],
-        }),
-        valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
-          ...provided,
-          padding: '2px 4px',
-        }),
-        placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
-          ...provided,
-          margin: 0,
-        }),
-        input: (provided: CSSObject, state: InputProps) => ({
-          ...provided,
-          margin: 0,
-        }),
-        option: (provided: CSSObject, props: OptionProps<OptionType, boolean, GroupType>) => ({
-          ...provided,
-          padding: '4px 8px',
-        }),
-      }}
-    />
+            width: 30,
+            height: 30,
+            justifyContent: 'center',
+          }),
+          control: (provided: CSSObject, state: ControlProps<OptionType, boolean, GroupType>) => {
+            // state.isFocused
+            return {
+              ...provided,
+              boxShadow: 'none',
+              borderRadius: 0,
+              border: 'none',
+              // borderBottom: `1px solid ${property ? theme.colors.teal['400'] : theme.colors.gray['200']}`,
+              borderBottom: `1px solid ${state.isFocused && property ? theme.colors.teal['500'] : 'transparent'}`,
+              cursor: 'pointer',
+              minHeight: undefined,
+              '&:hover': {
+                borderBottom: `1px solid ${property ? theme.colors.teal['500'] : theme.colors.gray['300']}`,
+              },
+            }
+          },
+          singleValue: (provided: CSSObject, props: SingleValueProps<OptionType, GroupType>) => ({
+            ...provided,
+            margin: 0,
+            color: property ? theme.colors.teal['500'] : theme.colors.gray['400'],
+          }),
+          valueContainer: (provided: CSSObject, state: ValueContainerProps<OptionType, boolean, GroupType>) => ({
+            ...provided,
+            padding: '2px 4px',
+          }),
+          placeholder: (provided: CSSObject, state: PlaceholderProps<OptionType, boolean, GroupType>) => ({
+            ...provided,
+            margin: 0,
+          }),
+          input: (provided: CSSObject, state: InputProps) => ({
+            ...provided,
+            margin: 0,
+          }),
+          option: (provided: CSSObject, props: OptionProps<OptionType, boolean, GroupType>) => ({
+            ...provided,
+            padding: '4px 8px',
+          }),
+        }}
+      />
+      {doclink !== false && (
+        <a
+          className={styles.doclink}
+          href={`https://tailwindcss.com/docs/${typeof doclink === 'string' ? doclink : placeholder}`}
+          target="_black"
+        >
+          <Icon as={HiOutlineExternalLink} boxSize={4} color="gray.300" _hover={{ color: 'gray.500' }} />
+        </a>
+      )}
+    </div>
   )
 }
 
@@ -263,6 +277,7 @@ SelectController.defaultProps = {
   colorsTheme: '',
   onMouseEnter: true,
   cleanPropertys: [],
+  doclink: true,
 }
 
 export default SelectController

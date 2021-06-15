@@ -49,13 +49,28 @@ const Transform: React.FC = (): JSX.Element => {
       <SelectController placeholder="transform" values={TransformValues} ignorePrefix={false} property={property} />
       {element?.actualStatus?.className.includes('transform') && (
         <>
-          <SelectController placeholder="origin" values={originValues} property={originProperty} />
+          <SelectController
+            placeholder="origin"
+            doclink="transform-origin"
+            values={originValues}
+            property={originProperty}
+          />
           <SelectController placeholder="scale" values={scaleValues} property={scaleProperty} />
           <SelectController placeholder="rotate" values={rotateValues} property={rotateProperty} />
-          <SelectController placeholder="translate-y" values={translateYValues} property={translateYProperty} />
-          <SelectController placeholder="translate-x" values={translateXValues} property={translateXProperty} />
-          <SelectController placeholder="skew-y" values={skewYValues} property={skewYProperty} />
-          <SelectController placeholder="skew-x" values={skewXValues} property={skewXProperty} />
+          <SelectController
+            placeholder="translate-y"
+            doclink="translate"
+            values={translateYValues}
+            property={translateYProperty}
+          />
+          <SelectController
+            placeholder="translate-x"
+            doclink="translate"
+            values={translateXValues}
+            property={translateXProperty}
+          />
+          <SelectController placeholder="skew-y" doclink="skew" values={skewYValues} property={skewYProperty} />
+          <SelectController placeholder="skew-x" doclink="skew" values={skewXValues} property={skewXProperty} />
         </>
       )}
     </>

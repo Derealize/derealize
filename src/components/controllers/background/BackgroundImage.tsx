@@ -37,7 +37,7 @@ const BackgroundImage: React.FC = (): JSX.Element => {
       <Button colorScheme="teal" variant="ghost" onClick={() => toggleModal(true)}>
         Manage Images
       </Button>
-      <SelectController placeholder="bg-image" values={values} property={property} />
+      <SelectController placeholder="background-image" values={values} property={property} />
       {!!element?.actualStatus?.background && element?.actualStatus?.background !== 'none' && (
         <>
           <SelectController

@@ -14,7 +14,9 @@ const MixBlend: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="mix-blend" values={MixBlendValues} property={property} />
+  return (
+    <SelectController placeholder="mix-blend" doclink="mix-blend-mode" values={MixBlendValues} property={property} />
+  )
 }
 
 export default MixBlend

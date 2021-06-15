@@ -14,7 +14,7 @@ const BackgroundClip: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="bg-clip" values={BackgroundClipValues} property={property} />
+  return <SelectController placeholder="background-clip" values={BackgroundClipValues} property={property} />
 }
 
 export default BackgroundClip

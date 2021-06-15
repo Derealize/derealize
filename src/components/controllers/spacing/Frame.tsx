@@ -184,6 +184,10 @@ const Frame: React.FC = (): JSX.Element => {
     target,
   ])
 
+  const placeholder = useMemo<string>(() => {
+    return selValues[0]?.split('-')[0]
+  }, [selValues])
+
   const [mHover, setMHover] = useState(false)
   const [myHover, setMyHover] = useState(false)
   const [mxHover, setMxHover] = useState(false)
@@ -608,10 +612,11 @@ const Frame: React.FC = (): JSX.Element => {
       </div>
 
       <SelectController
-        placeholder={selValues[0]?.split('-')[0]}
+        placeholder={placeholder}
         values={selValues}
         property={selProperty}
         cleanPropertys={cleanPropertys}
+        doclink={placeholder?.startsWith('m') ? 'margin' : 'padding'}
       />
     </div>
   )

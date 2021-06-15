@@ -36,8 +36,20 @@ const Height: React.FC = (): JSX.Element => {
         isDisabled={!!maxProperty || !!minProperty}
       />
       <HStack spacing={0}>
-        <SelectController placeholder="max" values={maxValues} property={maxProperty} isDisabled={!!property} />
-        <SelectController placeholder="min" values={minValues} property={minProperty} isDisabled={!!property} />
+        <SelectController
+          placeholder="max"
+          values={maxValues}
+          property={maxProperty}
+          isDisabled={!!property}
+          doclink="max-height"
+        />
+        <SelectController
+          placeholder="min"
+          values={minValues}
+          property={minProperty}
+          isDisabled={!!property}
+          doclink="min-height"
+        />
       </HStack>
     </Box>
   )
