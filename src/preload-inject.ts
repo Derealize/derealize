@@ -180,11 +180,12 @@ const derealizeListener = (e: Event) => {
   inspectActiveElement(e.currentTarget as HTMLElement)
 }
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, { projectId, className }: ElementPayload) => {
-  if (projectId === PROJECTID && activeElement) {
+ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, className, needRespStatus) => {
+  if (activeElement) {
     activeElement.className = className
-    // console.log('LiveUpdateClass', className)
-    // respElementActualStatus() // 性能不好
+    if (needRespStatus) {
+      respElementActualStatus() // 性能不好
+    }
   }
 })
 

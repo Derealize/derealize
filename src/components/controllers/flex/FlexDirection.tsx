@@ -14,6 +14,7 @@ const FlexDirection: React.FC = (): JSX.Element => {
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexDirectionPropertys)
   const property = useComputeProperty(propertys)
 
+  console.log('FlexDirection element?.actualStatus', element?.actualStatus)
   if (already && !property) return <></>
   if (!element?.actualStatus?.display.includes('flex')) return <></>
 
