@@ -15,7 +15,7 @@ const Zindex: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="zindex" values={values} property={property} />
+  return <SelectController placeholder="z-index" values={values} property={property} />
 }
 
 export default Zindex

@@ -30,7 +30,14 @@ const Overscroll: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (InlineDisplays.some((v) => element?.actualStatus?.display === v)) return <></>
 
-  return <SelectController placeholder="overscroll" values={OverscrollOptions} property={property} />
+  return (
+    <SelectController
+      placeholder="overscroll"
+      values={OverscrollOptions}
+      doclink="overscroll-behavior"
+      property={property}
+    />
+  )
 }
 
 export default Overscroll

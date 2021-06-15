@@ -18,7 +18,7 @@ const BackgroundColor: React.FC = (): JSX.Element => {
 
   return (
     <SelectController
-      placeholder="bg-color"
+      placeholder="background-color"
       values={values}
       property={property}
       colors={project?.tailwindConfig?.theme.backgroundColor}

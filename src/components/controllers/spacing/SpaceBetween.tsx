@@ -25,8 +25,8 @@ const SpaceBetween: React.FC = (): JSX.Element => {
 
   return (
     <HStack>
-      <SelectController placeholder="space-x" values={valuesX} property={propertyX} />
-      <SelectController placeholder="space-y" values={valuesY} property={propertyY} />
+      <SelectController placeholder="space-x" values={valuesX} property={propertyX} doclink="space" />
+      <SelectController placeholder="space-y" values={valuesY} property={propertyY} doclink="space" />
     </HStack>
   )
 }

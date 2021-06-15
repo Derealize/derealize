@@ -18,7 +18,7 @@ const RowSpan: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.parentDisplay?.includes('grid')) return <></>
 
-  return <SelectController placeholder="row-span" values={values} property={property} />
+  return <SelectController placeholder="row-span" values={values} doclink="grid-row" property={property} />
 }
 
 export default RowSpan

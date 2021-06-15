@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useContext } from 'react'
-import cs from 'classnames'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
@@ -16,9 +15,9 @@ const ColSpan: React.FC = (): JSX.Element => {
   const property = useComputeProperty(propertys)
 
   if (already && !property) return <></>
-  if (!element?.actualStatus?.display.includes('grid')) return <></>
+  if (!element?.actualStatus?.parentDisplay?.includes('grid')) return <></>
 
-  return <SelectController placeholder="col-span" values={values} property={property} />
+  return <SelectController placeholder="col-span" values={values} doclink="grid-column" property={property} />
 }
 
 export default ColSpan

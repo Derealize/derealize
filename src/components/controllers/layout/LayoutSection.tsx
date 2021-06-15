@@ -40,10 +40,10 @@ import AlignContent from '../flex/AlignContent'
 import AlignItems from '../flex/AlignItems'
 import AlignSelf from '../flex/AlignSelf'
 
-import GridCols from '../grid/GridCols'
-import GridRows from '../grid/GridRows'
+import TemplateCols from '../grid/TemplateCols'
+import TemplateRows from '../grid/TemplateRows'
 import Gap from '../grid/Gap'
-import GridFlow from '../grid/GridFlow'
+import GridFlow from '../grid/AutoFlow'
 import ColSpan from '../grid/ColSpan'
 import ColStart from '../grid/ColStart'
 import ColEnd from '../grid/ColEnd'
@@ -179,8 +179,8 @@ const LayoutSection: React.FC = (): JSX.Element => {
                 className="react-switch"
               />
             </HStack>
-            <GridCols />
-            <GridRows />
+            <TemplateCols />
+            <TemplateRows />
             <Gap />
             <GridFlow />
             <ColSpan />

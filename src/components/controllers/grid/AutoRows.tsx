@@ -17,7 +17,7 @@ const AutoRows: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.display.includes('grid')) return <></>
 
-  return <SelectController placeholder="auto-rows" values={values} property={property} />
+  return <SelectController placeholder="auto-rows" values={values} doclink="grid-auto-rows" property={property} />
 }
 
 export default AutoRows

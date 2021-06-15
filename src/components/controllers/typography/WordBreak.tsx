@@ -14,7 +14,7 @@ const WordBreak: React.FC = (): JSX.Element => {
 
   if (already && !property) return <></>
 
-  return <SelectController placeholder="wordbreak" values={WordBreakValues} property={property} />
+  return <SelectController placeholder="word-break" values={WordBreakValues} property={property} />
 }
 
 export default WordBreak

@@ -19,7 +19,7 @@ const ColStart: React.FC = (): JSX.Element => {
   if (already && !property) return <></>
   if (!element?.actualStatus?.parentDisplay?.includes('grid')) return <></>
 
-  return <SelectController placeholder="col-start" values={values} property={property} />
+  return <SelectController placeholder="col-start" values={values} doclink="grid-column" property={property} />
 }
 
 export default ColStart
