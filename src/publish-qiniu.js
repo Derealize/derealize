@@ -2,10 +2,12 @@ const path = require('path')
 const qiniu = require('qiniu')
 const console = require('console')
 
-const fileName =
+const fileName = process.platform === 'darwin' ? `Derealize.dmg` : `Derealize.exe`
+
+const fileNameWithVersion =
   process.platform === 'darwin'
     ? `Derealize-${process.env.npm_package_version}.dmg`
-    : `Derealize Setup ${process.env.npm_package_version}.exe`
+    : `Derealize-${process.env.npm_package_version}.exe`
 
 const setupFile = path.join(__dirname, `../release/${fileName}`)
 
@@ -24,10 +26,18 @@ const uploadToken = putPolicy.uploadToken(mac)
 const formUploader = new qiniu.form_up.FormUploader(config)
 const putExtra = new qiniu.form_up.PutExtra()
 
-formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr, respBody) => {
+formUploader.putFile(uploadToken, fileNameWithVersion, setupFile, putExtra, (respErr, respBody) => {
   if (respErr) {
-    console.error('putFile', respErr)
+    console.error('putVersionFile', respErr)
     return
   }
-  console.log('putFile done.', respBody)
+  console.log('putVersionFile done.', respBody)
+
+  formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr2, respBody2) => {
+    if (respErr2) {
+      console.error('putFile', respErr2)
+      return
+    }
+    console.log('putFile done.', respBody2)
+  })
 })
