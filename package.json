@@ -38,6 +38,7 @@
   "build": {
     "productName": "Derealize",
     "appId": "com.derealize.app",
+    "artifactName": "Derealize-${version}.${ext}",
     "files": [
       "dist/",
       "styles/icons/",

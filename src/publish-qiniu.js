@@ -3,13 +3,11 @@ const qiniu = require('qiniu')
 const console = require('console')
 
 const fileName = process.platform === 'darwin' ? `Derealize.dmg` : `Derealize.exe`
-
 const fileNameWithVersion =
   process.platform === 'darwin'
     ? `Derealize-${process.env.npm_package_version}.dmg`
-    : `Derealize-${process.env.npm_package_version}.exe`
-
-const setupFile = path.join(__dirname, `../release/${fileName}`)
+    : `Derealize Setup ${process.env.npm_package_version}.exe`
+const setupFile = path.join(__dirname, `../release/${fileNameWithVersion}`)
 
 const accessKey = '***REMOVED***'
 const secretKey = '***REMOVED***'
