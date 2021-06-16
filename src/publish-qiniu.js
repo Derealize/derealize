@@ -2,12 +2,11 @@ const path = require('path')
 const qiniu = require('qiniu')
 const console = require('console')
 
-const fileName = process.platform === 'darwin' ? `Derealize.dmg` : `Derealize.exe`
-const fileNameWithVersion =
+const fileName =
   process.platform === 'darwin'
     ? `Derealize-${process.env.npm_package_version}.dmg`
-    : `Derealize Setup ${process.env.npm_package_version}.exe`
-const setupFile = path.join(__dirname, `../release/${fileNameWithVersion}`)
+    : `Derealize-${process.env.npm_package_version}.exe`
+const setupFile = path.join(__dirname, `../release/${fileName}`)
 
 const accessKey = 'RNYZ1Zk4SbQO77r-WnvmtkOnMvoCtoShWL9d14tj'
 const secretKey = 'D-5D5d26yRluiCi_izuhR6JxYo0W-0TfEjQVUJmm'
@@ -18,24 +17,30 @@ config.zone = qiniu.zone.Zone_z0
 // config.useHttpsDomain = true;
 // const bucketManager = new qiniu.rs.BucketManager(mac, config)
 
-const options = { scope: 'derealize' }
-const putPolicy = new qiniu.rs.PutPolicy(options)
-const uploadToken = putPolicy.uploadToken(mac)
 const formUploader = new qiniu.form_up.FormUploader(config)
 const putExtra = new qiniu.form_up.PutExtra()
 
-formUploader.putFile(uploadToken, fileNameWithVersion, setupFile, putExtra, (respErr, respBody) => {
+const options = { scope: 'derealize' }
+const putPolicy = new qiniu.rs.PutPolicy(options)
+const uploadToken = putPolicy.uploadToken(mac)
+
+formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr, respBody) => {
   if (respErr) {
-    console.error('putVersionFile', respErr)
+    console.error('putFile', respErr)
     return
   }
-  console.log('putVersionFile done.', respBody)
+  console.log('putFile done.', respBody)
 
-  formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr2, respBody2) => {
+  const fileNameStatic = process.platform === 'darwin' ? `Derealize.dmg` : `Derealize.exe`
+  const optionsStatic = { scope: `derealize:${fileNameStatic}` }
+  const putPolicyStatic = new qiniu.rs.PutPolicy(optionsStatic)
+  const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
+
+  formUploader.putFile(uploadTokenStatic, fileNameStatic, setupFile, putExtra, (respErr2, respBody2) => {
     if (respErr2) {
-      console.error('putFile', respErr2)
+      console.error('putFileStatic', respErr2)
       return
     }
-    console.log('putFile done.', respBody2)
+    console.log('putFileStatic done.', respBody2)
   })
 })
