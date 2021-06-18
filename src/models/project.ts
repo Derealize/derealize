@@ -92,9 +92,9 @@ export interface ProjectModel {
   colorsModalData: { colors: Colors; theme: string } | undefined
   colorsModalToggle: Action<ProjectModel, { show: boolean; colors?: Colors; theme?: string }>
 
-  historys: Array<CommitLog>
-  setHistorys: Action<ProjectModel, Array<CommitLog>>
-  callHistory: Thunk<ProjectModel>
+  gitHistorys: Array<CommitLog>
+  setGitHistorys: Action<ProjectModel, Array<CommitLog>>
+  callGitHistory: Thunk<ProjectModel>
 
   setJitClassName: Action<ProjectModel, { projectId: string; className: string }>
 }
@@ -439,13 +439,13 @@ const projectModel: ProjectModel = {
     }
   }),
 
-  historys: [],
-  setHistorys: action((state, payload) => {
-    state.historys = payload
+  gitHistorys: [],
+  setGitHistorys: action((state, payload) => {
+    state.gitHistorys = payload
   }),
 
-  callHistory: thunk(async (actions, none, { getState }) => {
-    actions.setHistorys([])
+  callGitHistory: thunk(async (actions, none, { getState }) => {
+    actions.setGitHistorys([])
 
     const { frontProject } = getState()
     if (!frontProject) return
@@ -453,11 +453,11 @@ const projectModel: ProjectModel = {
     const reply = (await sendBackIpc(Handler.History, { projectId: frontProject.id })) as HistoryReply
     if (reply.error) {
       toast({
-        title: `callHistory error: ${reply.error}`,
+        title: `callGitHistory error: ${reply.error}`,
         status: 'error',
       })
     } else {
-      actions.setHistorys(reply.result)
+      actions.setGitHistorys(reply.result)
     }
   }),
 
