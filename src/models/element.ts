@@ -47,6 +47,10 @@ export interface ElementState extends ElementPayload {
   dropzoneCodePosition?: string
 }
 
+export interface ElementHistory extends ElementPayload {
+  originalClassname: string
+}
+
 export interface ElementModel {
   elements: Array<ElementState>
   activeElement: Computed<ElementModel, ElementState | undefined, StoreModel>
@@ -71,6 +75,12 @@ export interface ElementModel {
 
   listen: Thunk<ElementModel, void, void, StoreModel>
   unlisten: Action<ElementModel>
+
+  // historys: Array<{ history: Array<ElementHistory>; projectId: string }>
+  historys: { [key: string]: Array<ElementHistory> }
+  pushHistory: Action<ElementModel, ElementHistory>
+  revokeHistory: Action<ElementModel, string>
+  cleanHistory: Action<ElementModel, string>
 }
 
 const elementModel: ElementModel = {
@@ -203,6 +213,7 @@ const elementModel: ElementModel = {
 
     sendBackIpc(Handler.ApplyElements, payloads as any)
     state.elements = elements.filter((el) => el.projectId !== projectId || el.selected)
+    state.historys[projectId] = []
   }),
 
   droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
@@ -296,6 +307,25 @@ const elementModel: ElementModel = {
     unlistenMainIpc(MainIpcChannel.ElementShortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Dropped)
+  }),
+
+  historys: {},
+  pushHistory: action((state, payload) => {
+    const exist = state.historys[payload.projectId]
+    if (exist) {
+      exist.push(payload)
+    } else {
+      state.historys[payload.projectId] = [payload]
+    }
+  }),
+  revokeHistory: action((state, projectId) => {
+    const exist = state.historys[projectId]
+    if (exist) {
+      const history = exist.pop()
+    }
+  }),
+  cleanHistory: action((state, projectId) => {
+    state.historys[projectId] = []
   }),
 }
 
