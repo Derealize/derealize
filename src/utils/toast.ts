@@ -1,5 +1,5 @@
 import { UseToastOptions } from '@chakra-ui/react'
-import ky from 'ky'
+import ky, { HTTPError } from 'ky'
 
 export type ToastCaller = (props: UseToastOptions) => void
 export type ToastStatus = 'error' | 'success' | 'warning' | 'info'
@@ -10,7 +10,7 @@ export const errorHander = (data: string | Error, caller?: ToastCaller, _status:
 
   if (data instanceof Error) {
     title = data.message
-    if ((data as ky.HTTPError).response?.status === 401) {
+    if ((data as HTTPError).response?.status === 401) {
       // title = "认证失败"
       window.location.href = '/login'
       return
@@ -37,7 +37,7 @@ export const botErrorHander = (data: string | Error, caller?: ToastCaller, _stat
 
   if (data instanceof Error) {
     title = data.message
-    if ((data as ky.HTTPError).response?.status === 401) {
+    if ((data as HTTPError).response?.status === 401) {
       // title = "认证失败"
       window.location.href = '/loginbot'
       return
