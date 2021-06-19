@@ -55,10 +55,16 @@ const respElementActualStatus = (): ElementActualStatus | null => {
     position: declaration.getPropertyValue('position'),
     background: declaration.getPropertyValue('background-image'),
   }
+
   if (activeElement.parentElement) {
     payload.parentTagName = activeElement.parentElement.tagName
     const parentDeclaration = getComputedStyle(activeElement.parentElement)
     payload.parentDisplay = parentDeclaration.getPropertyValue('display')
+  }
+
+  const supportText = !activeElement.children.length && !EmptyElement.includes(tagName.toLowerCase())
+  if (supportText) {
+    payload.text = activeElement.innerText
   }
 
   ipcRenderer.send(MainIpcChannel.RespElementStatus, payload)
@@ -104,13 +110,7 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
 
   const { className, tagName } = activeElement
 
-  const supportText = !activeElement.children.length && !EmptyElement.includes(tagName.toLowerCase())
-  let text: string | undefined
-  if (supportText) {
-    text = activeElement.innerText
-  }
-
-  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, selector, text }
+  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, selector }
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
   activeElement.setAttribute('data-active', 'true')
 
@@ -234,15 +234,26 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
   }
 })
 
-ipcRenderer.on(MainIpcChannel.Revoke, (event: Event, states: Array<ElementPayload>) => {
-  states.forEach((state) => {
-    const { selector: sel, className, text, replaceTag } = state
-    const element = document.querySelector(sel)
-    if (element) {
-      element.className = className
-    }
-  })
-})
+ipcRenderer.on(
+  MainIpcChannel.Revoke,
+  (e: Event, states: Array<{ selector: string; actualStatus: ElementActualStatus }>) => {
+    states.forEach((state) => {
+      const {
+        selector: sel,
+        actualStatus: { className, text, tagName },
+      } = state
+      const element = document.querySelector(sel) as HTMLElement
+      if (element) {
+        element.className = className
+        if (text !== undefined) {
+          element.innerText = text
+        }
+        changeTag(element, tagName)
+      }
+    })
+    respElementActualStatus()
+  },
+)
 
 const listenElement = () => {
   document.querySelectorAll(`[${dataCode}]`).forEach((el) => {
