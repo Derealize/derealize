@@ -37,6 +37,8 @@ export interface ElementActualStatus extends ProjectIdParam {
   parentDisplay?: string
 }
 
+export type ElementHistoryStatus = { selector: string } & ElementActualStatus
+
 export enum InsertMode {
   After = 'After',
   Before = 'Before',

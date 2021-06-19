@@ -3,8 +3,14 @@ import { Droppable, DroppableEventNames, DroppableDroppedEvent } from '@shopify/
 import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
-import { Handler } from './backend/backend.interface'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
+import {
+  ElementPayload,
+  ElementActualStatus,
+  BreadcrumbPayload,
+  MainIpcChannel,
+  ElementTag,
+  ElementHistoryStatus,
+} from './interface'
 import { preloadCSS, sectionHTML } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -234,26 +240,20 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
   }
 })
 
-ipcRenderer.on(
-  MainIpcChannel.Revoke,
-  (e: Event, states: Array<{ selector: string; actualStatus: ElementActualStatus }>) => {
-    states.forEach((state) => {
-      const {
-        selector: sel,
-        actualStatus: { className, text, tagName },
-      } = state
-      const element = document.querySelector(sel) as HTMLElement
-      if (element) {
-        element.className = className
-        if (text !== undefined) {
-          element.innerText = text
-        }
-        changeTag(element, tagName)
+ipcRenderer.on(MainIpcChannel.Revoke, (e: Event, states: Array<ElementHistoryStatus>) => {
+  states.forEach((state) => {
+    const { selector: sel, className, text, tagName } = state
+    const element = document.querySelector(sel) as HTMLElement
+    if (element) {
+      element.className = className
+      if (text !== undefined) {
+        element.innerText = text
       }
-    })
-    respElementActualStatus()
-  },
-)
+      changeTag(element, tagName)
+    }
+  })
+  respElementActualStatus()
+})
 
 const listenElement = () => {
   document.querySelectorAll(`[${dataCode}]`).forEach((el) => {
