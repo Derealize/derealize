@@ -15,6 +15,7 @@ const { sendBackIpc } = window.derealize
 const Insert: React.FC = (): JSX.Element => {
   const toast = useToast()
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const elements = useStoreState<Array<ElementState>>((state) => state.element.elements)
 
   const [selInsertMode, setSelInsertMode] = useState(InsertMode.After)
   const [selTagType, setSelTagType] = useState(ElementTag.div)
@@ -28,13 +29,21 @@ const Insert: React.FC = (): JSX.Element => {
       return
     }
 
+    if (elements.length) {
+      toast({
+        title: 'Please save the existing modified element before insert new element',
+        status: 'warning',
+      })
+      return
+    }
+
     const payload: InsertElementPayload = {
       ...element,
       insertMode: selInsertMode,
       insertTag: selTagType,
     }
     sendBackIpc(Handler.InsertElement, payload as any)
-  }, [element, selInsertMode, selTagType, toast])
+  }, [element, elements.length, selInsertMode, selTagType, toast])
 
   return (
     <VStack alignItems="stretch">

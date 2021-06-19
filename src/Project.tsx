@@ -28,7 +28,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
 
-  const historys = useStoreState<Array<CommitLog>>((state) => state.project.historys)
+  const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.project.gitHistorys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
 
   const callPush = useCallback(async () => {
@@ -103,7 +103,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
                 </Text>
               )}
               <List spacing={2}>
-                {historys.map((h) => {
+                {gitHistorys.map((h) => {
                   const isDerealize = h.message.includes('derealize')
                   return (
                     <ListItem key={h.sha} className={style.listitem}>
