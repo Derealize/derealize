@@ -15,6 +15,7 @@ export enum ElementTag {
   button = 'button',
   input = 'input',
 }
+
 export interface ElementPayload extends ProjectIdParam {
   codePosition: string
   className: string
@@ -97,8 +98,11 @@ export enum MainIpcChannel {
   Refresh = 'Refresh',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
+  LiveUpdateText = 'LiveUpdateText',
+  LiveUpdateTag = 'LiveUpdateTag',
   TextTab = 'TextTab',
   Dropped = 'Dropped',
+  Revoke = 'Revoke',
 }
 
 export const ControllerShortcut = [

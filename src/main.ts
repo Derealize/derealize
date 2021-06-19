@@ -11,7 +11,7 @@ import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
@@ -449,11 +449,35 @@ ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, projectId, className, needRes
   }
 })
 
+ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId, text) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.send(MainIpcChannel.LiveUpdateText, text)
+  }
+})
+
+ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId, tag: ElementTag) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.send(MainIpcChannel.LiveUpdateTag, tag)
+  }
+})
+
 ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) => {
   if (!mainWindow) return
   const project = projects.get(payload.projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.SelectBreadcrumb, payload)
+  }
+})
+
+ipcMain.on(MainIpcChannel.Revoke, (event, projectId: string, states: Array<ElementPayload>) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.send(MainIpcChannel.Revoke, states)
   }
 })
 

@@ -1,8 +1,12 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { HStack, VStack, Select, Button } from '@chakra-ui/react'
-import { ElementTag } from '../../interface'
+import { MainIpcChannel, ElementTag } from '../../interface'
 import { useStoreActions, useStoreState } from '../../reduxStore'
 import { ElementState } from '../../models/element'
+import type { PreloadWindow } from '../../preload'
+
+declare const window: PreloadWindow
+const { sendMainIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
@@ -22,6 +26,7 @@ const ElementEdit: React.FC = (): JSX.Element => {
   const handleReplace = useCallback(() => {
     if (!element) return
     setActiveElementTag({ projectId: element.projectId, tag: selElementType })
+    sendMainIpc(MainIpcChannel.LiveUpdateTag, element.projectId, selElementType)
   }, [element, selElementType, setActiveElementTag])
 
   // const handleDelete = useCallback(() => {
