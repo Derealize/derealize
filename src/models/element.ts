@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
+import clone from 'lodash.clonedeep'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
@@ -11,7 +12,7 @@ import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
-const { sendBackIpc, listenMainIpc, unlistenMainIpc } = window.derealize
+const { sendMainIpc, sendBackIpc, listenMainIpc, unlistenMainIpc } = window.derealize
 
 const toast = createStandaloneToast({
   defaultOptions: {
@@ -44,15 +45,10 @@ export interface ElementState extends ElementPayload {
   propertys: Array<Property>
   actualStatus?: ElementActualStatus
   pending?: boolean
-  dropzoneCodePosition?: string
-}
-
-export interface ElementHistory extends ElementPayload {
-  originalClassname: string
 }
 
 export interface ElementModel {
-  elements: Array<ElementState>
+  elements: { [projectId: string]: { states: Array<ElementState>; historys: Array<Array<ElementState>> } }
   activeElement: Computed<ElementModel, ElementState | undefined, StoreModel>
   activePendingElements: Computed<ElementModel, Array<ElementState>, StoreModel>
   activePropertys: Computed<ElementModel, Array<Property>, StoreModel>
@@ -76,22 +72,18 @@ export interface ElementModel {
   listen: Thunk<ElementModel, void, void, StoreModel>
   unlisten: Action<ElementModel>
 
-  // historys: Array<{ history: Array<ElementHistory>; projectId: string }>
-  historys: { [key: string]: Array<ElementHistory> }
-  pushHistory: Action<ElementModel, ElementHistory>
   revokeHistory: Action<ElementModel, string>
-  cleanHistory: Action<ElementModel, string>
 }
 
 const elementModel: ElementModel = {
-  elements: [],
+  elements: {},
   activeElement: computed(
     [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, frontProject) => elements.find((el) => el.projectId === frontProject?.id && el.selected),
+    (elements, project) => elements[project?.id || '']?.states.find((el) => el.selected),
   ),
   activePendingElements: computed(
     [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, frontProject) => elements.filter((el) => el.projectId === frontProject?.id && el.pending),
+    (elements, project) => elements[project?.id || '']?.states.filter((el) => el.pending) || [],
   ),
   activePropertys: computed((state) => {
     return state.activeElement?.propertys || []
@@ -116,73 +108,74 @@ const elementModel: ElementModel = {
   }),
 
   unSelectedAllElements: action((state, projectId) => {
-    const elements = state.elements.filter((e) => e.projectId === projectId)
-    elements.forEach((el) => {
-      el.selected = false
+    state.elements[projectId]?.states.forEach((st) => {
+      st.selected = false
     })
   }),
-  focusElement: action((state, element) => {
-    const elements = state.elements.filter((e) => e.projectId === element.projectId)
-    elements.forEach((el) => {
+  focusElement: action((state, payload) => {
+    const { projectId, codePosition, className } = payload
+
+    const propertys: Array<Property> = []
+    className.split(/\s+/).forEach((name) => {
+      const names = name.split(':')
+      const property: Property = {
+        id: nanoid(),
+        classname: names.splice(-1)[0],
+      }
+      names.forEach((variant) => {
+        if (state.screenVariants.includes(variant)) {
+          property.screen = variant
+        }
+        if (StateVariants.includes(variant as StateVariantsType)) {
+          property.state = variant as StateVariantsType
+        }
+        if (ListVariants.includes(variant as ListVariantsType)) {
+          property.list = variant as ListVariantsType
+        }
+        if (state.customVariants.includes(variant)) {
+          property.custom = variant
+        }
+        if (variant === 'dark') {
+          property.dark = true
+        }
+      })
+      propertys.push(property)
+    })
+
+    if (!state.elements[projectId]) {
+      state.elements[projectId] = { states: [], historys: [] }
+    }
+
+    state.elements[projectId].states.forEach((el) => {
       el.selected = false
     })
 
-    const propertys: Array<Property> = []
-    if (element?.className) {
-      element.className.split(/\s+/).forEach((name) => {
-        const names = name.split(':')
-        const property: Property = {
-          id: nanoid(),
-          classname: names.splice(-1)[0],
-        }
-        names.forEach((variant) => {
-          if (state.screenVariants.includes(variant)) {
-            property.screen = variant
-          }
-          if (StateVariants.includes(variant as StateVariantsType)) {
-            property.state = variant as StateVariantsType
-          }
-          if (ListVariants.includes(variant as ListVariantsType)) {
-            property.list = variant as ListVariantsType
-          }
-          if (state.customVariants.includes(variant)) {
-            property.custom = variant
-          }
-          if (variant === 'dark') {
-            property.dark = true
-          }
-        })
-        propertys.push(property)
-      })
-    }
-
-    const elstate = { ...element, propertys, selected: true }
-
-    const el = elements?.find((e) => e.codePosition === element.codePosition)
-    if (el) {
-      Object.assign(el, elstate)
+    const newState: ElementState = { ...payload, propertys, selected: true }
+    const elementState = state.elements[projectId].states.find((e) => e.codePosition === codePosition)
+    if (elementState) {
+      Object.assign(elementState, newState)
     } else {
-      state.elements.push(elstate)
+      state.elements[projectId].states.push(newState)
     }
   }),
   respElementStatus: action((state, status) => {
-    const elements = state.elements.filter((el) => el.projectId === status.projectId)
-    const el = elements.find((e) => e.codePosition === status.codePosition)
+    const el = state.elements[status.projectId]?.states.find((e) => e.codePosition === status.codePosition)
     if (el) {
       el.actualStatus = status
     }
   }),
   cleanElements: action((state, projectId) => {
-    state.elements = state.elements.filter((el) => el.projectId !== projectId)
+    state.elements[projectId] = { states: [], historys: [] }
   }),
   savedElements: action((state, projectId) => {
-    const elements = state.elements.filter((el) => el.projectId === projectId)
+    if (!state.elements[projectId]) return
+
     const payloads: Array<ElementPayload> = []
-    elements
-      .filter((el) => el.pending)
-      .forEach((element) => {
+    state.elements[projectId].states
+      .filter((sts) => sts.pending)
+      .forEach((st) => {
         let className = ''
-        element.propertys.forEach((property) => {
+        st.propertys.forEach((property) => {
           const { screen, state: estate, list, custom, dark, classname: name } = property
           if (!name) return
 
@@ -205,55 +198,69 @@ const elementModel: ElementModel = {
           className += `${variants + name} `
         })
 
-        const { selected, propertys, actualStatus, pending, ...payload } = element
+        const { selected, propertys, actualStatus, pending, ...payload } = st
         payload.className = className
         payloads.push(payload)
-        element.pending = undefined
+        if (selected) {
+          st.pending = undefined
+        }
       })
 
     sendBackIpc(Handler.ApplyElements, payloads as any)
-    state.elements = elements.filter((el) => el.projectId !== projectId || el.selected)
-    state.historys[projectId] = []
+    state.elements[projectId].states = state.elements[projectId].states.filter((st) => st.selected)
+    state.elements[projectId].historys = []
   }),
 
   droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.codePosition === codePosition)
-    if (!element) return
-    element.dropzoneCodePosition = dropzoneCodePosition
-    element.pending = true
+    const element = state.elements[projectId]?.states.find((st) => st.codePosition === codePosition)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.dropzoneCodePosition = dropzoneCodePosition
+      element.pending = true
+    }
   }),
 
   pushActiveElementProperty: action((state, { projectId, property }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
-    if (!element) return
-    element.pending = true
-    element.propertys.push(property)
+    const element = state.elements[projectId]?.states.find((st) => st.selected)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.pending = true
+      element.propertys.push(property)
+    }
   }),
   setActiveElementPropertyClassName: action((state, { projectId, propertyId, classname }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
-    if (!element) return
-    element.pending = true
-    const property = element.propertys.find((p) => p.id === propertyId)
-    if (property) {
-      property.classname = classname
+    const element = state.elements[projectId]?.states.find((el) => el.selected)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.pending = true
+      const property = element.propertys.find((p) => p.id === propertyId)
+      if (property) {
+        property.classname = classname
+      }
     }
   }),
   setActiveElementText: action((state, { projectId, text }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
-    if (!element) return
-    element.pending = true
-    element.text = text
+    const element = state.elements[projectId]?.states.find((el) => el.selected)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.pending = true
+      element.text = text
+    }
   }),
   setActiveElementTag: action((state, { projectId, tag }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
-    if (!element) return
-    element.pending = true
-    element.replaceTag = tag
+    const element = state.elements[projectId]?.states.find((el) => el.selected)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.pending = true
+      element.replaceTag = tag
+    }
   }),
   deleteActiveElementProperty: action((state, { projectId, propertyId }) => {
-    const element = state.elements.find((el) => el.projectId === projectId && el.selected)
-    if (!element) return
-    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
+    const element = state.elements[projectId]?.states.find((el) => el.selected)
+    if (element) {
+      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
+      element.propertys = element.propertys.filter((p) => p.id !== propertyId)
+    }
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreState }) => {
@@ -309,23 +316,12 @@ const elementModel: ElementModel = {
     unlistenMainIpc(MainIpcChannel.Dropped)
   }),
 
-  historys: {},
-  pushHistory: action((state, payload) => {
-    const exist = state.historys[payload.projectId]
-    if (exist) {
-      exist.push(payload)
-    } else {
-      state.historys[payload.projectId] = [payload]
-    }
-  }),
   revokeHistory: action((state, projectId) => {
-    const exist = state.historys[projectId]
-    if (exist) {
-      const history = exist.pop()
+    const historys = state.elements[projectId]?.historys
+    if (historys) {
+      const states = historys.pop()
+      sendMainIpc(MainIpcChannel.Revoke, projectId, states)
     }
-  }),
-  cleanHistory: action((state, projectId) => {
-    state.historys[projectId] = []
   }),
 }
 
