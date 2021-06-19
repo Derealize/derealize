@@ -7,7 +7,7 @@ import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
-import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag } from '../interface'
+import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag, ElementHistoryStatus } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -48,7 +48,7 @@ export interface ElementState extends ElementPayload {
 }
 
 export interface ElementModel {
-  elements: { [projectId: string]: { states: Array<ElementState>; historys: Array<Array<ElementState>> } }
+  elements: { [projectId: string]: { states: Array<ElementState>; historys: Array<Array<ElementHistoryStatus>> } }
   activeElement: Computed<ElementModel, ElementState | undefined, StoreModel>
   activePendingElements: Computed<ElementModel, Array<ElementState>, StoreModel>
   activePropertys: Computed<ElementModel, Array<Property>, StoreModel>
@@ -324,7 +324,7 @@ const elementModel: ElementModel = {
 
     const payloads = states?.map((st) => {
       const { actualStatus, selector } = st
-      return { actualStatus, selector }
+      return { ...actualStatus, selector }
     })
     sendMainIpc(MainIpcChannel.Revoke, projectId, payloads)
   }),
