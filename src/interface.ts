@@ -32,6 +32,7 @@ export interface ElementActualStatus extends ProjectIdParam {
   display: string
   position: string
   background: string
+  text?: string
   parentTagName?: string
   parentDisplay?: string
 }

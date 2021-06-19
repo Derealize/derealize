@@ -21,10 +21,10 @@ const Text: React.FC = (): JSX.Element => {
   }, [element, setActiveElementText, text])
 
   useEffect(() => {
-    setText(element?.text)
+    setText(element?.actualStatus?.text)
   }, [element])
 
-  if (element?.text === undefined) return <></>
+  if (element?.actualStatus?.text === undefined) return <></>
 
   return (
     <VStack alignItems="stretch">
