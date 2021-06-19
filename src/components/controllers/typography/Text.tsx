@@ -2,6 +2,11 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { VStack, Textarea, Button } from '@chakra-ui/react'
 import type { ElementState } from '../../../models/element'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import { MainIpcChannel } from '../../../interface'
+import type { PreloadWindow } from '../../../preload'
+
+declare const window: PreloadWindow
+const { sendMainIpc } = window.derealize
 
 const Text: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
@@ -12,6 +17,7 @@ const Text: React.FC = (): JSX.Element => {
   const handleInsert = useCallback(() => {
     if (!element || text === undefined) return
     setActiveElementText({ projectId: element.projectId, text })
+    sendMainIpc(MainIpcChannel.LiveUpdateText, element.projectId, text)
   }, [element, setActiveElementText, text])
 
   useEffect(() => {

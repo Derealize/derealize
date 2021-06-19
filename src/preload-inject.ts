@@ -4,7 +4,7 @@ import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
 import { Handler } from './backend/backend.interface'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { preloadCSS, sectionHTML } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -18,6 +18,22 @@ let droppable: Droppable<DroppableEventNames> | undefined
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
+}
+
+// Replace tag name but keep element contents
+const changeTag = (el: HTMLElement, newTagName: string) => {
+  if (!el.parentNode) throw Error('el.parentNode is empty cannot replace the name')
+  const newEl = document.createElement(newTagName)
+
+  while (el.firstChild) {
+    newEl.appendChild(el.firstChild)
+  }
+
+  Array.from(el.attributes).forEach((attr) => {
+    newEl.attributes.setNamedItem(attr.cloneNode() as Attr)
+  })
+
+  el.parentNode.replaceChild(newEl, el)
 }
 
 const respElementActualStatus = (): ElementActualStatus | null => {
@@ -187,6 +203,19 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, className, needRes
   }
 })
 
+ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, text: string) => {
+  if (activeElement) {
+    activeElement.innerText = text
+  }
+})
+
+ipcRenderer.on(MainIpcChannel.LiveUpdateTag, (event: Event, tag: ElementTag) => {
+  if (activeElement) {
+    changeTag(activeElement, tag)
+    respElementActualStatus()
+  }
+})
+
 ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, index, isClick }: BreadcrumbPayload) => {
   if (projectId !== PROJECTID || !selector) return
   hoverElement?.removeAttribute('data-hover')
@@ -203,6 +232,16 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
       hoverElement.setAttribute('data-hover', 'true')
     }
   }
+})
+
+ipcRenderer.on(MainIpcChannel.Revoke, (event: Event, states: Array<ElementPayload>) => {
+  states.forEach((state) => {
+    const { selector: sel, className, text, replaceTag } = state
+    const element = document.querySelector(sel)
+    if (element) {
+      element.className = className
+    }
+  })
 })
 
 const listenElement = () => {
