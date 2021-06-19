@@ -318,10 +318,15 @@ const elementModel: ElementModel = {
 
   revokeHistory: action((state, projectId) => {
     const historys = state.elements[projectId]?.historys
-    if (historys) {
-      const states = historys.pop()
-      sendMainIpc(MainIpcChannel.Revoke, projectId, states)
-    }
+    if (!historys) return
+    const states = historys.pop()
+    if (!states) return
+
+    const payloads = states?.map((st) => {
+      const { actualStatus, selector } = st
+      return { actualStatus, selector }
+    })
+    sendMainIpc(MainIpcChannel.Revoke, projectId, payloads)
   }),
 }
 
