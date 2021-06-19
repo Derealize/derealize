@@ -128,9 +128,7 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
 
   activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
     e.stopPropagation()
-    if (window.confirm('Sure Delete?')) {
-      sendBackIpc(Handler.DeleteElement, { projectId: PROJECTID, codePosition })
-    }
+    ipcRenderer.send(MainIpcChannel.ElementShortcut, codePosition)
   })
   activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
     e.stopPropagation()

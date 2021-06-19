@@ -51,7 +51,7 @@ const TopBar: React.FC = (): JSX.Element => {
 
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
-  const callHistory = useStoreActions((actions) => actions.project.callHistory)
+  const callGitHistory = useStoreActions((actions) => actions.project.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
@@ -114,7 +114,7 @@ const TopBar: React.FC = (): JSX.Element => {
             icon={<HiOutlineStatusOnline />}
             onClick={() => {
               if (project.view !== ProjectView.FileStatus) {
-                callHistory()
+                callGitHistory()
                 setProjectView({ projectId: project.id, view: ProjectView.FileStatus })
               } else {
                 setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
