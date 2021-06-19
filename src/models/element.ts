@@ -1,13 +1,12 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
-import clone from 'lodash.clonedeep'
-import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
+import { Action, action, Thunk, thunk, Computed, computed, actionOn, ActionOn } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
-import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag, ElementHistoryStatus } from '../interface'
+import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag } from '../interface'
 import type { Property } from './controlles/controlles'
 import type { PreloadWindow } from '../preload'
 
@@ -47,8 +46,12 @@ export interface ElementState extends ElementPayload {
   pending?: boolean
 }
 
+export interface ElementHistory extends ElementPayload {
+  propertys: Array<Property>
+}
+
 export interface ElementModel {
-  elements: { [projectId: string]: { states: Array<ElementState>; historys: Array<Array<ElementHistoryStatus>> } }
+  states: { [projectId: string]: { elements: Array<ElementState>; historys: Array<ElementHistory[]> } }
   activeElement: Computed<ElementModel, ElementState | undefined, StoreModel>
   activePendingElements: Computed<ElementModel, Array<ElementState>, StoreModel>
   activePropertys: Computed<ElementModel, Array<Property>, StoreModel>
@@ -72,18 +75,19 @@ export interface ElementModel {
   listen: Thunk<ElementModel, void, void, StoreModel>
   unlisten: Action<ElementModel>
 
+  onElementStateChange: ActionOn<ElementModel>
   revokeHistory: Action<ElementModel, string>
 }
 
 const elementModel: ElementModel = {
-  elements: {},
+  states: {},
   activeElement: computed(
-    [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, project) => elements[project?.id || '']?.states.find((el) => el.selected),
+    [(state) => state.states, (state, storeState) => storeState.project.frontProject],
+    (elements, project) => elements[project?.id || '']?.elements.find((el) => el.selected),
   ),
   activePendingElements: computed(
-    [(state) => state.elements, (state, storeState) => storeState.project.frontProject],
-    (elements, project) => elements[project?.id || '']?.states.filter((el) => el.pending) || [],
+    [(state) => state.states, (state, storeState) => storeState.project.frontProject],
+    (elements, project) => elements[project?.id || '']?.elements.filter((el) => el.pending) || [],
   ),
   activePropertys: computed((state) => {
     return state.activeElement?.propertys || []
@@ -108,7 +112,7 @@ const elementModel: ElementModel = {
   }),
 
   unSelectedAllElements: action((state, projectId) => {
-    state.elements[projectId]?.states.forEach((st) => {
+    state.states[projectId]?.elements.forEach((st) => {
       st.selected = false
     })
   }),
@@ -142,40 +146,40 @@ const elementModel: ElementModel = {
       propertys.push(property)
     })
 
-    if (!state.elements[projectId]) {
-      state.elements[projectId] = { states: [], historys: [] }
+    if (!state.states[projectId]) {
+      state.states[projectId] = { elements: [], historys: [] }
     }
 
-    state.elements[projectId].states.forEach((el) => {
+    state.states[projectId].elements.forEach((el) => {
       el.selected = false
     })
 
     const newState: ElementState = { ...payload, propertys, selected: true }
-    const elementState = state.elements[projectId].states.find((e) => e.codePosition === codePosition)
+    const elementState = state.states[projectId].elements.find((el) => el.codePosition === codePosition)
     if (elementState) {
       Object.assign(elementState, newState)
     } else {
-      state.elements[projectId].states.push(newState)
+      state.states[projectId].elements.push(newState)
     }
   }),
   respElementStatus: action((state, status) => {
-    const el = state.elements[status.projectId]?.states.find((e) => e.codePosition === status.codePosition)
+    const el = state.states[status.projectId]?.elements.find((e) => e.codePosition === status.codePosition)
     if (el) {
       el.actualStatus = status
     }
   }),
   cleanElements: action((state, projectId) => {
-    state.elements[projectId] = { states: [], historys: [] }
+    state.states[projectId] = { elements: [], historys: [] }
   }),
   savedElements: action((state, projectId) => {
-    if (!state.elements[projectId]) return
+    if (!state.states[projectId]) return
 
     const payloads: Array<ElementPayload> = []
-    state.elements[projectId].states
-      .filter((sts) => sts.pending)
-      .forEach((st) => {
+    state.states[projectId].elements
+      .filter((el) => el.pending)
+      .forEach((el) => {
         let className = ''
-        st.propertys.forEach((property) => {
+        el.propertys.forEach((property) => {
           const { screen, state: estate, list, custom, dark, classname: name } = property
           if (!name) return
 
@@ -198,69 +202,81 @@ const elementModel: ElementModel = {
           className += `${variants + name} `
         })
 
-        const { selected, propertys, actualStatus, pending, ...payload } = st
+        const { selected, propertys, actualStatus, pending, ...payload } = el
         payload.className = className
         payloads.push(payload)
         if (selected) {
-          st.pending = undefined
+          el.pending = undefined
         }
       })
 
     sendBackIpc(Handler.ApplyElements, payloads as any)
-    state.elements[projectId].states = state.elements[projectId].states.filter((st) => st.selected)
-    state.elements[projectId].historys = []
+    state.states[projectId].elements = state.states[projectId].elements.filter((el) => el.selected)
+    state.states[projectId].historys = []
   }),
 
   droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
-    const element = state.elements[projectId]?.states.find((st) => st.codePosition === codePosition)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.dropzoneCodePosition = dropzoneCodePosition
-      element.pending = true
-    }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((st) => st.codePosition === codePosition)
+    if (!element) return
+
+    element.dropzoneCodePosition = dropzoneCodePosition
+    element.pending = true
   }),
 
   pushActiveElementProperty: action((state, { projectId, property }) => {
-    const element = state.elements[projectId]?.states.find((st) => st.selected)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.pending = true
-      element.propertys.push(property)
-    }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    element.pending = true
+    element.propertys.push(property)
   }),
   setActiveElementPropertyClassName: action((state, { projectId, propertyId, classname }) => {
-    const element = state.elements[projectId]?.states.find((el) => el.selected)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.pending = true
-      const property = element.propertys.find((p) => p.id === propertyId)
-      if (property) {
-        property.classname = classname
-      }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    element.pending = true
+    const property = element.propertys.find((p) => p.id === propertyId)
+    if (property) {
+      property.classname = classname
     }
   }),
   setActiveElementText: action((state, { projectId, text }) => {
-    const element = state.elements[projectId]?.states.find((el) => el.selected)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.pending = true
-      element.text = text
-    }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    element.pending = true
+    element.text = text
   }),
   setActiveElementTag: action((state, { projectId, tag }) => {
-    const element = state.elements[projectId]?.states.find((el) => el.selected)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.pending = true
-      element.replaceTag = tag
-    }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    element.pending = true
+    element.tagName = tag
   }),
   deleteActiveElementProperty: action((state, { projectId, propertyId }) => {
-    const element = state.elements[projectId]?.states.find((el) => el.selected)
-    if (element) {
-      state.elements[projectId].historys.push(clone(state.elements[projectId].states))
-      element.propertys = element.propertys.filter((p) => p.id !== propertyId)
-    }
+    if (!state.states[projectId]) return
+    const { elements } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreState }) => {
@@ -289,7 +305,7 @@ const elementModel: ElementModel = {
       if (key === 'Save') {
         actions.savedElements(frontProject.id)
       } else if (key === 'Delete') {
-        if (getState().elements.length) {
+        if (getState().states[frontProject.id]?.elements.filter((el) => el.pending).length) {
           toast({
             title: 'Please save the existing modified element before delete the element',
             status: 'warning',
@@ -303,6 +319,17 @@ const elementModel: ElementModel = {
     })
 
     listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
+      const { frontProject } = getStoreState().project
+      if (!frontProject) return
+
+      if (getState().states[frontProject.id]?.elements.filter((el) => el.pending).length) {
+        toast({
+          title: 'Please save the existing modified element before dropped the element',
+          status: 'warning',
+        })
+        return
+      }
+
       actions.droppedActiveElement(payload)
     })
   }),
@@ -316,17 +343,36 @@ const elementModel: ElementModel = {
     unlistenMainIpc(MainIpcChannel.Dropped)
   }),
 
-  revokeHistory: action((state, projectId) => {
-    const historys = state.elements[projectId]?.historys
-    if (!historys) return
-    const states = historys.pop()
-    if (!states) return
+  onElementStateChange: actionOn(
+    (actions) => [
+      actions.droppedActiveElement,
+      actions.pushActiveElementProperty,
+      actions.setActiveElementPropertyClassName,
+      actions.setActiveElementText,
+      actions.setActiveElementTag,
+      actions.deleteActiveElementProperty,
+    ],
+    (state, target) => {
+      const { projectId } = target.payload
+      const { elements, historys } = state.states[projectId]
+      const history = elements.map((el) => {
+        const { selected, actualStatus, pending, ...payload } = el
+        return payload
+      })
+      historys.push(history)
+    },
+  ),
 
-    const payloads = states?.map((st) => {
-      const { actualStatus, selector } = st
-      return { ...actualStatus, selector }
-    })
-    sendMainIpc(MainIpcChannel.Revoke, projectId, payloads)
+  revokeHistory: action((state, projectId) => {
+    const historys = state.states[projectId]?.historys
+    if (!historys || !historys.length) return
+    historys.pop()
+    const his = historys[historys.length - 1]
+    // todo... propertys to classname
+    // todo... originalText
+    // todo... originalTagName
+    // todo... dropzoneCodePosition
+    sendMainIpc(MainIpcChannel.Revoke, projectId, his)
   }),
 }
 
