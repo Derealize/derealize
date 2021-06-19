@@ -21,8 +21,10 @@ export interface ElementPayload extends ProjectIdParam {
   className: string
   selector: string
   text?: string
+  originalText?: string
+  tagName?: ElementTag
+  originalTagName?: string
   dropzoneCodePosition?: string
-  replaceTag?: ElementTag
 }
 
 export interface ElementActualStatus extends ProjectIdParam {
@@ -36,8 +38,6 @@ export interface ElementActualStatus extends ProjectIdParam {
   parentTagName?: string
   parentDisplay?: string
 }
-
-export type ElementHistoryStatus = { selector: string } & ElementActualStatus
 
 export enum InsertMode {
   After = 'After',
