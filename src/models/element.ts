@@ -2,6 +2,7 @@
 import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
+import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
 import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
@@ -11,6 +12,13 @@ import type { PreloadWindow } from '../preload'
 
 declare const window: PreloadWindow
 const { sendBackIpc, listenMainIpc, unlistenMainIpc } = window.derealize
+
+const toast = createStandaloneToast({
+  defaultOptions: {
+    duration: 6000,
+    isClosable: true,
+  },
+})
 
 // 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
 // 本质上所有variant都可以多选应用在同一个属性上
@@ -39,6 +47,10 @@ export interface ElementState extends ElementPayload {
   dropzoneCodePosition?: string
 }
 
+export interface ElementHistory extends ElementPayload {
+  originalClassname: string
+}
+
 export interface ElementModel {
   elements: Array<ElementState>
   activeElement: Computed<ElementModel, ElementState | undefined, StoreModel>
@@ -63,6 +75,12 @@ export interface ElementModel {
 
   listen: Thunk<ElementModel, void, void, StoreModel>
   unlisten: Action<ElementModel>
+
+  // historys: Array<{ history: Array<ElementHistory>; projectId: string }>
+  historys: { [key: string]: Array<ElementHistory> }
+  pushHistory: Action<ElementModel, ElementHistory>
+  revokeHistory: Action<ElementModel, string>
+  cleanHistory: Action<ElementModel, string>
 }
 
 const elementModel: ElementModel = {
@@ -195,6 +213,7 @@ const elementModel: ElementModel = {
 
     sendBackIpc(Handler.ApplyElements, payloads as any)
     state.elements = elements.filter((el) => el.projectId !== projectId || el.selected)
+    state.historys[projectId] = []
   }),
 
   droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
@@ -237,7 +256,7 @@ const elementModel: ElementModel = {
     element.propertys = element.propertys.filter((p) => p.id !== propertyId)
   }),
 
-  listen: thunk(async (actions, none, { getStoreState }) => {
+  listen: thunk(async (actions, none, { getState, getStoreState }) => {
     actions.unlisten()
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
@@ -256,12 +275,23 @@ const elementModel: ElementModel = {
       actions.cleanElements(projectId)
     })
 
-    listenMainIpc(MainIpcChannel.ElementShortcut, (event: IpcRendererEvent, key: string) => {
+    listenMainIpc(MainIpcChannel.ElementShortcut, (event: IpcRendererEvent, key: string, payload: any) => {
       const { frontProject } = getStoreState().project
       if (!frontProject) return
 
       if (key === 'Save') {
         actions.savedElements(frontProject.id)
+      } else if (key === 'Delete') {
+        if (getState().elements.length) {
+          toast({
+            title: 'Please save the existing modified element before delete the element',
+            status: 'warning',
+          })
+          return
+        }
+        if (window.confirm('Sure Delete?')) {
+          sendBackIpc(Handler.DeleteElement, { projectId: frontProject.id, codePosition: payload })
+        }
       }
     })
 
@@ -277,6 +307,25 @@ const elementModel: ElementModel = {
     unlistenMainIpc(MainIpcChannel.ElementShortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Dropped)
+  }),
+
+  historys: {},
+  pushHistory: action((state, payload) => {
+    const exist = state.historys[payload.projectId]
+    if (exist) {
+      exist.push(payload)
+    } else {
+      state.historys[payload.projectId] = [payload]
+    }
+  }),
+  revokeHistory: action((state, projectId) => {
+    const exist = state.historys[projectId]
+    if (exist) {
+      const history = exist.pop()
+    }
+  }),
+  cleanHistory: action((state, projectId) => {
+    state.historys[projectId] = []
   }),
 }
 
