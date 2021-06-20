@@ -449,11 +449,11 @@ ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, projectId, className, needRes
   }
 })
 
-ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId, text) => {
+ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId, selector, text) => {
   if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.send(MainIpcChannel.LiveUpdateText, text)
+    project.view.webContents.send(MainIpcChannel.LiveUpdateText, selector, text)
   }
 })
 
