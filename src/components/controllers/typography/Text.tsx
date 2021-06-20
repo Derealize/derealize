@@ -16,8 +16,9 @@ const Text: React.FC = (): JSX.Element => {
 
   const handleInsert = useCallback(() => {
     if (!element || text === undefined) return
-    setActiveElementText({ projectId: element.projectId, text })
-    sendMainIpc(MainIpcChannel.LiveUpdateText, element.projectId, text)
+    const { projectId, selector } = element
+    setActiveElementText({ projectId, text })
+    sendMainIpc(MainIpcChannel.LiveUpdateText, projectId, selector, text)
   }, [element, setActiveElementText, text])
 
   useEffect(() => {

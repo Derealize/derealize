@@ -209,9 +209,15 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, className, needRes
   }
 })
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, text: string) => {
-  if (activeElement) {
+ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, sel: string, text: string) => {
+  if (activeElement && sel === selector) {
     activeElement.innerText = text
+    respElementActualStatus()
+  } else {
+    const element = document.querySelector(sel) as HTMLElement
+    if (element) {
+      element.innerText = text
+    }
   }
 })
 
@@ -240,9 +246,9 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
   }
 })
 
-ipcRenderer.on(MainIpcChannel.Revoke, (e: Event, states: Array<ElementHistoryStatus>) => {
+ipcRenderer.on(MainIpcChannel.Revoke, (e: Event, states: Array<ElementPayload>) => {
   states.forEach((state) => {
-    const { selector: sel, className, text, tagName } = state
+    const { selector: sel, className, text, originalText, tagName, originalTagName } = state
     const element = document.querySelector(sel) as HTMLElement
     if (element) {
       element.className = className
