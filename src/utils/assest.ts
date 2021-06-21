@@ -1,3 +1,5 @@
+import type { Property } from '../models/controlles/controlles'
+
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -20,6 +22,33 @@ export const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
 
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
+
+export const propertysTransClassName = (propertys: Array<Property>) => {
+  let result = ''
+  propertys.forEach((property) => {
+    const { screen, state, list, custom, dark, classname } = property
+    if (!classname) return
+
+    let variants = ''
+    if (screen) {
+      variants += `${screen}:`
+    }
+    if (state) {
+      variants += `${state}:`
+    }
+    if (list) {
+      variants += `${list}:`
+    }
+    if (custom) {
+      variants += `${custom}:`
+    }
+    if (dark) {
+      variants += `dark:`
+    }
+    result += `${variants + classname} `
+  })
+  return result
+}
 
 // https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
 export const ReplacedElementTagName = [

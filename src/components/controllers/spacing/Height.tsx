@@ -10,7 +10,7 @@ import { InlineDisplays } from '../../../utils/assest'
 
 const Height: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const values = useStoreState<Array<string>>((state) => state.spacing.heightValues)
   const propertys = useStoreState<Array<Property>>((state) => state.spacing.heightPropertys)

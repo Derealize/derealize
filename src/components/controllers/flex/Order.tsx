@@ -8,7 +8,7 @@ import { ElementState } from '../../../models/element'
 
 const Order: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const orderValues = useStoreState<Array<string>>((state) => state.layout.orderValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.orderPropertys)

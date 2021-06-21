@@ -33,7 +33,7 @@ const Container: React.FC = (): JSX.Element => {
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.containerPropertys)
   const property = useComputeProperty(propertys)
 

@@ -1,10 +1,11 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import { nanoid } from 'nanoid'
-import type { StoreModel } from '../index'
-import { MainIpcChannel, JitTiggerPayload } from '../../interface'
+import { propertysTransClassName } from '../../utils/assest'
 import { StateVariantsType, ListVariantsType } from '../element'
-import type { PreloadWindow } from '../../preload'
+import { MainIpcChannel, JitTiggerPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'
+import type { StoreModel } from '../index'
+import type { PreloadWindow } from '../../preload'
 import type { Project } from '../project.interface'
 // import { resolutionAll, compileAll } from './direction-polymorphism'
 
@@ -101,34 +102,11 @@ const controllesModel: ControllesModel = {
       })
     }
 
-    let className = ''
-    propertysClone.forEach((item) => {
-      const { screen, state, list, custom, dark, classname: name } = item
-      if (!name) return
-
-      let variants = ''
-      if (screen) {
-        variants += `${screen}:`
-      }
-      if (state && state !== selectStateVariant) {
-        variants += `${state}:`
-      }
-      if (list) {
-        variants += `${list}:`
-      }
-      if (custom) {
-        variants += `${custom}:`
-      }
-      if (dark) {
-        variants += `dark:`
-      }
-      className += `${variants + name} `
-    })
-
+    const className = propertysTransClassName(propertysClone)
     sendMainIpc(MainIpcChannel.LiveUpdateClass, projectId, className)
   }),
 
-  liveApplyClassName: thunk(async (actions, none, { getState, getStoreState }) => {
+  liveApplyClassName: thunk(async (actions, none, { getStoreState }) => {
     const {
       project: { frontProject },
       element: { activeElement },
@@ -136,32 +114,7 @@ const controllesModel: ControllesModel = {
 
     if (!frontProject || !activeElement) return
 
-    const { selectStateVariant } = getState()
-
-    let className = ''
-    activeElement.propertys.forEach((property) => {
-      const { screen, state, list, custom, dark, classname: name } = property
-      if (!name) return
-
-      let variants = ''
-      if (screen) {
-        variants += `${screen}:`
-      }
-      if (state && state !== selectStateVariant) {
-        variants += `${state}:`
-      }
-      if (list) {
-        variants += `${list}:`
-      }
-      if (custom) {
-        variants += `${custom}:`
-      }
-      if (dark) {
-        variants += `dark:`
-      }
-      className += `${variants + name} `
-    })
-
+    const className = propertysTransClassName(activeElement.propertys)
     sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, className, true)
   }),
   jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
@@ -243,7 +196,7 @@ const controllesModel: ControllesModel = {
     state.expandVariants = payload
   }),
 
-  alreadyVariants: computed([(state, storeState) => storeState.element.activePropertys], (propertys) => {
+  alreadyVariants: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) => {
     const screens = propertys.filter((property) => property.screen).map((property) => property.screen as string)
     const states = propertys.filter((property) => property.state).map((property) => property.state as string)
     const lists = propertys.filter((property) => property.list).map((property) => property.list as string)

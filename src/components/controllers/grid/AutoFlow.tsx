@@ -9,7 +9,7 @@ import { ElementState } from '../../../models/element'
 
 const AutoFlow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.autoFlowPropertys)
   const property = useComputeProperty(propertys)

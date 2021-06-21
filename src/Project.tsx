@@ -23,8 +23,8 @@ const ProjectPage: React.FC = (): JSX.Element => {
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
-  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
+  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
 

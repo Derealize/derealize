@@ -11,7 +11,7 @@ import { ElementState } from '../../../models/element'
 const BackgroundImage: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const toggleModal = useStoreActions((actions) => actions.project.toggleImagesModal)
 
   const values = useStoreState<Array<string>>((state) => state.background.backgroundImageValues)
