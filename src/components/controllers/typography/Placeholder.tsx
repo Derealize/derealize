@@ -11,7 +11,7 @@ const Tags = ['input', 'textarea']
 
 const Placeholder: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
 
   const values = useStoreState<Array<GroupType>>((state) => state.typography.placeholderColorValues)

@@ -9,7 +9,7 @@ declare const window: PreloadWindow
 const { sendMainIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const setActiveElementTag = useStoreActions((actions) => actions.element.setActiveElementTag)
 
   const elementType = useMemo(

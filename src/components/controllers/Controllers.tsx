@@ -39,8 +39,8 @@ enum ControllerTab {
 }
 
 const Controllers: React.FC = (): JSX.Element => {
-  const propertys = useStoreState<Array<Property>>((state) => state.element.activePropertys)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
+  const propertys = useStoreState<Array<Property>>((state) => state.element.selectedElementPropertys)
   const [tabIndex, setTabIndex] = useState(propertys.length ? ControllerTab.Already : ControllerTab.Layout)
 
   useEffect(() => {

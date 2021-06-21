@@ -11,7 +11,7 @@ const Tags = ['ul', 'ol', 'dl']
 
 const ListStyle: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.typography.listStylePropertys)
   const property = useComputeProperty(propertys)

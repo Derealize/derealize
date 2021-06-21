@@ -9,7 +9,7 @@ declare const window: PreloadWindow
 const { sendMainIpc } = window.derealize
 
 const Text: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const setActiveElementText = useStoreActions((actions) => actions.element.setActiveElementText)
 
   const [text, setText] = useState<string | undefined>(element?.text)
