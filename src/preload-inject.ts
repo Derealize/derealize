@@ -3,14 +3,7 @@ import { Droppable, DroppableEventNames, DroppableDroppedEvent } from '@shopify/
 import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
-import {
-  ElementPayload,
-  ElementActualStatus,
-  BreadcrumbPayload,
-  MainIpcChannel,
-  ElementTag,
-  ElementHistoryStatus,
-} from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { preloadCSS, sectionHTML } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -200,14 +193,22 @@ const derealizeListener = (e: Event) => {
   inspectActiveElement(e.currentTarget as HTMLElement)
 }
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, className, needRespStatus) => {
-  if (activeElement) {
-    activeElement.className = className
-    if (needRespStatus) {
-      respElementActualStatus() // 性能不好
+ipcRenderer.on(
+  MainIpcChannel.LiveUpdateClass,
+  (event: Event, sel: string, className: string, needRespStatus: boolean) => {
+    if (activeElement && sel === selector) {
+      activeElement.className = className
+      if (needRespStatus) {
+        respElementActualStatus() // 性能不好
+      }
+    } else {
+      const element = document.querySelector(sel) as HTMLElement
+      if (element) {
+        element.className = className
+      }
     }
-  }
-})
+  },
+)
 
 ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, sel: string, text: string) => {
   if (activeElement && sel === selector) {
@@ -221,10 +222,15 @@ ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, sel: string, text: 
   }
 })
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateTag, (event: Event, tag: ElementTag) => {
-  if (activeElement) {
+ipcRenderer.on(MainIpcChannel.LiveUpdateTag, (event: Event, sel: string, tag: ElementTag) => {
+  if (activeElement && sel === selector) {
     changeTag(activeElement, tag)
     respElementActualStatus()
+  } else {
+    const element = document.querySelector(sel) as HTMLElement
+    if (element) {
+      changeTag(element, tag)
+    }
   }
 })
 
@@ -244,21 +250,6 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
       hoverElement.setAttribute('data-hover', 'true')
     }
   }
-})
-
-ipcRenderer.on(MainIpcChannel.Revoke, (e: Event, states: Array<ElementPayload>) => {
-  states.forEach((state) => {
-    const { selector: sel, className, text, originalText, tagName, originalTagName } = state
-    const element = document.querySelector(sel) as HTMLElement
-    if (element) {
-      element.className = className
-      if (text !== undefined) {
-        element.innerText = text
-      }
-      changeTag(element, tagName)
-    }
-  })
-  respElementActualStatus()
 })
 
 const listenElement = () => {

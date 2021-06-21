@@ -441,15 +441,18 @@ ipcMain.on(MainIpcChannel.Flush, (event, projectId: string) => {
   }
 })
 
-ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, projectId, className, needRespStatus) => {
-  if (!mainWindow) return
-  const project = projects.get(projectId)
-  if (project) {
-    project.view.webContents.send(MainIpcChannel.LiveUpdateClass, className, needRespStatus)
-  }
-})
+ipcMain.on(
+  MainIpcChannel.LiveUpdateClass,
+  (event, projectId: string, selector: string, className: string, needRespStatus: boolean) => {
+    if (!mainWindow) return
+    const project = projects.get(projectId)
+    if (project) {
+      project.view.webContents.send(MainIpcChannel.LiveUpdateClass, selector, className, needRespStatus)
+    }
+  },
+)
 
-ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId, selector, text) => {
+ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId: string, selector: string, text: string) => {
   if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
@@ -457,11 +460,11 @@ ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId, selector, text) => 
   }
 })
 
-ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId, tag: ElementTag) => {
+ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId: string, selector: string, tag: ElementTag) => {
   if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.send(MainIpcChannel.LiveUpdateTag, tag)
+    project.view.webContents.send(MainIpcChannel.LiveUpdateTag, selector, tag)
   }
 })
 
@@ -470,14 +473,6 @@ ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) 
   const project = projects.get(payload.projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.SelectBreadcrumb, payload)
-  }
-})
-
-ipcMain.on(MainIpcChannel.Revoke, (event, projectId: string, states: Array<ElementPayload>) => {
-  if (!mainWindow) return
-  const project = projects.get(projectId)
-  if (project) {
-    project.view.webContents.send(MainIpcChannel.Revoke, states)
   }
 })
 

@@ -21,9 +21,7 @@ export interface ElementPayload extends ProjectIdParam {
   className: string
   selector: string
   text?: string
-  originalText?: string
-  tagName?: ElementTag
-  originalTagName?: string
+  tagName?: string
   dropzoneCodePosition?: string
 }
 
@@ -105,7 +103,6 @@ export enum MainIpcChannel {
   LiveUpdateTag = 'LiveUpdateTag',
   TextTab = 'TextTab',
   Dropped = 'Dropped',
-  Revoke = 'Revoke',
 }
 
 export const ControllerShortcut = [

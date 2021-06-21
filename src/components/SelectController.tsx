@@ -74,13 +74,13 @@ const SelectController: React.FC<Props> = ({
   doclink,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const toggleColorsModal = useStoreActions((actions) => actions.project.colorsModalToggle)
 
   const jitClassNames = useStoreActions((actions) => actions.controlles.jitClassNames)
   const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
-  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyClassName)
+  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyValue)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)

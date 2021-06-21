@@ -11,7 +11,7 @@ export const InsetPositions = ['fixed', 'absolute', 'relative', 'sticky']
 
 const Inset: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const valuesTop = useStoreState<Array<string>>((state) => state.layout.topValues)
   const propertysTop = useStoreState<Array<Property>>((state) => state.layout.topPropertys)

@@ -9,7 +9,7 @@ import { ElementState } from '../../../models/element'
 
 const ColEnd: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const values = useStoreState<Array<string>>((state) => state.layout.colEndValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.colEndPropertys)

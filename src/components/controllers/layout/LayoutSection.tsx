@@ -71,7 +71,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
-  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyClassName)
+  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyValue)
 
   if (!project) return <></>
 

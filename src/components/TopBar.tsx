@@ -16,11 +16,12 @@ import {
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
+import { MdUndo, MdRedo } from 'react-icons/md'
 import { IoIosArrowDown } from 'react-icons/io'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { Project, ProjectView } from '../models/project.interface'
-import type { ElementState } from '../models/element'
+import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import { MainIpcChannel, BreadcrumbPayload } from '../interface'
@@ -52,9 +53,14 @@ const TopBar: React.FC = (): JSX.Element => {
   const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
 
   const callGitHistory = useStoreActions((actions) => actions.project.callGitHistory)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
-  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.activePendingElements)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
+  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
+
+  const historys = useStoreState<Array<ElementHistory>>((state) => state.element.frontHistory)
+
+  const revokeHistory = useStoreActions((actions) => actions.element.revokeHistory)
+  const redoHistory = useStoreActions((actions) => actions.element.redoHistory)
 
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
@@ -141,7 +147,26 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!pendingElements?.length}>
+        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!historys.filter((h) => !h.revoked)?.length}>
+          <Tooltip label="Undo">
+            <IconButton
+              borderRadius="full"
+              aria-label="Undo"
+              icon={<MdUndo />}
+              onClick={() => revokeHistory(project.id)}
+            />
+          </Tooltip>
+          <Tooltip label="Redo">
+            <IconButton
+              borderRadius="full"
+              aria-label="Redo"
+              icon={<MdRedo />}
+              onClick={() => redoHistory(project.id)}
+            />
+          </Tooltip>
+        </ButtonGroup>
+
+        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!historys.filter((h) => h.revoked)?.length}>
           <Button
             borderRadius="full"
             mr="-px"
