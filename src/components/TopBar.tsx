@@ -147,11 +147,12 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!historys.filter((h) => !h.revoked)?.length}>
+        <ButtonGroup size="sm" isAttached variant="outline">
           <Tooltip label="Undo">
             <IconButton
               borderRadius="full"
               aria-label="Undo"
+              isDisabled={!historys.filter((h) => !h.revoked)?.length}
               icon={<MdUndo />}
               onClick={() => revokeHistory(project.id)}
             />
@@ -160,19 +161,15 @@ const TopBar: React.FC = (): JSX.Element => {
             <IconButton
               borderRadius="full"
               aria-label="Redo"
+              isDisabled={!historys.filter((h) => h.revoked)?.length}
               icon={<MdRedo />}
               onClick={() => redoHistory(project.id)}
             />
           </Tooltip>
         </ButtonGroup>
 
-        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!historys.filter((h) => h.revoked)?.length}>
-          <Button
-            borderRadius="full"
-            mr="-px"
-            disabled={!pendingElements?.length}
-            onClick={() => savedElements(project.id)}
-          >
+        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!pendingElements?.length}>
+          <Button borderRadius="full" mr="-px" onClick={() => savedElements(project.id)}>
             Save
           </Button>
           <IconButton
