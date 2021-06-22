@@ -147,7 +147,7 @@ const TopBar: React.FC = (): JSX.Element => {
           />
         </Tooltip>
 
-        <ButtonGroup size="sm" isAttached variant="outline">
+        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
           <Tooltip label="Undo">
             <IconButton
               borderRadius="full"
@@ -168,7 +168,7 @@ const TopBar: React.FC = (): JSX.Element => {
           </Tooltip>
         </ButtonGroup>
 
-        <ButtonGroup size="sm" isAttached variant="outline" isDisabled={!pendingElements?.length}>
+        <ButtonGroup size="sm" ml={2} isAttached variant="outline" isDisabled={!pendingElements?.length}>
           <Button borderRadius="full" mr="-px" onClick={() => savedElements(project.id)}>
             Save
           </Button>
