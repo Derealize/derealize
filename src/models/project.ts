@@ -318,7 +318,7 @@ const projectModel: ProjectModel = {
     storeProject(state.projects)
   }),
 
-  listen: thunk(async (actions, none, { getState }) => {
+  listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
     listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
@@ -367,6 +367,10 @@ const projectModel: ProjectModel = {
         actions.toggleImagesModal(undefined)
       } else if (key === 'Colors Manager') {
         actions.colorsModalToggle({ show: !colorsModalShow })
+      } else if (key === 'Undo') {
+        getStoreActions().element.revokeHistory(frontProject.id)
+      } else if (key === 'Redo') {
+        getStoreActions().element.redoHistory(frontProject.id)
       }
     })
 

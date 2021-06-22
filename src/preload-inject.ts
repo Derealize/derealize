@@ -116,70 +116,70 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
   const actualStatus = respElementActualStatus()
   if (!actualStatus) throw new Error('actualStatus null')
 
-  const isEmptyElement = EmptyElement.includes(tagName.toLowerCase())
+  // const isEmptyElement = EmptyElement.includes(tagName.toLowerCase())
 
-  if (!isEmptyElement && actualStatus.position === 'static') {
-    activeElement.style.cssText = 'position: relative'
-  }
+  // if (!isEmptyElement && actualStatus.position === 'static') {
+  //   activeElement.style.cssText = 'position: relative'
+  // }
 
-  // todo: for weapp...
-  if (ISWEAPP) return
+  // // todo: for weapp...
+  // if (ISWEAPP) return
 
-  if (isEmptyElement) {
-    const wrapper = document.createElement('div')
+  // if (isEmptyElement) {
+  //   const wrapper = document.createElement('div')
 
-    wrapper.className = `de-wrapper ${className}`
-    wrapper.style.cssText = `
-      display: ${actualStatus.display};
-      position: ${actualStatus.position === 'static' ? 'relative' : actualStatus.position}`
+  //   wrapper.className = `de-wrapper ${className}`
+  //   wrapper.style.cssText = `
+  //     display: ${actualStatus.display};
+  //     position: ${actualStatus.position === 'static' ? 'relative' : actualStatus.position}`
 
-    activeElement.parentNode?.insertBefore(wrapper, activeElement)
-    wrapper.appendChild(activeElement)
+  //   activeElement.parentNode?.insertBefore(wrapper, activeElement)
+  //   wrapper.appendChild(activeElement)
 
-    wrapper.insertAdjacentHTML('afterbegin', sectionHTML(wrapper.getBoundingClientRect().top < 26))
-  } else {
-    activeElement.insertAdjacentHTML('afterbegin', sectionHTML(activeElement.getBoundingClientRect().top < 26))
-  }
+  //   wrapper.insertAdjacentHTML('afterbegin', sectionHTML(wrapper.getBoundingClientRect().top < 26))
+  // } else {
+  //   activeElement.insertAdjacentHTML('afterbegin', sectionHTML(activeElement.getBoundingClientRect().top < 26))
+  // }
 
-  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.ElementShortcut, codePosition)
-  })
-  activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.ControllerShortcut, 'Alt+9')
-  })
+  // activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
+  //   e.stopPropagation()
+  //   ipcRenderer.send(MainIpcChannel.ElementShortcut, 'Delete', codePosition)
+  // })
+  // activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
+  //   e.stopPropagation()
+  //   ipcRenderer.send(MainIpcChannel.ControllerShortcut, 'Alt+9')
+  // })
 
-  const tags = DropzoneTags
-  if (tagName === 'LI') {
-    tags.push('ul')
-    tags.push('ol')
-  }
+  // const tags = DropzoneTags
+  // if (tagName === 'LI') {
+  //   tags.push('ul')
+  //   tags.push('ol')
+  // }
 
   // console.log('droppable?.destroy()')
-  droppable?.destroy()
-  droppable = new Droppable(document.querySelectorAll('body > *'), {
-    draggable: isEmptyElement ? 'div.de-wrapper' : '[data-active]',
-    handle: isEmptyElement ? 'div.de-wrapper i.de-handle' : '[data-active] i.de-handle',
-    dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
-  })
-  droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
-    // console.log('dropped:dragEvent:source', e.dragEvent.source)
-    // console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
-    // console.log('dropped:dropzone', e.dropzone)
+  // droppable?.destroy()
+  // droppable = new Droppable(document.querySelectorAll('body > *'), {
+  //   draggable: isEmptyElement ? 'div.de-wrapper' : '[data-active]',
+  //   handle: isEmptyElement ? 'div.de-wrapper i.de-handle' : '[data-active] i.de-handle',
+  //   dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
+  // })
+  // droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
+  //   // console.log('dropped:dragEvent:source', e.dragEvent.source)
+  //   // console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
+  //   // console.log('dropped:dropzone', e.dropzone)
 
-    const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
-    if (!PROJECTID || !dropzoneCodePosition) return
-    const mpayload: ElementPayload = {
-      projectId: PROJECTID,
-      codePosition,
-      dropzoneCodePosition,
-      className,
-      selector: selector || '',
-    }
-    ipcRenderer.send(MainIpcChannel.Dropped, mpayload)
-  })
-  droppable.on('droppable:returned', () => console.log('droppable:returned'))
+  //   const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
+  //   if (!PROJECTID || !dropzoneCodePosition) return
+  //   const mpayload: ElementPayload = {
+  //     projectId: PROJECTID,
+  //     codePosition,
+  //     dropzoneCodePosition,
+  //     className,
+  //     selector: selector || '',
+  //   }
+  //   ipcRenderer.send(MainIpcChannel.Dropped, mpayload)
+  // })
+  // droppable.on('droppable:returned', () => console.log('droppable:returned'))
 }
 
 const derealizeListener = (e: Event) => {

@@ -23,13 +23,7 @@ const Insert: React.FC = (): JSX.Element => {
   const [selTagType, setSelTagType] = useState(ElementTag.div)
 
   const handleInsert = useCallback(() => {
-    if (!element) {
-      toast({
-        title: 'Element is not selected',
-        status: 'error',
-      })
-      return
-    }
+    if (!element) throw Error('Element is not selected')
 
     if (states?.elements.length) {
       toast({
@@ -46,6 +40,22 @@ const Insert: React.FC = (): JSX.Element => {
     }
     sendBackIpc(Handler.InsertElement, payload as any)
   }, [element, selInsertMode, selTagType, states?.elements.length, toast])
+
+  const handleDelete = useCallback(() => {
+    if (!element) throw Error('Element is not selected')
+
+    if (states?.elements.length) {
+      toast({
+        title: 'Please save the existing modified element before insert new element',
+        status: 'warning',
+      })
+      return
+    }
+
+    if (window.confirm('Sure Delete?')) {
+      sendBackIpc(Handler.DeleteElement, element as any)
+    }
+  }, [element, states?.elements.length, toast])
 
   return (
     <VStack alignItems="stretch">
@@ -98,6 +108,9 @@ const Insert: React.FC = (): JSX.Element => {
 
       <Button colorScheme="pink" variant="ghost" onClick={handleInsert}>
         Add
+      </Button>
+      <Button colorScheme="pink" variant="ghost" onClick={handleDelete}>
+        Delete
       </Button>
     </VStack>
   )
