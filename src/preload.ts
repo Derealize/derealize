@@ -50,6 +50,7 @@ export interface PreloadWindow extends Window {
   env: {
     isDev: boolean
     isMac: boolean
+    withRuntime: boolean
     port: boolean
     isMaximized: () => boolean
   }
