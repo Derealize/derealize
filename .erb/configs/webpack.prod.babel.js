@@ -189,6 +189,7 @@ export default merge(baseConfig, {
       // 字符串值会当作代码片段!
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
+      WITH_RUNTIME: process.env.WITH_RUNTIME === 'true',
     }),
 
     new MiniCssExtractPlugin({
