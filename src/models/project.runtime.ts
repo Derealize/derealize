@@ -4,9 +4,16 @@ import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
-import type { StatusPayload, PayloadError, BoolReply } from '../backend/backend.interface'
-import { Broadcast, Handler } from '../backend/backend.interface'
-import { ProjectView, Project, BackgroundImage, Colors } from './project.interface'
+import type {
+  ProcessPayload,
+  CommitLog,
+  StatusPayloadWithRuntime,
+  PayloadError,
+  HistoryReply,
+  BoolReply,
+} from '../backend/backend.interface'
+import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
+import { ProjectViewWithRuntime, ProjectWithRuntime, BackgroundImage, Colors } from './project.interface'
 import { MainIpcChannel, ImportPayload } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
@@ -23,8 +30,8 @@ const toast = createStandaloneToast({
   },
 })
 
-const mainFrontView = (project?: Project) => {
-  if (project?.view === ProjectView.BrowserView) {
+const mainFrontView = (project?: ProjectWithRuntime) => {
+  if (project?.view === ProjectViewWithRuntime.BrowserView) {
     if (!project.config) throw new Error('project.config null')
     sendMainIpc(
       MainIpcChannel.FrontView,
@@ -38,51 +45,61 @@ const mainFrontView = (project?: Project) => {
   }
 }
 
-export interface ProjectModel {
-  projects: Array<Project>
-  setProjects: Action<ProjectModel, Array<Project>>
+export interface ProjectWithRuntimeModel {
+  projects: Array<ProjectWithRuntime>
+  setProjects: Action<ProjectWithRuntimeModel, Array<ProjectWithRuntime>>
 
-  editingProject: Computed<ProjectModel, Project | undefined>
-  setEditingProject: Action<ProjectModel, string | null>
-  editProject: Action<ProjectModel, { displayname: string }>
+  editingProject: Computed<ProjectWithRuntimeModel, ProjectWithRuntime | undefined>
+  setEditingProject: Action<ProjectWithRuntimeModel, string | null>
+  editProject: Action<ProjectWithRuntimeModel, { displayname: string; branch: string }>
 
-  openedProjects: Computed<ProjectModel, Array<Project>>
-  frontProject: Computed<ProjectModel, Project | undefined>
+  openedProjects: Computed<ProjectWithRuntimeModel, Array<ProjectWithRuntime>>
+  frontProject: Computed<ProjectWithRuntimeModel, ProjectWithRuntime | undefined>
+  isReady: Computed<ProjectWithRuntimeModel, (id: string) => boolean | undefined>
 
-  addProject: Action<ProjectModel, Project>
-  removeProject: Action<ProjectModel, string>
-  removeProjectThunk: Thunk<ProjectModel, string>
+  addProject: Action<ProjectWithRuntimeModel, ProjectWithRuntime>
+  removeProject: Action<ProjectWithRuntimeModel, string>
+  removeProjectThunk: Thunk<ProjectWithRuntimeModel, string>
 
-  setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
-  setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
+  pushRunningOutput: Action<ProjectWithRuntimeModel, { projectId: string; output: string }>
+  emptyRunningOutput: Action<ProjectWithRuntimeModel, string>
+  setStartLoading: Action<ProjectWithRuntimeModel, { projectId: string; loading: boolean }>
+  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectView }>
+  setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
 
-  flushProject: Action<ProjectModel, string>
-  setFrontProject: Action<ProjectModel, string | null>
+  flushProject: Action<ProjectWithRuntimeModel, string>
+  setFrontProject: Action<ProjectWithRuntimeModel, string | null>
+  startProject: Thunk<ProjectWithRuntimeModel, string>
+  stopProject: Action<ProjectWithRuntimeModel, string>
 
-  toggleProject: Action<ProjectModel, { projectId: string; open: boolean }>
-  openProject: Thunk<ProjectModel, string>
-  closeProject: Thunk<ProjectModel, string | undefined>
+  toggleProject: Action<ProjectWithRuntimeModel, { projectId: string; open: boolean }>
+  openProject: Thunk<ProjectWithRuntimeModel, string>
+  closeProject: Thunk<ProjectWithRuntimeModel, string | undefined>
 
-  setProjectStatus: Action<ProjectModel, StatusPayload>
-  loadStore: Thunk<ProjectModel>
-  listen: Thunk<ProjectModel, void, void, StoreModel>
-  unlisten: Action<ProjectModel>
+  setProjectStatus: Action<ProjectWithRuntimeModel, StatusPayloadWithRuntime>
+  loadStore: Thunk<ProjectWithRuntimeModel>
+  listen: Thunk<ProjectWithRuntimeModel, void, void, StoreModel>
+  unlisten: Action<ProjectWithRuntimeModel>
 
   importModalDisclosure: boolean
-  toggleImportModal: Action<ProjectModel, boolean | undefined>
+  toggleImportModal: Action<ProjectWithRuntimeModel, boolean | undefined>
 
   imagesModalDisclosure: boolean
-  toggleImagesModal: Action<ProjectModel, boolean | undefined>
-  modalImages: Computed<ProjectModel, BackgroundImage[]>
+  toggleImagesModal: Action<ProjectWithRuntimeModel, boolean | undefined>
+  modalImages: Computed<ProjectWithRuntimeModel, BackgroundImage[]>
 
   colorsModalShow: boolean
   colorsModalData: { colors: Colors; theme: string } | undefined
-  colorsModalToggle: Action<ProjectModel, { show: boolean; colors?: Colors; theme?: string }>
+  colorsModalToggle: Action<ProjectWithRuntimeModel, { show: boolean; colors?: Colors; theme?: string }>
 
-  setJitClassName: Action<ProjectModel, { projectId: string; className: string }>
+  gitHistorys: Array<CommitLog>
+  setGitHistorys: Action<ProjectWithRuntimeModel, Array<CommitLog>>
+  callGitHistory: Thunk<ProjectWithRuntimeModel>
+
+  setJitClassName: Action<ProjectWithRuntimeModel, { projectId: string; className: string }>
 }
 
-const projectModel: ProjectModel = {
+const projectModel: ProjectWithRuntimeModel = {
   projects: [],
   setProjects: action((state, projects) => {
     state.projects = [...projects]
@@ -105,11 +122,12 @@ const projectModel: ProjectModel = {
       mainFrontView(state.frontProject)
     }
   }),
-  editProject: action((state, { displayname }) => {
+  editProject: action((state, { displayname, branch }) => {
     const project = state.projects.find((p) => p.isEditing)
     if (!project) return
 
     project.name = displayname
+    project.branch = branch
     storeProject(state.projects)
   }),
 
@@ -119,6 +137,10 @@ const projectModel: ProjectModel = {
   frontProject: computed((state) => {
     return state.projects.find((p) => p.isFront)
   }),
+  isReady: computed((state) => (id) => {
+    return state.projects.find((p) => p.id === id)?.status === ProjectStatus.Ready
+  }),
+
   addProject: action((state, project) => {
     if (state.projects.some((p) => p.id === project.id)) {
       throw Error('projectId already exist.')
@@ -137,6 +159,26 @@ const projectModel: ProjectModel = {
     actions.removeProject(projectId)
   }),
 
+  pushRunningOutput: action((state, { projectId, output }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      if (!project.runningOutput) project.runningOutput = []
+      project.runningOutput.push(output)
+    }
+  }),
+  emptyRunningOutput: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.runningOutput = []
+    }
+  }),
+
+  setStartLoading: action((state, { projectId, loading }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      project.startloading = loading
+    }
+  }),
   setProjectView: action((state, { projectId, view }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
@@ -170,6 +212,29 @@ const projectModel: ProjectModel = {
     mainFrontView(project)
   }),
 
+  startProject: thunk(async (actions, projectId, { getState }) => {
+    const project = getState().projects.find((p) => p.id === projectId)
+    if (!project) return
+
+    actions.emptyRunningOutput(projectId)
+    actions.setStartLoading({ projectId, loading: true })
+    actions.setProjectView({ projectId, view: ProjectView.Debugging })
+    const reply = (await sendBackIpc(Handler.Start, { projectId })) as BoolReply
+    if (!reply.result) {
+      actions.setStartLoading({ projectId, loading: false })
+      toast({
+        title: reply.error,
+        status: 'error',
+      })
+    }
+  }),
+  stopProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (project) {
+      sendBackIpc(Handler.Stop, { projectId })
+    }
+  }),
+
   toggleProject: action((state, { projectId, open }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
@@ -180,6 +245,7 @@ const projectModel: ProjectModel = {
     if (!project) return
     actions.toggleProject({ projectId, open: true })
     await actions.setFrontProject(project.id)
+    await actions.startProject(project.id)
   }),
   closeProject: thunk((actions, projectId, { getState }) => {
     const { projects, openedProjects, frontProject } = getState()
@@ -214,9 +280,9 @@ const projectModel: ProjectModel = {
 
     await Promise.all(
       projects.map(async (project) => {
-        const { id: projectId, path } = project
+        const { id: projectId, url, path, branch } = project
 
-        const payload: ImportPayload = { projectId, path }
+        const payload: ImportPayload = { projectId, url, path, branch }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })
@@ -237,6 +303,16 @@ const projectModel: ProjectModel = {
     if (!project) return
 
     project.config = payload.config
+
+    if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
+      project.startloading = false
+      project.view = ProjectView.BrowserView
+      mainFrontView(project)
+      sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
+    }
+
+    project.status = payload.status
+    project.changes = payload.changes
     project.tailwindVersion = payload.tailwindVersion
     project.tailwindConfig = payload.tailwindConfig
     storeProject(state.projects)
@@ -245,7 +321,7 @@ const projectModel: ProjectModel = {
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
-    listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
+    listenBackIpc(Broadcast.Status, (payload: StatusPayloadWithRuntime | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -254,7 +330,33 @@ const projectModel: ProjectModel = {
         return
       }
 
-      actions.setProjectStatus(payload as StatusPayload)
+      actions.setProjectStatus(payload as StatusPayloadWithRuntime)
+    })
+
+    listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
+      if (payload.error) {
+        actions.setStartLoading({ projectId: payload.projectId, loading: false })
+        toast({
+          title: `Starting error:${payload.error}`,
+          status: 'error',
+        })
+        return
+      }
+
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === payload.projectId)
+      if (!project) return
+
+      const { id: projectId } = project
+
+      if (payload.stdout) {
+        actions.pushRunningOutput({ projectId, output: `stdout: ${payload.stdout}` })
+      } else if (payload.stderr) {
+        actions.pushRunningOutput({ projectId, output: `stderr: ${payload.stderr}` })
+      } else if (payload.exit !== undefined) {
+        actions.pushRunningOutput({ projectId, output: `exit: ${payload.error}` })
+        actions.setStartLoading({ projectId, loading: false })
+      }
     })
 
     listenMainIpc(MainIpcChannel.Shortcut, (event: IpcRendererEvent, key: string) => {
@@ -283,6 +385,7 @@ const projectModel: ProjectModel = {
 
   unlisten: action(() => {
     unlistenBackIpc(Broadcast.Status)
+    unlistenBackIpc(Broadcast.Starting)
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Flush)
@@ -337,6 +440,28 @@ const projectModel: ProjectModel = {
       mainFrontView(state.frontProject)
       state.colorsModalShow = false
       state.colorsModalData = undefined
+    }
+  }),
+
+  gitHistorys: [],
+  setGitHistorys: action((state, payload) => {
+    state.gitHistorys = payload
+  }),
+
+  callGitHistory: thunk(async (actions, none, { getState }) => {
+    actions.setGitHistorys([])
+
+    const { frontProject } = getState()
+    if (!frontProject) return
+
+    const reply = (await sendBackIpc(Handler.History, { projectId: frontProject.id })) as HistoryReply
+    if (reply.error) {
+      toast({
+        title: `callGitHistory error: ${reply.error}`,
+        status: 'error',
+      })
+    } else {
+      actions.setGitHistorys(reply.result)
     }
   }),
 
