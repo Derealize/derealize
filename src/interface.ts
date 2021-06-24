@@ -3,8 +3,11 @@ export interface ProjectIdParam {
 }
 
 export interface ImportPayload extends ProjectIdParam {
-  url: string
   path: string
+}
+
+export interface ImportPayloadWithRuntime extends ImportPayload {
+  url: string
   branch: string
 }
 
