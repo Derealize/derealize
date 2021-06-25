@@ -1,49 +1,44 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
-  useStyleConfig,
   useToast,
   Flex,
   Text,
   IconButton,
   Tooltip,
-  IconButtonProps,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   ButtonGroup,
   Button,
 } from '@chakra-ui/react'
+import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { MdUndo, MdRedo } from 'react-icons/md'
 import { IoIosArrowDown } from 'react-icons/io'
-import { Project, ProjectView } from '../models/project.interface'
+import type { BoolReply } from '../backend/backend.interface'
+import { ProjectStatus, Handler } from '../backend/backend.interface'
+import { ProjectWithRuntime, ProjectViewWithRuntime } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
 import { MainIpcChannel, BreadcrumbPayload } from '../interface'
 import type { PreloadWindow } from '../preload'
+import { BarIconButton } from './TopBar'
 
 declare const window: PreloadWindow
-const { sendMainIpc } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
-export const BarIconButton = React.forwardRef(
-  (props: { selected?: boolean } & IconButtonProps, ref: React.LegacyRef<HTMLButtonElement>) => {
-    const { selected, ...rest } = props
-    const styles = useStyleConfig('BarIconButton')
+const TopBarWithRuntime: React.FC = (): JSX.Element => {
+  const toast = useToast()
 
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    return <IconButton ref={ref} sx={styles} bg={selected ? 'gray.200' : 'transparent'} {...rest} />
-  },
-)
-BarIconButton.defaultProps = {
-  selected: false,
-}
+  const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.frontProject)
+  const startProject = useStoreActions((actions) => actions.projectWithRuntime.startProject)
+  const stopProject = useStoreActions((actions) => actions.projectWithRuntime.stopProject)
 
-const TopBar: React.FC = (): JSX.Element => {
-  const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
 
+  const callGitHistory = useStoreActions((actions) => actions.projectWithRuntime.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
@@ -57,6 +52,42 @@ const TopBar: React.FC = (): JSX.Element => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
 
+  const callPull = useCallback(async () => {
+    if (!project) return null
+
+    const reply = (await sendBackIpc(Handler.Pull, { projectId: project.id })) as BoolReply
+    if (reply.error) {
+      toast({
+        title: `Pull error:${reply.error}`,
+        status: 'error',
+      })
+    } else {
+      toast({
+        title: `Pull: ${reply.result}`,
+        status: 'success',
+      })
+    }
+    return null
+  }, [project, toast])
+
+  const callPush = useCallback(async () => {
+    if (!project) return null
+
+    const reply = (await sendBackIpc(Handler.Push, { projectId: project.id })) as BoolReply
+    if (reply.error) {
+      toast({
+        title: `Push error:${reply.error}`,
+        status: 'error',
+      })
+    } else {
+      toast({
+        title: `Push: ${reply.result}`,
+        status: 'success',
+      })
+    }
+    return null
+  }, [project, toast])
+
   if (!project) return <></>
 
   return (
@@ -67,6 +98,40 @@ const TopBar: React.FC = (): JSX.Element => {
           icon={<IoBookmarksOutline />}
           onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
         />
+
+        <Tooltip label="files status and history">
+          <BarIconButton
+            aria-label="FileStatus"
+            selected={project.view === ProjectViewWithRuntime.FileStatus}
+            icon={<HiOutlineStatusOnline />}
+            onClick={() => {
+              if (project.view !== ProjectViewWithRuntime.FileStatus) {
+                callGitHistory()
+                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.FileStatus })
+              } else {
+                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+              }
+            }}
+          />
+        </Tooltip>
+
+        <Tooltip label="pull remote files">
+          <BarIconButton
+            aria-label="Pull"
+            icon={<VscRepoPull />}
+            disabled={project.changes?.length !== 0}
+            onClick={() => callPull()}
+          />
+        </Tooltip>
+
+        <Tooltip label="push files to remote">
+          <BarIconButton
+            aria-label="Push"
+            icon={<VscRepoPush />}
+            disabled={project.changes?.length === 0}
+            onClick={() => callPush()}
+          />
+        </Tooltip>
 
         <ButtonGroup size="sm" ml={2} isAttached variant="outline">
           <Tooltip label="Undo">
@@ -100,7 +165,10 @@ const TopBar: React.FC = (): JSX.Element => {
             onClick={() => {
               setProjectView({
                 projectId: project.id,
-                view: project.view === ProjectView.Elements ? ProjectView.BrowserView : ProjectView.Elements,
+                view:
+                  project.view === ProjectViewWithRuntime.Elements
+                    ? ProjectViewWithRuntime.BrowserView
+                    : ProjectViewWithRuntime.Elements,
               })
             }}
           />
@@ -141,8 +209,32 @@ const TopBar: React.FC = (): JSX.Element => {
 
       <Flex align="center" justify="right">
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        {project.status === ProjectStatus.Ready && (
+          <Tooltip label="start">
+            <BarIconButton aria-label="Start" icon={<VscDebugStart />} onClick={() => startProject(project.id)} />
+          </Tooltip>
+        )}
+        {(project.status === ProjectStatus.Running || project.status === ProjectStatus.Starting) && (
+          <Tooltip label="stop">
+            <BarIconButton aria-label="Stop" icon={<VscDebugStop />} onClick={() => stopProject(project.id)} />
+          </Tooltip>
+        )}
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
+        <Tooltip label="debug information">
+          <BarIconButton
+            aria-label="Debug"
+            selected={project.view === ProjectViewWithRuntime.Debugging}
+            icon={<VscOutput />}
+            onClick={() => {
+              if (project.view !== ProjectViewWithRuntime.Debugging) {
+                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.Debugging })
+              } else {
+                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+              }
+            }}
+          />
+        </Tooltip>
         {/* <BarIconButton
           aria-label="Project Menu"
           icon={<CgMenu />}
@@ -153,4 +245,4 @@ const TopBar: React.FC = (): JSX.Element => {
   )
 }
 
-export default TopBar
+export default TopBarWithRuntime

@@ -14,6 +14,7 @@ import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
+const withRuntime = process.env.WITH_RUNTIME === 'true'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
 let socketId: string
 
@@ -304,22 +305,30 @@ const createBackendWindow = () => {
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('set-params', { socketId })
+    backendWin.webContents.send('set-params', { socketId, withRuntime })
   })
 }
 
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
-      execArgv: ['-r', './.erb/scripts/BabelRegister'],
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-    })
+    backendProcess = fork(
+      path.join(__dirname, 'backend/backend.ts'),
+      ['--subprocess', socketId, withRuntime ? '--with-runtime' : ''],
+      {
+        execArgv: ['-r', './.erb/scripts/BabelRegister'],
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+      },
+    )
   } else if (isProd) {
-    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
-      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
-    })
+    backendProcess = fork(
+      path.join(__dirname, 'backend.prod.js'),
+      ['--subprocess', socketId, socketId, withRuntime ? '--with-runtime' : ''],
+      {
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
+        // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
+      },
+    )
   } else {
     createBackendWindow()
   }
