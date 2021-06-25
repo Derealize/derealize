@@ -12,8 +12,13 @@ import './styles/app.global.scss'
 import store from './reduxStore'
 import Login from './components/Login'
 import App from './App'
+import AppWithRuntime from './App.runtime'
 import mytheme from './theme'
 import PrivateRoute from './utils/PrivateRoute'
+import type { PreloadWindow } from './preload'
+
+declare const window: PreloadWindow
+const { withRuntime } = window.env
 
 dayjs.extend(utc)
 // dayjs.locale('zh-cn')
@@ -25,7 +30,7 @@ ReactDOM.render(
       <ChakraProvider theme={mytheme}>
         <MemoryRouter>
           <Switch>
-            <Route path="/" exact component={App} />
+            <Route path="/" exact component={withRuntime ? AppWithRuntime : App} />
             <Route path="/login" exact component={Login} />
           </Switch>
         </MemoryRouter>

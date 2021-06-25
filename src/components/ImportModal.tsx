@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, useRef, ChangeEvent } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import dayjs from 'dayjs'
 import { nanoid } from 'nanoid'
-import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import { useForm } from 'react-hook-form'
 import {
   useToast,
@@ -18,8 +17,6 @@ import {
   FormHelperText,
   FormLabel,
   Input,
-  InputGroup,
-  InputRightElement,
   Button,
   ButtonGroup,
   useDisclosure,
@@ -31,15 +28,13 @@ import {
   AlertDialogOverlay,
   AlertDialogCloseButton,
   Text,
-  Grid,
-  Box,
   Tooltip,
 } from '@chakra-ui/react'
-import { BeatLoader, BarLoader } from 'react-spinners'
-import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
+import { BeatLoader } from 'react-spinners'
+import { FaRegFolderOpen } from 'react-icons/fa'
 import type { BoolReply } from '../backend/backend.interface'
 import type { ImportPayload } from '../interface'
-import { Handler, ProjectStatus, Broadcast, ProcessPayload } from '../backend/backend.interface'
+import { Handler } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project } from '../models/project.interface'
 import style from './ImportModal.module.scss'
@@ -47,18 +42,11 @@ import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc } =
-  window.derealize
-
-const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
+const { sendBackIpc, sendMainIpcSync, listenMainIpc, unlistenMainIpc } = window.derealize
 
 type Inputs = {
-  url: string
   path: string
-  username: string
-  password: string
   displayname: string
-  branch: string
 }
 
 const ImportProject = (): JSX.Element => {
@@ -73,9 +61,6 @@ const ImportProject = (): JSX.Element => {
     formState: { errors },
   } = useForm<Inputs>()
 
-  // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
-  // const [, forceUpdate] = useReducer((x) => x + 1, 0)
-
   const modalDisclosure = useStoreState<boolean>((state) => state.project.importModalDisclosure)
   const toggleModal = useStoreActions((actions) => actions.project.toggleImportModal)
 
@@ -83,16 +68,10 @@ const ImportProject = (): JSX.Element => {
   const addProject = useStoreActions((actions) => actions.project.addProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
+  const [isReady, setIsReady] = useState<boolean>(false)
 
-  const watchUrl = watch('url')
   const watchPath = watch('path')
-  const [showPassword, setShowPassword] = useState(false)
-
-  const [importloading, setImportloading] = useState(false)
-  const [installOutput, setInstallOutput] = useState<Array<string>>([])
-
   const [projectId, setProjectId] = useState('')
-  const isReady = useStoreState<boolean | undefined>((state) => state.project.isReady(projectId))
 
   useEffect(() => {
     listenMainIpc(MainIpcChannel.OpenImport, () => {
@@ -104,79 +83,38 @@ const ImportProject = (): JSX.Element => {
     }
   }, [toggleModal])
 
-  useEffect(() => {
-    if (!watchUrl) return
-    setInstallOutput([])
-
-    try {
-      const parseURL = new URL(watchUrl)
-      setValue('username', parseURL.username)
-      setValue('password', parseURL.password)
-
-      const projectName = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
-      setValue('displayname', projectName)
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
-      })
-    }
-  }, [setInstallOutput, setValue, toast, watchUrl])
-
-  const updateUrl = useCallback(
-    ({ _username, _password }) => {
-      if (!watchUrl) return
-      try {
-        const parseURL = new URL(watchUrl)
-        if (_username) parseURL.username = _username
-        if (_password) parseURL.password = _password
-        setValue('url', parseURL.href)
-      } catch (err) {
-        toast({
-          title: err.message,
-          status: 'error',
-        })
-      }
-    },
-    [setValue, toast, watchUrl],
-  )
-
   const submit = useCallback(
     async (data) => {
-      const { url, path, displayname: name, branch } = data
-      if (projects.map((p) => p.url).includes(url)) {
+      const { path, displayname: name } = data
+      if (projects.map((p) => p.path).includes(path)) {
         onOpenExistsAlert()
         return
       }
 
-      setImportloading(true)
       const id = nanoid()
       setProjectId(id)
 
       const newProject: Project = {
         id,
-        url,
         path,
         name,
-        branch,
         editedTime: dayjs().toString(),
-        status: ProjectStatus.Initialized,
       }
       addProject(newProject)
 
-      const payload: ImportPayload = { projectId: id, url, path, branch }
+      const payload: ImportPayload = { projectId: id, path }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+      setIsReady(result)
 
-      if (result) {
-        await sendBackIpc(Handler.Install, { projectId: id })
-      } else {
-        setImportloading(false)
-        installOutput.push(`import error: ${error}`)
-        setInstallOutput(installOutput)
+      if (!result) {
         removeProject(id)
+        toast({
+          title: `Import error:${error}`,
+          status: 'error',
+        })
       }
     },
-    [projects, addProject, onOpenExistsAlert, installOutput, removeProject],
+    [projects, addProject, onOpenExistsAlert, removeProject, toast],
   )
 
   const open = useCallback(() => {
@@ -186,30 +124,6 @@ const ImportProject = (): JSX.Element => {
     }
   }, [openProject, projectId, isReady, toggleModal])
 
-  useEffect(() => {
-    listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
-      if (payload.error) {
-        setImportloading(false)
-        toast({
-          title: `Installing error:${payload.error}`,
-          status: 'error',
-        })
-        return
-      }
-
-      if (payload.stdout) {
-        installOutput.push(`stdout: ${payload.stdout}`)
-      } else if (payload.stderr) {
-        installOutput.push(`stderr: ${payload.stderr}`)
-      } else if (payload.exit !== undefined) {
-        installOutput.push(`exit: ${payload.error}`)
-        setImportloading(false)
-      }
-      setInstallOutput([...installOutput])
-    })
-    return () => unlistenBackIpc(Broadcast.Installing)
-  }, [installOutput, toast])
-
   return (
     <>
       <Modal isOpen={modalDisclosure} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
@@ -218,117 +132,35 @@ const ImportProject = (): JSX.Element => {
           <ModalHeader textAlign="center">Import Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Grid templateColumns="30% 70%" gap={6}>
-              <Box>
-                <FormControl id="url" mt={4} isInvalid={!!errors.url}>
-                  <FormLabel htmlFor="url">URL</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('url', { required: true, pattern: gitUrlPattern })}
-                    disabled={importloading}
-                  />
-                  <FormHelperText className="prose">
-                    If you don&apos;t know what this is, you can read{' '}
-                    <a href="http://baidu.com" target="_blank" rel="noreferrer">
-                      our documentation
-                    </a>{' '}
-                    or ask the front-end engineer of the team for help.
-                  </FormHelperText>
-                  {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
-                </FormControl>
+            <FormControl id="path" mt={4} isInvalid={!!errors.path}>
+              <FormLabel>Local Path</FormLabel>
+              <Button
+                leftIcon={<FaRegFolderOpen />}
+                colorScheme="gray"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
+                  setValue('path', filePaths[0])
+                }}
+              >
+                Select Folder
+              </Button>
+              <Input type="hidden" {...register('path', { required: true })} />
+              <Tooltip label={watchPath} aria-label="path">
+                <Text color="gray.500" isTruncated>
+                  {watchPath}
+                </Text>
+              </Tooltip>
 
-                <FormControl id="path" mt={4} isInvalid={!!errors.path}>
-                  <FormLabel>Local Path</FormLabel>
-                  <Button
-                    leftIcon={<FaRegFolderOpen />}
-                    colorScheme="gray"
-                    disabled={importloading}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
-                      setValue('path', filePaths[0])
-                    }}
-                  >
-                    Select Folder
-                  </Button>
-                  <Input type="hidden" {...register('path', { required: true })} />
-                  <Tooltip label={watchPath} aria-label="path">
-                    <Text color="gray.500" isTruncated>
-                      {watchPath}
-                    </Text>
-                  </Tooltip>
+              {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
+            </FormControl>
 
-                  {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  {!watchUrl && (
-                    <FormHelperText>
-                      If the derealize project already exists on the local disk, you can import it directly.
-                    </FormHelperText>
-                  )}
-                </FormControl>
+            <FormControl id="displayname" mt={4}>
+              <FormLabel>Display Name</FormLabel>
+              <Input type="text" {...register('displayname', { required: true })} />
+              {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
+            </FormControl>
 
-                <FormControl id="username" mt={4} isInvalid={!!errors.username}>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('username', { required: true })}
-                    disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      // setValue('username', e.target.value)
-                      updateUrl({ _username: e.target.value })
-                    }}
-                  />
-                  {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-
-                <FormControl id="password" mt={4} isInvalid={!!errors.password}>
-                  <FormLabel>Password</FormLabel>
-
-                  <InputGroup size="md">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      {...register('password', { required: true })}
-                      disabled={importloading}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        // setValue('password', e.target.value)
-                        updateUrl({ _password: e.target.value })
-                      }}
-                    />
-                    <InputRightElement width={12} className={style.pwdright}>
-                      {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
-                      {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-
-                <FormControl id="displayname" mt={4}>
-                  <FormLabel>Display Name</FormLabel>
-                  <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
-                  {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-
-                <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
-                  <FormLabel>Git Branch</FormLabel>
-                  <Input
-                    {...register('branch', { required: true })}
-                    type="text"
-                    disabled={importloading}
-                    defaultValue="derealize"
-                    colorScheme="gray"
-                  />
-                  <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
-                  {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-              </Box>
-              <Box>
-                <p className={style.output}>{installOutput.join('\n')}</p>
-                {importloading && (
-                  <p className={style.spinner}>
-                    <BarLoader height={4} width={100} color="gray" />
-                  </p>
-                )}
-              </Box>
-            </Grid>
             {isReady && (
               <Text color="teal.500" align="center">
                 Congratulations, it looks like the project is ready to work.
@@ -350,7 +182,6 @@ const ImportProject = (): JSX.Element => {
               colorScheme="teal"
               size="lg"
               variant={isReady ? 'outline' : 'solid'}
-              isLoading={importloading}
               spinner={<BeatLoader size={8} color="teal" />}
               onClick={handleSubmit(submit)}
               ml={6}
