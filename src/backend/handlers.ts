@@ -33,7 +33,7 @@ export const Import = async ({ projectId, path }: ImportPayload): Promise<BoolRe
     projectsMap.set(projectId, project)
   }
 
-  const result = await project.Import()
+  const result = await project.Flush()
   return result
 }
 
