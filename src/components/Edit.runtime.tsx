@@ -11,12 +11,13 @@ import {
   ModalFooter,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   Button,
 } from '@chakra-ui/react'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { Project } from '../models/project.interface'
+import type { ProjectWithRuntime } from '../models/project.interface'
 
 type Inputs = {
   displayname: string
@@ -24,15 +25,16 @@ type Inputs = {
 }
 
 const EditProject = (): JSX.Element => {
+  // const toast = useToast()
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>()
 
-  const project = useStoreState<Project | undefined>((state) => state.project.editingProject)
-  const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
-  const editProject = useStoreActions((actions) => actions.project.editProject)
+  const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.editingProject)
+  const setEditingProject = useStoreActions((actions) => actions.projectWithRuntime.setEditingProject)
+  const editProject = useStoreActions((actions) => actions.projectWithRuntime.editProject)
 
   const submit = useCallback(
     (data) => {
@@ -59,6 +61,18 @@ const EditProject = (): JSX.Element => {
                 {...register('displayname', { required: true, shouldUnregister: true })}
               />
               {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
+            </FormControl>
+
+            <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
+              <FormLabel>Git Branch</FormLabel>
+              <Input
+                {...register('branch', { required: true, shouldUnregister: true })}
+                type="text"
+                defaultValue={project?.branch}
+                colorScheme="gray"
+              />
+              <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
+              {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
             </FormControl>
           </ModalBody>
           <ModalFooter justifyContent="center">

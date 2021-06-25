@@ -115,7 +115,7 @@ const Controllers: React.FC = (): JSX.Element => {
             </Box>
           </Tooltip>
         </Tab>
-        <Tab p={3}>
+        <Tab p={3} isDisabled>
           <Tooltip label="(Alt+8) Components">
             <Box>
               <Icon as={CgComponents} boxSize={6} />

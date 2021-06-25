@@ -24,20 +24,21 @@ import dayjs from 'dayjs'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
-import type { Project } from './models/project.interface'
+import type { ProjectWithRuntime } from './models/project.interface'
+import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
 import { MainIpcChannel } from './interface'
 
 declare const window: PreloadWindow
-const { sendMainIpc } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
-const Home = (): JSX.Element => {
-  const projects = useStoreState<Array<Project>>((state) => state.project.projects)
-  const toggleImportModal = useStoreActions((actions) => actions.project.toggleImportModal)
-  const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
-  const openProject = useStoreActions((actions) => actions.project.openProject)
-  const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
+const HomeWithRuntime = (): JSX.Element => {
+  const projects = useStoreState<Array<ProjectWithRuntime>>((state) => state.projectWithRuntime.projects)
+  const toggleImportModal = useStoreActions((actions) => actions.projectWithRuntime.toggleImportModal)
+  const setEditingProject = useStoreActions((actions) => actions.projectWithRuntime.setEditingProject)
+  const openProject = useStoreActions((actions) => actions.projectWithRuntime.openProject)
+  const removeProject = useStoreActions((actions) => actions.projectWithRuntime.removeProjectThunk)
 
   return (
     <div className={style.home}>
@@ -128,6 +129,24 @@ const Home = (): JSX.Element => {
                           >
                             Edit
                           </MenuItem>
+                          {!!p.changes?.length && (
+                            <MenuItem
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                sendBackIpc(Handler.Push, { projectId: p.id })
+                              }}
+                            >
+                              Push {p.changes.length} files
+                            </MenuItem>
+                          )}
+                          <MenuItem
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              sendBackIpc(Handler.Pull, { projectId: p.id })
+                            }}
+                          >
+                            Pull
+                          </MenuItem>
                           {/* <MenuItem>Share</MenuItem> */}
                           <MenuDivider />
                           <MenuItem
@@ -167,4 +186,4 @@ const Home = (): JSX.Element => {
   )
 }
 
-export default Home
+export default HomeWithRuntime
