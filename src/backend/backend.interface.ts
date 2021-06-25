@@ -66,14 +66,14 @@ export interface GitFileChanges {
 
 export interface StatusPayload {
   projectId: string
-  productName: string
-
-  tailwindVersion: string
-  tailwindConfig: TailwindConfig
   config: ProjectConfig
+  productName?: string
+  tailwindVersion?: string
+  tailwindConfig?: TailwindConfig
 }
 
-export interface StatusPayloadWithRuntime extends StatusPayload {
+export interface StatusPayloadWithRuntime extends Omit<StatusPayload, 'config'> {
+  config: ProjectConfigWithRuntime
   changes: Array<GitFileChanges>
   status: ProjectStatus
 }

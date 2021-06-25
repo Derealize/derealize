@@ -165,14 +165,8 @@ class Project {
       }
     }
 
-    const reply = await this.FlushGit()
+    const reply = await this.Flush()
     if (!reply.result) return reply
-
-    const configReply = await this.assignConfig()
-    if (!configReply.result) return configReply
-
-    this.status = ProjectStatus.Initialized
-    this.EmitStatus()
 
     return { result: true }
   }

@@ -59,9 +59,9 @@ export interface ProjectModel {
   flushProject: Action<ProjectModel, string>
   setFrontProject: Action<ProjectModel, string | null>
 
-  toggleProject: Action<ProjectModel, { projectId: string; open: boolean }>
   openProject: Thunk<ProjectModel, string>
-  closeProject: Thunk<ProjectModel, string | undefined>
+  closeProject: Action<ProjectModel, string>
+  closeProjectThunk: Thunk<ProjectModel, string | undefined>
 
   setProjectStatus: Action<ProjectModel, StatusPayload>
   loadStore: Thunk<ProjectModel>
@@ -133,7 +133,7 @@ const projectModel: ProjectModel = {
     sendBackIpc(Handler.Remove, { projectId })
   }),
   removeProjectThunk: thunk((actions, projectId) => {
-    actions.closeProject(projectId)
+    actions.closeProjectThunk(projectId)
     actions.removeProject(projectId)
   }),
 
@@ -165,23 +165,26 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isFront = true
+      project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
     }
     mainFrontView(project)
   }),
 
-  toggleProject: action((state, { projectId, open }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.isOpened = open
-  }),
   openProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
-    actions.toggleProject({ projectId, open: true })
-    await actions.setFrontProject(project.id)
+
+    project.view = ProjectView.BrowserView
+    actions.setFrontProject(project.id)
+    sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
   }),
-  closeProject: thunk((actions, projectId, { getState }) => {
+  closeProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.isOpened = false
+  }),
+  closeProjectThunk: thunk((actions, projectId, { getState }) => {
     const { projects, openedProjects, frontProject } = getState()
 
     const project = projectId ? projects.find((p) => p.id === projectId) : frontProject
@@ -189,8 +192,7 @@ const projectModel: ProjectModel = {
       throw new Error('closeProject null')
     }
 
-    actions.toggleProject({ projectId: project.id, open: false })
-    sendBackIpc(Handler.Stop, { projectId })
+    actions.closeProject(project.id)
     sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
 
     if (project.isFront) {
@@ -212,15 +214,14 @@ const projectModel: ProjectModel = {
     const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
     if (!projects) return
 
+    actions.setProjects(projects)
     await Promise.all(
       projects.map(async (project) => {
         const { id: projectId, path } = project
 
         const payload: ImportPayload = { projectId, path }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-        if (result) {
-          sendBackIpc(Handler.Install, { projectId })
-        } else {
+        if (!result) {
           toast({
             title: `Import error: ${error}`,
             status: 'error',
@@ -228,8 +229,6 @@ const projectModel: ProjectModel = {
         }
       }),
     )
-
-    actions.setProjects(projects)
   }),
 
   setProjectStatus: action((state, payload) => {
@@ -273,7 +272,7 @@ const projectModel: ProjectModel = {
     })
 
     listenMainIpc(MainIpcChannel.CloseFrontProject, (event: IpcRendererEvent) => {
-      actions.closeProject()
+      actions.closeProjectThunk()
     })
 
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
