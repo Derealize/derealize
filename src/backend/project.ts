@@ -32,16 +32,6 @@ class Project {
 
   constructor(readonly projectId: string, readonly path: string) {}
 
-  EmitStatus(): void {
-    emit(Broadcast.Status, {
-      projectId: this.projectId,
-      productName: this.productName,
-      tailwindVersion: this.tailwindVersion,
-      tailwindConfig: this.tailwindConfig,
-      config: this.config,
-    } as StatusPayload)
-  }
-
   private async assignConfig(): Promise<BoolReply> {
     try {
       const jsonraw = await fs.readFile(sysPath.join(this.path, './package.json'), 'utf8')
@@ -89,12 +79,14 @@ class Project {
     return { result: true }
   }
 
-  async Import(): Promise<BoolReply> {
-    const configReply = await this.assignConfig()
-    if (!configReply.result) return configReply
-
-    this.EmitStatus()
-    return { result: true }
+  EmitStatus(): void {
+    emit(Broadcast.Status, {
+      projectId: this.projectId,
+      productName: this.productName,
+      tailwindVersion: this.tailwindVersion,
+      tailwindConfig: this.tailwindConfig,
+      config: this.config,
+    } as StatusPayload)
   }
 }
 
