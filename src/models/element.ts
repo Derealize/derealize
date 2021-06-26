@@ -85,12 +85,12 @@ export interface ElementModel {
   cleanElements: Action<ElementModel, string>
   savedElements: Action<ElementModel, string>
 
-  droppedActiveElement: Action<ElementModel, ElementPayload>
-  pushActiveElementProperty: Action<ElementModel, { projectId: string; property: Property }>
-  setActiveElementPropertyValue: Action<ElementModel, { projectId: string; propertyId: string; value: string }>
-  setActiveElementText: Action<ElementModel, { projectId: string; text: string }>
-  setActiveElementTag: Action<ElementModel, { projectId: string; tag: ElementTag }>
-  deleteActiveElementProperty: Action<ElementModel, { projectId: string; propertyId: string }>
+  pushSelectedElementProperty: Action<ElementModel, { projectId: string; property: Property }>
+  setSelectedElementPropertyValue: Action<ElementModel, { projectId: string; propertyId: string; value: string }>
+  deleteSelectedElementProperty: Action<ElementModel, { projectId: string; propertyId: string }>
+  setSelectedElementText: Action<ElementModel, { projectId: string; text: string }>
+  setSelectedElementTag: Action<ElementModel, { projectId: string; tag: ElementTag }>
+  droppedSelectedElement: Action<ElementModel, ElementPayload>
 
   listen: Thunk<ElementModel, void, void, StoreModel>
   unlisten: Action<ElementModel>
@@ -214,18 +214,7 @@ const elementModel: ElementModel = {
     state.states[projectId].historys = []
   }),
 
-  droppedActiveElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
-
-    const element = elements.find((st) => st.codePosition === codePosition)
-    if (!element) return
-
-    element.dropzoneCodePosition = dropzoneCodePosition
-    element.pending = true
-  }),
-
-  pushActiveElementProperty: action((state, { projectId, property }) => {
+  pushSelectedElementProperty: action((state, { projectId, property }) => {
     if (!state.states[projectId]) return
     const { elements, historys } = state.states[projectId]
 
@@ -242,23 +231,7 @@ const elementModel: ElementModel = {
       property,
     })
   }),
-  deleteActiveElementProperty: action((state, { projectId, propertyId }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
-
-    const element = elements.find((el) => el.selected)
-    if (!element) return
-
-    const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
-      ...payload,
-      actionType: ElementActionType.deleteProperty,
-      property: element.propertys.find((p) => p.id === propertyId),
-    })
-
-    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
-  }),
-  setActiveElementPropertyValue: action((state, { projectId, propertyId, value }) => {
+  setSelectedElementPropertyValue: action((state, { projectId, propertyId, value }) => {
     if (!state.states[projectId]) return
     const { elements, historys } = state.states[projectId]
 
@@ -279,7 +252,23 @@ const elementModel: ElementModel = {
 
     property.classname = value
   }),
-  setActiveElementText: action((state, { projectId, text }) => {
+  deleteSelectedElementProperty: action((state, { projectId, propertyId }) => {
+    if (!state.states[projectId]) return
+    const { elements, historys } = state.states[projectId]
+
+    const element = elements.find((el) => el.selected)
+    if (!element) return
+
+    const { selected, actualStatus, pending, propertys, ...payload } = element
+    historys.push({
+      ...payload,
+      actionType: ElementActionType.deleteProperty,
+      property: element.propertys.find((p) => p.id === propertyId),
+    })
+
+    element.propertys = element.propertys.filter((p) => p.id !== propertyId)
+  }),
+  setSelectedElementText: action((state, { projectId, text }) => {
     if (!state.states[projectId]) return
     const { elements, historys } = state.states[projectId]
 
@@ -296,7 +285,7 @@ const elementModel: ElementModel = {
       originalText: element.actualStatus?.text,
     })
   }),
-  setActiveElementTag: action((state, { projectId, tag }) => {
+  setSelectedElementTag: action((state, { projectId, tag }) => {
     if (!state.states[projectId]) return
     const { elements, historys } = state.states[projectId]
 
@@ -312,6 +301,16 @@ const elementModel: ElementModel = {
       actionType: ElementActionType.setTag,
       originalTagName: element.actualStatus?.tagName,
     })
+  }),
+  droppedSelectedElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
+    if (!state.states[projectId]) return
+    const { elements, historys } = state.states[projectId]
+
+    const element = elements.find((st) => st.codePosition === codePosition)
+    if (!element) return
+
+    element.dropzoneCodePosition = dropzoneCodePosition
+    element.pending = true
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreState }) => {
@@ -365,7 +364,7 @@ const elementModel: ElementModel = {
         return
       }
 
-      actions.droppedActiveElement(payload)
+      actions.droppedSelectedElement(payload)
     })
   }),
 

@@ -70,8 +70,8 @@ const LayoutSection: React.FC = (): JSX.Element => {
 
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
-  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
-  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyValue)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteSelectedElementProperty)
+  const setProperty = useStoreActions((actions) => actions.element.setSelectedElementPropertyValue)
 
   if (!project) return <></>
 
@@ -101,7 +101,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
                 onChange={(check) => {
                   if (check) {
                     if (displayProperty) {
-                      setProperty({ projectId: project.id, propertyId: displayProperty.id, classname: 'flex' })
+                      setProperty({ projectId: project.id, propertyId: displayProperty.id, value: 'flex' })
                     } else {
                       pushNewProperty('flex')
                     }
@@ -156,7 +156,7 @@ const LayoutSection: React.FC = (): JSX.Element => {
                   if (!project) return
                   if (check) {
                     if (displayProperty) {
-                      setProperty({ projectId: project.id, propertyId: displayProperty.id, classname: 'grid' })
+                      setProperty({ projectId: project.id, propertyId: displayProperty.id, value: 'grid' })
                     } else {
                       pushNewProperty('grid')
                     }
