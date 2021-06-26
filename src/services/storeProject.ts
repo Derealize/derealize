@@ -2,7 +2,7 @@ import omit from 'lodash.omit'
 import clone from 'lodash.clonedeep'
 import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
-import type { Project } from '../models/project.interface'
+import type { Project, ProjectWithRuntime } from '../models/project.interface'
 
 declare const window: PreloadWindow
 
@@ -27,7 +27,7 @@ export const OmitStoreProp = [
   'jitClassName',
 ]
 
-const storeProject = (projects: Array<Project>) => {
+const storeProject = (projects: Array<Project | ProjectWithRuntime>) => {
   // proxy object can't serialize https://stackoverflow.com/a/60344844
   const omitProjects = projects.map((p) => omit(p, OmitStoreProp))
   sendMainIpc(MainIpcChannel.SetStore, { projects: clone(omitProjects) })
