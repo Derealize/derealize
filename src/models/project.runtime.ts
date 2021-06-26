@@ -14,7 +14,7 @@ import type {
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ProjectViewWithRuntime, ProjectWithRuntime, BackgroundImage, Colors } from './project.interface'
-import { MainIpcChannel, ImportPayload } from '../interface'
+import { MainIpcChannel, ImportPayloadWithRuntime } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
@@ -64,7 +64,7 @@ export interface ProjectWithRuntimeModel {
   pushRunningOutput: Action<ProjectWithRuntimeModel, { projectId: string; output: string }>
   emptyRunningOutput: Action<ProjectWithRuntimeModel, string>
   setStartLoading: Action<ProjectWithRuntimeModel, { projectId: string; loading: boolean }>
-  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectView }>
+  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectViewWithRuntime }>
   setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
 
   flushProject: Action<ProjectWithRuntimeModel, string>
@@ -72,9 +72,9 @@ export interface ProjectWithRuntimeModel {
   startProject: Thunk<ProjectWithRuntimeModel, string>
   stopProject: Action<ProjectWithRuntimeModel, string>
 
-  toggleProject: Action<ProjectWithRuntimeModel, { projectId: string; open: boolean }>
   openProject: Thunk<ProjectWithRuntimeModel, string>
-  closeProject: Thunk<ProjectWithRuntimeModel, string | undefined>
+  closeProject: Action<ProjectWithRuntimeModel, string>
+  closeProjectThunk: Thunk<ProjectWithRuntimeModel, string | undefined>
 
   setProjectStatus: Action<ProjectWithRuntimeModel, StatusPayloadWithRuntime>
   loadStore: Thunk<ProjectWithRuntimeModel>
@@ -155,7 +155,7 @@ const projectModel: ProjectWithRuntimeModel = {
     sendBackIpc(Handler.Remove, { projectId })
   }),
   removeProjectThunk: thunk((actions, projectId) => {
-    actions.closeProject(projectId)
+    actions.closeProjectThunk(projectId)
     actions.removeProject(projectId)
   }),
 
@@ -207,6 +207,7 @@ const projectModel: ProjectWithRuntimeModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isFront = true
+      project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
     }
     mainFrontView(project)
@@ -218,7 +219,7 @@ const projectModel: ProjectWithRuntimeModel = {
 
     actions.emptyRunningOutput(projectId)
     actions.setStartLoading({ projectId, loading: true })
-    actions.setProjectView({ projectId, view: ProjectView.Debugging })
+    actions.setProjectView({ projectId, view: ProjectViewWithRuntime.Debugging })
     const reply = (await sendBackIpc(Handler.Start, { projectId })) as BoolReply
     if (!reply.result) {
       actions.setStartLoading({ projectId, loading: false })
@@ -235,19 +236,18 @@ const projectModel: ProjectWithRuntimeModel = {
     }
   }),
 
-  toggleProject: action((state, { projectId, open }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.isOpened = open
-  }),
   openProject: thunk(async (actions, projectId, { getState }) => {
     const project = getState().projects.find((p) => p.id === projectId)
     if (!project) return
-    actions.toggleProject({ projectId, open: true })
-    await actions.setFrontProject(project.id)
+    actions.setFrontProject(project.id)
     await actions.startProject(project.id)
   }),
-  closeProject: thunk((actions, projectId, { getState }) => {
+  closeProject: action((state, projectId) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.isOpened = true
+  }),
+  closeProjectThunk: thunk((actions, projectId, { getState }) => {
     const { projects, openedProjects, frontProject } = getState()
 
     const project = projectId ? projects.find((p) => p.id === projectId) : frontProject
@@ -255,7 +255,7 @@ const projectModel: ProjectWithRuntimeModel = {
       throw new Error('closeProject null')
     }
 
-    actions.toggleProject({ projectId: project.id, open: false })
+    actions.closeProject(project.id)
     sendBackIpc(Handler.Stop, { projectId })
     sendMainIpc(MainIpcChannel.DestroyProjectView, projectId)
 
@@ -275,14 +275,15 @@ const projectModel: ProjectWithRuntimeModel = {
   }),
 
   loadStore: thunk(async (actions) => {
-    const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<Project> | undefined
+    const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<ProjectWithRuntime> | undefined
     if (!projects) return
 
+    actions.setProjects(projects)
     await Promise.all(
       projects.map(async (project) => {
         const { id: projectId, url, path, branch } = project
 
-        const payload: ImportPayload = { projectId, url, path, branch }
+        const payload: ImportPayloadWithRuntime = { projectId, url, path, branch }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })
@@ -294,8 +295,6 @@ const projectModel: ProjectWithRuntimeModel = {
         }
       }),
     )
-
-    actions.setProjects(projects)
   }),
 
   setProjectStatus: action((state, payload) => {
@@ -306,7 +305,7 @@ const projectModel: ProjectWithRuntimeModel = {
 
     if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
       project.startloading = false
-      project.view = ProjectView.BrowserView
+      project.view = ProjectViewWithRuntime.BrowserView
       mainFrontView(project)
       sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
     }
@@ -375,7 +374,7 @@ const projectModel: ProjectWithRuntimeModel = {
     })
 
     listenMainIpc(MainIpcChannel.CloseFrontProject, (event: IpcRendererEvent) => {
-      actions.closeProject()
+      actions.closeProjectThunk()
     })
 
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
