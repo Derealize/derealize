@@ -1,33 +1,43 @@
 import type { TailwindConfig, TailwindColorConfig, TailwindColorGroup } from 'tailwindcss/tailwind-config'
-import type { ProjectConfig, GitFileChanges } from '../backend/backend.interface'
+import type { ProjectConfig, ProjectConfigWithRuntime, GitFileChanges } from '../backend/backend.interface'
 import { ProjectStatus } from '../backend/backend.interface'
 
 export enum ProjectView {
-  Debugging,
-  FileStatus,
   BrowserView,
   Elements,
 }
 
+export enum ProjectViewWithRuntime {
+  BrowserView,
+  Elements,
+  Debugging,
+  FileStatus,
+}
+
 export interface Project {
   id: string
-  url: string
   path: string
   editedTime: string
   name: string
-  branch: string
   isOpened?: boolean
   isFront?: boolean
   isEditing?: boolean
-  status?: ProjectStatus
   tailwindConfig?: TailwindConfig
   tailwindVersion?: string
   config?: ProjectConfig
-  changes?: Array<GitFileChanges>
   view?: ProjectView
+  jitClassName?: string
+}
+
+export interface ProjectWithRuntime extends Omit<Project, 'view'> {
+  url: string
+  branch: string
+  status?: ProjectStatus
+  config?: ProjectConfigWithRuntime
+  view?: ProjectViewWithRuntime
+  changes?: Array<GitFileChanges>
   startloading?: boolean
   runningOutput?: Array<string>
-  jitClassName?: string
 }
 
 export interface BackgroundImage {

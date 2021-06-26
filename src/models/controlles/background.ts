@@ -51,11 +51,12 @@ export interface BackgroundModel {
 }
 
 const backgroundModel: BackgroundModel = {
-  backgroundAttachmentPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
-    propertys.filter(({ classname }) => BackgroundAttachmentValues.includes(classname)),
+  backgroundAttachmentPropertys: computed(
+    [(state, storeState) => storeState.element.selectedElementPropertys],
+    (propertys) => propertys.filter(({ classname }) => BackgroundAttachmentValues.includes(classname)),
   ),
 
-  backgroundClipPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  backgroundClipPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => BackgroundClipValues.includes(classname)),
   ),
 
@@ -64,7 +65,7 @@ const backgroundModel: BackgroundModel = {
     return buildColorOptions(project.tailwindConfig.theme.backgroundColor, 'bg')
   }),
   backgroundColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.backgroundColorValues],
     filterColorPropertys,
   ),
 
@@ -73,7 +74,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundOpacity).map((v) => `bg-opacity-${v}`)
   }),
   backgroundOpacityPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundOpacityValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.backgroundOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -82,12 +83,13 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundPosition).map((v) => `bg-${v}`)
   }),
   backgroundPositionPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundPositionValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.backgroundPositionValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  backgroundRepeatPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
-    propertys.filter(({ classname }) => BackgroundRepeatValues.includes(classname)),
+  backgroundRepeatPropertys: computed(
+    [(state, storeState) => storeState.element.selectedElementPropertys],
+    (propertys) => propertys.filter(({ classname }) => BackgroundRepeatValues.includes(classname)),
   ),
 
   backgroundSizeValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
@@ -95,7 +97,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundSize).map((v) => `bg-${v}`)
   }),
   backgroundSizePropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundSizeValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.backgroundSizeValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -104,7 +106,7 @@ const backgroundModel: BackgroundModel = {
     return Object.keys(project.tailwindConfig.theme.backgroundImage).map((v) => `bg-${v}`)
   }),
   backgroundImagePropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.backgroundImageValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.backgroundImageValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -113,7 +115,7 @@ const backgroundModel: BackgroundModel = {
     return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'from')
   }),
   fromColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.fromColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.fromColorValues],
     filterColorPropertys,
   ),
 
@@ -122,7 +124,7 @@ const backgroundModel: BackgroundModel = {
     return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'via')
   }),
   viaColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.viaColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.viaColorValues],
     filterColorPropertys,
   ),
 
@@ -131,7 +133,7 @@ const backgroundModel: BackgroundModel = {
     return buildColorOptions(project.tailwindConfig.theme.gradientColorStops, 'to')
   }),
   toColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.toColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.toColorValues],
     filterColorPropertys,
   ),
 

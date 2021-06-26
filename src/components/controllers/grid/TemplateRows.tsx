@@ -8,7 +8,7 @@ import { ElementState } from '../../../models/element'
 
 const TemplateRows: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const values = useStoreState<Array<string>>((state) => state.layout.templateRowsValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.templateRowsPropertys)

@@ -27,15 +27,18 @@ export enum Broadcast {
 }
 
 export interface ProjectConfig {
-  runScript: string
-  formatScript: string
   baseUrl: string
-  port: number
+  formatScript: string
   pages: Array<string>
   assetsPath: string
   assetsUrl: string
   applyCssFile: string
   isWeapp: boolean
+}
+
+export interface ProjectConfigWithRuntime extends ProjectConfig {
+  runScript: string
+  port: number
 }
 
 export enum ProjectStatus {
@@ -63,12 +66,16 @@ export interface GitFileChanges {
 
 export interface StatusPayload {
   projectId: string
-  productName: string
+  config: ProjectConfig
+  productName?: string
+  tailwindVersion?: string
+  tailwindConfig?: TailwindConfig
+}
+
+export interface StatusPayloadWithRuntime extends Omit<StatusPayload, 'config'> {
+  config: ProjectConfigWithRuntime
   changes: Array<GitFileChanges>
   status: ProjectStatus
-  tailwindVersion: string
-  tailwindConfig: TailwindConfig
-  config: ProjectConfig
 }
 
 export interface ProcessPayload {

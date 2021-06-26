@@ -111,10 +111,17 @@ export default class MenuBuilder {
           },
         },
         {
-          label: '&Image',
-          accelerator: isDarwin ? 'Cmd+Shift+I' : 'Ctrl+Shift+I',
+          label: '&Undo',
+          accelerator: isDarwin ? 'Cmd+Z' : 'Ctrl+Z',
           click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Image Manager')
+            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Undo')
+          },
+        },
+        {
+          label: '&Redo',
+          accelerator: isDarwin ? 'Cmd+Shift+Z' : 'Ctrl+Shift+Z',
+          click: () => {
+            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Redo')
           },
         },
         {

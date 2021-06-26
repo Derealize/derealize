@@ -16,7 +16,7 @@ const SpacingSection: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
   const alreadyVariants = useStoreState<AlreadyVariants>((state) => state.spacing.alreadyVariants)
 
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const isInline = useMemo(() => InlineDisplays.some((v) => element?.actualStatus?.display === v), [element])
 
   return (

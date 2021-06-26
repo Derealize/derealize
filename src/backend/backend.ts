@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import ipc from './backend-ipc'
 import log from './log'
-import { DisposeAll } from './handlers'
+import { DisposeAll } from './handlers.runtime'
 
 process
   .on('uncaughtException', (error) => {
@@ -16,14 +16,14 @@ process
   })
 
 if (process.argv[2] === '--subprocess') {
-  const socketId = process.argv[4]
-  ipc(socketId)
-  log(`backend subprocess version:${process.argv[3]} socket:${socketId}`)
+  const socketId = process.argv[3]
+  ipc(socketId, process.argv[4] === '--with-runtime')
+  log(`backend subprocess socket:${socketId}`)
 } else {
   import('electron')
     .then(({ ipcRenderer }) => {
-      ipcRenderer.on('set-params', (e: Event, payload: { socketId: string }) => {
-        ipc(payload.socketId)
+      ipcRenderer.on('set-params', (e: Event, payload: { socketId: string; withRuntime: boolean }) => {
+        ipc(payload.socketId, payload.withRuntime)
         console.log(`backend window socket: ${payload.socketId}`)
       })
       return null

@@ -10,7 +10,7 @@ import { InlineDisplays } from '../../../utils/assest'
 
 const Clear: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.clearPropertys)
   const property = useComputeProperty(propertys)

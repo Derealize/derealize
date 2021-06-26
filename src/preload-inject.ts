@@ -3,8 +3,7 @@ import { Droppable, DroppableEventNames, DroppableDroppedEvent } from '@shopify/
 import 'selector-generator'
 import { connectSocket, sendBackIpc } from './client-ipc'
 import { EmptyElement, DropzoneTags } from './utils/assest'
-import { Handler } from './backend/backend.interface'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { preloadCSS, sectionHTML } from './preload-inject-code'
 
 let PROJECTID: string | undefined
@@ -18,6 +17,22 @@ let droppable: Droppable<DroppableEventNames> | undefined
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
+}
+
+// Replace tag name but keep element contents
+const changeTag = (el: HTMLElement, newTagName: string) => {
+  if (!el.parentNode) throw Error('el.parentNode is empty cannot replace the name')
+  const newEl = document.createElement(newTagName)
+
+  while (el.firstChild) {
+    newEl.appendChild(el.firstChild)
+  }
+
+  Array.from(el.attributes).forEach((attr) => {
+    newEl.attributes.setNamedItem(attr.cloneNode() as Attr)
+  })
+
+  el.parentNode.replaceChild(newEl, el)
 }
 
 const respElementActualStatus = (): ElementActualStatus | null => {
@@ -39,10 +54,16 @@ const respElementActualStatus = (): ElementActualStatus | null => {
     position: declaration.getPropertyValue('position'),
     background: declaration.getPropertyValue('background-image'),
   }
+
   if (activeElement.parentElement) {
     payload.parentTagName = activeElement.parentElement.tagName
     const parentDeclaration = getComputedStyle(activeElement.parentElement)
     payload.parentDisplay = parentDeclaration.getPropertyValue('display')
+  }
+
+  const supportText = !activeElement.children.length && !EmptyElement.includes(tagName.toLowerCase())
+  if (supportText) {
+    payload.text = activeElement.innerText
   }
 
   ipcRenderer.send(MainIpcChannel.RespElementStatus, payload)
@@ -88,83 +109,77 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
 
   const { className, tagName } = activeElement
 
-  const supportText = !activeElement.children.length && !EmptyElement.includes(tagName.toLowerCase())
-  let text: string | undefined
-  if (supportText) {
-    text = activeElement.innerText
-  }
-
-  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, selector, text }
+  const payload: ElementPayload = { projectId: PROJECTID, codePosition, className, selector }
   ipcRenderer.send(MainIpcChannel.FocusElement, payload)
   activeElement.setAttribute('data-active', 'true')
 
   const actualStatus = respElementActualStatus()
   if (!actualStatus) throw new Error('actualStatus null')
 
-  const isEmptyElement = EmptyElement.includes(tagName.toLowerCase())
+  // const isEmptyElement = EmptyElement.includes(tagName.toLowerCase())
 
-  if (!isEmptyElement && actualStatus.position === 'static') {
-    activeElement.style.cssText = 'position: relative'
-  }
+  // if (!isEmptyElement && actualStatus.position === 'static') {
+  //   activeElement.style.cssText = 'position: relative'
+  // }
 
-  // todo: for weapp...
-  if (ISWEAPP) return
+  // // todo: for weapp...
+  // if (ISWEAPP) return
 
-  if (isEmptyElement) {
-    const wrapper = document.createElement('div')
+  // if (isEmptyElement) {
+  //   const wrapper = document.createElement('div')
 
-    wrapper.className = `de-wrapper ${className}`
-    wrapper.style.cssText = `
-      display: ${actualStatus.display};
-      position: ${actualStatus.position === 'static' ? 'relative' : actualStatus.position}`
+  //   wrapper.className = `de-wrapper ${className}`
+  //   wrapper.style.cssText = `
+  //     display: ${actualStatus.display};
+  //     position: ${actualStatus.position === 'static' ? 'relative' : actualStatus.position}`
 
-    activeElement.parentNode?.insertBefore(wrapper, activeElement)
-    wrapper.appendChild(activeElement)
+  //   activeElement.parentNode?.insertBefore(wrapper, activeElement)
+  //   wrapper.appendChild(activeElement)
 
-    wrapper.insertAdjacentHTML('afterbegin', sectionHTML(wrapper.getBoundingClientRect().top < 26))
-  } else {
-    activeElement.insertAdjacentHTML('afterbegin', sectionHTML(activeElement.getBoundingClientRect().top < 26))
-  }
+  //   wrapper.insertAdjacentHTML('afterbegin', sectionHTML(wrapper.getBoundingClientRect().top < 26))
+  // } else {
+  //   activeElement.insertAdjacentHTML('afterbegin', sectionHTML(activeElement.getBoundingClientRect().top < 26))
+  // }
 
-  activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.ElementShortcut, codePosition)
-  })
-  activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
-    e.stopPropagation()
-    ipcRenderer.send(MainIpcChannel.ControllerShortcut, 'Alt+9')
-  })
+  // activeElement.querySelector('ul.de-section i.de-delete')?.addEventListener('click', (e) => {
+  //   e.stopPropagation()
+  //   ipcRenderer.send(MainIpcChannel.ElementShortcut, 'Delete', codePosition)
+  // })
+  // activeElement.querySelector('ul.de-section i.de-insert')?.addEventListener('click', (e) => {
+  //   e.stopPropagation()
+  //   ipcRenderer.send(MainIpcChannel.ControllerShortcut, 'Alt+9')
+  // })
 
-  const tags = DropzoneTags
-  if (tagName === 'LI') {
-    tags.push('ul')
-    tags.push('ol')
-  }
+  // const tags = DropzoneTags
+  // if (tagName === 'LI') {
+  //   tags.push('ul')
+  //   tags.push('ol')
+  // }
 
   // console.log('droppable?.destroy()')
-  droppable?.destroy()
-  droppable = new Droppable(document.querySelectorAll('body > *'), {
-    draggable: isEmptyElement ? 'div.de-wrapper' : '[data-active]',
-    handle: isEmptyElement ? 'div.de-wrapper i.de-handle' : '[data-active] i.de-handle',
-    dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
-  })
-  droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
-    // console.log('dropped:dragEvent:source', e.dragEvent.source)
-    // console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
-    // console.log('dropped:dropzone', e.dropzone)
+  // droppable?.destroy()
+  // droppable = new Droppable(document.querySelectorAll('body > *'), {
+  //   draggable: isEmptyElement ? 'div.de-wrapper' : '[data-active]',
+  //   handle: isEmptyElement ? 'div.de-wrapper i.de-handle' : '[data-active] i.de-handle',
+  //   dropzone: tags.map((t) => `${t}:not([data-active])`).join(','),
+  // })
+  // droppable.on('droppable:dropped', (e: DroppableDroppedEvent) => {
+  //   // console.log('dropped:dragEvent:source', e.dragEvent.source)
+  //   // console.log('dropped:dragEvent:originalSource', e.dragEvent.originalSource)
+  //   // console.log('dropped:dropzone', e.dropzone)
 
-    const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
-    if (!PROJECTID || !dropzoneCodePosition) return
-    const mpayload: ElementPayload = {
-      projectId: PROJECTID,
-      codePosition,
-      dropzoneCodePosition,
-      className,
-      selector: selector || '',
-    }
-    ipcRenderer.send(MainIpcChannel.Dropped, mpayload)
-  })
-  droppable.on('droppable:returned', () => console.log('droppable:returned'))
+  //   const dropzoneCodePosition = e.dropzone.getAttribute(dataCode)
+  //   if (!PROJECTID || !dropzoneCodePosition) return
+  //   const mpayload: ElementPayload = {
+  //     projectId: PROJECTID,
+  //     codePosition,
+  //     dropzoneCodePosition,
+  //     className,
+  //     selector: selector || '',
+  //   }
+  //   ipcRenderer.send(MainIpcChannel.Dropped, mpayload)
+  // })
+  // droppable.on('droppable:returned', () => console.log('droppable:returned'))
 }
 
 const derealizeListener = (e: Event) => {
@@ -178,11 +193,43 @@ const derealizeListener = (e: Event) => {
   inspectActiveElement(e.currentTarget as HTMLElement)
 }
 
-ipcRenderer.on(MainIpcChannel.LiveUpdateClass, (event: Event, className, needRespStatus) => {
-  if (activeElement) {
-    activeElement.className = className
-    if (needRespStatus) {
-      respElementActualStatus() // 性能不好
+ipcRenderer.on(
+  MainIpcChannel.LiveUpdateClass,
+  (event: Event, sel: string, className: string, needRespStatus: boolean) => {
+    if (activeElement && sel === selector) {
+      activeElement.className = className
+      if (needRespStatus) {
+        respElementActualStatus() // 性能不好
+      }
+    } else {
+      const element = document.querySelector(sel) as HTMLElement
+      if (element) {
+        element.className = className
+      }
+    }
+  },
+)
+
+ipcRenderer.on(MainIpcChannel.LiveUpdateText, (event: Event, sel: string, text: string) => {
+  if (activeElement && sel === selector) {
+    activeElement.innerText = text
+    respElementActualStatus()
+  } else {
+    const element = document.querySelector(sel) as HTMLElement
+    if (element) {
+      element.innerText = text
+    }
+  }
+})
+
+ipcRenderer.on(MainIpcChannel.LiveUpdateTag, (event: Event, sel: string, tag: ElementTag) => {
+  if (activeElement && sel === selector) {
+    changeTag(activeElement, tag)
+    respElementActualStatus()
+  } else {
+    const element = document.querySelector(sel) as HTMLElement
+    if (element) {
+      changeTag(element, tag)
     }
   }
 })

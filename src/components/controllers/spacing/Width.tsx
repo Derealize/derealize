@@ -10,7 +10,7 @@ import { InlineDisplays } from '../../../utils/assest'
 
 const Width: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const values = useStoreState<Array<string>>((state) => state.spacing.widthValues)
   const propertys = useStoreState<Array<Property>>((state) => state.spacing.widthPropertys)

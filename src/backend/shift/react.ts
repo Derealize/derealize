@@ -19,7 +19,7 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
     parser,
   })
 
-  payloads.forEach(({ codePosition, className, text, dropzoneCodePosition, replaceTag }) => {
+  payloads.forEach(({ codePosition, className, text, dropzoneCodePosition, tagName }) => {
     const position = codePosition.split(':')
     const targetLine = parseInt(position[1], 10)
     const targetColumn = parseInt(position[2], 10)
@@ -31,8 +31,8 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
         if (node.loc?.start.line === targetLine && node.loc.start.column === targetColumn) {
           const onode = node.openingElement
 
-          if (replaceTag) {
-            const jsxId = builders.jsxIdentifier(replaceTag)
+          if (tagName) {
+            const jsxId = builders.jsxIdentifier(tagName)
             node.name = jsxId
             node.openingElement.name = jsxId
             if (node.closingElement) {
