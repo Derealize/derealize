@@ -1,6 +1,7 @@
 ## Scripts
 
 ```js
+yarn standby:base
 yarn
 yarn postinstall_dll
 yarn start
