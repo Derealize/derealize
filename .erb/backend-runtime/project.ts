@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { Repository } from 'nodegit'
+import type { Repository } from 'nodegit'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'
@@ -12,12 +12,12 @@ import type {
   ProcessPayload,
   BoolReply,
   HistoryReply,
-} from './backend.interface'
-import { ProjectStatus } from './backend.interface'
-import { npmInstall, npmStart } from './npm'
+} from '../../../src/backend/backend.interface'
+import { ProjectStatus } from '../../../src/backend/backend.interface'
+import { npmInstall, npmStart } from '../../../src/backend/npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
-import emit from './emit'
-import log from './log'
+import emit from '../../../src/backend/emit'
+import log from '../../../src/backend/log'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
 

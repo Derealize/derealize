@@ -1,7 +1,7 @@
 {
   "name": "derealize",
   "productName": "Derealize",
-  "description": "Tailwindcss Editor",
+  "description": "Tailwindcss Studio",
   "version": "2.0.2",
   "main": "./main.prod.js",
   "author": {
@@ -14,5 +14,8 @@
     "postinstall": "yarn electron-rebuild",
     "publish:qiniu": "node publish-qiniu.js"
   },
-  "license": "private"
+  "license": "private",
+  "dependencies": {
+    "nodegit": "0.28.0-alpha.9"
+  }
 }

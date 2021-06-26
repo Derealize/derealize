@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import ipc from './backend-ipc'
 import log from './log'
+import { DisposeAll } from './handlers'
 
 process
   .on('uncaughtException', (error) => {
@@ -10,6 +11,7 @@ process
     log('Backend UnhandledRejection', JSON.stringify(reason))
   })
   .on('exit', async () => {
+    await DisposeAll()
     log('exit')
   })
 
