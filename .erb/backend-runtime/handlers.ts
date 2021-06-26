@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
-import Project from './project.runtime'
+import Project from './project'
 import log from './log'
 import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayloadWithRuntime } from '../interface'
