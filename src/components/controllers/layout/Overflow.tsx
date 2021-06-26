@@ -22,7 +22,7 @@ const OverflowOptions = Object.entries(OverflowGroups).map(([label, values]) => 
 
 const Overflow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const propertys = useStoreState<Array<Property>>((state) => state.layout.overflowPropertys)
   const property = useComputeProperty(propertys)

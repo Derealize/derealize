@@ -58,6 +58,7 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
+      WITH_RUNTIME: process.env.WITH_RUNTIME === 'true',
       START_MINIMIZED: false,
     }),
 

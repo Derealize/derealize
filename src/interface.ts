@@ -3,8 +3,11 @@ export interface ProjectIdParam {
 }
 
 export interface ImportPayload extends ProjectIdParam {
-  url: string
   path: string
+}
+
+export interface ImportPayloadWithRuntime extends ImportPayload {
+  url: string
   branch: string
 }
 
@@ -15,13 +18,14 @@ export enum ElementTag {
   button = 'button',
   input = 'input',
 }
+
 export interface ElementPayload extends ProjectIdParam {
   codePosition: string
   className: string
   selector: string
   text?: string
+  tagName?: string
   dropzoneCodePosition?: string
-  replaceTag?: ElementTag
 }
 
 export interface ElementActualStatus extends ProjectIdParam {
@@ -31,6 +35,7 @@ export interface ElementActualStatus extends ProjectIdParam {
   display: string
   position: string
   background: string
+  text?: string
   parentTagName?: string
   parentDisplay?: string
 }
@@ -97,6 +102,8 @@ export enum MainIpcChannel {
   Refresh = 'Refresh',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
+  LiveUpdateText = 'LiveUpdateText',
+  LiveUpdateTag = 'LiveUpdateTag',
   TextTab = 'TextTab',
   Dropped = 'Dropped',
 }

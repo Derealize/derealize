@@ -1,10 +1,10 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
-import Project from './project'
+import Project from './project.runtime'
 import log from './log'
-import type { BoolReply, TailwindConfigReply } from './backend.interface'
-import type { ProjectIdParam, ImportPayload } from '../interface'
+import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
+import type { ProjectIdParam, ImportPayloadWithRuntime } from '../interface'
 import {
   ElementPayload,
   InsertElementPayload,
@@ -26,14 +26,14 @@ const getProject = (id: string): Project => {
   return project
 }
 
-export const Import = async ({ projectId, path }: ImportPayload): Promise<BoolReply> => {
+export const Import = async ({ projectId, url, path, branch }: ImportPayloadWithRuntime): Promise<BoolReply> => {
   let project = projectsMap.get(projectId)
   if (!project) {
-    project = new Project(projectId, path)
+    project = new Project(projectId, url, path, branch)
     projectsMap.set(projectId, project)
   }
 
-  const result = await project.Flush()
+  const result = await project.Import()
   return result
 }
 
@@ -42,9 +42,60 @@ export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> 
   return { result }
 }
 
+export const Install = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const result = project.Install()
+  return result
+}
+
 export const Flush = async ({ projectId }: ProjectIdParam) => {
   const project = getProject(projectId)
   await project.Flush()
+}
+
+export const Start = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const result = await project.Start()
+  return result
+}
+
+export const Stop = async ({ projectId }: ProjectIdParam) => {
+  const project = getProject(projectId)
+  await project.Stop()
+}
+
+export const Pull = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.Pull()
+  return reply
+}
+
+export const Push = async ({ projectId, msg }: ProjectIdParam & { msg: string }): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.Push(msg)
+  return reply
+}
+
+export const History = async ({ projectId }: ProjectIdParam): Promise<HistoryReply> => {
+  const project = getProject(projectId)
+  const logs = await project.History()
+  return logs
+}
+
+// export const Dispose = async ({ projectId }: ProjectIdParam) => {
+//   const project = getProject(projectId)
+//   project?.Dispose()
+//   projectsMap.delete(projectId)
+// }
+
+export const DisposeAll = async () => {
+  // https://eslint.org/docs/rules/no-await-in-loop#examples
+  const promises = []
+  for (const project of projectsMap.values()) {
+    promises.push(project.Dispose())
+  }
+  await Promise.all(promises)
+  log('DisposeAll')
 }
 
 export const ApplyElements = async (payloads: Array<ElementPayload>) => {
