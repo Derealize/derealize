@@ -14,8 +14,8 @@ import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
-const withRuntime = process.env.WITH_RUNTIME === 'true'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
+const withRuntime = process.env.WITH_RUNTIME === 'true'
 let socketId: string
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
@@ -351,7 +351,7 @@ const createBackendProcess = () => {
 app
   .whenReady()
   .then(async () => {
-    console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
+    console.log(`name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()

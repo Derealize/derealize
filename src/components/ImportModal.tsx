@@ -153,6 +153,14 @@ const ImportProject = (): JSX.Element => {
               </Tooltip>
 
               {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
+
+              <FormHelperText className="prose">
+                Before importing your project, please follow{' '}
+                <a href="http://baidu.com" target="_blank" rel="noreferrer">
+                  our documentation
+                </a>{' '}
+                to complete the project configuration.
+              </FormHelperText>
             </FormControl>
 
             <FormControl id="displayname" mt={4}>
