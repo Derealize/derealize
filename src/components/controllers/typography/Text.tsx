@@ -10,16 +10,16 @@ const { sendMainIpc } = window.derealize
 
 const Text: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
-  const setActiveElementText = useStoreActions((actions) => actions.element.setActiveElementText)
+  const setSelectedElementText = useStoreActions((actions) => actions.element.setSelectedElementText)
 
   const [text, setText] = useState<string | undefined>(element?.text)
 
   const handleInsert = useCallback(() => {
     if (!element || text === undefined) return
     const { projectId, selector } = element
-    setActiveElementText({ projectId, text })
+    setSelectedElementText({ projectId, text })
     sendMainIpc(MainIpcChannel.LiveUpdateText, projectId, selector, text)
-  }, [element, setActiveElementText, text])
+  }, [element, setSelectedElementText, text])
 
   useEffect(() => {
     setText(element?.actualStatus?.text)

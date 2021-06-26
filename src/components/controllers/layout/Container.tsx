@@ -29,7 +29,7 @@ const Container: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
 
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
-  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteSelectedElementProperty)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
