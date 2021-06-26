@@ -10,7 +10,7 @@ const { sendMainIpc } = window.derealize
 
 const ElementEdit: React.FC = (): JSX.Element => {
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
-  const setActiveElementTag = useStoreActions((actions) => actions.element.setActiveElementTag)
+  const setSelectedElementTag = useStoreActions((actions) => actions.element.setSelectedElementTag)
 
   const elementType = useMemo(
     () => (element?.actualStatus?.tagName.toLowerCase() || ElementTag.div) as ElementTag,
@@ -25,9 +25,9 @@ const ElementEdit: React.FC = (): JSX.Element => {
 
   const handleReplace = useCallback(() => {
     if (!element) return
-    setActiveElementTag({ projectId: element.projectId, tag: selElementType })
+    setSelectedElementTag({ projectId: element.projectId, tag: selElementType })
     sendMainIpc(MainIpcChannel.LiveUpdateTag, element.projectId, selElementType)
-  }, [element, selElementType, setActiveElementTag])
+  }, [element, selElementType, setSelectedElementTag])
 
   // const handleDelete = useCallback(() => {
   //   if (!element) return

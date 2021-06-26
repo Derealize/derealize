@@ -34,7 +34,7 @@ export interface ControllesModel {
   pushNewProperty: Thunk<ControllesModel, string, void, StoreModel>
   liveUpdateClassName: Thunk<
     ControllesModel,
-    { propertysClone: Array<Property>; propertyId: string; classname: string; projectId: string },
+    { propertysClone: Array<Property>; selector: string; propertyId: string; classname: string; projectId: string },
     void,
     StoreModel
   >
@@ -79,43 +79,45 @@ const controllesModel: ControllesModel = {
       custom: selectCustomVariant,
       dark: selectDark ? true : undefined,
     }
-    getStoreActions().element.pushActiveElementProperty({ projectId: frontProject.id, property })
+    getStoreActions().element.pushSelectedElementProperty({ projectId: frontProject.id, property })
   }),
 
-  liveUpdateClassName: thunk(async (actions, { propertysClone, propertyId, classname, projectId }, { getState }) => {
-    const { selectStateVariant } = getState()
+  liveUpdateClassName: thunk(
+    async (actions, { propertysClone, selector, propertyId, classname, projectId }, { getState }) => {
+      const { selectStateVariant } = getState()
 
-    const property = propertysClone.find((p) => p.id === propertyId)
+      const property = propertysClone.find((p) => p.id === propertyId)
 
-    if (property) {
-      property.classname = classname
-    } else {
-      const { selectScreenVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
-      propertysClone.push({
-        id: propertyId,
-        classname,
-        screen: selectScreenVariant,
-        state: selectStateVariant,
-        list: selectListVariant,
-        custom: selectCustomVariant,
-        dark: selectDark ? true : undefined,
-      })
-    }
+      if (property) {
+        property.classname = classname
+      } else {
+        const { selectScreenVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
+        propertysClone.push({
+          id: propertyId,
+          classname,
+          screen: selectScreenVariant,
+          state: selectStateVariant,
+          list: selectListVariant,
+          custom: selectCustomVariant,
+          dark: selectDark ? true : undefined,
+        })
+      }
 
-    const className = propertysTransClassName(propertysClone)
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, projectId, className)
-  }),
+      const className = propertysTransClassName(propertysClone)
+      sendMainIpc(MainIpcChannel.LiveUpdateClass, projectId, selector, className)
+    },
+  ),
 
   liveApplyClassName: thunk(async (actions, none, { getStoreState }) => {
     const {
       project: { frontProject },
-      element: { activeElement },
+      element: { selectedElement },
     } = getStoreState()
 
-    if (!frontProject || !activeElement) return
+    if (!frontProject || !selectedElement) return
 
-    const className = propertysTransClassName(activeElement.propertys)
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, className, true)
+    const className = propertysTransClassName(selectedElement.propertys)
+    sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, selectedElement.selected, className, true)
   }),
   jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
