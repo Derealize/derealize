@@ -2,8 +2,10 @@ import ipc from 'node-ipc'
 import log from './log'
 
 const handlers: any = require('./handlers')
+const handlersWithRuntime: any = require('./handlers.runtime')
 
-export default (socketId: string) => {
+export default (socketId: string, withRuntime: boolean) => {
+  const handlersInstence = withRuntime ? handlersWithRuntime : handlers
   ipc.config.id = socketId
   ipc.config.silent = true
 
@@ -13,9 +15,9 @@ export default (socketId: string) => {
       const msg = JSON.parse(data)
       const { id, name, payload } = msg
 
-      if (handlers[name]) {
+      if (handlersInstence[name]) {
         log(name + JSON.stringify(payload))
-        handlers[name](payload)
+        handlersInstence[name](payload)
           .then((result: any) => {
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result }))
             return null

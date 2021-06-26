@@ -2,23 +2,30 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { VStack, Textarea, Button } from '@chakra-ui/react'
 import type { ElementState } from '../../../models/element'
 import { useStoreActions, useStoreState } from '../../../reduxStore'
+import { MainIpcChannel } from '../../../interface'
+import type { PreloadWindow } from '../../../preload'
+
+declare const window: PreloadWindow
+const { sendMainIpc } = window.derealize
 
 const Text: React.FC = (): JSX.Element => {
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
-  const setActiveElementText = useStoreActions((actions) => actions.element.setActiveElementText)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
+  const setSelectedElementText = useStoreActions((actions) => actions.element.setSelectedElementText)
 
   const [text, setText] = useState<string | undefined>(element?.text)
 
   const handleInsert = useCallback(() => {
     if (!element || text === undefined) return
-    setActiveElementText({ projectId: element.projectId, text })
-  }, [element, setActiveElementText, text])
+    const { projectId, selector } = element
+    setSelectedElementText({ projectId, text })
+    sendMainIpc(MainIpcChannel.LiveUpdateText, projectId, selector, text)
+  }, [element, setSelectedElementText, text])
 
   useEffect(() => {
-    setText(element?.text)
+    setText(element?.actualStatus?.text)
   }, [element])
 
-  if (element?.text === undefined) return <></>
+  if (element?.actualStatus?.text === undefined) return <></>
 
   return (
     <VStack alignItems="stretch">

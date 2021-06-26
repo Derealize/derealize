@@ -74,21 +74,21 @@ const SelectController: React.FC<Props> = ({
   doclink,
 }: Props): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const toggleColorsModal = useStoreActions((actions) => actions.project.colorsModalToggle)
 
   const jitClassNames = useStoreActions((actions) => actions.controlles.jitClassNames)
-  const deleteProperty = useStoreActions((actions) => actions.element.deleteActiveElementProperty)
-  const setProperty = useStoreActions((actions) => actions.element.setActiveElementPropertyClassName)
+  const deleteProperty = useStoreActions((actions) => actions.element.deleteSelectedElementProperty)
+  const setProperty = useStoreActions((actions) => actions.element.setSelectedElementPropertyValue)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
   const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const propertysClone = useMemo(() => {
     const clean = cleanPropertys?.map((p) => p.id) || []
-    const result = element?.propertys?.filter((p) => !clean.includes(p.id))
-    return clone(result)
+    const propertys = element?.propertys?.filter((p) => !clean.includes(p.id))
+    return clone(propertys)
   }, [cleanPropertys, element?.propertys])
 
   const options = useMemo(() => {
@@ -106,15 +106,16 @@ const SelectController: React.FC<Props> = ({
 
   const onOptionEnter = useCallback(
     async (value: string) => {
-      if (!project || !propertysClone) return
+      if (!element || !project || !propertysClone) return
       liveUpdateClassName({
+        projectId: project.id,
+        selector: element.selector,
         propertysClone,
         propertyId: property?.id || '',
         classname: value,
-        projectId: project.id,
       })
     },
-    [project, liveUpdateClassName, propertysClone, property?.id],
+    [element, project, propertysClone, liveUpdateClassName, property?.id],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {
@@ -190,11 +191,11 @@ const SelectController: React.FC<Props> = ({
           if (action === 'clear' && property) {
             deleteProperty({ projectId: project.id, propertyId: property.id })
           } else if (action === 'select-option') {
-            const classname = (ovalue as OptionType).value
+            const { value } = ovalue as OptionType
             if (property) {
-              setProperty({ projectId: project.id, propertyId: property.id, classname })
+              setProperty({ projectId: project.id, propertyId: property.id, value })
             } else {
-              pushNewProperty(classname)
+              pushNewProperty(value)
             }
           }
           cleanPropertys?.forEach((p) => p && deleteProperty({ projectId: project.id, propertyId: p.id }))

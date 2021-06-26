@@ -10,7 +10,7 @@ import { InlineDisplays } from '../../../utils/assest'
 
 const SpaceBetween: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const valuesX = useStoreState<Array<string>>((state) => state.spacing.spaceXValues)
   const propertysX = useStoreState<Array<Property>>((state) => state.spacing.spaceXPropertys)

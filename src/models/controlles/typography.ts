@@ -99,7 +99,7 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.fontFamily).map((v) => `font-${v}`)
   }),
   fontFamilyPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.fontFamilyValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.fontFamilyValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -108,7 +108,7 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.fontSize).map((v) => `text-${v}`)
   }),
   fontSizePropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.fontSizeValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.fontSizeValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -117,7 +117,7 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.fontWeight).map((v) => `font-${v}`)
   }),
   fontWeightPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.fontWeightValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.fontWeightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -126,7 +126,7 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.letterSpacing).map((v) => `tracking-${v}`)
   }),
   letterSpacingPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.letterSpacingValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.letterSpacingValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -135,7 +135,7 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.lineHeight).map((v) => `tracking-${v}`)
   }),
   lineHeightPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.lineHeightValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.lineHeightValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
@@ -144,7 +144,7 @@ const typographyModel: TypographyModel = {
     return buildColorOptions(project.tailwindConfig.theme.placeholderColor, 'placeholder')
   }),
   placeholderColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.placeholderColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.placeholderColorValues],
     filterColorPropertys,
   ),
 
@@ -154,11 +154,11 @@ const typographyModel: TypographyModel = {
     return Object.keys(Object.assign(placeholderOpacity, opacity)).map((v) => `placeholder-opacity-${v}`)
   }),
   placeholderOpacityPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.placeholderOpacityValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.placeholderOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  textAlignPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  textAlignPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => TextAlignValues.includes(classname)),
   ),
 
@@ -167,7 +167,7 @@ const typographyModel: TypographyModel = {
     return buildColorOptions(project.tailwindConfig.theme.textColor, 'text')
   }),
   textColorPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.textColorValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.textColorValues],
     filterColorPropertys,
   ),
 
@@ -176,51 +176,53 @@ const typographyModel: TypographyModel = {
     return Object.keys(project.tailwindConfig.theme.textOpacity).map((v) => `text-opacity-${v}`)
   }),
   textOpacityPropertys: computed(
-    [(state, storeState) => storeState.element.activePropertys, (state) => state.textOpacityValues],
+    [(state, storeState) => storeState.element.selectedElementPropertys, (state) => state.textOpacityValues],
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
   // #region advanced
-  textDecorationPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  textDecorationPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => TextDecorationValues.includes(classname)),
   ),
 
-  textTransformPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  textTransformPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => TextTransformValues.includes(classname)),
   ),
 
-  fontSmoothingPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  fontSmoothingPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => FontSmoothingValues.includes(classname)),
   ),
 
-  fontStylePropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  fontStylePropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => FontStyleValues.includes(classname)),
   ),
 
-  fontVariantNumericPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
-    propertys.filter(({ classname }) => FontVariantNumericValues.includes(classname)),
+  fontVariantNumericPropertys: computed(
+    [(state, storeState) => storeState.element.selectedElementPropertys],
+    (propertys) => propertys.filter(({ classname }) => FontVariantNumericValues.includes(classname)),
   ),
 
-  listStylePropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  listStylePropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => ListStyleValues.includes(classname)),
   ),
 
-  listStylePositionPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
-    propertys.filter(({ classname }) => ListStylePositionValues.includes(classname)),
+  listStylePositionPropertys: computed(
+    [(state, storeState) => storeState.element.selectedElementPropertys],
+    (propertys) => propertys.filter(({ classname }) => ListStylePositionValues.includes(classname)),
   ),
 
-  textOverflowPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  textOverflowPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => TextOverflowValues.includes(classname)),
   ),
-  whitespacePropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  whitespacePropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => WhitespaceValues.includes(classname)),
   ),
 
-  verticalAlignPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  verticalAlignPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => VerticalAlignValues.includes(classname)),
   ),
 
-  wordBreakPropertys: computed([(state, storeState) => storeState.element.activePropertys], (propertys) =>
+  wordBreakPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => WordBreakValues.includes(classname)),
   ),
   // #endregion

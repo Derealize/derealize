@@ -8,7 +8,7 @@ import { ElementState } from '../../../models/element'
 
 const FlexGrow: React.FC = (): JSX.Element => {
   const { already } = useContext(ControllersContext)
-  const element = useStoreState<ElementState | undefined>((state) => state.element.activeElement)
+  const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
 
   const flexGrowValues = useStoreState<Array<string>>((state) => state.layout.flexGrowValues)
   const propertys = useStoreState<Array<Property>>((state) => state.layout.flexGrowPropertys)

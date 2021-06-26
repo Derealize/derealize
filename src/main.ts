@@ -11,10 +11,11 @@ import log from 'electron-log'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
-import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel } from './interface'
+import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
+const withRuntime = process.env.WITH_RUNTIME === 'true'
 let socketId: string
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
@@ -304,22 +305,30 @@ const createBackendWindow = () => {
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('set-params', { socketId })
+    backendWin.webContents.send('set-params', { socketId, withRuntime })
   })
 }
 
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', app.getVersion(), socketId], {
-      execArgv: ['-r', './.erb/scripts/BabelRegister'],
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-    })
+    backendProcess = fork(
+      path.join(__dirname, 'backend/backend.ts'),
+      ['--subprocess', socketId, withRuntime ? '--with-runtime' : ''],
+      {
+        execArgv: ['-r', './.erb/scripts/BabelRegister'],
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+      },
+    )
   } else if (isProd) {
-    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', app.getVersion(), socketId], {
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
-      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
-    })
+    backendProcess = fork(
+      path.join(__dirname, 'backend.prod.js'),
+      ['--subprocess', socketId, socketId, withRuntime ? '--with-runtime' : ''],
+      {
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
+        // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
+      },
+    )
   } else {
     createBackendWindow()
   }
@@ -342,7 +351,7 @@ const createBackendProcess = () => {
 app
   .whenReady()
   .then(async () => {
-    console.log(`name:${app.getName()};userData:${app.getPath('userData')}`)
+    console.log(`name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()
@@ -441,11 +450,30 @@ ipcMain.on(MainIpcChannel.Flush, (event, projectId: string) => {
   }
 })
 
-ipcMain.on(MainIpcChannel.LiveUpdateClass, (event, projectId, className, needRespStatus) => {
+ipcMain.on(
+  MainIpcChannel.LiveUpdateClass,
+  (event, projectId: string, selector: string, className: string, needRespStatus: boolean) => {
+    if (!mainWindow) return
+    const project = projects.get(projectId)
+    if (project) {
+      project.view.webContents.send(MainIpcChannel.LiveUpdateClass, selector, className, needRespStatus)
+    }
+  },
+)
+
+ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId: string, selector: string, text: string) => {
   if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
-    project.view.webContents.send(MainIpcChannel.LiveUpdateClass, className, needRespStatus)
+    project.view.webContents.send(MainIpcChannel.LiveUpdateText, selector, text)
+  }
+})
+
+ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId: string, selector: string, tag: ElementTag) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.send(MainIpcChannel.LiveUpdateTag, selector, tag)
   }
 })
 
