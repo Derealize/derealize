@@ -10,14 +10,21 @@ trigger:
   branches:
     include:
       - master-runtime
-pr:
-  - master-runtime
+# pr:
+#   - master-runtime
 
 steps:
   # Set node version
   - task: NodeTool@0
     inputs:
       versionSpec: 14.x
+  # Install Yarn
+  - task: geeklearningio.gl-vsts-tasks-yarn-dev.yarn-installer-task.YarnInstaller@3
+    displayName: 'Use Yarn 1.22.x'
+    inputs:
+      versionSpec: 1.22.x
+      checkLatest: true
+      includePrerelease: false
   # Cache yarn deps
   - task: Cache@2
     inputs:
