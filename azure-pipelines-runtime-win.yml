@@ -19,12 +19,6 @@ steps:
       versionSpec: 14.x
   - script: npm install -g yarn
     displayName: Install Yarn
-  # - task: geeklearningio.gl-vsts-tasks-yarn-dev.yarn-installer-task.YarnInstaller@3
-  #   displayName: Install Yarn
-  #   inputs:
-  #     versionSpec: 1.22.x
-  #     checkLatest: true
-  #     includePrerelease: false
   - task: Cache@2
     displayName: Cache Yarn packages
     inputs:
