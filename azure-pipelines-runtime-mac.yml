@@ -1,26 +1,22 @@
-strategy:
-  matrix:
-    mac:
-      imageName: 'macOS-latest'
-      nodeVersion: '14.x'
-      buildPlatform: 'mac'
-    windows:
-      # https://github.com/nodegit/nodegit/issues/1842
-      imageName: 'vs2017-win2016'
-      nodeVersion: '14.x'
-      buildPlatform: 'win'
-
 variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 pool:
-  vmImage: $(imageName)
+  vmImage: macOS-latest
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master-runtime
+pr:
+  - master-runtime
 
 steps:
   # Set node version
   - task: NodeTool@0
     inputs:
-      versionSpec: $(nodeVersion)
+      versionSpec: 14.x
   # Cache yarn deps
   - task: Cache@2
     inputs:
@@ -41,7 +37,7 @@ steps:
     env:
       DISPLAY: ':99.0'
   # Build package
-  - script: yarn package:with_runtime --$(buildPlatform)
+  - script: yarn package:with_runtime --mac
   # Publish qiniu
   - script: yarn run publish:qiniu
     workingDirectory: ./src
