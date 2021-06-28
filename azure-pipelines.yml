@@ -19,8 +19,8 @@ trigger:
   branches:
     include:
       - master
-pr:
-  - master
+# pr:
+#   - master
 
 steps:
   # Set node version
