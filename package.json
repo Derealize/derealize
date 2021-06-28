@@ -4,7 +4,9 @@
   "description": "Tailwindcss Editor",
   "scripts": {
     "standby:base": "shx cp src/package.base.json src/package.json && shx cp -r .erb/backend/* src/backend && shx rm -f src/backend/git.ts",
+    "commit:base": "shx cp src/backend/{backend,handlers,project}.ts .erb/backend",
     "standby:runtime": "shx cp src/package.runtime.json src/package.json && shx cp -r .erb/backend-runtime/* src/backend",
+    "commit:runtime": "shx cp src/backend/{backend,handlers,project,git}.ts .erb/backend-runtime",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
     "start:with_runtime": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env WITH_RUNTIME=true webpack serve --config ./.erb/configs/webpack.babel.js",
     "start:preload": "webpack --config ./.erb/configs/webpack.dev.preload.babel.js",
