@@ -9,8 +9,8 @@ trigger:
   branches:
     include:
       - master-runtime
-pr:
-  - master-runtime
+# pr:
+#   - master-runtime
 
 steps:
   # Set node version
