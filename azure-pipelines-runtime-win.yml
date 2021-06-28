@@ -14,38 +14,29 @@ trigger:
 #   - master-runtime
 
 steps:
-  # Set node version
   - task: NodeTool@0
     inputs:
       versionSpec: 14.x
-  # Install Yarn
-  - task: geeklearningio.gl-vsts-tasks-yarn-dev.yarn-installer-task.YarnInstaller@3
-    displayName: 'Use Yarn 1.22.x'
-    inputs:
-      versionSpec: 1.22.x
-      checkLatest: true
-      includePrerelease: false
-  # Cache yarn deps
+  - script: npm install yarn
+    displayName: Install Yarn
   - task: Cache@2
+    displayName: Cache Yarn packages
     inputs:
       key: 'yarn | "$(Agent.OS)" | yarn.lock'
       restoreKeys: |
         yarn | "$(Agent.OS)"
       path: $(YARN_CACHE_FOLDER)
-    displayName: Cache Yarn packages
-  # Start virtual framebuffer server
   - bash: |
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       echo ">>> Started xvfb"
-    displayName: Start xvfb
+    displayName: Start virtual framebuffer server
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
-  # Install deps with yarn
-  # - script: yarn --frozen-lockfile && yarn postinstall_dll
   - script: yarn --frozen-lockfile
+    displayName: yarn install
     env:
       DISPLAY: ':99.0'
-  # Build package
   - script: yarn package:with_runtime --win
-  # Publish qiniu
+    displayName: yarn package
   - script: yarn run publish:qiniu
+    displayName: yarn publish
     workingDirectory: ./src
