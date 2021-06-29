@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
-import { MdUndo, MdRedo } from 'react-icons/md'
+import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown } from 'react-icons/io'
 import { Project, ProjectView } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
@@ -140,6 +140,21 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
+        <BarIconButton
+          aria-label="Refresh"
+          icon={<MdRefresh />}
+          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+        />
+        <BarIconButton
+          aria-label="Refresh"
+          icon={<MdArrowBack />}
+          onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+        />
+        <BarIconButton
+          aria-label="Refresh"
+          icon={<MdArrowForward />}
+          onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+        />
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
