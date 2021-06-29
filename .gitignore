@@ -51,6 +51,7 @@ theme.default.json
 
 # App packaged
 release
+release-with-runtime
 dist
 dll
 
