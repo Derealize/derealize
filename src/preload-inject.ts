@@ -276,7 +276,7 @@ ipcRenderer.on('setParams', (event: Event, socketId, projectId, activeSelector, 
   ISWEAPP = isWeapp
   dataCode = isWeapp ? 'title' : 'data-code'
   connectSocket(socketId)
-  ipcRenderer.send(MainIpcChannel.Refresh, PROJECTID)
+  ipcRenderer.send(MainIpcChannel.FinishLoad, PROJECTID)
 
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(preloadCSS))

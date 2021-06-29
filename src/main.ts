@@ -442,11 +442,11 @@ ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {
   }
 })
 
-ipcMain.on(MainIpcChannel.Flush, (event, projectId: string) => {
+ipcMain.on(MainIpcChannel.FinishLoad, (event, projectId: string) => {
   const project = projects.get(projectId)
   if (project) {
     project.activeSelector = undefined
-    mainWindow?.webContents.send(MainIpcChannel.Flush, projectId)
+    mainWindow?.webContents.send(MainIpcChannel.FinishLoad, projectId)
   }
 })
 
@@ -482,6 +482,30 @@ ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) 
   const project = projects.get(payload.projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.SelectBreadcrumb, payload)
+  }
+})
+
+ipcMain.on(MainIpcChannel.Refresh, (event, projectId: string) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.reloadIgnoringCache()
+  }
+})
+
+ipcMain.on(MainIpcChannel.Forward, (event, projectId: string) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.goForward()
+  }
+})
+
+ipcMain.on(MainIpcChannel.Backward, (event, projectId: string) => {
+  if (!mainWindow) return
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.goBack()
   }
 })
 
