@@ -380,6 +380,13 @@ const projectModel: ProjectWithRuntimeModel = {
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
       actions.flushProject(projectId)
     })
+
+    listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
+      actions.setProjectView({
+        projectId,
+        view: ok ? ProjectViewWithRuntime.BrowserView : ProjectViewWithRuntime.LoadFail,
+      })
+    })
   }),
 
   unlisten: action(() => {
@@ -388,6 +395,7 @@ const projectModel: ProjectWithRuntimeModel = {
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Flush)
+    unlistenMainIpc(MainIpcChannel.LoadFinish)
   }),
 
   importModalDisclosure: false,

@@ -4,12 +4,12 @@ import { ProjectStatus } from '../backend/backend.interface'
 
 export enum ProjectView {
   BrowserView,
-  Elements,
+  LoadFail,
 }
 
 export enum ProjectViewWithRuntime {
   BrowserView,
-  Elements,
+  LoadFail,
   Debugging,
   FileStatus,
 }
@@ -26,6 +26,7 @@ export interface Project {
   tailwindVersion?: string
   config?: ProjectConfig
   view?: ProjectView
+  viewElements?: boolean
   jitClassName?: string
 }
 
