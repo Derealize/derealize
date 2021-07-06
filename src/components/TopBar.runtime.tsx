@@ -14,7 +14,7 @@ import {
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
-import { MdUndo, MdRedo } from 'react-icons/md'
+import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown } from 'react-icons/io'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
@@ -37,6 +37,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
   const stopProject = useStoreActions((actions) => actions.projectWithRuntime.stopProject)
 
   const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
+  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
 
   const callGitHistory = useStoreActions((actions) => actions.projectWithRuntime.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
@@ -163,12 +164,9 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             aria-label="Save"
             icon={<IoIosArrowDown />}
             onClick={() => {
-              setProjectView({
+              setProjectViewElements({
                 projectId: project.id,
-                view:
-                  project.view === ProjectViewWithRuntime.Elements
-                    ? ProjectViewWithRuntime.BrowserView
-                    : ProjectViewWithRuntime.Elements,
+                isView: !project.viewElements,
               })
             }}
           />
@@ -208,6 +206,34 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
+        <IconButton
+          aria-label="Refresh"
+          borderRadius="full"
+          icon={<MdRefresh />}
+          onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+        />
+        <ButtonGroup
+          size="sm"
+          ml={2}
+          isAttached
+          variant="outline"
+          isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}
+        >
+          <IconButton
+            aria-label="Backward"
+            borderRadius="full"
+            mr="-px"
+            icon={<MdArrowBack />}
+            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+          />
+          <IconButton
+            aria-label="Forward"
+            borderRadius="full"
+            icon={<MdArrowForward />}
+            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+          />
+        </ButtonGroup>
+
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {project.status === ProjectStatus.Ready && (
           <Tooltip label="start">
