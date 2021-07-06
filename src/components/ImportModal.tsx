@@ -104,6 +104,7 @@ const ImportProject = (): JSX.Element => {
 
       const payload: ImportPayload = { projectId: id, path }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+      console.log('setIsReady', result)
       setIsReady(result)
 
       if (!result) {

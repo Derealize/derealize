@@ -1,4 +1,4 @@
-import uuid from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import ipc from 'node-ipc'
 
 const replyHandlers = new Map()
@@ -60,7 +60,7 @@ export const connectSocket = (socketId: string) => {
 
 export const sendBackIpc = (name: string, payload: Record<string, unknown> = {}): Promise<unknown> => {
   return new Promise((resolve, reject) => {
-    const id = uuid.v4()
+    const id = uuidv4()
     replyHandlers.set(id, { resolve, reject })
     if (socketClient) {
       socketClient.emit('message', JSON.stringify({ id, name, payload }))
