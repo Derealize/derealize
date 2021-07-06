@@ -37,6 +37,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
   const stopProject = useStoreActions((actions) => actions.projectWithRuntime.stopProject)
 
   const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
+  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
 
   const callGitHistory = useStoreActions((actions) => actions.projectWithRuntime.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
@@ -163,12 +164,9 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             aria-label="Save"
             icon={<IoIosArrowDown />}
             onClick={() => {
-              setProjectView({
+              setProjectViewElements({
                 projectId: project.id,
-                view:
-                  project.view === ProjectViewWithRuntime.Elements
-                    ? ProjectViewWithRuntime.BrowserView
-                    : ProjectViewWithRuntime.Elements,
+                isView: !project.viewElements,
               })
             }}
           />

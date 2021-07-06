@@ -24,7 +24,12 @@ const toast = createStandaloneToast({
 })
 
 const mainFrontView = (project?: Project) => {
-  if (project?.view === ProjectView.BrowserView) {
+  if (!project) {
+    sendMainIpc(MainIpcChannel.FrontView)
+    return
+  }
+  if (!project.isFront) return
+  if (project.view === ProjectView.BrowserView) {
     if (!project.config) throw new Error('project.config null')
     sendMainIpc(
       MainIpcChannel.FrontView,
@@ -54,6 +59,7 @@ export interface ProjectModel {
   removeProjectThunk: Thunk<ProjectModel, string>
 
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
+  setProjectViewElements: Action<ProjectModel, { projectId: string; isView: boolean }>
   setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
 
   flushProject: Action<ProjectModel, string>
@@ -141,7 +147,14 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.view = view
-    if (project.id === state.frontProject?.id) {
+    mainFrontView(project)
+  }),
+  setProjectViewElements: action((state, { projectId, isView }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.viewElements = isView
+    if (isView) {
+      project.view = ProjectView.BrowserView
       mainFrontView(project)
     }
   }),
@@ -278,6 +291,10 @@ const projectModel: ProjectModel = {
     listenMainIpc(MainIpcChannel.Flush, (event: IpcRendererEvent, projectId: string) => {
       actions.flushProject(projectId)
     })
+
+    listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
+      actions.setProjectView({ projectId, view: ok ? ProjectView.BrowserView : ProjectView.LoadFail })
+    })
   }),
 
   unlisten: action(() => {
@@ -285,6 +302,7 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Flush)
+    unlistenMainIpc(MainIpcChannel.LoadFinish)
   }),
 
   importModalDisclosure: false,
