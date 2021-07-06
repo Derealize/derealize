@@ -271,7 +271,7 @@ const listenElement = () => {
 //   listenElement()
 // })
 
-ipcRenderer.on('setParams', (event: Event, socketId, projectId, activeSelector, isWeapp) => {
+ipcRenderer.on('setParams', (event: Event, socketId, projectId, isWeapp, activeSelector) => {
   PROJECTID = projectId
   ISWEAPP = isWeapp
   dataCode = isWeapp ? 'title' : 'data-code'

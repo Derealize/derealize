@@ -42,7 +42,7 @@ BarIconButton.defaultProps = {
 
 const TopBar: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
 
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
@@ -98,9 +98,9 @@ const TopBar: React.FC = (): JSX.Element => {
             aria-label="Save"
             icon={<IoIosArrowDown />}
             onClick={() => {
-              setProjectView({
+              setProjectViewElements({
                 projectId: project.id,
-                view: project.view === ProjectView.Elements ? ProjectView.BrowserView : ProjectView.Elements,
+                isView: !project.viewElements,
               })
             }}
           />
