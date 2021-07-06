@@ -1,8 +1,8 @@
 ## Scripts
 
 ```js
-yarn standby:base
 yarn
+yarn standby:base
 yarn postinstall_dll
 yarn start
 yarn cross-env PORT=8564 yarn start
