@@ -102,7 +102,7 @@ export enum MainIpcChannel {
   Refresh = 'Refresh',
   Forward = 'Forward',
   Backward = 'Backward',
-  FinishLoad = 'FinishLoad',
+  LoadFinish = 'LoadFinish',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',
   LiveUpdateText = 'LiveUpdateText',

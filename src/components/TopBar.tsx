@@ -42,7 +42,7 @@ BarIconButton.defaultProps = {
 
 const TopBar: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
+  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
 
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
@@ -98,9 +98,9 @@ const TopBar: React.FC = (): JSX.Element => {
             aria-label="Save"
             icon={<IoIosArrowDown />}
             onClick={() => {
-              setProjectView({
+              setProjectViewElements({
                 projectId: project.id,
-                view: project.view === ProjectView.Elements ? ProjectView.BrowserView : ProjectView.Elements,
+                isView: !project.viewElements,
               })
             }}
           />
@@ -140,21 +140,33 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <BarIconButton
+        <IconButton
           aria-label="Refresh"
+          borderRadius="full"
           icon={<MdRefresh />}
-          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-        />
-        <BarIconButton
-          aria-label="Refresh"
-          icon={<MdArrowBack />}
           onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
         />
-        <BarIconButton
-          aria-label="Refresh"
-          icon={<MdArrowForward />}
-          onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
-        />
+        <ButtonGroup
+          size="sm"
+          ml={2}
+          isAttached
+          variant="outline"
+          isDisabled={project.view !== ProjectView.BrowserView}
+        >
+          <IconButton
+            aria-label="Backward"
+            borderRadius="full"
+            mr="-px"
+            icon={<MdArrowBack />}
+            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+          />
+          <IconButton
+            aria-label="Forward"
+            borderRadius="full"
+            icon={<MdArrowForward />}
+            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+          />
+        </ButtonGroup>
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}

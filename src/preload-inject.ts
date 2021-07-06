@@ -271,12 +271,11 @@ const listenElement = () => {
 //   listenElement()
 // })
 
-ipcRenderer.on('setParams', (event: Event, socketId, projectId, activeSelector, isWeapp) => {
+ipcRenderer.on(MainIpcChannel.LoadFinish, (event: Event, socketId, projectId, isWeapp, activeSelector) => {
   PROJECTID = projectId
   ISWEAPP = isWeapp
   dataCode = isWeapp ? 'title' : 'data-code'
   connectSocket(socketId)
-  ipcRenderer.send(MainIpcChannel.FinishLoad, PROJECTID)
 
   const style = document.createElement('style')
   style.appendChild(document.createTextNode(preloadCSS))
