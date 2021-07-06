@@ -172,7 +172,8 @@ const ImportProject = (): JSX.Element => {
 
             {isReady && (
               <Text color="teal.500" align="center">
-                Congratulations, it looks like the project is ready to work.
+                Congratulations, it looks like the project is ready to work. Please run the development mode of the
+                project by yourself before opening the project in derealize.
               </Text>
             )}
           </ModalBody>
