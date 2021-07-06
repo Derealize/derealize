@@ -19,7 +19,7 @@
     "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
     "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
     "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
-    "package:with_runtime": "shx rm -rf src/dist && yarn build:with_runtime && cross-env WITH_RUNTIME=true electron-builder build --config ./electron-builder-runtime --publish never",
+    "package:with_runtime": "shx rm -rf src/dist && yarn build:with_runtime && cross-env WITH_RUNTIME=true electron-builder build --config electron-builder-runtime.yml --publish never",
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "dir:with_runtime": "cross-env WITH_RUNTIME=true shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",

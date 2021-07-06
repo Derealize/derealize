@@ -12,12 +12,12 @@ import type {
   ProcessPayload,
   BoolReply,
   HistoryReply,
-} from '../../../src/backend/backend.interface'
-import { ProjectStatus } from '../../../src/backend/backend.interface'
-import { npmInstall, npmStart } from '../../../src/backend/npm'
+} from './backend.interface'
+import { ProjectStatus } from './backend.interface'
+import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
-import emit from '../../../src/backend/emit'
-import log from '../../../src/backend/log'
+import emit from './emit'
+import log from './log'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
 
