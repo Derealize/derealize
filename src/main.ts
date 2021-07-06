@@ -92,6 +92,7 @@ interface ProjectHost {
   view: BrowserView
   baseUrl: string
   pages: Array<string>
+  isWeapp: boolean
   activeSelector?: string
 }
 
@@ -126,7 +127,7 @@ ipcMain.on(
       })
       view.setBackgroundColor('#fff') // todo: invalid
 
-      projects.set(projectId, { view, baseUrl, pages })
+      projects.set(projectId, { view, baseUrl, pages, isWeapp })
       mainWindow.setBrowserView(view)
       setBrowserViewBounds(mainWindow)
       if (isDebug) {
@@ -134,12 +135,14 @@ ipcMain.on(
       }
 
       // view.webContents.loadURL(baseUrl)
-      view.webContents.on('did-finish-load', () => {
-        const loadedProject = projects.get(projectId)
-        if (loadedProject) {
-          view.webContents.send('setParams', socketId, projectId, loadedProject.activeSelector, isWeapp)
-        }
-      })
+      view.webContents
+        .on('did-finish-load', () => {
+          view.webContents.send('setParams', socketId, projectId, isWeapp, projects.get(projectId)?.activeSelector)
+          view.webContents.send(MainIpcChannel.LoadFinish, projectId, true)
+        })
+        .on('did-fail-load', () => {
+          view.webContents.send(MainIpcChannel.LoadFinish, projectId, false)
+        })
     }
 
     // projectMenu = menuBuilder?.buildProjectMenu(projectId)
