@@ -92,6 +92,7 @@ interface ProjectHost {
   view: BrowserView
   baseUrl: string
   pages: Array<string>
+  isWeapp: boolean
   activeSelector?: string
 }
 
@@ -126,7 +127,7 @@ ipcMain.on(
       })
       view.setBackgroundColor('#fff') // todo: invalid
 
-      projects.set(projectId, { view, baseUrl, pages })
+      projects.set(projectId, { view, baseUrl, pages, isWeapp })
       mainWindow.setBrowserView(view)
       setBrowserViewBounds(mainWindow)
       if (isDebug) {
@@ -134,12 +135,17 @@ ipcMain.on(
       }
 
       // view.webContents.loadURL(baseUrl)
-      view.webContents.on('did-finish-load', () => {
-        const loadedProject = projects.get(projectId)
-        if (loadedProject) {
-          view.webContents.send('setParams', socketId, projectId, loadedProject.activeSelector, isWeapp)
-        }
-      })
+      view.webContents
+        .on('did-finish-load', () => {
+          const pj = projects.get(projectId)
+          if (!pj) return
+          pj.view.webContents.send(MainIpcChannel.LoadFinish, socketId, projectId, isWeapp, pj.activeSelector)
+          pj.activeSelector = undefined
+          mainWindow?.webContents.send(MainIpcChannel.LoadFinish, projectId, true)
+        })
+        .on('did-fail-load', () => {
+          mainWindow?.webContents.send(MainIpcChannel.LoadFinish, projectId, false)
+        })
     }
 
     // projectMenu = menuBuilder?.buildProjectMenu(projectId)
@@ -305,7 +311,7 @@ const createBackendWindow = () => {
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('set-params', { socketId, withRuntime })
+    backendWin.webContents.send('setParams', { socketId, withRuntime })
   })
 }
 
@@ -439,14 +445,6 @@ ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {
   if (project) {
     project.activeSelector = undefined
     mainWindow?.webContents.send(MainIpcChannel.BlurElement, projectId)
-  }
-})
-
-ipcMain.on(MainIpcChannel.FinishLoad, (event, projectId: string) => {
-  const project = projects.get(projectId)
-  if (project) {
-    project.activeSelector = undefined
-    mainWindow?.webContents.send(MainIpcChannel.FinishLoad, projectId)
   }
 })
 

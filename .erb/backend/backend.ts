@@ -20,7 +20,7 @@ if (process.argv[2] === '--subprocess') {
 } else {
   import('electron')
     .then(({ ipcRenderer }) => {
-      ipcRenderer.on('set-params', (e: Event, payload: { socketId: string; withRuntime: boolean }) => {
+      ipcRenderer.on('setParams', (e: Event, payload: { socketId: string; withRuntime: boolean }) => {
         ipc(payload.socketId, payload.withRuntime)
         console.log(`backend window socket: ${payload.socketId}`)
       })

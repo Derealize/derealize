@@ -76,8 +76,8 @@ export interface ElementModel {
   selectedElementPropertys: Computed<ElementModel, Array<Property>, StoreModel>
   pendingElements: Computed<ElementModel, Array<ElementState>, StoreModel>
 
-  screenVariants: Computed<ElementState, Array<string>, StoreModel>
-  customVariants: Computed<ElementState, Array<string>, StoreModel>
+  screenVariants: Computed<ElementModel, Array<string>, StoreModel>
+  customVariants: Computed<ElementModel, Array<string>, StoreModel>
 
   unSelectedAllElements: Action<ElementModel, string>
   focusElement: Action<ElementModel, ElementPayload>

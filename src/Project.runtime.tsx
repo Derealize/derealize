@@ -10,8 +10,10 @@ import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
 import TopBar from './components/TopBar.runtime'
 import Controllers from './components/controllers/Controllers'
+import Elements from './Elements'
 import ImagesModal from './components/ImagesModal'
 import ColorsModal from './components/ColorsModal'
+import LoadFailSvg from './styles/images/undraw_refreshing_beverage_td3r.svg'
 import style from './Project.module.scss'
 import type { PreloadWindow } from './preload'
 
@@ -22,11 +24,8 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
 
   const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.frontProject)
-
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
-  const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
   const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
-  const savedElements = useStoreActions((actions) => actions.element.savedElements)
 
   const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.projectWithRuntime.gitHistorys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
@@ -57,9 +56,10 @@ const ProjectPage: React.FC = (): JSX.Element => {
       <ImagesModal />
       <ColorsModal />
       <div className={style.main}>
-        {project.view === ProjectViewWithRuntime.BrowserView && !!element && (
+        {project.view === ProjectViewWithRuntime.BrowserView && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
-            <Controllers />
+            {!project.viewElements && !!element && <Controllers />}
+            {project.viewElements && <Elements />}
           </div>
         )}
 
@@ -80,6 +80,8 @@ const ProjectPage: React.FC = (): JSX.Element => {
               }}
             />
           )}
+
+          {project.view === ProjectViewWithRuntime.LoadFail && <LoadFailSvg />}
 
           {project.view === ProjectViewWithRuntime.Debugging && (
             <div className={style.output}>
@@ -114,38 +116,6 @@ const ProjectPage: React.FC = (): JSX.Element => {
                       <span className={style.data}>{dayjs(h.date).format('YYYY-M-D H:m:s')}</span>
                       <span className={style.author}>{h.author}</span>
                       <span className={style.message}>{h.message}</span>
-                    </ListItem>
-                  )
-                })}
-              </List>
-            </>
-          )}
-
-          {project.view === ProjectViewWithRuntime.Elements && (
-            <>
-              {pendingElements?.length !== 0 && (
-                <Text mb={10}>
-                  Here are {pendingElements?.length} elements waiting to be saved
-                  <Button ml={4} lefticon={<VscRepoPush />} onClick={() => savedElements(project.id)}>
-                    Save
-                  </Button>
-                </Text>
-              )}
-              <List spacing={2}>
-                {pendingElements?.map((el) => {
-                  return (
-                    <ListItem
-                      key={el.codePosition}
-                      className={style.listitem}
-                      color={el.selected ? 'teal.400' : 'gray.400'}
-                    >
-                      <span className={style.data}>{el.codePosition.split('/').slice(-1)}</span>
-                      <span className={style.author}>{el.selector}</span>
-                      <span className={style.message}>
-                        {el.dropzoneCodePosition
-                          ? `move to:${el.dropzoneCodePosition.split('/').slice(-1)}`
-                          : el.className}
-                      </span>
                     </ListItem>
                   )
                 })}
