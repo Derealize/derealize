@@ -1,0 +1,17 @@
+@import './styles/variable';
+
+.listitem {
+  margin: 10px;
+  font-family: $font-mono;
+  & > div {
+    display: inline-block;
+    width: 280px;
+    @include ellipsis();
+  }
+  .codePosition,
+  .selector,
+  .message {
+    margin-left: 14px;
+    color: $gray-500;
+  }
+}
