@@ -15,6 +15,7 @@ body.maximized {
 
 .controllers {
   flex: 0 0 200px;
+  overflow: hidden;
 }
 
 .content {
@@ -53,4 +54,14 @@ body.maximized {
   position: absolute;
   top: 20px;
   right: 20px;
+}
+
+.loadFailSvg {
+  width: 200px;
+  height: 200px;
+}
+
+.loadFailText {
+  color: #6c63ff;
+  font-family: $font-mono;
 }

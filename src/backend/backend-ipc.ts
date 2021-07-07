@@ -3,7 +3,7 @@ import log from './log'
 
 const handlers: any = require('./handlers')
 
-export default (socketId: string, withRuntime: boolean) => {
+export default (socketId: string) => {
   ipc.config.id = socketId
   ipc.config.silent = true
 
