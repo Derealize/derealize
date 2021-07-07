@@ -100,6 +100,8 @@ export enum MainIpcChannel {
   BlurElement = 'BlurElement',
   Flush = 'Flush',
   Refresh = 'Refresh',
+  Forward = 'Forward',
+  Backward = 'Backward',
   LoadFinish = 'LoadFinish',
   SelectBreadcrumb = 'SelectBreadcrumb',
   LiveUpdateClass = 'LiveUpdateClass',

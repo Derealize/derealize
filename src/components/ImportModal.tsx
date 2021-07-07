@@ -157,7 +157,7 @@ const ImportProject = (): JSX.Element => {
 
               <FormHelperText className="prose">
                 Before importing your project, please follow{' '}
-                <a href="http://baidu.com" target="_blank" rel="noreferrer">
+                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
                   our documentation
                 </a>{' '}
                 to complete the project configuration.

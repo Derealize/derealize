@@ -14,7 +14,7 @@ import {
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
-import { MdUndo, MdRedo } from 'react-icons/md'
+import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown } from 'react-icons/io'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
@@ -206,6 +206,34 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
+        <IconButton
+          aria-label="Refresh"
+          borderRadius="full"
+          icon={<MdRefresh />}
+          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+        />
+        <ButtonGroup
+          size="sm"
+          ml={2}
+          isAttached
+          variant="outline"
+          isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}
+        >
+          <IconButton
+            aria-label="Backward"
+            borderRadius="full"
+            mr="-px"
+            icon={<MdArrowBack />}
+            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+          />
+          <IconButton
+            aria-label="Forward"
+            borderRadius="full"
+            icon={<MdArrowForward />}
+            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+          />
+        </ButtonGroup>
+
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {project.status === ProjectStatus.Ready && (
           <Tooltip label="start">

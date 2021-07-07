@@ -82,3 +82,10 @@ asar extract app.asar 文件夹
 - [关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)
 - [方案](https://github.com/jlongster/electron-with-server-example) 即使 5.x 版本真的解决了 block 渲染线程的问题（可以用 git/npm 测试），把主要的 node 线程任务拆分出 elretorn 主线程依然是非常有必要的。elretorn 除了 UI 以外还有很多工作：任务栏菜单、快捷键、通知...还有 npm/git 任务崩溃的时候...
 - 与 webpack [集成方案参考](https://github.com/jlongster/electron-with-server-example/issues/6#issuecomment-611617665)
+
+## azure pipeline selfhost windows
+
+agent 要升级到最新版。(自动安装)[https://dev.azure.com/derealize/_settings/agentpools?poolId=12&view=agents]很慢，不如 ./config.cmd remove 后重新安装
+yarn 必须在 pipeline.yml 里 npm i -g yarn 安装。azure 的 host 无需安装。
+cache 模块需要 tar 命令，azure 的 host 无需安装（不知到是如何实现的）。可以手动安装 tar 程序后设置 path 环境变量。
+不要使用 GunWin32 的 (tar)[http://gnuwin32.sourceforge.net/packages/gtar.htm]，版本太旧，出现莫名问题。(新版本)[https://ftp.wayne.edu/gnu/tar/]又没有 release for win，只有源码。可以使用这个(libarchive)[https://github.com/libarchive/libarchive/releases]代替。
