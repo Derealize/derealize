@@ -16,7 +16,7 @@ import {
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
-import { IoIosArrowDown } from 'react-icons/io'
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Project, ProjectView } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -96,7 +96,7 @@ const TopBar: React.FC = (): JSX.Element => {
           <IconButton
             borderRadius="full"
             aria-label="Save"
-            icon={<IoIosArrowDown />}
+            icon={project.viewElements ? <IoIosArrowUp /> : <IoIosArrowDown />}
             onClick={() => {
               setProjectViewElements({
                 projectId: project.id,
