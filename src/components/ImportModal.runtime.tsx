@@ -228,7 +228,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   />
                   <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
-                    <a href="http://baidu.com" target="_blank" rel="noreferrer">
+                    <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
                       our documentation
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
