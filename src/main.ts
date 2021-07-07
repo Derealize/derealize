@@ -93,6 +93,7 @@ interface ProjectHost {
   baseUrl: string
   pages: Array<string>
   isWeapp: boolean
+  loadFail?: boolean
   activeSelector?: string
 }
 
@@ -136,14 +137,16 @@ ipcMain.on(
 
       // view.webContents.loadURL(baseUrl)
       view.webContents
-        .on('did-finish-load', () => {
+        .on('did-finish-load', (e: any) => {
           const pj = projects.get(projectId)
-          if (!pj) return
+          if (!pj || pj.loadFail) return
           pj.view.webContents.send(MainIpcChannel.LoadFinish, socketId, projectId, isWeapp, pj.activeSelector)
-          pj.activeSelector = undefined
           mainWindow?.webContents.send(MainIpcChannel.LoadFinish, projectId, true)
         })
         .on('did-fail-load', () => {
+          const pj = projects.get(projectId)
+          if (!pj) return
+          pj.loadFail = true
           mainWindow?.webContents.send(MainIpcChannel.LoadFinish, projectId, false)
         })
     }
@@ -172,6 +175,7 @@ ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: nu
 const loadURL = (projectId: string, url: string) => {
   const project = projects.get(projectId)
   if (project) {
+    project.loadFail = undefined
     project.view.webContents.loadURL(path.join(project.baseUrl, url))
   }
 }
@@ -311,30 +315,22 @@ const createBackendWindow = () => {
   backendWin.webContents.openDevTools()
 
   backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('setParams', { socketId, withRuntime })
+    backendWin.webContents.send('setParams', { socketId })
   })
 }
 
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    backendProcess = fork(
-      path.join(__dirname, 'backend/backend.ts'),
-      ['--subprocess', socketId, withRuntime ? '--with-runtime' : ''],
-      {
-        execArgv: ['-r', './.erb/scripts/BabelRegister'],
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
-      },
-    )
+    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
+      execArgv: ['-r', './.erb/scripts/BabelRegister'],
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    })
   } else if (isProd) {
-    backendProcess = fork(
-      path.join(__dirname, 'backend.prod.js'),
-      ['--subprocess', socketId, socketId, withRuntime ? '--with-runtime' : ''],
-      {
-        stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
-        // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
-      },
-    )
+    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId, socketId], {
+      stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
+      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
+    })
   } else {
     createBackendWindow()
   }

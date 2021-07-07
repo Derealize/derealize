@@ -210,7 +210,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           aria-label="Refresh"
           borderRadius="full"
           icon={<MdRefresh />}
-          onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
         />
         <ButtonGroup
           size="sm"
