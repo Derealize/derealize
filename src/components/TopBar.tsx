@@ -15,8 +15,8 @@ import {
 } from '@chakra-ui/react'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
-import { MdUndo, MdRedo } from 'react-icons/md'
-import { IoIosArrowDown } from 'react-icons/io'
+import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Project, ProjectView } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -96,7 +96,7 @@ const TopBar: React.FC = (): JSX.Element => {
           <IconButton
             borderRadius="full"
             aria-label="Save"
-            icon={<IoIosArrowDown />}
+            icon={project.viewElements ? <IoIosArrowUp /> : <IoIosArrowDown />}
             onClick={() => {
               setProjectViewElements({
                 projectId: project.id,
@@ -140,6 +140,33 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
+        <IconButton
+          aria-label="Refresh"
+          borderRadius="full"
+          icon={<MdRefresh />}
+          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+        />
+        <ButtonGroup
+          size="sm"
+          ml={2}
+          isAttached
+          variant="outline"
+          isDisabled={project.view !== ProjectView.BrowserView}
+        >
+          <IconButton
+            aria-label="Backward"
+            borderRadius="full"
+            mr="-px"
+            icon={<MdArrowBack />}
+            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+          />
+          <IconButton
+            aria-label="Forward"
+            borderRadius="full"
+            icon={<MdArrowForward />}
+            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+          />
+        </ButtonGroup>
         <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}

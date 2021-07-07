@@ -23,7 +23,7 @@ const toast = createStandaloneToast({
   },
 })
 
-const mainFrontView = (project?: Project) => {
+const judgeFrontView = (project?: Project) => {
   if (!project) {
     sendMainIpc(MainIpcChannel.FrontView)
     return
@@ -106,9 +106,9 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isEditing = true
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
     } else {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
     }
   }),
   editProject: action((state, { displayname }) => {
@@ -147,7 +147,7 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.view = view
-    mainFrontView(project)
+    judgeFrontView(project)
   }),
   setProjectViewElements: action((state, { projectId, isView }) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -155,7 +155,7 @@ const projectModel: ProjectModel = {
     project.viewElements = isView
     if (isView) {
       project.view = ProjectView.BrowserView
-      mainFrontView(project)
+      judgeFrontView(project)
     }
   }),
   setTailwindConfig: action((state, { projectId, config }) => {
@@ -181,7 +181,7 @@ const projectModel: ProjectModel = {
       project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
     }
-    mainFrontView(project)
+    judgeFrontView(project)
   }),
 
   openProject: thunk(async (actions, projectId, { getState }) => {
@@ -308,10 +308,10 @@ const projectModel: ProjectModel = {
   importModalDisclosure: false,
   toggleImportModal: action((state, open) => {
     if (open === false || state.importModalDisclosure) {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.importModalDisclosure = false
     } else {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.importModalDisclosure = true
     }
   }),
@@ -319,10 +319,10 @@ const projectModel: ProjectModel = {
   imagesModalDisclosure: false,
   toggleImagesModal: action((state, open) => {
     if (open === false || state.imagesModalDisclosure) {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.imagesModalDisclosure = false
     } else {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.imagesModalDisclosure = true
     }
   }),
@@ -345,13 +345,13 @@ const projectModel: ProjectModel = {
   colorsModalData: undefined,
   colorsModalToggle: action((state, { show, colors, theme }) => {
     if (show) {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.colorsModalShow = true
       if (colors && theme) {
         state.colorsModalData = { colors, theme }
       }
     } else {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.colorsModalShow = false
       state.colorsModalData = undefined
     }

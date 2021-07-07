@@ -74,7 +74,7 @@ export default class MenuBuilder {
             },
           },
           {
-            label: '&Flush Project',
+            label: '&Flush Tailwindcss Config',
             accelerator: 'Ctrl+F',
             click: () => {
               this.mainWindow.webContents.send(MainIpcChannel.Flush)
