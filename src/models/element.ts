@@ -328,7 +328,7 @@ const elementModel: ElementModel = {
       actions.unSelectedAllElements(projectId)
     })
 
-    listenMainIpc(MainIpcChannel.FinishLoad, (event: IpcRendererEvent, projectId: string) => {
+    listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string) => {
       actions.cleanElements(projectId)
     })
 
