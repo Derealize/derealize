@@ -15,7 +15,7 @@ body.maximized {
 
 .controllers {
   flex: 0 0 200px;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .content {
@@ -38,6 +38,7 @@ body.maximized {
 .listitem {
   display: flex;
   align-items: center;
+  font-family: $font-mono;
   & > .data,
   & > .author,
   & > .message {
