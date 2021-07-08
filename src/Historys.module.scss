@@ -8,11 +8,10 @@
     width: 280px;
     @include ellipsis();
   }
-  .className {
+  .message {
     color: $teal-500;
   }
-  .codePosition,
-  .message {
+  .codePosition {
     margin-left: 14px;
     color: $gray-500;
   }
