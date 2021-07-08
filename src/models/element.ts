@@ -238,7 +238,6 @@ const elementModel: ElementModel = {
     const element = elements.find((el) => el.selected)
     if (!element) return
 
-    element.pending = true
     const property = element.propertys.find((p) => p.id === propertyId)
     if (!property) return
 
@@ -246,11 +245,12 @@ const elementModel: ElementModel = {
     historys.push({
       ...payload,
       actionType: ElementActionType.setPropertyValue,
-      property,
+      property, // todo: clone?
       className: value,
     })
 
     property.classname = value
+    element.pending = true
   }),
   deleteSelectedElementProperty: action((state, { projectId, propertyId }) => {
     if (!state.states[projectId]) return
