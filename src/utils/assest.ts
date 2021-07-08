@@ -23,31 +23,34 @@ export const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
 
-export const propertysTransClassName = (propertys: Array<Property>) => {
-  let result = ''
-  propertys.forEach((property) => {
-    const { screen, state, list, custom, dark, classname } = property
-    if (!classname) return
+export const propertyTransClassName = (property: Property): string => {
+  const { screen, state, list, custom, dark, classname } = property
+  if (!classname) return ''
 
-    let variants = ''
-    if (screen) {
-      variants += `${screen}:`
-    }
-    if (state) {
-      variants += `${state}:`
-    }
-    if (list) {
-      variants += `${list}:`
-    }
-    if (custom) {
-      variants += `${custom}:`
-    }
-    if (dark) {
-      variants += `dark:`
-    }
-    result += `${variants + classname} `
-  })
-  return result
+  let variants = ''
+  if (screen) {
+    variants += `${screen}:`
+  }
+  if (state) {
+    variants += `${state}:`
+  }
+  if (list) {
+    variants += `${list}:`
+  }
+  if (custom) {
+    variants += `${custom}:`
+  }
+  if (dark) {
+    variants += `dark:`
+  }
+  return `${variants + classname}`
+}
+
+export const propertysTransClassName = (propertys: Array<Property>) => {
+  return propertys
+    .map(propertyTransClassName)
+    .filter((name) => !!name)
+    .join(' ')
 }
 
 // https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
