@@ -155,8 +155,13 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           </Tooltip>
         </ButtonGroup>
 
-        <ButtonGroup size="sm" ml={2} isAttached variant="outline" isDisabled={!pendingElements?.length}>
-          <Button borderRadius="full" mr="-px" onClick={() => savedElements(project.id)}>
+        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
+          <Button
+            borderRadius="full"
+            mr="-px"
+            isDisabled={!pendingElements?.length}
+            onClick={() => savedElements(project.id)}
+          >
             Save
           </Button>
           <IconButton
