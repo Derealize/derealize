@@ -216,7 +216,7 @@ const SelectController: React.FC<Props> = ({
             state: IndicatorContainerProps<OptionType, boolean, GroupType>,
           ) => ({
             ...provided,
-            width: 30,
+            width: 26,
             height: 30,
             justifyContent: 'center',
           }),
