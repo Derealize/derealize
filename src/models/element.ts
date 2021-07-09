@@ -216,8 +216,9 @@ const elementModel: ElementModel = {
   }),
 
   pushSelectedElementProperty: action((state, { projectId, property }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const pstate = state.states[projectId]
+    if (!pstate) return
+    const { elements, historys } = pstate
 
     const element = elements.find((el) => el.selected)
     if (!element) return
@@ -226,7 +227,8 @@ const elementModel: ElementModel = {
     element.pending = true
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
+    pstate.historys = historys.filter((h) => !h.revoked)
+    pstate.historys.push({
       ...payload,
       tagName: actualStatus?.tagName,
       actionType: ElementActionType.addProperty,
@@ -234,8 +236,9 @@ const elementModel: ElementModel = {
     })
   }),
   setSelectedElementPropertyValue: action((state, { projectId, propertyId, value }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const pstate = state.states[projectId]
+    if (!pstate) return
+    const { elements, historys } = pstate
 
     const element = elements.find((el) => el.selected)
     if (!element) return
@@ -244,7 +247,8 @@ const elementModel: ElementModel = {
     if (!property) return
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
+    pstate.historys = historys.filter((h) => !h.revoked)
+    pstate.historys.push({
       ...payload,
       tagName: actualStatus?.tagName,
       actionType: ElementActionType.setPropertyValue,
@@ -256,14 +260,16 @@ const elementModel: ElementModel = {
     element.pending = true
   }),
   deleteSelectedElementProperty: action((state, { projectId, propertyId }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const pstate = state.states[projectId]
+    if (!pstate) return
+    const { elements, historys } = pstate
 
     const element = elements.find((el) => el.selected)
     if (!element) return
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
+    pstate.historys = historys.filter((h) => !h.revoked)
+    pstate.historys.push({
       ...payload,
       tagName: actualStatus?.tagName,
       actionType: ElementActionType.deleteProperty,
@@ -274,17 +280,19 @@ const elementModel: ElementModel = {
     element.pending = true
   }),
   setSelectedElementText: action((state, { projectId, text }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const pstate = state.states[projectId]
+    if (!pstate) return
+    const { elements, historys } = pstate
 
     const element = elements.find((el) => el.selected)
     if (!element) return
 
-    element.pending = true
     element.text = text
+    element.pending = true
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
+    pstate.historys = historys.filter((h) => !h.revoked)
+    pstate.historys.push({
       ...payload,
       tagName: actualStatus?.tagName,
       actionType: ElementActionType.setText,
@@ -292,8 +300,9 @@ const elementModel: ElementModel = {
     })
   }),
   setSelectedElementTag: action((state, { projectId, tag }) => {
-    if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const pstate = state.states[projectId]
+    if (!pstate) return
+    const { elements, historys } = pstate
 
     const element = elements.find((el) => el.selected)
     if (!element) return
@@ -302,7 +311,8 @@ const elementModel: ElementModel = {
     element.tagName = tag
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
-    historys.push({
+    pstate.historys = historys.filter((h) => !h.revoked)
+    pstate.historys.push({
       ...payload,
       tagName: actualStatus?.tagName,
       actionType: ElementActionType.setTag,
@@ -311,7 +321,7 @@ const elementModel: ElementModel = {
   }),
   droppedSelectedElement: action((state, { projectId, codePosition, dropzoneCodePosition }) => {
     if (!state.states[projectId]) return
-    const { elements, historys } = state.states[projectId]
+    const { elements } = state.states[projectId]
 
     const element = elements.find((st) => st.codePosition === codePosition)
     if (!element) return

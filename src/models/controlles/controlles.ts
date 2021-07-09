@@ -117,7 +117,7 @@ const controllesModel: ControllesModel = {
     if (!frontProject || !selectedElement) return
 
     const className = propertysTransClassName(selectedElement.propertys)
-    sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, selectedElement.selected, className, true)
+    sendMainIpc(MainIpcChannel.LiveUpdateClass, frontProject.id, selectedElement.selector, className, true)
   }),
   jitClassNames: thunk(async (actions, { project, classNames }, { getState, getStoreActions }) => {
     const { selectScreenVariant, selectStateVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
