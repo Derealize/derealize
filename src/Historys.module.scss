@@ -5,14 +5,22 @@
   font-family: $font-mono;
   & > div {
     display: inline-block;
-    width: 280px;
-    @include ellipsis();
+    // width: 280px;
+    // @include ellipsis();
   }
   .message {
     color: $teal-500;
   }
   .codePosition {
     margin-left: 14px;
-    color: $gray-500;
+    color: $gray-600;
+  }
+  &.revoked {
+    .message {
+      color: $gray-400;
+    }
+    .codePosition {
+      color: $gray-400;
+    }
   }
 }

@@ -151,6 +151,13 @@ export default class MenuBuilder {
 
     const viewMenus: MenuItemConstructorOptions[] = [
       {
+        label: 'History',
+        accelerator: isDarwin ? 'Cmd+H' : 'Ctrl+H',
+        click: () => {
+          this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
+        },
+      },
+      {
         label: 'Close All BrowserView',
         click: () => {
           this.frontMainView()

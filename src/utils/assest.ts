@@ -20,6 +20,17 @@ export const IntEnumValues = (enumme: any): Array<string> => {
 
 export const CssUrlReg = /(?:url\(['"]?)(.*?)(?:['"]?\))/
 
+const macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K']
+const windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE']
+const iosPlatforms = ['iPhone', 'iPad', 'iPod']
+
+export const getCrossCtrl = (): string => {
+  if (macosPlatforms.indexOf(window.navigator.platform) !== -1) {
+    return '⌘'
+  }
+  return 'Ctrl'
+}
+
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
 

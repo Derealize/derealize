@@ -14,8 +14,10 @@ import {
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
+import { AiOutlineSave } from 'react-icons/ai'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
-import { IoIosArrowDown } from 'react-icons/io'
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { getCrossCtrl } from '../utils/assest'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
 import { ProjectWithRuntime, ProjectViewWithRuntime } from '../models/project.interface'
@@ -37,7 +39,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
   const stopProject = useStoreActions((actions) => actions.projectWithRuntime.stopProject)
 
   const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
-  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
+  const setProjectViewHistory = useStoreActions((actions) => actions.project.setProjectViewHistory)
 
   const callGitHistory = useStoreActions((actions) => actions.projectWithRuntime.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
@@ -94,88 +96,96 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
-        <BarIconButton
-          aria-label="Pages"
-          icon={<IoBookmarksOutline />}
-          onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
-        />
-
-        <Tooltip label="files status and history">
-          <BarIconButton
-            aria-label="FileStatus"
-            selected={project.view === ProjectViewWithRuntime.FileStatus}
-            icon={<HiOutlineStatusOnline />}
-            onClick={() => {
-              if (project.view !== ProjectViewWithRuntime.FileStatus) {
-                callGitHistory()
-                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.FileStatus })
-              } else {
-                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
-              }
-            }}
+        <Tooltip label="Pages" placement="top">
+          <IconButton
+            size="sm"
+            aria-label="Pages"
+            icon={<IoBookmarksOutline />}
+            onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
           />
         </Tooltip>
 
-        <Tooltip label="pull remote files">
-          <BarIconButton
-            aria-label="Pull"
-            icon={<VscRepoPull />}
-            disabled={project.changes?.length !== 0}
-            onClick={() => callPull()}
-          />
-        </Tooltip>
-
-        <Tooltip label="push files to remote">
-          <BarIconButton
-            aria-label="Push"
-            icon={<VscRepoPush />}
-            disabled={project.changes?.length === 0}
-            onClick={() => callPush()}
-          />
-        </Tooltip>
-
-        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
-          <Tooltip label="Undo">
+        <ButtonGroup size="sm" ml={2} isAttached>
+          <Tooltip label="File Status">
             <IconButton
-              borderRadius="full"
-              aria-label="Undo"
-              isDisabled={!historys.filter((h) => !h.revoked)?.length}
-              icon={<MdUndo />}
-              onClick={() => revokeHistory(project.id)}
+              aria-label="FileStatus"
+              variant={project.view === ProjectViewWithRuntime.FileStatus ? 'outline' : 'solid'}
+              icon={<HiOutlineStatusOnline />}
+              onClick={() => {
+                if (project.view !== ProjectViewWithRuntime.FileStatus) {
+                  callGitHistory()
+                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.FileStatus })
+                } else {
+                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+                }
+              }}
+              mr="-px"
             />
           </Tooltip>
-          <Tooltip label="Redo">
+          <Tooltip label="Git Pull">
             <IconButton
-              borderRadius="full"
-              aria-label="Redo"
-              isDisabled={!historys.filter((h) => h.revoked)?.length}
-              icon={<MdRedo />}
-              onClick={() => redoHistory(project.id)}
+              aria-label="Pull"
+              icon={<VscRepoPull />}
+              disabled={project.changes?.length === 0}
+              onClick={() => callPull()}
+              mr="-px"
+            />
+          </Tooltip>
+          <Tooltip label="Git Push">
+            <IconButton
+              aria-label="Push"
+              icon={<VscRepoPush />}
+              disabled={project.changes?.length === 0}
+              onClick={() => callPush()}
             />
           </Tooltip>
         </ButtonGroup>
 
-        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
+        <ButtonGroup size="sm" ml={2} isAttached>
+          <Tooltip label="Undo">
+            <IconButton
+              aria-label="Undo"
+              isDisabled={!historys.filter((h) => !h.revoked)?.length}
+              icon={<MdUndo />}
+              onClick={() => revokeHistory(project.id)}
+              mr="-px"
+            />
+          </Tooltip>
+          <Tooltip label="Redo">
+            <IconButton
+              aria-label="Redo"
+              isDisabled={!historys.filter((h) => h.revoked)?.length}
+              icon={<MdRedo />}
+              onClick={() => redoHistory(project.id)}
+              mr="-px"
+            />
+          </Tooltip>
+          <Tooltip label={`View Historys (${getCrossCtrl()}+H)`} placement="top">
+            <IconButton
+              aria-label="Historys"
+              icon={project.viewHistory ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              isDisabled={!pendingElements?.length}
+              onClick={() => {
+                setProjectViewHistory({
+                  projectId: project.id,
+                  isView: !project.viewHistory,
+                })
+              }}
+            />
+          </Tooltip>
+        </ButtonGroup>
+
+        <Tooltip label={`${getCrossCtrl()}+S`} placement="top">
           <Button
-            borderRadius="full"
-            mr="-px"
+            size="sm"
+            ml={2}
+            leftIcon={<AiOutlineSave />}
             isDisabled={!pendingElements?.length}
             onClick={() => savedElements(project.id)}
           >
             Save
           </Button>
-          <IconButton
-            borderRadius="full"
-            aria-label="Save"
-            icon={<IoIosArrowDown />}
-            onClick={() => {
-              setProjectViewElements({
-                projectId: project.id,
-                isView: !project.viewElements,
-              })
-            }}
-          />
-        </ButtonGroup>
+        </Tooltip>
       </Flex>
 
       <Flex align="center" justify="center" className={style.breadcrumb}>
@@ -211,51 +221,62 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <IconButton
-          aria-label="Refresh"
-          borderRadius="full"
-          icon={<MdRefresh />}
-          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-        />
-        <ButtonGroup
-          size="sm"
-          ml={2}
-          isAttached
-          variant="outline"
-          isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}
-        >
+        <Tooltip label="Refresh" placement="top">
           <IconButton
-            aria-label="Backward"
-            borderRadius="full"
-            mr="-px"
-            icon={<MdArrowBack />}
-            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+            size="sm"
+            aria-label="Refresh"
+            icon={<MdRefresh />}
+            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
           />
-          <IconButton
-            aria-label="Forward"
-            borderRadius="full"
-            icon={<MdArrowForward />}
-            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
-          />
+        </Tooltip>
+        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
+          <Tooltip label="Backward" placement="top">
+            <IconButton
+              aria-label="Backward"
+              mr="-px"
+              icon={<MdArrowBack />}
+              onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+            />
+          </Tooltip>
+          <Tooltip label="Forward" placement="top">
+            <IconButton
+              aria-label="Forward"
+              icon={<MdArrowForward />}
+              onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+            />
+          </Tooltip>
         </ButtonGroup>
 
-        <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
-        {project.status === ProjectStatus.Ready && (
-          <Tooltip label="start">
-            <BarIconButton aria-label="Start" icon={<VscDebugStart />} onClick={() => startProject(project.id)} />
+        <Tooltip label="Disable Cursor" placement="top">
+          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        </Tooltip>
+
+        <ButtonGroup size="sm" ml={2} isAttached>
+          <Tooltip label="Start" placement="top">
+            <IconButton
+              aria-label="Start"
+              mr="-px"
+              icon={<VscDebugStart />}
+              onClick={() => startProject(project.id)}
+              isDisabled={project.status !== ProjectStatus.Ready}
+            />
           </Tooltip>
-        )}
-        {(project.status === ProjectStatus.Running || project.status === ProjectStatus.Starting) && (
-          <Tooltip label="stop">
-            <BarIconButton aria-label="Stop" icon={<VscDebugStop />} onClick={() => stopProject(project.id)} />
+          <Tooltip label="Stop" placement="top">
+            <IconButton
+              aria-label="Stop"
+              icon={<VscDebugStop />}
+              onClick={() => stopProject(project.id)}
+              isDisabled={project.status !== ProjectStatus.Running && project.status !== ProjectStatus.Starting}
+            />
           </Tooltip>
-        )}
+        </ButtonGroup>
+
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
         <Tooltip label="debug information">
-          <BarIconButton
+          <IconButton
+            size="sm"
             aria-label="Debug"
-            selected={project.view === ProjectViewWithRuntime.Debugging}
             icon={<VscOutput />}
             onClick={() => {
               if (project.view !== ProjectViewWithRuntime.Debugging) {

@@ -18,12 +18,14 @@ export const sectionHTML = (inside: boolean) => `
 export const preloadCSS = `
 [data-hover],
 [data-code]:hover {
-  box-shadow: 0 0 0 2px #e2e8f0;
+  box-shadow: 0 0 0 1px #e2e8f0;
 }
 [data-active] {
-  box-shadow: 0 0 0 2px #4fd1c5 !important;
+  box-shadow: 0 0 0 1px #4fd1c5 !important;
 }
+`
 
+export const preloadCSS2 = `
 i.de-icon {
   font-size: 14px;
   width: 30px;

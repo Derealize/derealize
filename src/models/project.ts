@@ -59,7 +59,7 @@ export interface ProjectModel {
   removeProjectThunk: Thunk<ProjectModel, string>
 
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
-  setProjectViewElements: Action<ProjectModel, { projectId: string; isView: boolean }>
+  setProjectViewHistory: Action<ProjectModel, { projectId: string; isView: boolean }>
   setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
 
   flushProject: Action<ProjectModel, string>
@@ -149,10 +149,10 @@ const projectModel: ProjectModel = {
     project.view = view
     judgeFrontView(project)
   }),
-  setProjectViewElements: action((state, { projectId, isView }) => {
+  setProjectViewHistory: action((state, { projectId, isView }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
-    project.viewElements = isView
+    project.viewHistory = isView
     if (isView) {
       project.view = ProjectView.BrowserView
       judgeFrontView(project)
@@ -281,6 +281,8 @@ const projectModel: ProjectModel = {
         getStoreActions().element.revokeHistory(frontProject.id)
       } else if (key === 'Redo') {
         getStoreActions().element.redoHistory(frontProject.id)
+      } else if (key === 'History') {
+        actions.setProjectViewHistory({ projectId: frontProject.id, isView: !frontProject.viewHistory })
       }
     })
 
@@ -294,6 +296,7 @@ const projectModel: ProjectModel = {
 
     listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
       actions.setProjectView({ projectId, view: ok ? ProjectView.BrowserView : ProjectView.LoadFail })
+      actions.setProjectViewHistory({ projectId, isView: false })
     })
   }),
 
