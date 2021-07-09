@@ -1,6 +1,6 @@
 import React from 'react'
 import cs from 'classnames'
-import { List, ListItem } from '@chakra-ui/react'
+import { Flex, Box } from '@chakra-ui/react'
 import { useStoreState } from './reduxStore'
 import { propertyTransClassName } from './utils/assest'
 import { Project } from './models/project.interface'
@@ -35,18 +35,19 @@ const Historys: React.FC = (): JSX.Element => {
   if (!project) return <></>
 
   return (
-    <List spacing={2}>
+    <Flex spacing={2} flexDir="column-reverse">
       {historys?.map((his) => {
+        const position = `${his.codePosition.split('\\').slice(-1)}:${his.tagName?.toLocaleLowerCase()}`
         return (
-          <ListItem key={his.codePosition} className={cs(style.listitem, { [style.revoked]: his.revoked })}>
+          <Box key={his.codePosition} className={cs(style.listitem, { [style.revoked]: his.revoked })}>
             <div className={style.message}>{GetHistoryMessage(his)}</div>
-            <div className={style.codePosition}>{`${his.codePosition
-              .split('/')
-              .slice(-1)}:${his.tagName?.toLocaleLowerCase()}`}</div>
-          </ListItem>
+            <div className={style.codePosition} title={position}>
+              {position}
+            </div>
+          </Box>
         )
       })}
-    </List>
+    </Flex>
   )
 }
 
