@@ -42,8 +42,8 @@ export interface ControllesModel {
   jitClassNames: Thunk<ControllesModel, { project: Project; classNames: Array<string> }, void, StoreModel>
 
   selectScreenVariant: string | undefined
-  setSelectScreenVariant: Action<ControllesModel, string | undefined>
-  setSelectScreenVariantWithDevice: Thunk<ControllesModel, string | undefined, void, StoreModel>
+  setSelectScreenVariant: Action<ControllesModel, string>
+  setSelectScreenVariantWithDevice: Thunk<ControllesModel, string, void, StoreModel>
 
   selectStateVariant: StateVariantsType | undefined
   setSelectStateVariant: Action<ControllesModel, StateVariantsType | undefined>
@@ -155,19 +155,20 @@ const controllesModel: ControllesModel = {
   setSelectScreenVariant: action((state, payload) => {
     state.selectScreenVariant = state.selectScreenVariant === payload ? undefined : payload
   }),
-  setSelectScreenVariantWithDevice: thunk(async (actions, payload, { getStoreState }) => {
+  setSelectScreenVariantWithDevice: thunk(async (actions, payload, { getState, getStoreState }) => {
     actions.setSelectScreenVariant(payload)
     const { frontProject } = getStoreState().project
-    if (frontProject && frontProject.tailwindConfig) {
-      let width = 0
-      if (payload !== undefined) {
-        const screen = frontProject.tailwindConfig.theme.screens[payload]
-        if (screen.includes('px')) {
-          width = parseInt(screen.replace('px', ''), 10)
-        }
+    if (!frontProject || !frontProject.tailwindConfig) return
+
+    const { selectScreenVariant } = getState()
+    let width = 0
+    if (selectScreenVariant !== undefined) {
+      const screen = frontProject.tailwindConfig.theme.screens[selectScreenVariant]
+      if (screen.includes('px')) {
+        width = parseInt(screen.replace('px', ''), 10)
       }
-      sendMainIpc(MainIpcChannel.DeviceEmulation, frontProject.id, width)
     }
+    sendMainIpc(MainIpcChannel.DeviceEmulation, frontProject.id, width)
   }),
   selectStateVariant: undefined,
   setSelectStateVariant: action((state, payload) => {

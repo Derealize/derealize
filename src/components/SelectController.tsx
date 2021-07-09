@@ -125,6 +125,7 @@ const SelectController: React.FC<Props> = ({
 
     return (
       <div
+        title={value}
         className={colors ? styles.colorOption : undefined}
         style={colors ? { backgroundColor: label } : undefined}
         onMouseEnter={() => onOptionEnter(value)}
