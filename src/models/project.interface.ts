@@ -26,7 +26,7 @@ export interface Project {
   tailwindVersion?: string
   config?: ProjectConfig
   view?: ProjectView
-  viewElements?: boolean
+  viewHistory?: boolean
   jitClassName?: string
 }
 
