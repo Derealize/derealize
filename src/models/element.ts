@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { nanoid } from 'nanoid'
+import clone from 'lodash.clonedeep'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
@@ -48,7 +49,7 @@ export interface ElementState extends ElementPayload {
 }
 
 export enum ElementActionType {
-  pushProperty,
+  addProperty,
   deleteProperty,
   setPropertyValue,
   setText,
@@ -221,13 +222,14 @@ const elementModel: ElementModel = {
     const element = elements.find((el) => el.selected)
     if (!element) return
 
-    element.pending = true
     element.propertys.push(property)
+    element.pending = true
 
     const { selected, actualStatus, pending, propertys, ...payload } = element
     historys.push({
       ...payload,
-      actionType: ElementActionType.pushProperty,
+      tagName: actualStatus?.tagName,
+      actionType: ElementActionType.addProperty,
       property,
     })
   }),
@@ -244,8 +246,9 @@ const elementModel: ElementModel = {
     const { selected, actualStatus, pending, propertys, ...payload } = element
     historys.push({
       ...payload,
+      tagName: actualStatus?.tagName,
       actionType: ElementActionType.setPropertyValue,
-      property, // todo: clone?
+      property: clone(property), // todo: clone?
       className: value,
     })
 
@@ -262,11 +265,13 @@ const elementModel: ElementModel = {
     const { selected, actualStatus, pending, propertys, ...payload } = element
     historys.push({
       ...payload,
+      tagName: actualStatus?.tagName,
       actionType: ElementActionType.deleteProperty,
       property: element.propertys.find((p) => p.id === propertyId),
     })
 
     element.propertys = element.propertys.filter((p) => p.id !== propertyId)
+    element.pending = true
   }),
   setSelectedElementText: action((state, { projectId, text }) => {
     if (!state.states[projectId]) return
@@ -281,6 +286,7 @@ const elementModel: ElementModel = {
     const { selected, actualStatus, pending, propertys, ...payload } = element
     historys.push({
       ...payload,
+      tagName: actualStatus?.tagName,
       actionType: ElementActionType.setText,
       originalText: element.actualStatus?.text,
     })
@@ -298,6 +304,7 @@ const elementModel: ElementModel = {
     const { selected, actualStatus, pending, propertys, ...payload } = element
     historys.push({
       ...payload,
+      tagName: actualStatus?.tagName,
       actionType: ElementActionType.setTag,
       originalTagName: element.actualStatus?.tagName,
     })
@@ -313,11 +320,12 @@ const elementModel: ElementModel = {
     element.pending = true
   }),
 
-  listen: thunk(async (actions, none, { getState, getStoreState }) => {
+  listen: thunk(async (actions, none, { getState, getStoreState, getStoreActions }) => {
     actions.unlisten()
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
       actions.focusElement(element)
+      getStoreActions().project.setProjectViewHistory({ projectId: element.projectId, isView: false })
     })
 
     listenMainIpc(MainIpcChannel.RespElementStatus, (event: IpcRendererEvent, status: ElementActualStatus) => {
@@ -389,7 +397,7 @@ const elementModel: ElementModel = {
     if (!element) return
 
     switch (history.actionType) {
-      case ElementActionType.pushProperty: {
+      case ElementActionType.addProperty: {
         const { property, selector } = history
         if (!property) return
         element.propertys = element.propertys.filter((p) => p.id !== property.id)
@@ -445,7 +453,7 @@ const elementModel: ElementModel = {
     if (!element) return
 
     switch (history.actionType) {
-      case ElementActionType.pushProperty: {
+      case ElementActionType.addProperty: {
         const { property, selector } = history
         if (!property) return
         element.propertys.push(property)

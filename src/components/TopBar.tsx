@@ -17,6 +17,8 @@ import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
 import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
+import { AiOutlineSave } from 'react-icons/ai'
+import { getCrossCtrl } from '../utils/assest'
 import { Project, ProjectView } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
@@ -42,7 +44,7 @@ BarIconButton.defaultProps = {
 
 const TopBar: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-  const setProjectViewElements = useStoreActions((actions) => actions.project.setProjectViewElements)
+  const setProjectViewHistory = useStoreActions((actions) => actions.project.setProjectViewHistory)
 
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
@@ -62,54 +64,59 @@ const TopBar: React.FC = (): JSX.Element => {
   return (
     <Flex className={style.topbar} justify="space-between">
       <Flex align="center">
-        <BarIconButton
-          aria-label="Pages"
-          icon={<IoBookmarksOutline />}
-          onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
-        />
-
-        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
+        <Tooltip label="Pages" placement="top">
+          <IconButton
+            size="sm"
+            aria-label="Pages"
+            icon={<IoBookmarksOutline />}
+            onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
+          />
+        </Tooltip>
+        <ButtonGroup size="sm" ml={2} isAttached>
           <Tooltip label="Undo">
             <IconButton
-              borderRadius="full"
               aria-label="Undo"
               isDisabled={!historys.filter((h) => !h.revoked)?.length}
               icon={<MdUndo />}
               onClick={() => revokeHistory(project.id)}
+              mr="-px"
             />
           </Tooltip>
           <Tooltip label="Redo">
             <IconButton
-              borderRadius="full"
               aria-label="Redo"
               isDisabled={!historys.filter((h) => h.revoked)?.length}
               icon={<MdRedo />}
               onClick={() => redoHistory(project.id)}
+              mr="-px"
+            />
+          </Tooltip>
+          <Tooltip label={`View Historys (${getCrossCtrl()}+H)`} placement="top">
+            <IconButton
+              aria-label="Historys"
+              icon={project.viewHistory ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              isDisabled={!pendingElements?.length}
+              onClick={() => {
+                setProjectViewHistory({
+                  projectId: project.id,
+                  isView: !project.viewHistory,
+                })
+              }}
             />
           </Tooltip>
         </ButtonGroup>
 
-        <ButtonGroup size="sm" ml={2} isAttached variant="outline">
+        <Tooltip label={`${getCrossCtrl()}+S`} placement="top">
           <Button
-            borderRadius="full"
-            mr="-px"
+            size="sm"
+            ml={2}
+            leftIcon={<AiOutlineSave />}
             isDisabled={!pendingElements?.length}
             onClick={() => savedElements(project.id)}
           >
             Save
           </Button>
-          <IconButton
-            borderRadius="full"
-            aria-label="Save"
-            icon={project.viewElements ? <IoIosArrowUp /> : <IoIosArrowDown />}
-            onClick={() => {
-              setProjectViewElements({
-                projectId: project.id,
-                isView: !project.viewElements,
-              })
-            }}
-          />
-        </ButtonGroup>
+        </Tooltip>
       </Flex>
 
       <Flex align="center" justify="center" className={style.breadcrumb}>
@@ -145,34 +152,34 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <IconButton
-          aria-label="Refresh"
-          borderRadius="full"
-          icon={<MdRefresh />}
-          onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-        />
-        <ButtonGroup
-          size="sm"
-          ml={2}
-          isAttached
-          variant="outline"
-          isDisabled={project.view !== ProjectView.BrowserView}
-        >
+        <Tooltip label="Refresh" placement="top">
           <IconButton
-            aria-label="Backward"
-            borderRadius="full"
-            mr="-px"
-            icon={<MdArrowBack />}
-            onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+            size="sm"
+            aria-label="Refresh"
+            icon={<MdRefresh />}
+            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
           />
-          <IconButton
-            aria-label="Forward"
-            borderRadius="full"
-            icon={<MdArrowForward />}
-            onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
-          />
+        </Tooltip>
+        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectView.BrowserView}>
+          <Tooltip label="Backward" placement="top">
+            <IconButton
+              aria-label="Backward"
+              mr="-px"
+              icon={<MdArrowBack />}
+              onClick={() => sendMainIpc(MainIpcChannel.Backward, project.id)}
+            />
+          </Tooltip>
+          <Tooltip label="Forward" placement="top">
+            <IconButton
+              aria-label="Forward"
+              icon={<MdArrowForward />}
+              onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
+            />
+          </Tooltip>
         </ButtonGroup>
-        <BarIconButton aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        <Tooltip label="Disable Cursor" placement="top">
+          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        </Tooltip>
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
         {/* <BarIconButton
