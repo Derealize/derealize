@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { HStack, Center, Box, Flex, Icon } from '@chakra-ui/react'
 import { IoLink, IoUnlink } from 'react-icons/io5'
+import { HiOutlineExternalLink } from 'react-icons/hi'
 import ControllersContext from '../ControllersContext'
 import type { Property } from '../../../models/controlles/controlles'
 import SelectController from '../../SelectController'
@@ -46,44 +47,61 @@ const Rounded: React.FC = (): JSX.Element => {
   return (
     <Box>
       <Flex justifyContent="space-between">
-        <Box w="52%">
+        <Box w="50%">
           <SelectController
-            placeholder={bind ? 'radius' : 'radius-tl'}
+            placeholder="top-left"
             values={bind ? roundedValues : roundedTopLeftValues}
-            property={bind ? roundedProperty : roundedTopLeftProperty}
-            doclink="border-radius"
+            property={roundedTopLeftProperty || roundedProperty}
+            doclink={false}
           />
         </Box>
-        <Box w="46%">
+        <Box w="50%">
           <SelectController
-            placeholder={bind ? 'radius' : 'radius-tr'}
+            placeholder="top-right"
             values={bind ? roundedValues : roundedTopRightValues}
-            property={bind ? roundedProperty : roundedTopRightProperty}
+            property={roundedTopRightProperty || roundedProperty}
             doclink={false}
           />
         </Box>
       </Flex>
       <Center>
         {bind ? (
-          <Icon as={IoLink} w={6} h={6} color="gray.600" onClick={() => setBind(false)} />
+          <Icon
+            as={IoLink}
+            w={6}
+            h={6}
+            color="teal.500"
+            _hover={{ color: 'gray.600', cursor: 'pointer' }}
+            onClick={() => setBind(false)}
+          />
         ) : (
-          <Icon as={IoUnlink} w={6} h={6} color="gray.400" onClick={() => setBind(true)} />
+          <Icon
+            as={IoUnlink}
+            w={6}
+            h={6}
+            color="gray.400"
+            _hover={{ color: 'gray.600', cursor: 'pointer' }}
+            onClick={() => setBind(true)}
+          />
         )}
+        <a href="https://tailwindcss.com/docs/border-radius" target="_black" style={{ lineHeight: '12px' }}>
+          <Icon as={HiOutlineExternalLink} ml={1} boxSize={4} color="gray.300" _hover={{ color: 'gray.500' }} />
+        </a>
       </Center>
       <Flex justifyContent="space-between">
-        <Box w="46%">
+        <Box w="50%">
           <SelectController
-            placeholder={bind ? 'radius' : 'radius-bl'}
+            placeholder="bot-left"
             values={bind ? roundedValues : roundedBottomLeftValues}
-            property={bind ? roundedProperty : roundedBottomLeftProperty}
+            property={roundedBottomLeftProperty || roundedProperty}
             doclink={false}
           />
         </Box>
-        <Box w="46%">
+        <Box w="50%">
           <SelectController
-            placeholder={bind ? 'radius' : 'radius-br'}
+            placeholder="bot-right"
             values={bind ? roundedValues : roundedBottomRightValues}
-            property={bind ? roundedProperty : roundedBottomRightProperty}
+            property={roundedBottomRightProperty || roundedProperty}
             doclink={false}
           />
         </Box>
