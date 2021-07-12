@@ -152,15 +152,7 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <Tooltip label="Refresh" placement="top">
-          <IconButton
-            size="sm"
-            aria-label="Refresh"
-            icon={<MdRefresh />}
-            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-          />
-        </Tooltip>
-        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectView.BrowserView}>
+        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectView.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
               aria-label="Backward"
@@ -177,9 +169,19 @@ const TopBar: React.FC = (): JSX.Element => {
             />
           </Tooltip>
         </ButtonGroup>
-        <Tooltip label="Disable Cursor" placement="top">
-          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+
+        <Tooltip label="Refresh" placement="top">
+          <IconButton
+            size="sm"
+            ml={2}
+            aria-label="Refresh"
+            icon={<MdRefresh />}
+            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+          />
         </Tooltip>
+        {/* <Tooltip label="Disable Cursor" placement="top">
+          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        </Tooltip> */}
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
         {/* <BarIconButton

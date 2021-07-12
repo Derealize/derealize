@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import cs from 'classnames'
 import { IconButton, Collapse, Flex } from '@chakra-ui/react'
 import { IoChevronDown, IoChevronUp } from 'react-icons/io5'
@@ -25,6 +25,8 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const selectDark = useStoreState<boolean | undefined>((state) => state.controlles.selectDark)
   const setSelectDark = useStoreActions((actions) => actions.controlles.setSelectDark)
 
+  const clearSelectVariant = useStoreActions((actions) => actions.controlles.clearSelectVariant)
+
   const customVariants = useStoreState<Array<string>>((state) => state.element.customVariants)
   const selectCustomVariant = useStoreState<string | undefined>((state) => state.controlles.selectCustomVariant)
   const setSelectCustomVariant = useStoreActions((actions) => actions.controlles.setSelectCustomVariant)
@@ -32,23 +34,28 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
   const expandVariants = useStoreState<boolean>((state) => state.controlles.expandVariants)
   const setExpandVariants = useStoreActions((actions) => actions.controlles.setExpandVariants)
 
+  const selectNone = useMemo(
+    () => !selectScreenVariant && !selectStateVariant && !selectListVariant && !selectDark && !selectCustomVariant,
+    [selectCustomVariant, selectDark, selectListVariant, selectScreenVariant, selectStateVariant],
+  )
+
   return (
     <div className={style.variants}>
       <Flex justifyContent="space-between" alignItems="center">
         <div>
           <div className={style.variantsline}>
-            <span
+            <div
               className={cs(style.option, {
-                [style.active]: selectDark,
-                [style.already]: alreadyVariants.dark,
+                [style.active]: selectNone,
+                [style.already]: alreadyVariants.hasNone,
               })}
-              onClick={() => setSelectDark(!selectDark)}
+              onClick={() => clearSelectVariant()}
               aria-hidden="true"
             >
-              dark
-            </span>
+              <span>none</span>
+            </div>
             {screenVariants.map((variant) => (
-              <span
+              <div
                 key={variant}
                 className={cs(style.option, {
                   [style.active]: variant === selectScreenVariant,
@@ -57,13 +64,23 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
                 onClick={() => setSelectScreenVariant(variant)}
                 aria-hidden="true"
               >
-                {variant}
-              </span>
+                <span>{variant}</span>
+              </div>
             ))}
           </div>
           <div className={style.variantsline}>
+            <div
+              className={cs(style.option, {
+                [style.active]: selectDark,
+                [style.already]: alreadyVariants.hasDark,
+              })}
+              onClick={() => setSelectDark(!selectDark)}
+              aria-hidden="true"
+            >
+              <span>dark</span>
+            </div>
             {StateVariants.slice(0, 3).map((variant) => (
-              <span
+              <div
                 key={variant}
                 className={cs(style.option, {
                   [style.active]: variant === selectStateVariant,
@@ -72,8 +89,8 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
                 onClick={() => setSelectStateVariant(variant)}
                 aria-hidden="true"
               >
-                {variant}
-              </span>
+                <span>{variant}</span>
+              </div>
             ))}
           </div>
         </div>
@@ -89,7 +106,7 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
       <Collapse animateOpacity in={expandVariants}>
         <div className={style.variantsline}>
           {StateVariants.slice(3).map((variant) => (
-            <span
+            <div
               key={variant}
               className={cs(style.option, {
                 [style.active]: variant === selectStateVariant,
@@ -98,13 +115,13 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
               onClick={() => setSelectStateVariant(variant)}
               aria-hidden="true"
             >
-              {variant}
-            </span>
+              <span>{variant}</span>
+            </div>
           ))}
         </div>
         <div className={style.variantsline}>
           {ListVariants.map((variant) => (
-            <span
+            <div
               key={variant}
               className={cs(style.option, {
                 [style.active]: variant === selectListVariant,
@@ -113,14 +130,14 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
               onClick={() => setSelectListVariant(variant)}
               aria-hidden="true"
             >
-              {variant}
-            </span>
+              <span>{variant}</span>
+            </div>
           ))}
         </div>
         {!!customVariants.length && (
           <div className={style.variantsline}>
             {customVariants.map((variant) => (
-              <span
+              <div
                 key={variant}
                 className={cs(style.option, {
                   [style.active]: variant === selectCustomVariant,
@@ -129,8 +146,8 @@ const Variants: React.FC<Props> = ({ alreadyVariants }: Props): JSX.Element => {
                 onClick={() => setSelectCustomVariant(variant)}
                 aria-hidden="true"
               >
-                {variant}
-              </span>
+                <span>{variant}</span>
+              </div>
             ))}
           </div>
         )}

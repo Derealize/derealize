@@ -27,12 +27,13 @@ export interface AlreadyVariants {
   states: Array<string>
   lists: Array<string>
   customs: Array<string>
-  dark: boolean
+  hasDark: boolean
+  hasNone: boolean
 }
 
 export interface ControllesModel {
   pushNewProperty: Thunk<ControllesModel, string, void, StoreModel>
-  liveUpdateClassName: Thunk<
+  liveHoverClassName: Thunk<
     ControllesModel,
     { propertysClone: Array<Property>; selector: string; propertyId: string; classname: string; projectId: string },
     void,
@@ -58,6 +59,8 @@ export interface ControllesModel {
   selectDark: boolean
   setSelectDark: Action<ControllesModel, boolean>
 
+  clearSelectVariant: Action<ControllesModel>
+
   expandVariants: boolean
   setExpandVariants: Action<ControllesModel, boolean>
 
@@ -82,16 +85,21 @@ const controllesModel: ControllesModel = {
     getStoreActions().element.pushSelectedElementProperty({ projectId: frontProject.id, property })
   }),
 
-  liveUpdateClassName: thunk(
+  liveHoverClassName: thunk(
     async (actions, { propertysClone, selector, propertyId, classname, projectId }, { getState }) => {
       const { selectStateVariant } = getState()
 
       const property = propertysClone.find((p) => p.id === propertyId)
+      const { selectScreenVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
 
       if (property) {
         property.classname = classname
+        property.screen = selectScreenVariant
+        property.state = selectStateVariant
+        property.list = selectListVariant
+        property.custom = selectCustomVariant
+        property.dark = selectDark ? true : undefined
       } else {
-        const { selectScreenVariant, selectListVariant, selectCustomVariant, selectDark } = getState()
         propertysClone.push({
           id: propertyId,
           classname,
@@ -194,6 +202,14 @@ const controllesModel: ControllesModel = {
     state.selectDark = payload
   }),
 
+  clearSelectVariant: action((state) => {
+    state.selectScreenVariant = undefined
+    state.selectStateVariant = undefined
+    state.selectListVariant = undefined
+    state.selectCustomVariant = undefined
+    state.selectDark = false
+  }),
+
   expandVariants: false,
   setExpandVariants: action((state, payload) => {
     state.expandVariants = payload
@@ -209,7 +225,10 @@ const controllesModel: ControllesModel = {
       states: [...new Set(states)],
       lists: [...new Set(lists)],
       customs: [...new Set(customs)],
-      dark: propertys.some((property) => property.dark),
+      hasDark: propertys.some((property) => property.dark),
+      hasNone: propertys.some(
+        (property) => !property.screen && !property.state && !property.list && !property.custom && !property.dark,
+      ),
     }
   }),
 }

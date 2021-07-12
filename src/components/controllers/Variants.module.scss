@@ -21,7 +21,7 @@ $teal500: #319795;
   &:hover {
     color: $pink-500;
   }
-  &.already {
+  &.already > span {
     @include linelink($pink-500, 0.6);
   }
   &.active {
