@@ -44,7 +44,7 @@ const HomeWithRuntime = (): JSX.Element => {
     <div className={style.home}>
       <Tabs variant="soft-rounded" colorScheme="teal">
         <TabList justifyContent="center">
-          <Tab mx={1}>Project</Tab>
+          {/* <Tab mx={1}>Project</Tab>
           <Tab mx={1} isDisabled>
             Library
           </Tab>
@@ -59,7 +59,7 @@ const HomeWithRuntime = (): JSX.Element => {
           </Tab>
           <Tab mx={1} isDisabled>
             Settings
-          </Tab>
+          </Tab> */}
         </TabList>
         <TabPanels>
           <TabPanel className={style.projects} flexDirection="column">

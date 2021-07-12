@@ -221,14 +221,6 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <Tooltip label="Refresh" placement="top">
-          <IconButton
-            size="sm"
-            aria-label="Refresh"
-            icon={<MdRefresh />}
-            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-          />
-        </Tooltip>
         <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
@@ -247,9 +239,18 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           </Tooltip>
         </ButtonGroup>
 
-        <Tooltip label="Disable Cursor" placement="top">
-          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        <Tooltip label="Refresh" placement="top">
+          <IconButton
+            size="sm"
+            aria-label="Refresh"
+            icon={<MdRefresh />}
+            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+          />
         </Tooltip>
+
+        {/* <Tooltip label="Disable Cursor" placement="top">
+          <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
+        </Tooltip> */}
 
         <ButtonGroup size="sm" ml={2} isAttached>
           <Tooltip label="Start" placement="top">
