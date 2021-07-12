@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
-// import clone from 'lodash.clone' // 巨坑：不是100%的clone，导致liveUpdateClassName更新了state对象
+// import clone from 'lodash.clone' // 巨坑：不是100%的clone，导致 liveHoverClassName 更新了state对象
 import clone from 'lodash.clonedeep'
 import { Icon } from '@chakra-ui/react'
 import Select, {
@@ -82,7 +82,7 @@ const SelectController: React.FC<Props> = ({
   const deleteProperty = useStoreActions((actions) => actions.element.deleteSelectedElementProperty)
   const setProperty = useStoreActions((actions) => actions.element.setSelectedElementPropertyValue)
   const pushNewProperty = useStoreActions((actions) => actions.controlles.pushNewProperty)
-  const liveUpdateClassName = useStoreActions((actions) => actions.controlles.liveUpdateClassName)
+  const liveHoverClassName = useStoreActions((actions) => actions.controlles.liveHoverClassName)
   const liveApplyClassName = useStoreActions((actions) => actions.controlles.liveApplyClassName)
 
   const propertysClone = useMemo(() => {
@@ -107,7 +107,7 @@ const SelectController: React.FC<Props> = ({
   const onOptionEnter = useCallback(
     async (value: string) => {
       if (!element || !project || !propertysClone) return
-      liveUpdateClassName({
+      liveHoverClassName({
         projectId: project.id,
         selector: element.selector,
         propertysClone,
@@ -115,7 +115,7 @@ const SelectController: React.FC<Props> = ({
         classname: value,
       })
     },
-    [element, project, propertysClone, liveUpdateClassName, property?.id],
+    [element, project, propertysClone, liveHoverClassName, property?.id],
   )
 
   const Option = (props: OptionProps<OptionType, boolean, GroupType>) => {

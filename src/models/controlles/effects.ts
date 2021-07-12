@@ -272,7 +272,10 @@ const effectsModel: EffectsModel = {
         states: [...new Set(states)],
         lists: [...new Set(lists)],
         customs: [...new Set(customs)],
-        dark: allPropertys.some((property) => property.dark),
+        hasDark: allPropertys.some((property) => property.dark),
+        hasNone: allPropertys.some(
+          (property) => !property.screen && !property.state && !property.list && !property.custom && !property.dark,
+        ),
       }
     },
   ),
