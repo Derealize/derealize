@@ -294,9 +294,13 @@ const projectModel: ProjectModel = {
       actions.flushProject(projectId)
     })
 
+    listenMainIpc(MainIpcChannel.LoadStart, (event: IpcRendererEvent, projectId: string) => {
+      actions.setProjectView({ projectId, view: ProjectView.Loading })
+    })
+
     listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
       actions.setProjectView({ projectId, view: ok ? ProjectView.BrowserView : ProjectView.LoadFail })
-      actions.setProjectViewHistory({ projectId, isView: false })
+      if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
     })
   }),
 
@@ -305,6 +309,7 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Flush)
+    unlistenMainIpc(MainIpcChannel.LoadStart)
     unlistenMainIpc(MainIpcChannel.LoadFinish)
   }),
 
