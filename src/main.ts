@@ -222,7 +222,7 @@ const createWindow = async () => {
     show: false,
     width: 1280,
     height: 800,
-    icon: getAssetPath('icon.png'),
+    icon: withRuntime ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
     frame: false,
     // autoHideMenuBar: true,
     webPreferences: {
