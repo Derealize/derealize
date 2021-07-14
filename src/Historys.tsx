@@ -1,6 +1,6 @@
 import React from 'react'
 import cs from 'classnames'
-import { Flex, Box } from '@chakra-ui/react'
+import { Flex, Box, Center, Text } from '@chakra-ui/react'
 import { useStoreState } from './reduxStore'
 import { propertyTransClassName } from './utils/assest'
 import { Project } from './models/project.interface'
@@ -47,6 +47,12 @@ const Historys: React.FC = (): JSX.Element => {
           </Box>
         )
       })}
+      {!historys.length && (
+        <Center>
+          <Text fontSize="2xl">¯\_(ツ)_/¯</Text>
+          <p>You don’t have any style change. Select an element to change the style.</p>
+        </Center>
+      )}
     </Flex>
   )
 }

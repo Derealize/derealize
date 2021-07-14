@@ -4,11 +4,13 @@ import { ProjectStatus } from '../backend/backend.interface'
 
 export enum ProjectView {
   BrowserView,
+  Loading,
   LoadFail,
 }
 
 export enum ProjectViewWithRuntime {
   BrowserView,
+  Loading,
   LoadFail,
   Debugging,
   FileStatus,

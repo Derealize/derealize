@@ -137,6 +137,12 @@ ipcMain.on(
 
       // view.webContents.loadURL(baseUrl)
       view.webContents
+        .on('did-start-loading', () => {
+          const pj = projects.get(projectId)
+          if (!pj) return
+          pj.loadFail = undefined
+          mainWindow?.webContents.send(MainIpcChannel.LoadStart, projectId)
+        })
         .on('did-finish-load', (e: any) => {
           const pj = projects.get(projectId)
           if (!pj || pj.loadFail) return
@@ -175,7 +181,6 @@ ipcMain.on(MainIpcChannel.DeviceEmulation, (event, projectId: string, swidth: nu
 const loadURL = (projectId: string, url: string) => {
   const project = projects.get(projectId)
   if (project) {
-    project.loadFail = undefined
     project.view.webContents.loadURL(path.join(project.baseUrl, url))
   }
 }
