@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { CloseButton, Button, Text } from '@chakra-ui/react'
+import { BounceLoader } from 'react-spinners'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { Project, ProjectView } from './models/project.interface'
 import type { ElementState } from './models/element'
@@ -51,6 +52,8 @@ const ProjectPage: React.FC = (): JSX.Element => {
             />
           )} */}
 
+          {project.view === ProjectView.Loading && <BounceLoader color="#4FD1C5" />}
+
           {project.view === ProjectView.LoadFail && (
             <>
               <LoadFailSvg className={style.loadFailSvg} />
@@ -58,7 +61,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
                 404
               </Text>
               <Text mt={4} className="prose">
-                Your project baseUrl {project.config?.baseUrl} cannot be requested, please follow{' '}
+                Your project baseUrl:{project.config?.baseUrl} cannot be requested, please follow{' '}
                 <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
                   our documentation
                 </a>{' '}
