@@ -90,8 +90,9 @@ const ProjectPage: React.FC = (): JSX.Element => {
                 404
               </Text>
               <Text mt={4} className="prose">
-                Your project baseUrl:{project.config?.baseUrl} cannot be requested, please follow{' '}
-                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                Unable to request the baseUrl:
+                <a href={project.config?.baseUrl}>{project.config?.baseUrl}</a> of your project, please follow{' '}
+                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                   our documentation
                 </a>{' '}
                 to make sure the project is started correctly.

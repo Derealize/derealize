@@ -157,7 +157,7 @@ const ImportProject = (): JSX.Element => {
 
               <FormHelperText className="prose">
                 Before importing your project, please follow{' '}
-                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                   our documentation
                 </a>{' '}
                 to complete the project configuration.
@@ -171,9 +171,9 @@ const ImportProject = (): JSX.Element => {
             </FormControl>
 
             {isReady && (
-              <Text color="teal.500" align="center">
-                Congratulations, it looks like the project is ready to work. Please run the development mode of the
-                project by yourself before opening the project in derealize.
+              <Text color="teal.500" align="center" mt={4} px={20}>
+                Congratulations, it looks like the project is ready to work. Before opening the project in Derealize,
+                please run the development mode of the project yourself (e.g. &apos;yarn dev&apos;).
               </Text>
             )}
           </ModalBody>
@@ -188,16 +188,18 @@ const ImportProject = (): JSX.Element => {
                 </Button>
               </ButtonGroup>
             )}
-            <Button
-              colorScheme="teal"
-              size="lg"
-              variant={isReady ? 'outline' : 'solid'}
-              spinner={<BeatLoader size={8} color="teal" />}
-              onClick={handleSubmit(submit)}
-              ml={6}
-            >
-              Import {isReady && 'Again'}
-            </Button>
+            {!isReady && (
+              <Button
+                colorScheme="teal"
+                size="lg"
+                variant={isReady ? 'outline' : 'solid'}
+                spinner={<BeatLoader size={8} color="teal" />}
+                onClick={handleSubmit(submit)}
+                ml={6}
+              >
+                Import
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
