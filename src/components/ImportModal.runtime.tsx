@@ -341,7 +341,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   Close Dialog
                 </Button>
                 <Button colorScheme="teal" onClick={open}>
-                  Open & Start Project
+                  Open &amp; Start Project
                 </Button>
               </ButtonGroup>
             )}
