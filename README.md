@@ -29,8 +29,9 @@ yarn cross-env DEBUG_PROD=true yarn dir
 ```js
 npm install --global --production windows-build-tools
 // 最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
-用 yarn，不要挂代理 // https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions
+用 yarn，不要挂代理
 
+// https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions
 rm yarn.lock src/yarn.lock
 Remove-Item -Force yarn.lock
 Remove-Item -Force src/yarn.lock
@@ -39,11 +40,11 @@ rm -rf node_modules src\node_modules
 Remove-Item -Recurse -Force node_modules
 Remove-Item -Recurse -Force src\node_modules
 
-// yarn cache clean
+yarn cache clean
 yarn
 yarn standby:runtime
 yarn postinstall_dll
-yarn rebuild
+// yarn rebuild
 yarn start
 ```
 
@@ -67,6 +68,14 @@ todo:这个问题可能只存在于 win 平台
 
 实测 nodegit 执行 electron-rebuild 没有任何区别
 实测不使用 fork/BrowserWindow 直接 main 进程引用 nodegit 没有问题
+
+必须安装 vs2017 C++ 编译器并且配置 msvs_version=2017
+
+404 https://axonodegit.s3.amazonaws.com/nodegit/nodegit/nodegit-v0.28.0-alpha.9-electron-v12.0-win32-x64.tar.gz
+并不是致命错误，只是开发者没有上传预构建包，需要自己本地编译。
+
+https://stackoverflow.com/a/65892589
+electron-rebuild 由历史原因存在，在新版 electron 下可以被 electron-builder 替代
 
 ## Other Issus
 
