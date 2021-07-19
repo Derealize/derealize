@@ -1,4 +1,4 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile, ProxyOptions } from 'nodegit'
+import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile, ProxyOptions } from 'nodegit-zic'
 import type { CommitLog } from './backend.interface'
 
 const proxyOpts = {}
