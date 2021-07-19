@@ -16,6 +16,6 @@
   },
   "license": "private",
   "dependencies": {
-    "nodegit": "0.28.0-alpha.9"
+    "nodegit-zic": "0.28.0-alpha.9"
   }
 }
