@@ -16,6 +16,6 @@
   },
   "license": "private",
   "dependencies": {
-    "nodegit-zic": "0.28.0-alpha.9"
+    "@derealize/nodegit": "0.28.0-alpha.9.1"
   }
 }
