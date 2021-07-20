@@ -22,9 +22,9 @@ const fileName =
   process.platform === 'darwin'
     ? `Derealize-${process.env.npm_package_version}.dmg`
     : `Derealize-${process.env.npm_package_version}.exe`
-const setupFile = path.join(__dirname, `../release/${fileName}`)
+const filePath = path.join(__dirname, `../release/${fileName}`)
 
-formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr, respBody) => {
+formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBody) => {
   if (respErr) {
     console.error('putFile', respErr)
     return
@@ -36,7 +36,7 @@ formUploader.putFile(uploadToken, fileName, setupFile, putExtra, (respErr, respB
   const putPolicyStatic = new qiniu.rs.PutPolicy(optionsStatic)
   const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
 
-  formUploader.putFile(uploadTokenStatic, fileNameStatic, setupFile, putExtra, (respErr2, respBody2) => {
+  formUploader.putFile(uploadTokenStatic, fileNameStatic, filePath, putExtra, (respErr2, respBody2) => {
     if (respErr2) {
       console.error('putFileStatic', respErr2)
       return
