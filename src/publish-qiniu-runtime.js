@@ -19,13 +19,13 @@ const options = { scope: 'derealize' }
 const putPolicy = new qiniu.rs.PutPolicy(options)
 const uploadToken = putPolicy.uploadToken(mac)
 
-const fileNameWithRuntime =
+const fileName =
   process.platform === 'darwin'
     ? `Derealize-with-runtime-${process.env.npm_package_version}.dmg`
     : `Derealize-with-runtime-${process.env.npm_package_version}.exe`
-const setupFileWithRuntime = path.join(__dirname, `../release-with-runtime/${fileNameWithRuntime}`)
+const filePath = path.join(__dirname, `../release-with-runtime/${fileName}`)
 
-formUploader.putFile(uploadToken, fileNameWithRuntime, setupFileWithRuntime, putExtra, (respErr, respBody) => {
+formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBody) => {
   if (respErr) {
     console.error('putFile with-runtime', respErr)
     return
@@ -37,7 +37,7 @@ formUploader.putFile(uploadToken, fileNameWithRuntime, setupFileWithRuntime, put
   const putPolicyStatic = new qiniu.rs.PutPolicy(optionsStatic)
   const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
 
-  formUploader.putFile(uploadTokenStatic, fileNameStatic, setupFileWithRuntime, putExtra, (respErr2, respBody2) => {
+  formUploader.putFile(uploadTokenStatic, fileNameStatic, filePath, putExtra, (respErr2, respBody2) => {
     if (respErr2) {
       console.error('putFileStatic with-runtime', respErr2)
       return
