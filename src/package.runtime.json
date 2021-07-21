@@ -16,6 +16,6 @@
   },
   "license": "private",
   "dependencies": {
-    "@derealize/nodegit": "0.28.0-alpha.9.1"
+    "@derealize-temp/nodegit": "0.28.0-alpha.9.2"
   }
 }
