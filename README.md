@@ -24,30 +24,6 @@ yarn cross-env DEBUG_PROD=true yarn package
 yarn cross-env DEBUG_PROD=true yarn dir
 ```
 
-## Fix Build Issus
-
-```js
-npm install --global --production windows-build-tools
-// 最好用 node 安装包的 [chocolatey 脚本](https://github.com/nodejs/node/edit/master/tools/msvs/install_tools/install_tools.bat)，完整性更好
-用 yarn，不要挂代理
-
-// https://electron-react-boilerplate.js.org/docs/installation-debugging-solutions
-rm yarn.lock src/yarn.lock
-Remove-Item -Force yarn.lock
-Remove-Item -Force src/yarn.lock
-
-rm -rf node_modules src\node_modules
-Remove-Item -Recurse -Force node_modules
-Remove-Item -Recurse -Force src\node_modules
-
-yarn cache clean
-yarn
-yarn standby:runtime
-yarn postinstall_dll
-// yarn rebuild
-yarn start
-```
-
 webpack 配置文件关于 NODE_ENV 的原则：
 
 - .dev 文件必然是 'development'

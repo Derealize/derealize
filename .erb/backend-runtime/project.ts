@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import type { Repository } from 'nodegit'
+import type { Repository } from '@derealize/nodegit'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'

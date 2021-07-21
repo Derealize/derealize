@@ -15,7 +15,7 @@ process
 
 if (process.argv[2] === '--subprocess') {
   const socketId = process.argv[3]
-  ipc(socketId, process.argv[4] === '--with-runtime')
+  ipc(socketId)
   log(`backend subprocess socket:${socketId}`)
 } else {
   import('electron')
