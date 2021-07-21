@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
-import { createStandaloneToast } from '@chakra-ui/react'
+import { createStandaloneToast, AlertStatus } from '@chakra-ui/react'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
 import type { StatusPayload, PayloadError, BoolReply } from '../backend/backend.interface'
@@ -302,6 +302,10 @@ const projectModel: ProjectModel = {
       actions.setProjectView({ projectId, view: ok ? ProjectView.BrowserView : ProjectView.LoadFail })
       if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
     })
+
+    listenMainIpc(MainIpcChannel.Toast, (event: IpcRendererEvent, title: string, status: AlertStatus) => {
+      toast({ title, status })
+    })
   }),
 
   unlisten: action(() => {
@@ -311,6 +315,7 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.LoadStart)
     unlistenMainIpc(MainIpcChannel.LoadFinish)
+    unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
   importModalDisclosure: false,
@@ -335,7 +340,7 @@ const projectModel: ProjectModel = {
     }
   }),
   modalImages: computed((state) => {
-    if (!state.frontProject?.tailwindConfig) return []
+    if (!state.frontProject?.tailwindConfig?.theme.backgroundImage) return []
     const images: Array<BackgroundImage> = []
     for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
       const regValues = CssUrlReg.exec(value)

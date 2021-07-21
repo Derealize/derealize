@@ -16,10 +16,18 @@ export default class MenuBuilder {
 
   loadURL: (projectId: string, url: string) => void
 
-  constructor(mainWindow: BrowserWindow, frontMainView: () => void, loadURL: (projectId: string, url: string) => void) {
+  checkForUpdates: () => Promise<void>
+
+  constructor(
+    mainWindow: BrowserWindow,
+    frontMainView: () => void,
+    loadURL: (projectId: string, url: string) => void,
+    checkForUpdates: () => Promise<void>,
+  ) {
     this.mainWindow = mainWindow
     this.frontMainView = frontMainView
     this.loadURL = loadURL
+    this.checkForUpdates = checkForUpdates
   }
 
   buildMenu(): Menu {
@@ -64,11 +72,11 @@ export default class MenuBuilder {
   template(): MenuItemConstructorOptions[] {
     const template: MenuItemConstructorOptions[] = [
       {
-        label: '&File',
+        label: '&Project',
         submenu: [
           {
-            label: 'Import',
-            accelerator: 'Ctrl+O',
+            label: '&Import',
+            accelerator: 'Ctrl+I',
             click: () => {
               this.mainWindow.webContents.send(MainIpcChannel.OpenImport)
             },
@@ -152,17 +160,12 @@ export default class MenuBuilder {
     const viewMenus: MenuItemConstructorOptions[] = [
       {
         label: 'History',
-        accelerator: isDarwin ? 'Cmd+H' : 'Ctrl+H',
+        accelerator: 'Ctrl+H',
         click: () => {
           this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
         },
       },
-      {
-        label: 'Close All BrowserView',
-        click: () => {
-          this.frontMainView()
-        },
-      },
+
       {
         label: 'Toggle &Full Screen',
         accelerator: 'F11',
@@ -181,6 +184,12 @@ export default class MenuBuilder {
 
     if (isDebug) {
       viewMenus.push({
+        label: 'Close All BrowserView',
+        click: () => {
+          this.frontMainView()
+        },
+      })
+      viewMenus.push({
         label: 'Toggle &Developer Tools',
         accelerator: 'Alt+Ctrl+I',
         click: () => {
@@ -195,27 +204,27 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('https://electronjs.org')
-          },
-        },
-        {
           label: 'Documentation',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/tree/master/docs#readme')
+          click: () => {
+            shell.openExternal('http://derealize.com/')
           },
         },
         {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://www.electronjs.org/community')
+          label: 'Discord Community',
+          click: () => {
+            shell.openExternal('https://discord.gg/2sqy5QeZXK')
           },
         },
         {
           label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/issues')
+          click: () => {
+            shell.openExternal('https://stackoverflow.com/questions/tagged/tailwind-css')
+          },
+        },
+        {
+          label: 'Check For Update',
+          click: () => {
+            this.checkForUpdates()
           },
         },
       ],
@@ -224,144 +233,161 @@ export default class MenuBuilder {
     return template
   }
 
-  darwinTemplate(): MenuItemConstructorOptions[] {
-    const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+  darwinTemplate(): DarwinMenuItemConstructorOptions[] {
+    const template: DarwinMenuItemConstructorOptions[] = [
+      {
+        label: 'Derealize',
+        submenu: [
+          {
+            label: 'About Derealize',
+            selector: 'orderFrontStandardAboutPanel:',
+          },
+          { type: 'separator' },
+          { label: 'Services', submenu: [] },
+          { type: 'separator' },
+          {
+            label: 'Hide Derealize',
+            accelerator: 'Command+H',
+            selector: 'hide:',
+          },
+          {
+            label: 'Hide Others',
+            accelerator: 'Command+Shift+H',
+            selector: 'hideOtherApplications:',
+          },
+          { label: 'Show All', selector: 'unhideAllApplications:' },
+          { type: 'separator' },
+          {
+            label: 'Minimize',
+            accelerator: 'Command+M',
+            selector: 'performMiniaturize:',
+          },
+          { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
+          { label: 'Bring All to Front', selector: 'arrangeInFront:' },
+          { type: 'separator' },
+          {
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            click: () => {
+              app.quit()
+            },
+          },
+        ],
+      },
+    ]
+
+    template.push({
+      label: 'Project',
       submenu: [
         {
-          label: 'About ElectronReact',
-          selector: 'orderFrontStandardAboutPanel:',
-        },
-        { type: 'separator' },
-        { label: 'Services', submenu: [] },
-        { type: 'separator' },
-        {
-          label: 'Hide ElectronReact',
-          accelerator: 'Command+H',
-          selector: 'hide:',
-        },
-        {
-          label: 'Hide Others',
-          accelerator: 'Command+Shift+H',
-          selector: 'hideOtherApplications:',
-        },
-        { label: 'Show All', selector: 'unhideAllApplications:' },
-        { type: 'separator' },
-        {
-          label: 'Quit',
-          accelerator: 'Command+Q',
+          label: 'Import',
+          accelerator: 'Ctrl+I',
           click: () => {
-            app.quit()
+            this.mainWindow.webContents.send(MainIpcChannel.OpenImport)
+          },
+        },
+        {
+          label: 'Flush Tailwindcss Config',
+          accelerator: 'Ctrl+F',
+          click: () => {
+            this.mainWindow.webContents.send(MainIpcChannel.Flush)
+          },
+        },
+        {
+          label: 'Close Project',
+          accelerator: 'Ctrl+W',
+          click: () => {
+            this.mainWindow.webContents.send(MainIpcChannel.CloseFrontProject)
           },
         },
       ],
-    }
-    const subMenuEdit: DarwinMenuItemConstructorOptions = {
-      label: 'Edit',
-      submenu: [
-        { label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
-        { label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-        { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-        { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
-        {
-          label: 'Select All',
-          accelerator: 'Command+A',
-          selector: 'selectAll:',
-        },
-      ],
-    }
-    const subMenuViewDev: MenuItemConstructorOptions = {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Close All BrowserView',
+    })
+
+    template.push({
+      label: 'Controllers',
+      submenu: ControllerShortcut.map(({ key, label }) => {
+        return {
+          label,
+          accelerator: key,
           click: () => {
-            this.frontMainView()
+            this.mainWindow.webContents.send(MainIpcChannel.ControllerShortcut, key)
           },
+        }
+      }),
+    })
+
+    const viewMenus: MenuItemConstructorOptions[] = [
+      {
+        label: 'History',
+        accelerator: 'Alt+Command+H',
+        click: () => {
+          this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
         },
-        {
-          label: 'Reload',
-          accelerator: 'Command+R',
-          click: () => {
-            this.mainWindow.webContents.reload()
-          },
+      },
+      {
+        label: 'Toggle Full Screen',
+        accelerator: 'Ctrl+Command+F',
+        click: () => {
+          this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
         },
-        {
-          label: 'Toggle Full Screen',
-          accelerator: 'Ctrl+Command+F',
-          click: () => {
-            this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
-          },
+      },
+      {
+        label: 'Reload',
+        accelerator: 'Command+R',
+        click: () => {
+          this.mainWindow.webContents.reload()
         },
-        {
-          label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
-          click: () => {
-            this.mainWindow.webContents.toggleDevTools()
-          },
+      },
+    ]
+
+    if (isDebug) {
+      viewMenus.push({
+        label: 'Close All BrowserView',
+        click: () => {
+          this.frontMainView()
         },
-      ],
+      })
+      viewMenus.push({
+        label: 'Toggle &Developer Tools',
+        accelerator: 'Alt+Command+I',
+        click: () => {
+          this.mainWindow.webContents.toggleDevTools()
+        },
+      })
     }
-    const subMenuViewProd: MenuItemConstructorOptions = {
-      label: 'View',
-      submenu: [
-        {
-          label: 'Toggle Full Screen',
-          accelerator: 'Ctrl+Command+F',
-          click: () => {
-            this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
-          },
-        },
-      ],
-    }
-    const subMenuWindow: DarwinMenuItemConstructorOptions = {
-      label: 'Window',
-      submenu: [
-        {
-          label: 'Minimize',
-          accelerator: 'Command+M',
-          selector: 'performMiniaturize:',
-        },
-        { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
-        { type: 'separator' },
-        { label: 'Bring All to Front', selector: 'arrangeInFront:' },
-      ],
-    }
-    const subMenuHelp: MenuItemConstructorOptions = {
+
+    template.push({ label: '&View', submenu: viewMenus })
+
+    template.push({
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('https://electronjs.org')
-          },
-        },
-        {
           label: 'Documentation',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/tree/master/docs#readme')
+          click: () => {
+            shell.openExternal('http://derealize.com/')
           },
         },
         {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://www.electronjs.org/community')
+          label: 'Discord Community',
+          click: () => {
+            shell.openExternal('https://discord.gg/2sqy5QeZXK')
           },
         },
         {
           label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/issues')
+          click: () => {
+            shell.openExternal('https://stackoverflow.com/questions/tagged/tailwind-css')
+          },
+        },
+        {
+          label: 'Check For Update',
+          click: () => {
+            this.checkForUpdates()
           },
         },
       ],
-    }
+    })
 
-    const subMenuView =
-      process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true' ? subMenuViewDev : subMenuViewProd
-
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp]
+    return template
   }
 }

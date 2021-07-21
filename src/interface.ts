@@ -110,6 +110,7 @@ export enum MainIpcChannel {
   LiveUpdateTag = 'LiveUpdateTag',
   TextTab = 'TextTab',
   Dropped = 'Dropped',
+  Toast = 'Toast',
 }
 
 export const ControllerShortcut = [
