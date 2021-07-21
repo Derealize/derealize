@@ -53,6 +53,8 @@ todo:这个问题可能只存在于 win 平台
 https://stackoverflow.com/a/65892589
 electron-rebuild 由历史原因存在，在新版 electron 下可以被 electron-builder 替代
 
+编译错误信息有乱码这 win 平台可以用 'chcp 65001 && yarn ...' 强制 utf8
+
 ## Other Issus
 
 erb 文档有不少错误，./app 应该是 ./src
