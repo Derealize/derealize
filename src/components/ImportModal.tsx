@@ -134,6 +134,14 @@ const ImportProject = (): JSX.Element => {
           <ModalCloseButton />
           <ModalBody>
             <FormControl id="path" mt={4} isInvalid={!!errors.path}>
+              <FormHelperText className="prose">
+                Before importing your project, please follow{' '}
+                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                  our documentation
+                </a>{' '}
+                to complete the project configuration.
+              </FormHelperText>
+
               <FormLabel>Local Path</FormLabel>
               <Button
                 leftIcon={<FaRegFolderOpen />}
@@ -154,14 +162,6 @@ const ImportProject = (): JSX.Element => {
               </Tooltip>
 
               {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-
-              <FormHelperText className="prose">
-                Before importing your project, please follow{' '}
-                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
-                  our documentation
-                </a>{' '}
-                to complete the project configuration.
-              </FormHelperText>
             </FormControl>
 
             <FormControl id="displayname" mt={4}>
@@ -171,7 +171,7 @@ const ImportProject = (): JSX.Element => {
             </FormControl>
 
             {isReady && (
-              <Text color="teal.500" align="center">
+              <Text color="teal.500" mt={4} align="center">
                 Congratulations, it looks like the project is ready to work. Please run the development mode of the
                 project by yourself before opening the project in derealize.
               </Text>
@@ -188,16 +188,18 @@ const ImportProject = (): JSX.Element => {
                 </Button>
               </ButtonGroup>
             )}
-            <Button
-              colorScheme="teal"
-              size="lg"
-              variant={isReady ? 'outline' : 'solid'}
-              spinner={<BeatLoader size={8} color="teal" />}
-              onClick={handleSubmit(submit)}
-              ml={6}
-            >
-              Import {isReady && 'Again'}
-            </Button>
+            {!isReady && (
+              <Button
+                colorScheme="teal"
+                size="lg"
+                variant={isReady ? 'outline' : 'solid'}
+                spinner={<BeatLoader size={8} color="teal" />}
+                onClick={handleSubmit(submit)}
+                ml={6}
+              >
+                Import
+              </Button>
+            )}
           </ModalFooter>
         </ModalContent>
       </Modal>
