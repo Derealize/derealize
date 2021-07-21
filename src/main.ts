@@ -6,13 +6,17 @@ import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
 import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import semver from 'semver'
+import fetch from 'node-fetch'
+import type { AlertStatus } from '@chakra-ui/react'
 import findOpenSocket from './utils/find-open-socket'
 import MenuBuilder from './menu'
 import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
+import { version } from './package.json'
 
+const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
 const withRuntime = process.env.WITH_RUNTIME === 'true'
@@ -24,31 +28,21 @@ app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
 
 process.on('uncaughtException', (err) => {
   log.error('Main UncaughtException', err)
-  const messageOptions = {
+  dialog.showMessageBox({
     type: 'error',
     title: 'Error in Main process',
     message: 'Something failed',
-  }
-  dialog.showMessageBox(messageOptions)
+  })
 })
 
 process.on('unhandledRejection', (reason) => {
   log.error('Main UnhandledRejection', reason)
-  const messageOptions = {
+  dialog.showMessageBox({
     type: 'error',
     title: 'Error in Main process',
     message: 'Something failed',
-  }
-  dialog.showMessageBox(messageOptions)
+  })
 })
-
-export default class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info'
-    autoUpdater.logger = log
-    autoUpdater.checkForUpdatesAndNotify()
-  }
-}
 
 if (isDebug) {
   const sourceMapSupport = require('source-map-support')
@@ -75,6 +69,40 @@ let mainWindow: BrowserWindow | null = null
 let mainMenu: Menu | null = null
 // let projectMenu: Menu | undefined
 let pagesMenu: Menu | undefined
+
+const checkForUpdates = async () => {
+  const resp = await fetch('https://cdn.socode.pro/latest.json', {
+    headers: {
+      'content-type': 'application/json',
+    },
+  })
+  if (resp.ok) {
+    const matrix = await resp.json()
+    let latest = withRuntime ? matrix.win_runtime : matrix.win
+    if (isDarwin) {
+      latest = withRuntime ? matrix.mac_runtime : matrix.mac
+    }
+    if (semver.gt(latest, version)) {
+      const { response } = await dialog.showMessageBox({
+        message: 'The updated version is available for download. Sure to download?',
+        buttons: ['Yes', 'Cancel'],
+      })
+      if (response === 0) {
+        await shell.openExternal(
+          `https://cdn.socode.pro/Derealize${withRuntime ? '-with-runtime' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
+        )
+      }
+    } else {
+      mainWindow?.webContents.send(MainIpcChannel.Toast, 'Already the latest version', 'success' as AlertStatus)
+    }
+  } else {
+    mainWindow?.webContents.send(
+      MainIpcChannel.Toast,
+      `check request fail:${resp.statusText}`,
+      'warning' as AlertStatus,
+    )
+  }
+}
 
 const topbarHeight = 42
 const setBrowserViewBounds = (mainwin: BrowserWindow) => {
@@ -259,7 +287,7 @@ const createWindow = async () => {
     mainWindow = null
   })
 
-  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL)
+  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL, checkForUpdates)
   mainMenu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
@@ -283,7 +311,7 @@ const createWindow = async () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (process.platform !== 'darwin') {
+  if (isDarwin) {
     app.quit()
   }
 })
@@ -332,7 +360,7 @@ const createBackendProcess = () => {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
   } else if (isProd) {
-    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId, socketId], {
+    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
@@ -358,7 +386,11 @@ const createBackendProcess = () => {
 app
   .whenReady()
   .then(async () => {
-    console.log(`name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath('userData')}`)
+    console.log(
+      `name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath(
+        'userData',
+      )};version:${app.getVersion()}`,
+    )
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()

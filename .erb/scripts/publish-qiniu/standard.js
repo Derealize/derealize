@@ -1,28 +1,16 @@
 const path = require('path')
 const qiniu = require('qiniu')
 const console = require('console')
+const { mac, formUploader, putExtra } = require('./base')
 
-const accessKey = '***REMOVED***'
-const secretKey = '***REMOVED***'
-const mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
-
-const config = new qiniu.conf.Config()
-config.zone = qiniu.zone.Zone_z0
-// config.useHttpsDomain = true;
-// const bucketManager = new qiniu.rs.BucketManager(mac, config)
-
-const formUploader = new qiniu.form_up.FormUploader(config)
-const putExtra = new qiniu.form_up.PutExtra()
-
-const options = { scope: 'derealize' }
-const putPolicy = new qiniu.rs.PutPolicy(options)
+const putPolicy = new qiniu.rs.PutPolicy({ scope: 'derealize' })
 const uploadToken = putPolicy.uploadToken(mac)
 
 const fileName =
   process.platform === 'darwin'
     ? `Derealize-${process.env.npm_package_version}.dmg`
     : `Derealize-${process.env.npm_package_version}.exe`
-const filePath = path.join(__dirname, `../release/${fileName}`)
+const filePath = path.join(__dirname, `../../../release/${fileName}`)
 
 formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBody) => {
   if (respErr) {
@@ -32,15 +20,14 @@ formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBo
   console.log('putFile done.', respBody)
 
   const fileNameStatic = process.platform === 'darwin' ? `Derealize.dmg` : `Derealize.exe`
-  const optionsStatic = { scope: `derealize:${fileNameStatic}` }
-  const putPolicyStatic = new qiniu.rs.PutPolicy(optionsStatic)
+  const putPolicyStatic = new qiniu.rs.PutPolicy({ scope: `derealize:${fileNameStatic}` })
   const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
 
   formUploader.putFile(uploadTokenStatic, fileNameStatic, filePath, putExtra, (respErr2, respBody2) => {
     if (respErr2) {
-      console.error('putFileStatic', respErr2)
+      console.error('putFile --static', respErr2)
       return
     }
-    console.log('putFileStatic done.', respBody2)
+    console.log('putFile --static done.', respBody2)
   })
 })
