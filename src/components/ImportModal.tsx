@@ -162,6 +162,14 @@ const ImportProject = (): JSX.Element => {
               </Tooltip>
 
               {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
+
+              <FormHelperText className="prose">
+                Before importing your project, please follow{' '}
+                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                  our documentation
+                </a>{' '}
+                to complete the project configuration.
+              </FormHelperText>
             </FormControl>
 
             <FormControl id="displayname" mt={4}>
@@ -171,9 +179,9 @@ const ImportProject = (): JSX.Element => {
             </FormControl>
 
             {isReady && (
-              <Text color="teal.500" mt={4} align="center">
-                Congratulations, it looks like the project is ready to work. Please run the development mode of the
-                project by yourself before opening the project in derealize.
+              <Text color="teal.500" align="center" mt={4} px={20}>
+                Congratulations, it looks like the project is ready to work. Before opening the project in Derealize,
+                please run the development mode of the project yourself (e.g. &apos;yarn dev&apos;).
               </Text>
             )}
           </ModalBody>
