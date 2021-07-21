@@ -27,12 +27,12 @@ steps:
     inputs:
       versionSpec: 14.x
   - task: Cache@2
+    displayName: Cache Yarn packages
     inputs:
       key: 'yarn | "$(Agent.OS)" | yarn.lock'
       restoreKeys: |
         yarn | "$(Agent.OS)"
       path: $(YARN_CACHE_FOLDER)
-    displayName: Cache Yarn packages
   - bash: |
       /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
       echo ">>> Started xvfb"

@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import type { IpcRendererEvent } from 'electron'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
-import { createStandaloneToast } from '@chakra-ui/react'
+import { createStandaloneToast, AlertStatus } from '@chakra-ui/react'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import type { StoreModel } from './index'
 import type {
@@ -30,8 +30,13 @@ const toast = createStandaloneToast({
   },
 })
 
-const mainFrontView = (project?: ProjectWithRuntime) => {
-  if (project?.view === ProjectViewWithRuntime.BrowserView) {
+const judgeFrontView = (project?: ProjectWithRuntime) => {
+  if (!project) {
+    sendMainIpc(MainIpcChannel.FrontView)
+    return
+  }
+  if (!project.isFront) return
+  if (project.view === ProjectViewWithRuntime.BrowserView) {
     if (!project.config) throw new Error('project.config null')
     sendMainIpc(
       MainIpcChannel.FrontView,
@@ -61,11 +66,13 @@ export interface ProjectWithRuntimeModel {
   removeProject: Action<ProjectWithRuntimeModel, string>
   removeProjectThunk: Thunk<ProjectWithRuntimeModel, string>
 
+  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectViewWithRuntime }>
+  setProjectViewHistory: Action<ProjectWithRuntimeModel, { projectId: string; isView: boolean }>
+  setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
+
   pushRunningOutput: Action<ProjectWithRuntimeModel, { projectId: string; output: string }>
   emptyRunningOutput: Action<ProjectWithRuntimeModel, string>
   setStartLoading: Action<ProjectWithRuntimeModel, { projectId: string; loading: boolean }>
-  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectViewWithRuntime }>
-  setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
 
   flushProject: Action<ProjectWithRuntimeModel, string>
   setFrontProject: Action<ProjectWithRuntimeModel, string | null>
@@ -117,9 +124,9 @@ const projectModel: ProjectWithRuntimeModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isEditing = true
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
     } else {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
     }
   }),
   editProject: action((state, { displayname, branch }) => {
@@ -159,6 +166,27 @@ const projectModel: ProjectWithRuntimeModel = {
     actions.removeProject(projectId)
   }),
 
+  setProjectView: action((state, { projectId, view }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.view = view
+    judgeFrontView(project)
+  }),
+  setProjectViewHistory: action((state, { projectId, isView }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.viewHistory = isView
+    if (isView) {
+      project.view = ProjectViewWithRuntime.BrowserView
+      judgeFrontView(project)
+    }
+  }),
+  setTailwindConfig: action((state, { projectId, config }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.tailwindConfig = config
+  }),
+
   pushRunningOutput: action((state, { projectId, output }) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
@@ -179,19 +207,6 @@ const projectModel: ProjectWithRuntimeModel = {
       project.startloading = loading
     }
   }),
-  setProjectView: action((state, { projectId, view }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.view = view
-    if (project.id === state.frontProject?.id) {
-      mainFrontView(project)
-    }
-  }),
-  setTailwindConfig: action((state, { projectId, config }) => {
-    const project = state.projects.find((p) => p.id === projectId)
-    if (!project) return
-    project.tailwindConfig = config
-  }),
 
   flushProject: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -210,7 +225,7 @@ const projectModel: ProjectWithRuntimeModel = {
       project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
     }
-    mainFrontView(project)
+    judgeFrontView(project)
   }),
 
   startProject: thunk(async (actions, projectId, { getState }) => {
@@ -306,7 +321,7 @@ const projectModel: ProjectWithRuntimeModel = {
     if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
       project.startloading = false
       project.view = ProjectViewWithRuntime.BrowserView
-      mainFrontView(project)
+      judgeFrontView(project)
       sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
     }
 
@@ -381,11 +396,20 @@ const projectModel: ProjectWithRuntimeModel = {
       actions.flushProject(projectId)
     })
 
+    listenMainIpc(MainIpcChannel.LoadStart, (event: IpcRendererEvent, projectId: string) => {
+      actions.setProjectView({ projectId, view: ProjectViewWithRuntime.Loading })
+    })
+
     listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
       actions.setProjectView({
         projectId,
         view: ok ? ProjectViewWithRuntime.BrowserView : ProjectViewWithRuntime.LoadFail,
       })
+      if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
+    })
+
+    listenMainIpc(MainIpcChannel.Toast, (event: IpcRendererEvent, title: string, status: AlertStatus) => {
+      toast({ title, status })
     })
   }),
 
@@ -395,16 +419,18 @@ const projectModel: ProjectWithRuntimeModel = {
     unlistenMainIpc(MainIpcChannel.Shortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
     unlistenMainIpc(MainIpcChannel.Flush)
+    unlistenMainIpc(MainIpcChannel.LoadStart)
     unlistenMainIpc(MainIpcChannel.LoadFinish)
+    unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
   importModalDisclosure: false,
   toggleImportModal: action((state, open) => {
     if (open === false || state.importModalDisclosure) {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.importModalDisclosure = false
     } else {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.importModalDisclosure = true
     }
   }),
@@ -412,15 +438,15 @@ const projectModel: ProjectWithRuntimeModel = {
   imagesModalDisclosure: false,
   toggleImagesModal: action((state, open) => {
     if (open === false || state.imagesModalDisclosure) {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.imagesModalDisclosure = false
     } else {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.imagesModalDisclosure = true
     }
   }),
   modalImages: computed((state) => {
-    if (!state.frontProject?.tailwindConfig) return []
+    if (!state.frontProject?.tailwindConfig?.theme.backgroundImage) return []
     const images: Array<BackgroundImage> = []
     for (const [name, value] of Object.entries(state.frontProject.tailwindConfig.theme.backgroundImage)) {
       const regValues = CssUrlReg.exec(value)
@@ -438,13 +464,13 @@ const projectModel: ProjectWithRuntimeModel = {
   colorsModalData: undefined,
   colorsModalToggle: action((state, { show, colors, theme }) => {
     if (show) {
-      mainFrontView(undefined)
+      judgeFrontView(undefined)
       state.colorsModalShow = true
       if (colors && theme) {
         state.colorsModalData = { colors, theme }
       }
     } else {
-      mainFrontView(state.frontProject)
+      judgeFrontView(state.frontProject)
       state.colorsModalShow = false
       state.colorsModalData = undefined
     }
