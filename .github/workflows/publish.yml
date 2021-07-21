@@ -1,46 +1,46 @@
-name: Publish
+# name: Publish
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  publish:
-    runs-on: ${{ matrix.os }}
+# jobs:
+#   publish:
+#     runs-on: ${{ matrix.os }}
 
-    strategy:
-      matrix:
-        os: [macos-latest, windows-2016]
+#     strategy:
+#       matrix:
+#         os: [macos-latest, windows-2016]
 
-    steps:
-      - name: Checkout git repo
-        uses: actions/checkout@v1
+#     steps:
+#       - name: Checkout git repo
+#         uses: actions/checkout@v1
 
-      - name: Install Node, NPM and Yarn
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
+#       - name: Install Node, NPM and Yarn
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: 14
 
-      - name: Install dependencies
-        run: |
-          yarn --frozen-lockfile
+#       - name: Install dependencies
+#         run: |
+#           yarn --frozen-lockfile
 
-      - name: Build releases
-        run: |
-          yarn package --${{ matrix.os == 'macos-latest' && 'mac' || 'win' }}
-      - name: Publish qiniu
-        run: yarn run publish:qiniu
-        working-directory: ./src
+#       - name: Build releases
+#         run: |
+#           yarn package --${{ matrix.os == 'macos-latest' && 'mac' || 'win' }}
+#       - name: Publish qiniu
+#         run: yarn run publish:qiniu
+#         working-directory: ./src
 
-      # - name: Publish releases
-      #   env:
-      #     # These values are used for auto updates signing
-      #     APPLE_ID: ${{ secrets.APPLE_ID }}
-      #     APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-      #     CSC_LINK: ${{ secrets.CSC_LINK }}
-      #     CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      #     # This is used for uploading release assets to github
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     yarn postinstall && yarn build && yarn electron-builder --publish always --win --mac --linux
+#       # - name: Publish releases
+#       #   env:
+#       #     # These values are used for auto updates signing
+#       #     APPLE_ID: ${{ secrets.APPLE_ID }}
+#       #     APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+#       #     CSC_LINK: ${{ secrets.CSC_LINK }}
+#       #     CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+#       #     # This is used for uploading release assets to github
+#       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       #   run: |
+#       #     yarn postinstall && yarn build && yarn electron-builder --publish always --win --mac --linux

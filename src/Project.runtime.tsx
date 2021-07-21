@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react'
 import dayjs from 'dayjs'
 import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } from '@chakra-ui/react'
-import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { PuffLoader } from 'react-spinners'
+import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from './reduxStore'
 import { ProjectWithRuntime, ProjectViewWithRuntime } from './models/project.interface'
 import type { ElementState } from './models/element'
@@ -13,12 +13,13 @@ import Controllers from './components/controllers/Controllers'
 import Elements from './Historys'
 import ImagesModal from './components/ImagesModal'
 import ColorsModal from './components/ColorsModal'
-import LoadFailSvg from './styles/images/undraw_refreshing_beverage_td3r.svg'
+import { ReactComponent as LoadFailSvg } from './styles/images/undraw_refreshing_beverage_td3r.svg'
 import style from './Project.module.scss'
+import { MainIpcChannel } from './interface'
 import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
-const { sendBackIpc } = window.derealize
+const { sendBackIpc, sendMainIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
   const toast = useToast()
@@ -81,7 +82,26 @@ const ProjectPage: React.FC = (): JSX.Element => {
             />
           )}
 
-          {project.view === ProjectViewWithRuntime.LoadFail && <LoadFailSvg />}
+          {project.view === ProjectViewWithRuntime.Loading && <PuffLoader color="#4FD1C5" />}
+          {project.view === ProjectViewWithRuntime.LoadFail && (
+            <>
+              <LoadFailSvg className={style.loadFailSvg} />
+              <Text mt={4} fontSize="2xl" className={style.loadFailText}>
+                404
+              </Text>
+              <Text mt={4} className="prose">
+                Unable to request the baseUrl:
+                <a href={project.config?.baseUrl}>{project.config?.baseUrl}</a> of your project, please follow{' '}
+                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                  our documentation
+                </a>{' '}
+                to make sure the project is started correctly.
+              </Text>
+              <Button mt={4} onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}>
+                Refresh
+              </Button>
+            </>
+          )}
 
           {project.view === ProjectViewWithRuntime.Debugging && (
             <div className={style.output}>

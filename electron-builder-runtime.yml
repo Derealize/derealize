@@ -2,9 +2,9 @@ productName: Derealize
 appId: com.derealize.app-with-runtime
 artifactName: Derealize-with-runtime-${version}.${ext}
 files:
+  - node_modules/
   - dist/
   - styles/icons/
-  - node_modules/
   - main.prod.js
   - main.prod.js.map
   - backend.prod.js
