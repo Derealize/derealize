@@ -5,7 +5,7 @@ const { mac, formUploader, putExtra } = require('./base')
 const { dependencies } = require('../../../src/package.json')
 
 const isDarwin = process.platform === 'darwin'
-const fileName = `nodegit-v${dependencies['@derealize/nodegit']}-electron-v12.0-${isDarwin?: 'darwin': 'win32'}-x64.tar.gz`
+const fileName = `nodegit-v${dependencies['@derealize/nodegit']}-electron-v12.0-${isDarwin? 'darwin': 'win32'}-x64.tar.gz`
 const putPolicy = new qiniu.rs.PutPolicy({ scope: `derealize:${fileName}` })
 
 formUploader.putFile(
