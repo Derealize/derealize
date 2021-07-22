@@ -4,11 +4,12 @@ const console = require('console')
 const { mac, formUploader, putExtra } = require('./base')
 
 const isDarwin = process.platform === 'darwin'
-const filePath = path.join(__dirname, `../../release-with-runtime/${fileName}`)
 
 const fileName = `Derealize-with-runtime-${process.env.npm_package_version}.${isDarwin ? 'dmg' : 'exe'}`
 const putPolicy = new qiniu.rs.PutPolicy({ scope: 'derealize' })
 const uploadToken = putPolicy.uploadToken(mac)
+
+const filePath = path.join(__dirname, `../../release-with-runtime/${fileName}`)
 
 formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBody) => {
   if (respErr) {
