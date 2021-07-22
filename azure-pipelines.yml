@@ -42,6 +42,7 @@ steps:
     displayName: yarn install
     env:
       DISPLAY: ':99.0'
+      REGISTRY: 'https://registry.npmjs.org'
   - script: yarn package --$(buildPlatform)
     displayName: yarn package
   - script: yarn run publish:qiniu
