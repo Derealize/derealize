@@ -12,7 +12,7 @@
   "scripts": {
     "electron-rebuild": "node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js",
     "postinstall": "yarn electron-rebuild",
-    "publish:qiniu": "node ../.erb/scripts/publish-qiniu/runtime.js"
+    "publish:qiniu": "node ../.erb/publish-qiniu/runtime.js"
   },
   "license": "private",
   "dependencies": {
