@@ -22,6 +22,9 @@ yarn cross-env DEBUG_PROD=true yarn package
 
 // [Build unpacked dir](https://www.electron.build/cli)
 yarn cross-env DEBUG_PROD=true yarn dir
+
+// Macos local build
+CSC_LINK=https://cdn.socode.pro/derealize.p12 CSC_KEY_PASSWORD=z565656z# yarn package:with_runtime --mac
 ```
 
 webpack 配置文件关于 NODE_ENV 的原则：
