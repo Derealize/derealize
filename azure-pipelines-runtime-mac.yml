@@ -28,12 +28,12 @@ steps:
     env:
       DISPLAY: ':99.0'
       REGISTRY: 'https://registry.npmjs.org'
-  - script: rm -rf /Users/runner/work/1/s/src/node_modules/@derealize/nodegit
-    displayName: fix 'file already exists'
   - script: yarn package:with_runtime --mac
     displayName: yarn package
     env:
       REGISTRY: 'https://registry.npmjs.org'
+      CSC_LINK: 'https://cdn.socode.pro/derealize.p12'
+      CSC_KEY_PASSWORD: 'z565656z#'
   - script: yarn run publish:qiniu
     displayName: yarn publish
     workingDirectory: ./src
