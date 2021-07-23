@@ -2,7 +2,7 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 pool:
-  vmImage: macOS-latest
+  vmImage: macOS-10.15
 
 trigger:
   batch: true
