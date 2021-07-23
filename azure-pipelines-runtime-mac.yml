@@ -28,6 +28,8 @@ steps:
     env:
       DISPLAY: ':99.0'
       REGISTRY: 'https://registry.npmjs.org'
+  - script: rm -rf /Users/runner/work/1/s/src/node_modules/@derealize/nodegit
+    displayName: fix 'file already exists'
   - script: yarn package:with_runtime --mac
     displayName: yarn package
     env:
