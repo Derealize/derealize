@@ -72,6 +72,8 @@ npm install -g asar
 asar extract app.asar 文件夹
 ```
 
+css-loader 不要升级 6.x，和目前的 webpack 配置有冲突加载图片失败，不深究，后面很快会探索 esbuild。
+
 ## server-process
 
 - [关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)
