@@ -26,7 +26,7 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.dev.dll')
 if (!requiredByDLLConfig && !(fs.existsSync(dllDir) && fs.existsSync(manifest))) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn postinstall"',
+      'The DLL files are missing. Sit back while we build them for you with "yarn postinstall_dll"',
     ),
   )
   execSync('yarn postinstall')
