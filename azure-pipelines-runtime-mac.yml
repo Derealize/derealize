@@ -2,7 +2,7 @@ variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
 
 pool:
-  vmImage: macOS-latest
+  vmImage: macOS-10.15
 
 trigger:
   batch: true
@@ -27,13 +27,11 @@ steps:
     displayName: yarn install
     env:
       DISPLAY: ':99.0'
-      REGISTRY: 'https://registry.npmjs.org'
-  - script: rm -rf /Users/runner/work/1/s/src/node_modules/@derealize/nodegit
-    displayName: fix 'file already exists'
+      NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
   - script: yarn package:with_runtime --mac
     displayName: yarn package
     env:
-      REGISTRY: 'https://registry.npmjs.org'
+      NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
   - script: yarn run publish:qiniu
     displayName: yarn publish
     workingDirectory: ./src
