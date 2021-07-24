@@ -216,9 +216,9 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Search Issues',
+          label: 'Collect & Prioritize Feedback',
           click: () => {
-            shell.openExternal('https://stackoverflow.com/questions/tagged/tailwind-css')
+            shell.openExternal('https://derealize-fider.herokuapp.com/')
           },
         },
         {
@@ -374,9 +374,9 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Search Issues',
+          label: 'Collect & Prioritize Feedback',
           click: () => {
-            shell.openExternal('https://stackoverflow.com/questions/tagged/tailwind-css')
+            shell.openExternal('https://derealize-fider.herokuapp.com/')
           },
         },
         {
