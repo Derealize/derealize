@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Tabs,
   TabList,
@@ -38,6 +38,12 @@ const Home = (): JSX.Element => {
   const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
+
+  useEffect(() => {
+    if (!projects.length) {
+      toggleImportModal(true)
+    }
+  }, [projects.length, toggleImportModal])
 
   return (
     <div className={style.home}>
