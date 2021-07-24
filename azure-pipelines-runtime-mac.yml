@@ -32,7 +32,7 @@ steps:
     displayName: yarn package
     env:
       NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
-      NPM_CONFIG_DISTURL: ''
+      USE_HARD_LINKS: false
       CSC_LINK: 'https://cdn.socode.pro/derealize.p12'
       CSC_KEY_PASSWORD: 'z565656z#'
   - script: yarn run publish:qiniu
