@@ -484,7 +484,6 @@ ipcMain.on(MainIpcChannel.BlurElement, (event, projectId: string) => {
 ipcMain.on(
   MainIpcChannel.LiveUpdateClass,
   (event, projectId: string, selector: string, className: string, needRespStatus: boolean) => {
-    if (!mainWindow) return
     const project = projects.get(projectId)
     if (project) {
       project.view.webContents.send(MainIpcChannel.LiveUpdateClass, selector, className, needRespStatus)
@@ -493,7 +492,6 @@ ipcMain.on(
 )
 
 ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId: string, selector: string, text: string) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.LiveUpdateText, selector, text)
@@ -501,7 +499,6 @@ ipcMain.on(MainIpcChannel.LiveUpdateText, (event, projectId: string, selector: s
 })
 
 ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId: string, selector: string, tag: ElementTag) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.LiveUpdateTag, selector, tag)
@@ -509,7 +506,6 @@ ipcMain.on(MainIpcChannel.LiveUpdateTag, (event, projectId: string, selector: st
 })
 
 ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) => {
-  if (!mainWindow) return
   const project = projects.get(payload.projectId)
   if (project) {
     project.view.webContents.send(MainIpcChannel.SelectBreadcrumb, payload)
@@ -517,7 +513,6 @@ ipcMain.on(MainIpcChannel.SelectBreadcrumb, (event, payload: BreadcrumbPayload) 
 })
 
 ipcMain.on(MainIpcChannel.Refresh, (event, projectId: string) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.reloadIgnoringCache()
@@ -525,7 +520,6 @@ ipcMain.on(MainIpcChannel.Refresh, (event, projectId: string) => {
 })
 
 ipcMain.on(MainIpcChannel.Forward, (event, projectId: string) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.goForward()
@@ -533,10 +527,16 @@ ipcMain.on(MainIpcChannel.Forward, (event, projectId: string) => {
 })
 
 ipcMain.on(MainIpcChannel.Backward, (event, projectId: string) => {
-  if (!mainWindow) return
   const project = projects.get(projectId)
   if (project) {
     project.view.webContents.goBack()
+  }
+})
+
+ipcMain.on(MainIpcChannel.DisableLink, (event, projectId: string, isDisable: boolean) => {
+  const project = projects.get(projectId)
+  if (project) {
+    project.view.webContents.send(MainIpcChannel.DisableLink, isDisable)
   }
 })
 
