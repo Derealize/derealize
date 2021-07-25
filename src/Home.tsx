@@ -40,9 +40,7 @@ const Home = (): JSX.Element => {
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
 
   useEffect(() => {
-    if (!projects.length) {
-      toggleImportModal(true)
-    }
+    toggleImportModal(!projects.length)
   }, [projects.length, toggleImportModal])
 
   return (

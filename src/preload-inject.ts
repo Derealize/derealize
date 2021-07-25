@@ -14,6 +14,27 @@ let activeElement: HTMLElement | null = null
 let hoverElement: Element | null = null
 let droppable: Droppable<DroppableEventNames> | undefined
 
+// https://stackoverflow.com/a/13977403
+const GetStyleClass = (className: string) => {
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < document.styleSheets.length; i++) {
+    const styleSheet = document.styleSheets[i]
+
+    const rules = styleSheet.cssRules || styleSheet.rules
+
+    // eslint-disable-next-line no-plusplus
+    for (let j = 0; j < rules.length; j++) {
+      const rule = rules[j]
+
+      if (rule.selectorText === className) {
+        return rule.style
+      }
+    }
+  }
+
+  return 0
+}
+
 const generator = new (window as any).SelectorGenerator()
 const getSelectorString = (el: Element): string => {
   return generator.getPath(el).replace('html body ', '').split(' ').join('>')
@@ -250,6 +271,10 @@ ipcRenderer.on(MainIpcChannel.SelectBreadcrumb, (event: Event, { projectId, inde
       hoverElement.setAttribute('data-hover', 'true')
     }
   }
+})
+
+ipcRenderer.on(MainIpcChannel.DisableLink, (event: Event, isDisable: boolean) => {
+  GetStyleClass('a').pointerEvents = isDisable ? 'none' : ''
 })
 
 const listenElement = () => {
