@@ -16,6 +16,8 @@ export const sectionHTML = (inside: boolean) => `
 `
 
 export const preloadCSS = `
+a {}
+
 [data-hover],
 [data-code]:hover {
   box-shadow: 0 0 0 1px #e2e8f0;

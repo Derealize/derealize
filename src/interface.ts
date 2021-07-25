@@ -111,6 +111,7 @@ export enum MainIpcChannel {
   TextTab = 'TextTab',
   Dropped = 'Dropped',
   Toast = 'Toast',
+  DisableLink = 'DisableLink',
 }
 
 export const ControllerShortcut = [

@@ -86,6 +86,9 @@ export interface ProjectModel {
   colorsModalToggle: Action<ProjectModel, { show: boolean; colors?: Colors; theme?: string }>
 
   setJitClassName: Action<ProjectModel, { projectId: string; className: string }>
+
+  isDisableLink: boolean
+  setIsDisableLink: Action<ProjectModel, boolean>
 }
 
 const projectModel: ProjectModel = {
@@ -180,6 +183,7 @@ const projectModel: ProjectModel = {
       project.isFront = true
       project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
+      sendMainIpc(MainIpcChannel.DisableLink, project.id, state.isDisableLink)
     }
     judgeFrontView(project)
   }),
@@ -375,6 +379,11 @@ const projectModel: ProjectModel = {
     if (project) {
       project.jitClassName = className
     }
+  }),
+
+  isDisableLink: false,
+  setIsDisableLink: action((state, isDisable) => {
+    state.isDisableLink = isDisable
   }),
 }
 

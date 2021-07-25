@@ -14,7 +14,7 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
+import { IoBookmarksOutline, IoChevronForward, IoLink } from 'react-icons/io5'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { AiOutlineSave } from 'react-icons/ai'
@@ -55,6 +55,9 @@ const TopBar: React.FC = (): JSX.Element => {
   const revokeHistory = useStoreActions((actions) => actions.element.revokeHistory)
   const redoHistory = useStoreActions((actions) => actions.element.redoHistory)
 
+  const isDisableLink = useStoreState<boolean>((state) => state.project.isDisableLink)
+  const setIsDisableLink = useStoreActions((actions) => actions.project.setIsDisableLink)
+
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
   }, [element])
@@ -72,6 +75,7 @@ const TopBar: React.FC = (): JSX.Element => {
             onClick={() => sendMainIpc(MainIpcChannel.PagesMenu)}
           />
         </Tooltip>
+
         <ButtonGroup size="sm" ml={2} isAttached>
           <Tooltip label="Undo">
             <IconButton
@@ -152,7 +156,20 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectView.BrowserView}>
+        <Tooltip label="Disable Link (or right click element)" placement="top">
+          <IconButton
+            size="sm"
+            aria-label="Disable Link"
+            icon={<IoLink />}
+            colorScheme={isDisableLink ? 'teal' : 'gray'}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
+              setIsDisableLink(!isDisableLink)
+            }}
+          />
+        </Tooltip>
+
+        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectView.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
               aria-label="Backward"
@@ -164,21 +181,20 @@ const TopBar: React.FC = (): JSX.Element => {
           <Tooltip label="Forward" placement="top">
             <IconButton
               aria-label="Forward"
+              mr="-px"
               icon={<MdArrowForward />}
               onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
             />
           </Tooltip>
+          <Tooltip label="Refresh" placement="top">
+            <IconButton
+              aria-label="Refresh"
+              icon={<MdRefresh />}
+              onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+            />
+          </Tooltip>
         </ButtonGroup>
 
-        <Tooltip label="Refresh" placement="top">
-          <IconButton
-            size="sm"
-            ml={2}
-            aria-label="Refresh"
-            icon={<MdRefresh />}
-            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-          />
-        </Tooltip>
         {/* <Tooltip label="Disable Cursor" placement="top">
           <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
         </Tooltip> */}

@@ -219,31 +219,6 @@ const ImportProjectWithRuntim = (): JSX.Element => {
           <ModalBody>
             <Grid templateColumns="30% 70%" gap={6}>
               <Box>
-                <FormControl id="url" mt={4} isInvalid={!!errors.url}>
-                  <FormHelperText className="prose">
-                    Before importing your project, please follow{' '}
-                    <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
-                      our documentation
-                    </a>{' '}
-                    to complete the project configuration.
-                  </FormHelperText>
-
-                  <FormLabel htmlFor="url">URL</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('url', { required: true, pattern: gitUrlPattern })}
-                    disabled={importloading}
-                  />
-                  {/* <FormHelperText className="prose">
-                    If you don&apos;t know what this is, you can read{' '}
-                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      our documentation
-                    </a>{' '}
-                    or ask the front-end engineer of the team for help.
-                  </FormHelperText> */}
-                  {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
-                </FormControl>
-
                 <FormControl id="path" mt={4} isInvalid={!!errors.path}>
                   <FormLabel>Local Path</FormLabel>
                   <Button
@@ -266,11 +241,35 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   </Tooltip>
 
                   {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  {!watchUrl && (
+                  <FormHelperText className="prose">
+                    Before importing your project, please follow{' '}
+                    <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                      our documentation
+                    </a>{' '}
+                    to complete the project configuration.
+                  </FormHelperText>
+                  {/* {!watchUrl && (
                     <FormHelperText>
                       If the derealize project already exists on the local disk, you can import it directly.
                     </FormHelperText>
-                  )}
+                  )} */}
+                </FormControl>
+
+                <FormControl id="url" mt={4} isInvalid={!!errors.url}>
+                  <FormLabel htmlFor="url">URL</FormLabel>
+                  <Input
+                    type="text"
+                    {...register('url', { required: true, pattern: gitUrlPattern })}
+                    disabled={importloading}
+                  />
+                  {/* <FormHelperText className="prose">
+                    If you don&apos;t know what this is, you can read{' '}
+                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                      our documentation
+                    </a>{' '}
+                    or ask the front-end engineer of the team for help.
+                  </FormHelperText> */}
+                  {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
                 </FormControl>
 
                 <FormControl id="username" mt={4} isInvalid={!!errors.username}>

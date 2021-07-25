@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useEffect, useCallback, useMemo } from 'react'
 import {
   useToast,
   Flex,
@@ -12,8 +12,9 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
+import { BsFillStopFill } from 'react-icons/bs'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
+import { IoBookmarksOutline, IoChevronForward, IoLink } from 'react-icons/io5'
 import { AiOutlineSave } from 'react-icons/ai'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
@@ -50,6 +51,9 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
 
   const revokeHistory = useStoreActions((actions) => actions.element.revokeHistory)
   const redoHistory = useStoreActions((actions) => actions.element.redoHistory)
+
+  const isDisableLink = useStoreState<boolean>((state) => state.project.isDisableLink)
+  const setIsDisableLink = useStoreActions((actions) => actions.project.setIsDisableLink)
 
   const breadcrumbs = useMemo(() => {
     return element?.selector.split('>').map((sel, index) => ({ sel: sel.split(/[#\\.]/)[0], tooltip: sel, index }))
@@ -126,7 +130,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             <IconButton
               aria-label="Pull"
               icon={<VscRepoPull />}
-              disabled={project.changes?.length === 0}
+              isDisabled={project.changes?.length === 0}
               onClick={() => callPull()}
               mr="-px"
             />
@@ -135,7 +139,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             <IconButton
               aria-label="Push"
               icon={<VscRepoPush />}
-              disabled={project.changes?.length === 0}
+              isDisabled={project.changes?.length === 0}
               onClick={() => callPush()}
             />
           </Tooltip>
@@ -221,6 +225,18 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
+        <Tooltip label="Disable Link (or right click element)" placement="top">
+          <IconButton
+            size="sm"
+            aria-label="Disable Link"
+            icon={<IoLink />}
+            colorScheme={isDisableLink ? 'teal' : 'gray'}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
+              setIsDisableLink(!isDisableLink)
+            }}
+          />
+        </Tooltip>
         <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
@@ -233,20 +249,19 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           <Tooltip label="Forward" placement="top">
             <IconButton
               aria-label="Forward"
+              mr="-px"
               icon={<MdArrowForward />}
               onClick={() => sendMainIpc(MainIpcChannel.Forward, project.id)}
             />
           </Tooltip>
+          <Tooltip label="Refresh" placement="top">
+            <IconButton
+              aria-label="Refresh"
+              icon={<MdRefresh />}
+              onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
+            />
+          </Tooltip>
         </ButtonGroup>
-
-        <Tooltip label="Refresh" placement="top">
-          <IconButton
-            size="sm"
-            aria-label="Refresh"
-            icon={<MdRefresh />}
-            onClick={() => sendMainIpc(MainIpcChannel.Refresh, project.id)}
-          />
-        </Tooltip>
 
         {/* <Tooltip label="Disable Cursor" placement="top">
           <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
@@ -264,30 +279,30 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           </Tooltip>
           <Tooltip label="Stop" placement="top">
             <IconButton
+              mr="-px"
               aria-label="Stop"
-              icon={<VscDebugStop />}
+              icon={<BsFillStopFill />}
               onClick={() => stopProject(project.id)}
               isDisabled={project.status !== ProjectStatus.Running && project.status !== ProjectStatus.Starting}
+            />
+          </Tooltip>
+          <Tooltip label="debug information">
+            <IconButton
+              aria-label="Debug"
+              icon={<VscOutput />}
+              onClick={() => {
+                if (project.view !== ProjectViewWithRuntime.Debugging) {
+                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.Debugging })
+                } else {
+                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+                }
+              }}
             />
           </Tooltip>
         </ButtonGroup>
 
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
-        <Tooltip label="debug information">
-          <IconButton
-            size="sm"
-            aria-label="Debug"
-            icon={<VscOutput />}
-            onClick={() => {
-              if (project.view !== ProjectViewWithRuntime.Debugging) {
-                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.Debugging })
-              } else {
-                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
-              }
-            }}
-          />
-        </Tooltip>
         {/* <BarIconButton
           aria-label="Project Menu"
           icon={<CgMenu />}
