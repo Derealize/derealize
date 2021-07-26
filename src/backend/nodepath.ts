@@ -3,22 +3,22 @@ import fs from 'fs'
 import path from 'path'
 
 const isDarwin = os.platform() === 'darwin'
-const version = isDarwin ? 'v14.17.3-darwin-x64' : 'v14.17.3-win-x64'
-const npmPath = isDarwin ? `assets/node-${version}/bin/npm` : `assets/node-${version}/npm.cmd`
-const nodePath = isDarwin ? `assets/node-${version}/bin/node` : `assets/node-${version}/node.exe`
+const nodePath = `assets/node-v14.17.3-${isDarwin ? 'darwin' : 'win'}-x64`
+const npmBin = isDarwin ? `${nodePath}/bin/npm` : `${nodePath}/npm.cmd`
+const nodeBin = isDarwin ? `${nodePath}/bin/node` : `${nodePath}/node.exe`
 
-export const getNpmPath = () => {
-  let ph = path.resolve(__dirname, `../${npmPath}`)
+export const getNpmBin = () => {
+  let ph = path.resolve(__dirname, `../${npmBin}`)
   if (!fs.existsSync(ph)) {
-    ph = path.resolve(__dirname, `../../${npmPath}`)
+    ph = path.resolve(__dirname, `../../${npmBin}`)
   }
   return ph
 }
 
-export const getNodePath = () => {
-  let ph = path.resolve(__dirname, `../${nodePath}`)
+export const getNodeBin = () => {
+  let ph = path.resolve(__dirname, `../${nodeBin}`)
   if (!fs.existsSync(ph)) {
-    ph = path.resolve(__dirname, `../../${nodePath}`)
+    ph = path.resolve(__dirname, `../../${nodeBin}`)
   }
   return ph
 }

@@ -391,6 +391,8 @@ const projectModel: ProjectWithRuntimeModel = {
         getStoreActions().element.revokeHistory(frontProject.id)
       } else if (key === 'Redo') {
         getStoreActions().element.redoHistory(frontProject.id)
+      } else if (key === 'History') {
+        actions.setProjectViewHistory({ projectId: frontProject.id, isView: !frontProject.viewHistory })
       }
     })
 
