@@ -1,5 +1,6 @@
 variables:
   YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+  NODE_CACHE_FOLDER: $(Pipeline.Workspace)/.nodebin
 
 # pool:
 #   vmImage: vs2017-win2016
@@ -14,6 +15,34 @@ trigger:
 #   - master-runtime
 
 steps:
+  - task: DownloadAFile@1
+    inputs:
+      strUrl: 'https://nodejs.org/dist/v14.17.3/node-v14.17.3-win-x64.zip'
+      strTargetDir: '$(NODE_CACHE_FOLDER)'
+      strTargetFilename: 'node.zip'
+      authType: 'noAuth'
+      ignoreCertificateChecks: false
+      catchResponse: true
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node.zip'
+      destinationFolder: '$(System.DefaultWorkingDirectory)/assets'
+      cleanDestinationFolder: true
+      overwriteExistingFiles: false
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)/assets/node-v14.17.3-win-x64'
+      Contents: '**'
+      TargetFolder: 'node-win'
+      CleanTargetFolder: true
+      OverWrite: true
+  - task: Cache@2
+    displayName: Cache Node bin
+    inputs:
+      key: 'node-win | "v14.17.3-win-x64"'
+      restoreKeys: node-win
+      path: $(NODE_CACHE_FOLDER)
+
   - task: NodeTool@0
     inputs:
       versionSpec: 14.x
