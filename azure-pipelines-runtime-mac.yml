@@ -26,13 +26,12 @@ steps:
     inputs:
       archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node.tar.gz'
       destinationFolder: '$(System.DefaultWorkingDirectory)/assets'
-      cleanDestinationFolder: true
       overwriteExistingFiles: false
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(System.DefaultWorkingDirectory)/assets/node-v14.17.3-darwin-x64'
       Contents: '**'
-      TargetFolder: 'node-win'
+      TargetFolder: '$(System.DefaultWorkingDirectory)/assets/node-mac'
       CleanTargetFolder: true
       OverWrite: true
   - task: Cache@2
