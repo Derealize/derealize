@@ -2,7 +2,7 @@ import React from 'react'
 import cs from 'classnames'
 import { Flex, Box, Center, Text } from '@chakra-ui/react'
 import { useStoreState } from './reduxStore'
-import { propertyTransClassName } from './utils/assest'
+import { propertyTransClassName } from './utils/store-assest'
 import { Project } from './models/project.interface'
 import { ElementHistory, ElementActionType } from './models/element'
 

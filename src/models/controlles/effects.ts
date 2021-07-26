@@ -1,6 +1,6 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
-import { storeStateProject } from '../../utils/assest'
+import { storeStateProject } from '../../utils/store-assest'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
