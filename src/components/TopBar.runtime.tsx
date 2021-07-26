@@ -11,10 +11,11 @@ import {
   ButtonGroup,
   Button,
 } from '@chakra-ui/react'
-import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop } from 'react-icons/vsc'
+import { VscRepoPush, VscRepoPull, VscOutput, VscDebugStart, VscDebugStop, VscFileCode } from 'react-icons/vsc'
 import { BsFillStopFill } from 'react-icons/bs'
+import { GrUnlink } from 'react-icons/gr'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { IoBookmarksOutline, IoChevronForward, IoLink } from 'react-icons/io5'
+import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { AiOutlineSave } from 'react-icons/ai'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
@@ -198,15 +199,16 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             <BreadcrumbItem key={sel + index}>
               <Tooltip label={tooltip} placement="top">
                 {index === breadcrumbs.length - 1 ? (
-                  <Text
+                  <BreadcrumbLink
                     textColor="teal.500"
                     onClick={(e) => {
                       e.stopPropagation()
-                      sendMainIpc(MainIpcChannel.OpenPath, element?.codePosition)
+                      sendMainIpc(MainIpcChannel.OpenPath, project.path, element?.codePosition.split(':')[0])
                     }}
                   >
                     {sel}
-                  </Text>
+                    <VscFileCode className={style.codefile} />
+                  </BreadcrumbLink>
                 ) : (
                   <BreadcrumbLink
                     onMouseEnter={() =>
@@ -233,19 +235,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <Tooltip label="Disable Link (or right click element)" placement="top">
-          <IconButton
-            size="sm"
-            aria-label="Disable Link"
-            icon={<IoLink />}
-            colorScheme={isDisableLink ? 'teal' : 'gray'}
-            onClick={() => {
-              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
-              setIsDisableLink(!isDisableLink)
-            }}
-          />
-        </Tooltip>
-        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
+        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
               aria-label="Backward"
@@ -309,6 +299,19 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           </Tooltip>
         </ButtonGroup>
 
+        <Tooltip label="Disable Link (or right click element)" placement="top">
+          <IconButton
+            size="sm"
+            ml={2}
+            aria-label="Disable Link"
+            icon={<GrUnlink />}
+            colorScheme={isDisableLink ? 'pink' : 'gray'}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
+              setIsDisableLink(!isDisableLink)
+            }}
+          />
+        </Tooltip>
         {/* https://discuss.atom.io/t/emulate-touch-scroll/27429/3 */}
         {/* <BarIconButton aria-label="Mobile Device" icon={<BiDevices />} /> */}
         {/* <BarIconButton
