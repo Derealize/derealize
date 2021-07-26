@@ -166,7 +166,7 @@ const controllesModel: ControllesModel = {
   setSelectScreenVariantWithDevice: thunk(async (actions, payload, { getState, getStoreState }) => {
     actions.setSelectScreenVariant(payload)
     const { frontProject } = getStoreState().project
-    if (!frontProject || !frontProject.tailwindConfig) return
+    if (!frontProject?.tailwindConfig?.theme.screens) return
 
     const { selectScreenVariant } = getState()
     let width = 0
