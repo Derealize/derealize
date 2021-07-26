@@ -1,5 +1,6 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
+import { storeStateProject } from '../../utils/assest'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -64,8 +65,8 @@ export interface SpacingModel {
 }
 
 const spacingModel: SpacingModel = {
-  widthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  widthValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.width) return []
     return Object.keys(project.tailwindConfig.theme.width).map((v) => `w-${v}`)
   }),
   widthPropertys: computed(
@@ -73,8 +74,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  minWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  minWidthValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.minWidth) return []
     return Object.keys(project.tailwindConfig.theme.minWidth).map((v) => `min-w-${v}`)
   }),
   minWidthPropertys: computed(
@@ -82,8 +83,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  maxWidthValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  maxWidthValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.maxWidth) return []
     return Object.keys(project.tailwindConfig.theme.maxWidth).map((v) => `max-w-${v}`)
   }),
   maxWidthPropertys: computed(
@@ -91,8 +92,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  heightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  heightValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.height) return []
     return Object.keys(project.tailwindConfig.theme.height).map((v) => `h-${v}`)
   }),
   heightPropertys: computed(
@@ -100,8 +101,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  minHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  minHeightValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.minHeight) return []
     return Object.keys(project.tailwindConfig.theme.minHeight).map((v) => `min-h-${v}`)
   }),
   minHeightPropertys: computed(
@@ -109,8 +110,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  maxHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  maxHeightValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.maxHeight) return []
     return Object.keys(project.tailwindConfig.theme.maxHeight).map((v) => `max-h-${v}`)
   }),
   maxHeightPropertys: computed(
@@ -118,8 +119,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  marginSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  marginSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.margin) return []
     return Object.keys(project.tailwindConfig.theme.margin)
   }),
   marginValues: computed([(state) => state.marginSuffix], (suffix) =>
@@ -172,8 +173,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  paddingSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  paddingSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.padding) return []
     return Object.keys(project.tailwindConfig.theme.padding)
   }),
   paddingValues: computed([(state) => state.paddingSuffix], (suffix) =>
@@ -226,8 +227,8 @@ const spacingModel: SpacingModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  spaceSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  spaceSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.space) return []
     return Object.keys(project.tailwindConfig.theme.space)
   }),
   spaceYValues: computed([(state) => state.spaceSuffix], (suffix) =>

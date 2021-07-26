@@ -1,5 +1,6 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
+import { storeStateProject } from '../../utils/assest'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -86,8 +87,8 @@ export interface EffectsModel {
 }
 
 const effectsModel: EffectsModel = {
-  boxShadowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  boxShadowValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.boxShadow) return []
     return Object.keys(project.tailwindConfig.theme.boxShadow).map((v) => (v === 'DEFAULT' ? 'shadow' : `shadow-${v}`))
   }),
   boxShadowPropertys: computed(
@@ -95,8 +96,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  opacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  opacityValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.opacity) return []
     return Object.keys(project.tailwindConfig.theme.opacity).map((v) => `opacity-${v}`)
   }),
   opacityPropertys: computed(
@@ -105,8 +106,8 @@ const effectsModel: EffectsModel = {
   ),
 
   // #region transition
-  transitionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  transitionValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.transitionProperty) return []
     return Object.keys(project.tailwindConfig.theme.transitionProperty).map((v) =>
       v === 'DEFAULT' ? 'transition' : `transition-${v}`,
     )
@@ -116,8 +117,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  durationValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  durationValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.transitionDuration) return []
     return Object.keys(project.tailwindConfig.theme.transitionDuration).map((v) => `duration-${v}`)
   }),
   durationPropertys: computed(
@@ -125,8 +126,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  easeValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  easeValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.transitionTimingFunction) return []
     return Object.keys(project.tailwindConfig.theme.transitionTimingFunction).map((v) => `ease-${v}`)
   }),
   easePropertys: computed(
@@ -134,8 +135,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  delayValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  delayValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.transitionDelay) return []
     return Object.keys(project.tailwindConfig.theme.transitionDelay).map((v) => `delay-${v}`)
   }),
   delayPropertys: computed(
@@ -144,8 +145,8 @@ const effectsModel: EffectsModel = {
   ),
   // #endregion
 
-  animateValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  animateValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.animation) return []
     return Object.keys(project.tailwindConfig.theme.animation).map((v) => `animate-${v}`)
   }),
   animatePropertys: computed(
@@ -158,8 +159,8 @@ const effectsModel: EffectsModel = {
     propertys.filter(({ classname }) => TransformValues.includes(classname)),
   ),
 
-  originValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  originValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.transformOrigin) return []
     return Object.keys(project.tailwindConfig.theme.transformOrigin).map((v) => `origin-${v}`)
   }),
   originPropertys: computed(
@@ -167,8 +168,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  scaleValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  scaleValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.scale) return []
     return Object.keys(project.tailwindConfig.theme.scale).map((v) => `scale-${v}`)
   }),
   scalePropertys: computed(
@@ -176,8 +177,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  rotateValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  rotateValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.scale) return []
     return Object.keys(project.tailwindConfig.theme.scale).map((v) =>
       v.startsWith('-') ? `-rotate-${v.slice(1)}` : `rotate-${v}`,
     )
@@ -187,8 +188,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  translateSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  translateSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.translate) return []
     return Object.keys(project.tailwindConfig.theme.translate)
   }),
   translateYValues: computed([(state) => state.translateSuffix], (suffix) =>
@@ -206,8 +207,8 @@ const effectsModel: EffectsModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  skewSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  skewSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.skew) return []
     return Object.keys(project.tailwindConfig.theme.skew)
   }),
   skewYValues: computed([(state) => state.skewSuffix], (suffix) =>

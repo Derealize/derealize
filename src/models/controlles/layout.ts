@@ -1,5 +1,6 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
+import { storeStateProject } from '../../utils/assest'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 
@@ -201,8 +202,8 @@ const layoutModel: LayoutModel = {
     propertys.filter(({ classname }) => PositionValues.includes(classname)),
   ),
 
-  insetSuffix: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  insetSuffix: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.inset) return []
     return Object.keys(project.tailwindConfig.theme.inset)
   }),
   topValues: computed([(state) => state.insetSuffix], (suffix) =>
@@ -244,8 +245,8 @@ const layoutModel: LayoutModel = {
     propertys.filter(({ classname }) => FlexWrapValues.includes(classname)),
   ),
 
-  flexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  flexValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.flex) return []
     return Object.keys(project.tailwindConfig.theme.flex).map((v) => `flex-${v}`)
   }),
   flexPropertys: computed(
@@ -253,8 +254,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  flexGrowValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  flexGrowValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.flexGrow) return []
     return Object.keys(project.tailwindConfig.theme.flexGrow).map((v) =>
       v === 'DEFAULT' ? 'flex-grow' : `flex-grow-${v}`,
     )
@@ -264,8 +265,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  flexShrinkValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  flexShrinkValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.flexShrink) return []
     return Object.keys(project.tailwindConfig.theme.flexShrink).map((v) =>
       v === 'DEFAULT' ? 'flex-shrink' : `flex-shrink-${v}`,
     )
@@ -275,8 +276,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  orderValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  orderValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.order) return []
     return Object.keys(project.tailwindConfig.theme.order).map((v) => `order-${v}`)
   }),
   orderPropertys: computed(
@@ -299,8 +300,8 @@ const layoutModel: LayoutModel = {
   // #endregion
 
   // #region grid
-  templateColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  templateColsValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridTemplateColumns) return []
     return Object.keys(project.tailwindConfig.theme.gridTemplateColumns).map((v) => `grid-cols-${v}`)
   }),
   templateColsPropertys: computed(
@@ -308,8 +309,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  templateRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  templateRowsValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridTemplateRows) return []
     return Object.keys(project.tailwindConfig.theme.gridTemplateRows).map((v) => `grid-rows-${v}`)
   }),
   templateRowsPropertys: computed(
@@ -317,8 +318,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  colSpanValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  colSpanValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridColumn) return []
     return Object.keys(project.tailwindConfig.theme.gridColumn).map((v) => `col-span-${v}`)
   }),
   colSpanPropertys: computed(
@@ -326,8 +327,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  colStartValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  colStartValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridColumnStart) return []
     return Object.keys(project.tailwindConfig.theme.gridColumnStart).map((v) => `col-start-${v}`)
   }),
   colStartPropertys: computed(
@@ -335,8 +336,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  colEndValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  colEndValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridColumnEnd) return []
     return Object.keys(project.tailwindConfig.theme.gridColumnEnd).map((v) => `col-end-${v}`)
   }),
   colEndPropertys: computed(
@@ -344,8 +345,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  rowSpanValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  rowSpanValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridRow) return []
     return Object.keys(project.tailwindConfig.theme.gridRow).map((v) => `row-span-${v}`)
   }),
   rowSpanPropertys: computed(
@@ -353,8 +354,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  rowStartValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  rowStartValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridRowStart) return []
     return Object.keys(project.tailwindConfig.theme.gridRowStart).map((v) => `row-start-${v}`)
   }),
   rowStartPropertys: computed(
@@ -362,8 +363,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  rowEndValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  rowEndValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridRowEnd) return []
     return Object.keys(project.tailwindConfig.theme.gridRowEnd).map((v) => `row-end-${v}`)
   }),
   rowEndPropertys: computed(
@@ -375,8 +376,8 @@ const layoutModel: LayoutModel = {
     propertys.filter(({ classname }) => GridAutoFlowValues.includes(classname)),
   ),
 
-  gapValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  gapValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gap) return []
     return Object.keys(project.tailwindConfig.theme.gap).map((v) => `gap-${v}`)
   }),
   gapPropertys: computed(
@@ -384,8 +385,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  autoColsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  autoColsValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridAutoColumns) return []
     return Object.keys(project.tailwindConfig.theme.gridAutoColumns).map((v) => `auto-cols-${v}`)
   }),
   autoColsPropertys: computed(
@@ -393,8 +394,8 @@ const layoutModel: LayoutModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  autoRowsValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  autoRowsValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.gridAutoRows) return []
     return Object.keys(project.tailwindConfig.theme.gridAutoRows).map((v) => `auto-rows-${v}`)
   }),
   autoRowsPropertys: computed(
@@ -414,8 +415,8 @@ const layoutModel: LayoutModel = {
   visibilityPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => VisibilityValues.includes(classname)),
   ),
-  zIndexValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  zIndexValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.zIndex) return []
     return Object.keys(project.tailwindConfig.theme.zIndex).map((v) => `z-${v}`)
   }),
   zIndexPropertys: computed(
@@ -431,8 +432,8 @@ const layoutModel: LayoutModel = {
   objectFitPropertys: computed([(state, storeState) => storeState.element.selectedElementPropertys], (propertys) =>
     propertys.filter(({ classname }) => ObjectFitValues.includes(classname)),
   ),
-  objectPositionValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  objectPositionValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.objectPosition) return []
     return Object.keys(project.tailwindConfig.theme.objectPosition).map((v) => `object-${v}`)
   }),
   objectPositionPropertys: computed(

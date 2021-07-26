@@ -1,5 +1,6 @@
 import { computed, Computed, State } from 'easy-peasy'
 import flatten from 'lodash.flatten'
+import { storeStateProject } from '../../utils/assest'
 import type { StoreModel } from '../index'
 import { Property, AlreadyVariants } from './controlles'
 import type { GroupType } from '../../components/SelectController'
@@ -94,8 +95,8 @@ export interface TypographyModel {
 }
 
 const typographyModel: TypographyModel = {
-  fontFamilyValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  fontFamilyValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.fontFamily) return []
     return Object.keys(project.tailwindConfig.theme.fontFamily).map((v) => `font-${v}`)
   }),
   fontFamilyPropertys: computed(
@@ -103,8 +104,8 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  fontSizeValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  fontSizeValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.fontSize) return []
     return Object.keys(project.tailwindConfig.theme.fontSize).map((v) => `text-${v}`)
   }),
   fontSizePropertys: computed(
@@ -112,8 +113,8 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  fontWeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  fontWeightValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.fontWeight) return []
     return Object.keys(project.tailwindConfig.theme.fontWeight).map((v) => `font-${v}`)
   }),
   fontWeightPropertys: computed(
@@ -121,8 +122,8 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  letterSpacingValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  letterSpacingValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.letterSpacing) return []
     return Object.keys(project.tailwindConfig.theme.letterSpacing).map((v) => `tracking-${v}`)
   }),
   letterSpacingPropertys: computed(
@@ -130,8 +131,8 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  lineHeightValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  lineHeightValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.lineHeight) return []
     return Object.keys(project.tailwindConfig.theme.lineHeight).map((v) => `tracking-${v}`)
   }),
   lineHeightPropertys: computed(
@@ -139,8 +140,8 @@ const typographyModel: TypographyModel = {
     (propertys, values) => propertys.filter(({ classname }) => values.includes(classname)),
   ),
 
-  placeholderColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  placeholderColorValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.placeholderColor) return []
     return buildColorOptions(project.tailwindConfig.theme.placeholderColor, 'placeholder')
   }),
   placeholderColorPropertys: computed(
@@ -148,8 +149,8 @@ const typographyModel: TypographyModel = {
     filterColorPropertys,
   ),
 
-  placeholderOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  placeholderOpacityValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.placeholderOpacity) return []
     const { placeholderOpacity, opacity } = project.tailwindConfig.theme
     return Object.keys(Object.assign(placeholderOpacity, opacity)).map((v) => `placeholder-opacity-${v}`)
   }),
@@ -162,8 +163,8 @@ const typographyModel: TypographyModel = {
     propertys.filter(({ classname }) => TextAlignValues.includes(classname)),
   ),
 
-  textColorValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  textColorValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.textColor) return []
     return buildColorOptions(project.tailwindConfig.theme.textColor, 'text')
   }),
   textColorPropertys: computed(
@@ -171,8 +172,8 @@ const typographyModel: TypographyModel = {
     filterColorPropertys,
   ),
 
-  textOpacityValues: computed([(state, storeState) => storeState.project.frontProject], (project) => {
-    if (!project?.tailwindConfig) return []
+  textOpacityValues: computed([storeStateProject], (project) => {
+    if (!project?.tailwindConfig?.theme.textOpacity) return []
     return Object.keys(project.tailwindConfig.theme.textOpacity).map((v) => `text-opacity-${v}`)
   }),
   textOpacityPropertys: computed(
