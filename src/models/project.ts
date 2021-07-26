@@ -61,6 +61,7 @@ export interface ProjectModel {
   setProjectView: Action<ProjectModel, { projectId: string; view: ProjectView }>
   setProjectViewHistory: Action<ProjectModel, { projectId: string; isView: boolean }>
   setTailwindConfig: Action<ProjectModel, { projectId: string; config: TailwindConfig }>
+  setProjectFavicon: Action<ProjectModel, { projectId: string; favicon: string }>
 
   flushProject: Action<ProjectModel, string>
   setFrontProject: Action<ProjectModel, string | null>
@@ -165,6 +166,11 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.tailwindConfig = config
+  }),
+  setProjectFavicon: action((state, { projectId, favicon }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.favicon = favicon
   }),
 
   flushProject: action((state, projectId) => {
@@ -307,6 +313,10 @@ const projectModel: ProjectModel = {
       if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
     })
 
+    listenMainIpc(MainIpcChannel.Favicon, (event: IpcRendererEvent, projectId: string, favicon: string) => {
+      actions.setProjectFavicon({ projectId, favicon })
+    })
+
     listenMainIpc(MainIpcChannel.Toast, (event: IpcRendererEvent, title: string, status: AlertStatus) => {
       toast({ title, status })
     })
@@ -319,6 +329,7 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.LoadStart)
     unlistenMainIpc(MainIpcChannel.LoadFinish)
+    unlistenMainIpc(MainIpcChannel.Favicon)
     unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
