@@ -30,6 +30,7 @@ export interface Project {
   view?: ProjectView
   viewHistory?: boolean
   jitClassName?: string
+  favicon?: string
 }
 
 export interface ProjectWithRuntime extends Omit<Project, 'view'> {

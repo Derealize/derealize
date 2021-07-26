@@ -183,6 +183,9 @@ ipcMain.on(
           pj.loadFail = true
           mainWindow?.webContents.send(MainIpcChannel.LoadFinish, projectId, false)
         })
+        .on('page-favicon-updated', (e: any, favicons: string[]) => {
+          mainWindow?.webContents.send(MainIpcChannel.Favicon, projectId, favicons[0])
+        })
     }
 
     // projectMenu = menuBuilder?.buildProjectMenu(projectId)

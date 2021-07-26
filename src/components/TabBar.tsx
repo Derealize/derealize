@@ -94,7 +94,7 @@ const TabBar = (): JSX.Element => {
                 <BackgroundSvg />
               </div>
               <div className="chrome-tab-content">
-                <div className="chrome-tab-favicon" />
+                <div className="chrome-tab-favicon" style={{ backgroundImage: `url(${p.favicon})` }} />
                 <div className="chrome-tab-title">{p.name}</div>
                 <div className="chrome-tab-drag-handle" />
                 <div
