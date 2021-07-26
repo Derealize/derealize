@@ -69,6 +69,7 @@ export interface ProjectWithRuntimeModel {
   setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectViewWithRuntime }>
   setProjectViewHistory: Action<ProjectWithRuntimeModel, { projectId: string; isView: boolean }>
   setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
+  setProjectFavicon: Action<ProjectWithRuntimeModel, { projectId: string; favicon: string }>
 
   pushRunningOutput: Action<ProjectWithRuntimeModel, { projectId: string; output: string }>
   emptyRunningOutput: Action<ProjectWithRuntimeModel, string>
@@ -186,6 +187,11 @@ const projectModel: ProjectWithRuntimeModel = {
     if (!project) return
     project.tailwindConfig = config
   }),
+  setProjectFavicon: action((state, { projectId, favicon }) => {
+    const project = state.projects.find((p) => p.id === projectId)
+    if (!project) return
+    project.favicon = favicon
+  }),
 
   pushRunningOutput: action((state, { projectId, output }) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -260,7 +266,7 @@ const projectModel: ProjectWithRuntimeModel = {
   closeProject: action((state, projectId) => {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
-    project.isOpened = true
+    project.isOpened = false
   }),
   closeProjectThunk: thunk((actions, projectId, { getState }) => {
     const { projects, openedProjects, frontProject } = getState()
@@ -408,6 +414,10 @@ const projectModel: ProjectWithRuntimeModel = {
       if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
     })
 
+    listenMainIpc(MainIpcChannel.Favicon, (event: IpcRendererEvent, projectId: string, favicon: string) => {
+      actions.setProjectFavicon({ projectId, favicon })
+    })
+
     listenMainIpc(MainIpcChannel.Toast, (event: IpcRendererEvent, title: string, status: AlertStatus) => {
       toast({ title, status })
     })
@@ -421,6 +431,7 @@ const projectModel: ProjectWithRuntimeModel = {
     unlistenMainIpc(MainIpcChannel.Flush)
     unlistenMainIpc(MainIpcChannel.LoadStart)
     unlistenMainIpc(MainIpcChannel.LoadFinish)
+    unlistenMainIpc(MainIpcChannel.Favicon)
     unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
