@@ -14,7 +14,9 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { HiCursorClick, HiOutlineStatusOnline } from 'react-icons/hi'
-import { IoBookmarksOutline, IoChevronForward, IoLink } from 'react-icons/io5'
+import { GrUnlink } from 'react-icons/gr'
+import { VscFileCode } from 'react-icons/vsc'
+import { IoBookmarksOutline, IoChevronForward } from 'react-icons/io5'
 import { MdUndo, MdRedo, MdRefresh, MdArrowForward, MdArrowBack } from 'react-icons/md'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { AiOutlineSave } from 'react-icons/ai'
@@ -129,15 +131,16 @@ const TopBar: React.FC = (): JSX.Element => {
             <BreadcrumbItem key={sel + index}>
               <Tooltip label={tooltip} placement="top">
                 {index === breadcrumbs.length - 1 ? (
-                  <Text
+                  <BreadcrumbLink
                     textColor="teal.500"
                     onClick={(e) => {
                       e.stopPropagation()
-                      sendMainIpc(MainIpcChannel.OpenPath, element?.codePosition)
+                      sendMainIpc(MainIpcChannel.OpenPath, project.path, element?.codePosition.split(':')[0])
                     }}
                   >
                     {sel}
-                  </Text>
+                    <VscFileCode className={style.codefile} />
+                  </BreadcrumbLink>
                 ) : (
                   <BreadcrumbLink
                     onMouseEnter={() =>
@@ -164,20 +167,7 @@ const TopBar: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <Tooltip label="Disable Link (or right click element)" placement="top">
-          <IconButton
-            size="sm"
-            aria-label="Disable Link"
-            icon={<IoLink />}
-            colorScheme={isDisableLink ? 'teal' : 'gray'}
-            onClick={() => {
-              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
-              setIsDisableLink(!isDisableLink)
-            }}
-          />
-        </Tooltip>
-
-        <ButtonGroup size="sm" ml={2} isAttached isDisabled={project.view !== ProjectView.BrowserView}>
+        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectView.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
               aria-label="Backward"
@@ -203,6 +193,19 @@ const TopBar: React.FC = (): JSX.Element => {
           </Tooltip>
         </ButtonGroup>
 
+        <Tooltip label="Disable Link (or right click element)" placement="top">
+          <IconButton
+            ml={2}
+            size="sm"
+            aria-label="Disable Link"
+            icon={<GrUnlink />}
+            colorScheme={isDisableLink ? 'teal' : 'gray'}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
+              setIsDisableLink(!isDisableLink)
+            }}
+          />
+        </Tooltip>
         {/* <Tooltip label="Disable Cursor" placement="top">
           <IconButton ml={2} size="sm" aria-label="Disable Cursor" icon={<HiCursorClick />} />
         </Tooltip> */}

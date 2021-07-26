@@ -457,8 +457,13 @@ ipcMain.on(MainIpcChannel.SelectDirs, async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on(MainIpcChannel.OpenPath, (event, opath: string) => {
-  shell.openPath(opath)
+ipcMain.on(MainIpcChannel.OpenPath, (event, folderPath: string, filePath: string) => {
+  if (filePath) {
+    const opath = path.resolve(folderPath, filePath)
+    shell.openPath(opath)
+  } else {
+    shell.openPath(folderPath)
+  }
 })
 
 ipcMain.on(MainIpcChannel.FocusElement, (event, payload: ElementPayload) => {

@@ -14,4 +14,7 @@
 
 .breadcrumb {
   font-family: $font-mono;
+  .codefile {
+    display: inline-block;
+  }
 }
