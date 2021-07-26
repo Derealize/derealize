@@ -70,7 +70,7 @@ let mainMenu: Menu | null = null
 // let projectMenu: Menu | undefined
 let pagesMenu: Menu | undefined
 
-const checkForUpdates = async () => {
+const checkForUpdates = async (silent = false) => {
   const resp = await fetch('https://cdn.socode.pro/latest.json', {
     headers: {
       'content-type': 'application/json',
@@ -92,13 +92,13 @@ const checkForUpdates = async () => {
           `https://cdn.socode.pro/Derealize${withRuntime ? '-with-runtime' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
         )
       }
-    } else {
+    } else if (!silent) {
       mainWindow?.webContents.send(MainIpcChannel.Toast, 'Already the latest version', 'success' as AlertStatus)
     }
-  } else {
+  } else if (!silent) {
     mainWindow?.webContents.send(
       MainIpcChannel.Toast,
-      `check request fail:${resp.statusText}`,
+      `check update request fail:${resp.statusText}`,
       'warning' as AlertStatus,
     )
   }
@@ -389,17 +389,14 @@ const createBackendProcess = () => {
 app
   .whenReady()
   .then(async () => {
-    console.log(
-      `name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath(
-        'userData',
-      )};version:${app.getVersion()}`,
-    )
+    console.log(`name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()
     createBackendProcess()
     createWindow()
 
+    checkForUpdates(true)
     return null
   })
   .catch(log.error)
