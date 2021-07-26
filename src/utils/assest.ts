@@ -1,11 +1,3 @@
-import type { State } from 'easy-peasy'
-import type { StoreModel } from '../models/index'
-import type { Property } from '../models/controlles/controlles'
-import type { PreloadWindow } from '../preload'
-
-declare const window: PreloadWindow
-const { withRuntime } = window.env
-
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -39,40 +31,6 @@ export const getCrossCtrl = (): string => {
 
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
-
-export const propertyTransClassName = (property: Property): string => {
-  const { screen, state, list, custom, dark, classname } = property
-  if (!classname) return ''
-
-  let variants = ''
-  if (screen) {
-    variants += `${screen}:`
-  }
-  if (state) {
-    variants += `${state}:`
-  }
-  if (list) {
-    variants += `${list}:`
-  }
-  if (custom) {
-    variants += `${custom}:`
-  }
-  if (dark) {
-    variants += `dark:`
-  }
-  return `${variants + classname}`
-}
-
-export const propertysTransClassName = (propertys: Array<Property>) => {
-  return propertys
-    .map(propertyTransClassName)
-    .filter((name) => !!name)
-    .join(' ')
-}
-
-export const storeStateProject = (state: any, storeState: State<StoreModel>) => {
-  return withRuntime ? storeState.projectWithRuntime.frontProject : storeState.project.frontProject
-}
 
 // https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
 export const ReplacedElementTagName = [

@@ -1,6 +1,6 @@
 import { Action, action, Thunk, thunk, computed, Computed } from 'easy-peasy'
 import { nanoid } from 'nanoid'
-import { propertysTransClassName } from '../../utils/assest'
+import { propertysTransClassName } from '../../utils/store-assest'
 import { StateVariantsType, ListVariantsType } from '../element'
 import { MainIpcChannel, JitTiggerPayload } from '../../interface'
 import { Handler } from '../../backend/backend.interface'

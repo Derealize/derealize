@@ -457,8 +457,8 @@ ipcMain.on(MainIpcChannel.SelectDirs, async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on(MainIpcChannel.OpenDirs, (event, folderpath: string) => {
-  shell.openPath(folderpath)
+ipcMain.on(MainIpcChannel.OpenPath, (event, opath: string) => {
+  shell.openPath(opath)
 })
 
 ipcMain.on(MainIpcChannel.FocusElement, (event, payload: ElementPayload) => {
