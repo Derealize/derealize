@@ -22,14 +22,13 @@ declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
-  const toast = useToast()
-
   const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.frontProject)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
-  const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
-
-  const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.projectWithRuntime.gitHistorys)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
+
+  const toast = useToast()
+  const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.projectWithRuntime.gitHistorys)
+  const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
 
   const callPush = useCallback(async () => {
     if (!project) return null
@@ -50,7 +49,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   }, [project, toast])
 
   if (!project) return <></>
-
+  console.log('pg.rt', project.viewHistory, element)
   return (
     <>
       <TopBar />

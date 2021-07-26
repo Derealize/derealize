@@ -198,7 +198,15 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
             <BreadcrumbItem key={sel + index}>
               <Tooltip label={tooltip} placement="top">
                 {index === breadcrumbs.length - 1 ? (
-                  <Text textColor="teal.500">{sel}</Text>
+                  <Text
+                    textColor="teal.500"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      sendMainIpc(MainIpcChannel.OpenPath, element?.codePosition)
+                    }}
+                  >
+                    {sel}
+                  </Text>
                 ) : (
                   <BreadcrumbLink
                     onMouseEnter={() =>

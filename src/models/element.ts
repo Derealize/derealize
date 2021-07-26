@@ -119,7 +119,7 @@ const elementModel: ElementModel = {
   ),
 
   screenVariants: computed([(state, storeState) => storeState.project.frontProject], (frontProject) => {
-    if (!frontProject?.tailwindConfig) return []
+    if (!frontProject?.tailwindConfig?.theme?.screens) return []
     return Object.keys(frontProject.tailwindConfig.theme.screens)
   }),
 
@@ -334,6 +334,7 @@ const elementModel: ElementModel = {
     actions.unlisten()
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
+      console.log('FocusElement', element)
       actions.focusElement(element)
       getStoreActions().project.setProjectViewHistory({ projectId: element.projectId, isView: false })
     })
