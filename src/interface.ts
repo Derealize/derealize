@@ -90,7 +90,7 @@ export enum MainIpcChannel {
   CloseFrontProject = 'CloseFrontProject',
   PagesMenu = 'PagesMenu',
   SelectDirs = 'SelectDirs',
-  OpenDirs = 'OpenDirs',
+  OpenPath = 'OpenPath',
   FrontView = 'FrontView',
   DestroyProjectView = 'DestroyProjectView',
   LoadURL = 'LoadURL',

@@ -120,7 +120,7 @@ const HomeWithRuntime = (): JSX.Element => {
                           <MenuItem
                             onClick={(e) => {
                               e.stopPropagation()
-                              sendMainIpc(MainIpcChannel.OpenDirs, p.path)
+                              sendMainIpc(MainIpcChannel.OpenPath, p.path)
                             }}
                           >
                             Open Folder

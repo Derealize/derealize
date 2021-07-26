@@ -41,8 +41,7 @@ npm-debug.log.*
 # src/yarn.lock
 **/yarn
 
-assets/node-win
-assets/node-mac
+assets/node-v*
 theme.default.json
 
 **/*.node

@@ -19,14 +19,11 @@ const { sendMainIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
   const project = useStoreState<Project | undefined>((state) => state.project.frontProject)
-
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
-  const setProjectView = useStoreActions((actions) => actions.project.setProjectView)
-
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
 
   if (!project) return <></>
-
+  console.log('pg.rt', project.viewHistory, element)
   return (
     <>
       <TopBar />
@@ -41,17 +38,6 @@ const ProjectPage: React.FC = (): JSX.Element => {
         )}
 
         <div className={style.content}>
-          {/* {project.view !== ProjectView.BrowserView && (
-            <CloseButton
-              size="lg"
-              colorScheme="gray"
-              className={style.closebtn}
-              onClick={() => {
-                setProjectView({ projectId: project.id, view: ProjectView.BrowserView })
-              }}
-            />
-          )} */}
-
           {project.view === ProjectView.Loading && <BounceLoader color="#4FD1C5" />}
 
           {project.view === ProjectView.LoadFail && (
