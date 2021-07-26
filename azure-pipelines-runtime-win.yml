@@ -19,13 +19,12 @@ steps:
     inputs:
       strUrl: 'https://nodejs.org/dist/v14.17.3/node-v14.17.3-win-x64.zip'
       strTargetDir: '$(NODE_CACHE_FOLDER)'
-      strTargetFilename: 'node.zip'
       authType: 'noAuth'
       ignoreCertificateChecks: false
       catchResponse: true
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node.zip'
+      archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node-v14.17.3-win-x64.zip'
       destinationFolder: '$(System.DefaultWorkingDirectory)/assets'
       overwriteExistingFiles: false
 
