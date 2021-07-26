@@ -5,7 +5,7 @@ import clone from 'lodash.clonedeep'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast } from '@chakra-ui/react'
 import type { TailwindConfig, Variant } from 'tailwindcss/tailwind-config'
-import { propertysTransClassName } from '../utils/assest'
+import { propertysTransClassName, storeStateProject } from '../utils/assest'
 import { Handler } from '../backend/backend.interface'
 import type { StoreModel } from './index'
 import { ElementPayload, ElementActualStatus, MainIpcChannel, ElementTag } from '../interface'
@@ -103,7 +103,7 @@ export interface ElementModel {
 const elementModel: ElementModel = {
   states: {},
   frontElementStates: computed(
-    [(state) => state.states, (state, storeState) => storeState.project.frontProject],
+    [(state) => state.states, storeStateProject],
     (states, project) => states[project?.id || ''],
   ),
   frontHistory: computed([(state) => state.frontElementStates], (states) => states?.historys || []),
@@ -118,12 +118,12 @@ const elementModel: ElementModel = {
     (states) => states?.elements.filter((el) => el.pending) || [],
   ),
 
-  screenVariants: computed([(state, storeState) => storeState.project.frontProject], (frontProject) => {
+  screenVariants: computed([storeStateProject], (frontProject) => {
     if (!frontProject?.tailwindConfig?.theme?.screens) return []
     return Object.keys(frontProject.tailwindConfig.theme.screens)
   }),
 
-  customVariants: computed([(state, storeState) => storeState.project.frontProject], (frontProject) => {
+  customVariants: computed([storeStateProject], (frontProject) => {
     if (!frontProject?.tailwindConfig) return []
     let result: Array<string> = []
     for (const [name, variants] of Object.entries(frontProject.tailwindConfig.variants)) {

@@ -1,4 +1,10 @@
+import type { State } from 'easy-peasy'
+import type { StoreModel } from '../models/index'
 import type { Property } from '../models/controlles/controlles'
+import type { PreloadWindow } from '../preload'
+
+declare const window: PreloadWindow
+const { withRuntime } = window.env
 
 export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -62,6 +68,10 @@ export const propertysTransClassName = (propertys: Array<Property>) => {
     .map(propertyTransClassName)
     .filter((name) => !!name)
     .join(' ')
+}
+
+export const storeStateProject = (state: any, storeState: State<StoreModel>) => {
+  return withRuntime ? storeState.projectWithRuntime.frontProject : storeState.project.frontProject
 }
 
 // https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
