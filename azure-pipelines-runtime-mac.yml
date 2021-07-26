@@ -18,12 +18,13 @@ steps:
     inputs:
       strUrl: 'https://nodejs.org/dist/v14.17.3/node-v14.17.3-darwin-x64.tar.gz'
       strTargetDir: '$(NODE_CACHE_FOLDER)'
+      strTargetFilename: 'node-darwin.tar.gz'
       authType: 'noAuth'
       ignoreCertificateChecks: false
       catchResponse: true
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node-v14.17.3-darwin-x64.tar.gz'
+      archiveFilePatterns: '$(NODE_CACHE_FOLDER)/node-darwin.tar.gz'
       destinationFolder: '$(System.DefaultWorkingDirectory)/assets'
       overwriteExistingFiles: false
 
