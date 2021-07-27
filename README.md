@@ -74,6 +74,11 @@ asar extract app.asar 文件夹
 
 css-loader 不要升级 6.x，和目前的 webpack 配置有冲突加载图片失败，不深究，后面很快会探索 esbuild。
 
+部分 electron-builder 依赖包下载失败可以手动下载 zip/7z 文件放在以下目录
+macOS: ~/Library/Caches/electron-builder
+Linux: ~/.cache/electron-builder
+windows: %LOCALAPPDATA%\electron-builder\cache
+
 ## server-process
 
 - [关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)
