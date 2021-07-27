@@ -19,6 +19,7 @@ import {
   MenuList,
   MenuItem,
   MenuDivider,
+  VStack,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { FiPlusCircle } from 'react-icons/fi'
@@ -29,6 +30,7 @@ import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
 import { MainIpcChannel } from './interface'
+import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_design_eq3j.svg'
 
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpc } = window.derealize
@@ -40,9 +42,9 @@ const HomeWithRuntime = (): JSX.Element => {
   const openProject = useStoreActions((actions) => actions.projectWithRuntime.openProject)
   const removeProject = useStoreActions((actions) => actions.projectWithRuntime.removeProjectThunk)
 
-  useEffect(() => {
-    toggleImportModal(!projects.length)
-  }, [projects.length, toggleImportModal])
+  // useEffect(() => {
+  //   toggleImportModal(!projects.length)
+  // }, [projects.length, toggleImportModal])
 
   return (
     <div className={style.home}>
@@ -77,6 +79,20 @@ const HomeWithRuntime = (): JSX.Element => {
                 Import
               </Button>
             </HStack>
+
+            {!projects.length && (
+              <VStack className={style.welcome}>
+                <WelcomeSvg className={style.undraw} />
+                <div className="prose">
+                  Before importing your project, please follow{' '}
+                  <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                    our documentation
+                  </a>{' '}
+                  to complete the project configuration.
+                </div>
+              </VStack>
+            )}
+
             <Wrap mt={6} spacing={8}>
               {projects.map((p) => (
                 <WrapItem key={p.id}>

@@ -49,7 +49,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   }, [project, toast])
 
   if (!project) return <></>
-  console.log('pg.rt', project.viewHistory, element)
+
   return (
     <>
       <TopBar />
