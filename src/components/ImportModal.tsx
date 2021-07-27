@@ -136,7 +136,7 @@ const ImportProject = (): JSX.Element => {
             <FormControl id="path" mt={4} isInvalid={!!errors.path}>
               <FormHelperText className="prose">
                 Before importing your project, please follow{' '}
-                <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                   our documentation
                 </a>{' '}
                 to complete the project configuration.
@@ -162,14 +162,6 @@ const ImportProject = (): JSX.Element => {
               </Tooltip>
 
               {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-
-              <FormHelperText className="prose">
-                Before importing your project, please follow{' '}
-                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                  our documentation
-                </a>{' '}
-                to complete the project configuration.
-              </FormHelperText>
             </FormControl>
 
             <FormControl id="displayname" mt={4}>
