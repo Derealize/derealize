@@ -23,7 +23,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
 
   if (!project) return <></>
-  console.log('pg.rt', project.viewHistory, element)
+
   return (
     <>
       <TopBar />
