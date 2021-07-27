@@ -37,10 +37,10 @@ import {
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import type { BoolReply } from '../backend/backend.interface'
-import type { ImportPayloadWithRuntime } from '../interface'
+import type { ImportPayloadStd } from '../interface'
 import { Handler, ProjectStatus, Broadcast, ProcessPayload } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { ProjectWithRuntime } from '../models/project.interface'
+import type { ProjectStd } from '../models/project.interface'
 import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
 import { MainIpcChannel } from '../interface'
@@ -75,13 +75,13 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
-  const modalDisclosure = useStoreState<boolean>((state) => state.projectWithRuntime.importModalDisclosure)
-  const toggleModal = useStoreActions((actions) => actions.projectWithRuntime.toggleImportModal)
+  const modalDisclosure = useStoreState<boolean>((state) => state.projectStd.importModalDisclosure)
+  const toggleModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
 
-  const projects = useStoreState<Array<ProjectWithRuntime>>((state) => state.projectWithRuntime.projects)
-  const addProject = useStoreActions((actions) => actions.projectWithRuntime.addProject)
-  const removeProject = useStoreActions((actions) => actions.projectWithRuntime.removeProject)
-  const openProject = useStoreActions((actions) => actions.projectWithRuntime.openProject)
+  const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
+  const addProject = useStoreActions((actions) => actions.projectStd.addProject)
+  const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
+  const openProject = useStoreActions((actions) => actions.projectStd.openProject)
 
   const watchUrl = watch('url')
   const watchPath = watch('path')
@@ -91,7 +91,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   const [installOutput, setInstallOutput] = useState<Array<string>>([])
 
   const [projectId, setProjectId] = useState('')
-  const isReady = useStoreState<boolean | undefined>((state) => state.projectWithRuntime.isReady(projectId))
+  const isReady = useStoreState<boolean | undefined>((state) => state.projectStd.isReady(projectId))
 
   useEffect(() => {
     listenMainIpc(MainIpcChannel.OpenImport, () => {
@@ -152,7 +152,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
       const id = nanoid()
       setProjectId(id)
 
-      const newProject: ProjectWithRuntime = {
+      const newProject: ProjectStd = {
         id,
         url,
         path,
@@ -163,7 +163,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
       }
       addProject(newProject)
 
-      const payload: ImportPayloadWithRuntime = { projectId: id, url, path, branch }
+      const payload: ImportPayloadStd = { projectId: id, url, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
       if (result) {

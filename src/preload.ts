@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('env', {
   // isMac: true,
   isDev: process.env.NODE_ENV === 'development',
   port: process.env.PORT || 1212,
-  withRuntime: process.env.WITH_RUNTIME === 'true',
+  isStudio: process.env.STUDIO === 'true',
   isMaximized: () => ISMAXIMIZED,
 })
 
@@ -50,7 +50,7 @@ export interface PreloadWindow extends Window {
   env: {
     isDev: boolean
     isMac: boolean
-    withRuntime: boolean
+    isStudio: boolean
     port: boolean
     isMaximized: () => boolean
   }

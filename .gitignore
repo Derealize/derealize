@@ -50,7 +50,7 @@ theme.default.json
 
 # App packaged
 release
-release-with-runtime
+release-studio
 dist
 dll
 

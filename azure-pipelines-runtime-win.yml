@@ -10,9 +10,9 @@ trigger:
   batch: true
   branches:
     include:
-      - master-runtime
+      - master-studio
 # pr:
-#   - master-runtime
+#   - master-studio
 
 steps:
   - task: DownloadAFile@1
@@ -45,7 +45,7 @@ steps:
     displayName: yarn install
     env:
       DISPLAY: ':99.0'
-  - script: yarn package:with_runtime --win
+  - script: yarn package:studio --win
     displayName: yarn package
   - script: yarn run publish:qiniu
     displayName: yarn publish

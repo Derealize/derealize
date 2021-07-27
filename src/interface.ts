@@ -6,7 +6,7 @@ export interface ImportPayload extends ProjectIdParam {
   path: string
 }
 
-export interface ImportPayloadWithRuntime extends ImportPayload {
+export interface ImportPayloadStd extends ImportPayload {
   url: string
   branch: string
 }
