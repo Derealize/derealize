@@ -3,29 +3,29 @@
   "productName": "Derealize",
   "description": "Tailwindcss Editor",
   "scripts": {
-    "standby:base": "shx cp src/package.base.json src/package.json && shx cp -r .erb/backend/* src/backend && shx rm -f src/backend/git.ts",
-    "commit:base": "shx cp src/backend/{backend,handlers,project}.ts .erb/backend",
-    "standby:runtime": "shx cp src/package.runtime.json src/package.json && shx cp -r .erb/backend-runtime/* src/backend",
-    "commit:runtime": "shx cp src/backend/{backend,handlers,project,git}.ts .erb/backend-runtime",
-    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && webpack serve --config ./.erb/configs/webpack.babel.js",
-    "start:with_runtime": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env WITH_RUNTIME=true webpack serve --config ./.erb/configs/webpack.babel.js",
-    "start:preload": "webpack --config ./.erb/configs/webpack.dev.preload.babel.js",
-    "start:main": "electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
-    "start:main:ext": "cross-env UPGRADE_EXTENSIONS=true electron -r ./.erb/scripts/BabelRegister ./src/main.ts",
-    "start:backend": "webpack --config ./.erb/configs/webpack.dev.backend.babel.js",
+    "standby:base": "shx cp src/package.base.json src/package.json && shx cp -r .derealize/backend/* src/backend && shx rm -f src/backend/git.ts",
+    "commit:base": "shx cp src/backend/{backend,handlers,project}.ts .derealize/backend",
+    "standby:studio": "shx cp src/package.studio.json src/package.json && shx cp -r .derealize/backend-studio/* src/backend",
+    "commit:studio": "shx cp src/backend/{backend,handlers,project,git}.ts .derealize/backend-studio",
+    "start": "node -r @babel/register ./.derealize/scripts/CheckPortInUse.js && webpack serve --config ./.derealize/configs/webpack.babel.js",
+    "start:studio": "node -r @babel/register ./.derealize/scripts/CheckPortInUse.js && cross-env STUDIO=true webpack serve --config ./.derealize/configs/webpack.babel.js",
+    "start:preload": "webpack --config ./.derealize/configs/webpack.dev.preload.babel.js",
+    "start:main": "electron -r ./.derealize/scripts/BabelRegister ./src/main.ts",
+    "start:main:ext": "cross-env UPGRADE_EXTENSIONS=true electron -r ./.derealize/scripts/BabelRegister ./src/main.ts",
+    "start:backend": "webpack --config ./.derealize/configs/webpack.dev.backend.babel.js",
     "build": "yarn standby:base && yarn postinstall_dll && concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
-    "build:with_runtime": "yarn standby:runtime && yarn postinstall_dll && cross-env WITH_RUNTIME=true concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
-    "build:preload": "webpack --config ./.erb/configs/webpack.prod.preload.babel.js",
-    "build:main": "webpack --config ./.erb/configs/webpack.prod.main.babel.js",
-    "build:renderer": "webpack --config ./.erb/configs/webpack.prod.babel.js",
+    "build:studio": "yarn standby:studio && yarn postinstall_dll && cross-env STUDIO=true concurrently \"yarn build:preload\" \"yarn build:main\" \"yarn build:renderer\"",
+    "build:preload": "webpack --config ./.derealize/configs/webpack.prod.preload.babel.js",
+    "build:main": "webpack --config ./.derealize/configs/webpack.prod.main.babel.js",
+    "build:renderer": "webpack --config ./.derealize/configs/webpack.prod.babel.js",
     "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
-    "package:with_runtime": "shx rm -rf src/dist && yarn build:with_runtime && cross-env WITH_RUNTIME=true electron-builder build --config electron-builder-runtime.yml --publish never",
+    "package:studio": "shx rm -rf src/dist && yarn build:studio && cross-env STUDIO=true electron-builder build --config electron-builder-studio.yml --publish never",
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
-    "dir:with_runtime": "cross-env WITH_RUNTIME=true shx rm -rf src/dist && yarn build && electron-builder build --dir",
+    "dir:studio": "cross-env STUDIO=true shx rm -rf src/dist && yarn build && electron-builder build --dir",
     "test": "jest",
     "rebuild": "node -e \"console.log('rebuild start: %s', Date())\" && electron-rebuild --parallel --types prod,dev,optional --module-dir src && node -e \"console.log('rebuild end: %s', Date())\"",
-    "postinstall": "yarn-deduplicate yarn.lock && shx cp .erb/scripts/recast_fix.js node_modules/recast/parsers/babel.js && shx cp .erb/scripts/selector_fix.js node_modules/selector-generator/selector-generator.js",
-    "postinstall_dll": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.dev.dll.babel.js",
+    "postinstall": "yarn-deduplicate yarn.lock && shx cp .derealize/scripts/recast_fix.js node_modules/recast/parsers/babel.js && shx cp .derealize/scripts/selector_fix.js node_modules/selector-generator/selector-generator.js",
+    "postinstall_dll": "node -r @babel/register .derealize/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.derealize/configs/webpack.dev.dll.babel.js",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
     "prepare": "husky install"
   },
@@ -60,7 +60,7 @@
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/fileMock.js",
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.derealize/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
@@ -75,7 +75,7 @@
       "src/node_modules"
     ],
     "setupFiles": [
-      "./.erb/scripts/CheckBuildsExist.js"
+      "./.derealize/scripts/CheckBuildsExist.js"
     ]
   },
   "devDependencies": {

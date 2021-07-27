@@ -22,7 +22,7 @@ import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { getCrossCtrl } from '../utils/assest'
 import type { BoolReply } from '../backend/backend.interface'
 import { ProjectStatus, Handler } from '../backend/backend.interface'
-import { ProjectWithRuntime, ProjectViewWithRuntime } from '../models/project.interface'
+import { ProjectStd, ProjectViewStd } from '../models/project.interface'
 import type { ElementState, ElementHistory } from '../models/element'
 import { useStoreActions, useStoreState } from '../reduxStore'
 import style from './TopBar.module.scss'
@@ -33,17 +33,17 @@ import { BarIconButton } from './TopBar'
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpc } = window.derealize
 
-const TopBarWithRuntime: React.FC = (): JSX.Element => {
+const TopBar: React.FC = (): JSX.Element => {
   const toast = useToast()
 
-  const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.frontProject)
-  const startProject = useStoreActions((actions) => actions.projectWithRuntime.startProject)
-  const stopProject = useStoreActions((actions) => actions.projectWithRuntime.stopProject)
+  const project = useStoreState<ProjectStd | undefined>((state) => state.projectStd.frontProject)
+  const startProject = useStoreActions((actions) => actions.projectStd.startProject)
+  const stopProject = useStoreActions((actions) => actions.projectStd.stopProject)
 
-  const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
+  const setProjectView = useStoreActions((actions) => actions.projectStd.setProjectView)
   const setProjectViewHistory = useStoreActions((actions) => actions.project.setProjectViewHistory)
 
-  const callGitHistory = useStoreActions((actions) => actions.projectWithRuntime.callGitHistory)
+  const callGitHistory = useStoreActions((actions) => actions.projectStd.callGitHistory)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const pendingElements = useStoreState<Array<ElementState>>((state) => state.element.pendingElements)
   const savedElements = useStoreActions((actions) => actions.element.savedElements)
@@ -114,14 +114,14 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
           <Tooltip label="File Status">
             <IconButton
               aria-label="FileStatus"
-              variant={project.view === ProjectViewWithRuntime.FileStatus ? 'outline' : 'solid'}
+              variant={project.view === ProjectViewStd.FileStatus ? 'outline' : 'solid'}
               icon={<HiOutlineStatusOnline />}
               onClick={() => {
-                if (project.view !== ProjectViewWithRuntime.FileStatus) {
+                if (project.view !== ProjectViewStd.FileStatus) {
                   callGitHistory()
-                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.FileStatus })
+                  setProjectView({ projectId: project.id, view: ProjectViewStd.FileStatus })
                 } else {
-                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+                  setProjectView({ projectId: project.id, view: ProjectViewStd.BrowserView })
                 }
               }}
               mr="-px"
@@ -236,7 +236,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
       </Flex>
 
       <Flex align="center" justify="right">
-        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectViewWithRuntime.BrowserView}>
+        <ButtonGroup size="sm" isAttached isDisabled={project.view !== ProjectViewStd.BrowserView}>
           <Tooltip label="Backward" placement="top">
             <IconButton
               aria-label="Backward"
@@ -290,10 +290,10 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
               aria-label="Debug"
               icon={<VscOutput />}
               onClick={() => {
-                if (project.view !== ProjectViewWithRuntime.Debugging) {
-                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.Debugging })
+                if (project.view !== ProjectViewStd.Debugging) {
+                  setProjectView({ projectId: project.id, view: ProjectViewStd.Debugging })
                 } else {
-                  setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+                  setProjectView({ projectId: project.id, view: ProjectViewStd.BrowserView })
                 }
               }}
             />
@@ -325,4 +325,4 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
   )
 }
 
-export default TopBarWithRuntime
+export default TopBar

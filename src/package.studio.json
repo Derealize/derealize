@@ -2,7 +2,7 @@
   "name": "derealize",
   "productName": "Derealize",
   "description": "Tailwindcss Studio",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "main": "./main.prod.js",
   "author": {
     "name": "Elliotreborn",
@@ -10,9 +10,9 @@
     "url": "https://derealize.com"
   },
   "scripts": {
-    "electron-rebuild": "node -e \"console.log('src rebuild start: %s', Date())\" && node -r ../.erb/scripts/BabelRegister.js ../.erb/scripts/ElectronRebuild.js && node -e \"console.log('src rebuild end: %s', Date())\"",
+    "electron-rebuild": "node -e \"console.log('src rebuild start: %s', Date())\" && node -r ../.derealize/scripts/BabelRegister.js ../.derealize/scripts/ElectronRebuild.js && node -e \"console.log('src rebuild end: %s', Date())\"",
     "postinstall": "yarn electron-rebuild",
-    "publish:qiniu": "node ../.erb/publish-qiniu/runtime.js"
+    "publish:qiniu": "node ../.derealize/publish-qiniu/studio.js"
   },
   "license": "private",
   "dependencies": {

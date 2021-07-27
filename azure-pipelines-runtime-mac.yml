@@ -9,9 +9,9 @@ trigger:
   batch: true
   branches:
     include:
-      - master-runtime
+      - master-studio
 # pr:
-#   - master-runtime
+#   - master-studio
 
 steps:
   - task: DownloadAFile@1
@@ -43,7 +43,7 @@ steps:
     env:
       DISPLAY: ':99.0'
       NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
-  - script: yarn package:with_runtime --mac
+  - script: yarn package:studio --mac
     displayName: yarn package
     env:
       NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'

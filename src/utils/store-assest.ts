@@ -4,10 +4,10 @@ import type { PreloadWindow } from '../preload'
 import type { Property } from '../models/controlles/controlles'
 
 declare const window: PreloadWindow
-const { withRuntime } = window.env
+const { isStudio } = window.env
 
 export const storeStateProject = (state: any, storeState: State<StoreModel>) => {
-  return withRuntime ? storeState.projectWithRuntime.frontProject : storeState.project.frontProject
+  return isStudio ? storeState.projectStd.frontProject : storeState.project.frontProject
 }
 
 export const propertyTransClassName = (property: Property): string => {

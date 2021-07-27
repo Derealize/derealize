@@ -7,14 +7,14 @@ import type { StoreModel } from './index'
 import type {
   ProcessPayload,
   CommitLog,
-  StatusPayloadWithRuntime,
+  StatusPayloadStd,
   PayloadError,
   HistoryReply,
   BoolReply,
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
-import { ProjectViewWithRuntime, ProjectWithRuntime, BackgroundImage, Colors } from './project.interface'
-import { MainIpcChannel, ImportPayloadWithRuntime } from '../interface'
+import { ProjectViewStd, ProjectStd, BackgroundImage, Colors } from './project.interface'
+import { MainIpcChannel, ImportPayloadStd } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
@@ -30,13 +30,13 @@ const toast = createStandaloneToast({
   },
 })
 
-const judgeFrontView = (project?: ProjectWithRuntime) => {
+const judgeFrontView = (project?: ProjectStd) => {
   if (!project) {
     sendMainIpc(MainIpcChannel.FrontView)
     return
   }
   if (!project.isFront) return
-  if (project.view === ProjectViewWithRuntime.BrowserView) {
+  if (project.view === ProjectViewStd.BrowserView) {
     if (!project.config) throw new Error('project.config null')
     sendMainIpc(
       MainIpcChannel.FrontView,
@@ -50,64 +50,64 @@ const judgeFrontView = (project?: ProjectWithRuntime) => {
   }
 }
 
-export interface ProjectWithRuntimeModel {
-  projects: Array<ProjectWithRuntime>
-  setProjects: Action<ProjectWithRuntimeModel, Array<ProjectWithRuntime>>
+export interface ProjectStdModel {
+  projects: Array<ProjectStd>
+  setProjects: Action<ProjectStdModel, Array<ProjectStd>>
 
-  editingProject: Computed<ProjectWithRuntimeModel, ProjectWithRuntime | undefined>
-  setEditingProject: Action<ProjectWithRuntimeModel, string | null>
-  editProject: Action<ProjectWithRuntimeModel, { displayname: string; branch: string }>
+  editingProject: Computed<ProjectStdModel, ProjectStd | undefined>
+  setEditingProject: Action<ProjectStdModel, string | null>
+  editProject: Action<ProjectStdModel, { displayname: string; branch: string }>
 
-  openedProjects: Computed<ProjectWithRuntimeModel, Array<ProjectWithRuntime>>
-  frontProject: Computed<ProjectWithRuntimeModel, ProjectWithRuntime | undefined>
-  isReady: Computed<ProjectWithRuntimeModel, (id: string) => boolean | undefined>
+  openedProjects: Computed<ProjectStdModel, Array<ProjectStd>>
+  frontProject: Computed<ProjectStdModel, ProjectStd | undefined>
+  isReady: Computed<ProjectStdModel, (id: string) => boolean | undefined>
 
-  addProject: Action<ProjectWithRuntimeModel, ProjectWithRuntime>
-  removeProject: Action<ProjectWithRuntimeModel, string>
-  removeProjectThunk: Thunk<ProjectWithRuntimeModel, string>
+  addProject: Action<ProjectStdModel, ProjectStd>
+  removeProject: Action<ProjectStdModel, string>
+  removeProjectThunk: Thunk<ProjectStdModel, string>
 
-  setProjectView: Action<ProjectWithRuntimeModel, { projectId: string; view: ProjectViewWithRuntime }>
-  setProjectViewHistory: Action<ProjectWithRuntimeModel, { projectId: string; isView: boolean }>
-  setTailwindConfig: Action<ProjectWithRuntimeModel, { projectId: string; config: TailwindConfig }>
-  setProjectFavicon: Action<ProjectWithRuntimeModel, { projectId: string; favicon: string }>
+  setProjectView: Action<ProjectStdModel, { projectId: string; view: ProjectViewStd }>
+  setProjectViewHistory: Action<ProjectStdModel, { projectId: string; isView: boolean }>
+  setTailwindConfig: Action<ProjectStdModel, { projectId: string; config: TailwindConfig }>
+  setProjectFavicon: Action<ProjectStdModel, { projectId: string; favicon: string }>
 
-  pushRunningOutput: Action<ProjectWithRuntimeModel, { projectId: string; output: string }>
-  emptyRunningOutput: Action<ProjectWithRuntimeModel, string>
-  setStartLoading: Action<ProjectWithRuntimeModel, { projectId: string; loading: boolean }>
+  pushRunningOutput: Action<ProjectStdModel, { projectId: string; output: string }>
+  emptyRunningOutput: Action<ProjectStdModel, string>
+  setStartLoading: Action<ProjectStdModel, { projectId: string; loading: boolean }>
 
-  flushProject: Action<ProjectWithRuntimeModel, string>
-  setFrontProject: Action<ProjectWithRuntimeModel, string | null>
-  startProject: Thunk<ProjectWithRuntimeModel, string>
-  stopProject: Action<ProjectWithRuntimeModel, string>
+  flushProject: Action<ProjectStdModel, string>
+  setFrontProject: Action<ProjectStdModel, string | null>
+  startProject: Thunk<ProjectStdModel, string>
+  stopProject: Action<ProjectStdModel, string>
 
-  openProject: Thunk<ProjectWithRuntimeModel, string>
-  closeProject: Action<ProjectWithRuntimeModel, string>
-  closeProjectThunk: Thunk<ProjectWithRuntimeModel, string | undefined>
+  openProject: Thunk<ProjectStdModel, string>
+  closeProject: Action<ProjectStdModel, string>
+  closeProjectThunk: Thunk<ProjectStdModel, string | undefined>
 
-  setProjectStatus: Action<ProjectWithRuntimeModel, StatusPayloadWithRuntime>
-  loadStore: Thunk<ProjectWithRuntimeModel>
-  listen: Thunk<ProjectWithRuntimeModel, void, void, StoreModel>
-  unlisten: Action<ProjectWithRuntimeModel>
+  setProjectStatus: Action<ProjectStdModel, StatusPayloadStd>
+  loadStore: Thunk<ProjectStdModel>
+  listen: Thunk<ProjectStdModel, void, void, StoreModel>
+  unlisten: Action<ProjectStdModel>
 
   importModalDisclosure: boolean
-  toggleImportModal: Action<ProjectWithRuntimeModel, boolean | undefined>
+  toggleImportModal: Action<ProjectStdModel, boolean | undefined>
 
   imagesModalDisclosure: boolean
-  toggleImagesModal: Action<ProjectWithRuntimeModel, boolean | undefined>
-  modalImages: Computed<ProjectWithRuntimeModel, BackgroundImage[]>
+  toggleImagesModal: Action<ProjectStdModel, boolean | undefined>
+  modalImages: Computed<ProjectStdModel, BackgroundImage[]>
 
   colorsModalShow: boolean
   colorsModalData: { colors: Colors; theme: string } | undefined
-  colorsModalToggle: Action<ProjectWithRuntimeModel, { show: boolean; colors?: Colors; theme?: string }>
+  colorsModalToggle: Action<ProjectStdModel, { show: boolean; colors?: Colors; theme?: string }>
 
   gitHistorys: Array<CommitLog>
-  setGitHistorys: Action<ProjectWithRuntimeModel, Array<CommitLog>>
-  callGitHistory: Thunk<ProjectWithRuntimeModel>
+  setGitHistorys: Action<ProjectStdModel, Array<CommitLog>>
+  callGitHistory: Thunk<ProjectStdModel>
 
-  setJitClassName: Action<ProjectWithRuntimeModel, { projectId: string; className: string }>
+  setJitClassName: Action<ProjectStdModel, { projectId: string; className: string }>
 }
 
-const projectModel: ProjectWithRuntimeModel = {
+const projectModel: ProjectStdModel = {
   projects: [],
   setProjects: action((state, projects) => {
     state.projects = [...projects]
@@ -178,7 +178,7 @@ const projectModel: ProjectWithRuntimeModel = {
     if (!project) return
     project.viewHistory = isView
     if (isView) {
-      project.view = ProjectViewWithRuntime.BrowserView
+      project.view = ProjectViewStd.BrowserView
       judgeFrontView(project)
     }
   }),
@@ -240,7 +240,7 @@ const projectModel: ProjectWithRuntimeModel = {
 
     actions.emptyRunningOutput(projectId)
     actions.setStartLoading({ projectId, loading: true })
-    actions.setProjectView({ projectId, view: ProjectViewWithRuntime.Debugging })
+    actions.setProjectView({ projectId, view: ProjectViewStd.Debugging })
     const reply = (await sendBackIpc(Handler.Start, { projectId })) as BoolReply
     if (!reply.result) {
       actions.setStartLoading({ projectId, loading: false })
@@ -296,7 +296,7 @@ const projectModel: ProjectWithRuntimeModel = {
   }),
 
   loadStore: thunk(async (actions) => {
-    const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<ProjectWithRuntime> | undefined
+    const projects = sendMainIpcSync(MainIpcChannel.GetStore, 'projects') as Array<ProjectStd> | undefined
     if (!projects) return
 
     actions.setProjects(projects)
@@ -304,7 +304,7 @@ const projectModel: ProjectWithRuntimeModel = {
       projects.map(async (project) => {
         const { id: projectId, url, path, branch } = project
 
-        const payload: ImportPayloadWithRuntime = { projectId, url, path, branch }
+        const payload: ImportPayloadStd = { projectId, url, path, branch }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })
@@ -326,7 +326,7 @@ const projectModel: ProjectWithRuntimeModel = {
 
     if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
       project.startloading = false
-      project.view = ProjectViewWithRuntime.BrowserView
+      project.view = ProjectViewStd.BrowserView
       judgeFrontView(project)
       sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
     }
@@ -341,7 +341,7 @@ const projectModel: ProjectWithRuntimeModel = {
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
-    listenBackIpc(Broadcast.Status, (payload: StatusPayloadWithRuntime | PayloadError) => {
+    listenBackIpc(Broadcast.Status, (payload: StatusPayloadStd | PayloadError) => {
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
@@ -350,7 +350,7 @@ const projectModel: ProjectWithRuntimeModel = {
         return
       }
 
-      actions.setProjectStatus(payload as StatusPayloadWithRuntime)
+      actions.setProjectStatus(payload as StatusPayloadStd)
     })
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
@@ -405,13 +405,13 @@ const projectModel: ProjectWithRuntimeModel = {
     })
 
     listenMainIpc(MainIpcChannel.LoadStart, (event: IpcRendererEvent, projectId: string) => {
-      actions.setProjectView({ projectId, view: ProjectViewWithRuntime.Loading })
+      actions.setProjectView({ projectId, view: ProjectViewStd.Loading })
     })
 
     listenMainIpc(MainIpcChannel.LoadFinish, (event: IpcRendererEvent, projectId: string, ok: boolean) => {
       actions.setProjectView({
         projectId,
-        view: ok ? ProjectViewWithRuntime.BrowserView : ProjectViewWithRuntime.LoadFail,
+        view: ok ? ProjectViewStd.BrowserView : ProjectViewStd.LoadFail,
       })
       if (!ok) actions.setProjectViewHistory({ projectId, isView: false })
     })

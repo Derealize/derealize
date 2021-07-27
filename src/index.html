@@ -22,7 +22,7 @@
       const scripts = []
       if (window.env.isDev) {
         // Dynamically insert the DLL script in development env in the renderer process
-        scripts.push('../.erb/dll/renderer.dll.dev.js')
+        scripts.push('../.derealize/dll/renderer.dll.dev.js')
 
         // Dynamically insert the bundled app script in the renderer process
         scripts.push(`http://localhost:${window.env.port}/dist/renderer.js`)

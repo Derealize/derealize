@@ -15,7 +15,7 @@ files:
   - preload-inject.prod.js.map
   - index.html
   - package.json
-afterSign: .erb/scripts/Notarize.js
+afterSign: .derealize/scripts/Notarize.js
 mac:
   target:
     - dmg

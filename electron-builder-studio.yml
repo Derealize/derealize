@@ -1,6 +1,6 @@
 productName: Derealize
-appId: com.derealize.app-with-runtime
-artifactName: Derealize-with-runtime-${version}.${ext}
+appId: com.derealize.app-studio
+artifactName: Derealize-studio-${version}.${ext}
 files:
   - node_modules/
   - dist/
@@ -15,7 +15,7 @@ files:
   - preload-inject.prod.js.map
   - index.html
   - package.json
-afterSign: .erb/scripts/Notarize.js
+afterSign: .derealize/scripts/Notarize.js
 mac:
   target:
     - dmg
@@ -38,7 +38,7 @@ linux:
 directories:
   app: src
   buildResources: assets
-  output: release-with-runtime
+  output: release-studio
 extraResources:
   - ./assets/**
 publish:
