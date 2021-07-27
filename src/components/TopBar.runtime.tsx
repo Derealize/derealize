@@ -200,6 +200,7 @@ const TopBarWithRuntime: React.FC = (): JSX.Element => {
               <Tooltip label={tooltip} placement="top">
                 {index === breadcrumbs.length - 1 ? (
                   <BreadcrumbLink
+                    className={style.target}
                     textColor="teal.500"
                     onClick={(e) => {
                       e.stopPropagation()

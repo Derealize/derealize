@@ -14,7 +14,10 @@
 
 .breadcrumb {
   font-family: $font-mono;
-  .codefile {
-    display: inline-block;
+  .target {
+    display: none;
+    &:hover .codefile {
+      display: inline-block;
+    }
   }
 }
