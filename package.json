@@ -21,7 +21,7 @@
     "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
     "package:studio": "shx rm -rf src/dist && yarn build:studio && cross-env STUDIO=true electron-builder build --config electron-builder-studio.yml --publish never",
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
-    "dir:studio": "cross-env STUDIO=true shx rm -rf src/dist && yarn build && electron-builder build --dir",
+    "dir:studio": "cross-env STUDIO=true shx rm -rf src/dist && yarn build:studio && electron-builder build --dir",
     "test": "jest",
     "rebuild": "node -e \"console.log('rebuild start: %s', Date())\" && electron-rebuild --parallel --types prod,dev,optional --module-dir src && node -e \"console.log('rebuild end: %s', Date())\"",
     "postinstall": "yarn-deduplicate yarn.lock && shx cp .derealize/scripts/recast_fix.js node_modules/recast/parsers/babel.js && shx cp .derealize/scripts/selector_fix.js node_modules/selector-generator/selector-generator.js",
@@ -51,10 +51,6 @@
     "name": "Elliotreborn",
     "email": "elliotreborn@gmail.com",
     "url": "https://derealize.com"
-  },
-  "license": "private",
-  "bugs": {
-    "url": "https://github.com/zicjin/derealize/issues"
   },
   "homepage": "https://derealize.com",
   "jest": {
@@ -201,6 +197,9 @@
     "@chakra-ui/react": "^1.6.3",
     "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
+    "@sentry/electron": "^2.5.1",
+    "@sentry/node": "^6.10.0",
+    "@sentry/tracing": "^6.10.0",
     "@shopify/draggable": "^1.0.0-beta.12",
     "@tailwindcss/forms": "^0.3.2",
     "classnames": "^2.2.6",

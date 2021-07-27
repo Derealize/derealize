@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
+import * as Sentry from '@sentry/node'
 import Project from './project'
-import log from './log'
 import type { BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayload } from '../interface'
 import {
@@ -47,6 +47,10 @@ export const Flush = async ({ projectId }: ProjectIdParam) => {
   await project.Flush()
 }
 
+export const DisposeAll = async () => {
+  console.log('mock DisposeAll')
+}
+
 export const ApplyElements = async (payloads: Array<ElementPayload>) => {
   if (!payloads.length) return
   const project = getProject(payloads[0].projectId)
@@ -88,7 +92,8 @@ export const ThemeSetImage = async ({
   try {
     fs.copyFile(path, filePath)
   } catch (err) {
-    log('ThemeSetImage', err)
+    console.error('ThemeSetImage', err)
+    Sentry.captureException(err)
   }
 
   const cssUrl = `url(${sysPath.posix.join(assetsUrl, fileName)})`
@@ -110,7 +115,8 @@ export const ThemeRemoveImage = async ({
   try {
     fs.unlink(filePath)
   } catch (err) {
-    log('ThemeRemoveImage', err)
+    console.error('ThemeRemoveImage', err)
+    Sentry.captureException(err)
   }
 
   const { result, error } = await RemoveImage(project.path, key)

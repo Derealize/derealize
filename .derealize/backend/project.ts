@@ -1,10 +1,10 @@
 import fs from 'fs/promises'
 import sysPath from 'path'
+import * as Sentry from '@sentry/node'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import type { ProjectConfig, StatusPayload, BoolReply } from './backend.interface'
 import emit from './emit'
-import log from './log'
 
 export enum Broadcast {
   Status = 'Status',
@@ -45,7 +45,8 @@ class Project {
         return { result: false, error: 'project not imported tailwindcss' }
       }
     } catch (err) {
-      log('assignConfig error', err)
+      console.error('assignConfig error', err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -63,7 +64,8 @@ class Project {
       this.tailwindConfig = resolveConfig(config)
       return { result: true }
     } catch (err) {
-      log(`ResolveTailwindConfig fail:${this.path}`, err)
+      console.error(`ResolveTailwindConfig fail:${this.path}`, err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
   }
