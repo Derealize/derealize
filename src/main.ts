@@ -5,8 +5,9 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
+import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu, crashReporter } from 'electron'
 import log from 'electron-log'
+import * as Sentry from '@sentry/electron'
 import semver from 'semver'
 import fetch from 'node-fetch'
 import type { AlertStatus } from '@chakra-ui/react'
@@ -15,6 +16,15 @@ import MenuBuilder from './menu'
 import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { version } from './package.json'
+
+Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sentry.io/5880650' })
+
+// crashReporter.start({
+//   companyName: 'YourCompany',
+//   productName: 'YourApp',
+//   ignoreSystemCrashHandler: true,
+//   submitURL: 'https://o931741.ingest.sentry.io/api/5880650/minidump/?sentry_key=372da8ad869643a094b8c6de605093f7',
+// })
 
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
@@ -27,20 +37,13 @@ app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
 
 process.on('uncaughtException', (err) => {
-  log.error('Main UncaughtException', err)
+  // log.error('Main UncaughtException', err)
+  Sentry.captureException(err)
   dialog.showMessageBox({
     type: 'error',
-    title: 'Error in Main process',
-    message: 'Something failed',
-  })
-})
-
-process.on('unhandledRejection', (reason) => {
-  log.error('Main UnhandledRejection', reason)
-  dialog.showMessageBox({
-    type: 'error',
-    title: 'Error in Main process',
-    message: 'Something failed',
+    title: 'Sorry',
+    message: 'Uncaught exception occurred',
+    detail: err.message,
   })
 })
 
@@ -239,9 +242,9 @@ const sendIsMaximized = () => {
 }
 
 const createWindow = async () => {
-  if (isDebug) {
-    await installExtensions()
-  }
+  // if (isDebug) {
+  //   await installExtensions()
+  // }
 
   const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../assets')
 
@@ -329,77 +332,42 @@ app.on('activate', async () => {
   if (mainWindow === null) createWindow()
 })
 
-const createBackendWindow = () => {
-  // gitnode 还未支持non-context-aware, 希望未来支持
-  // https://github.com/electron/electron/issues/18397#issuecomment-583221969
-  // 这种特殊的调试模式好像也和RendererProcessReuse不兼容
-  app.allowRendererProcessReuse = false
-
-  const backendWin = new BrowserWindow({
-    x: 400,
-    y: 400,
-    width: 1000,
-    height: 800,
-    show: true,
-    webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
-      contextIsolation: false,
-    },
-  })
-  backendWin.loadURL(`file://${__dirname}/backend/backend.html`)
-  backendWin.webContents.openDevTools()
-
-  backendWin.webContents.on('did-finish-load', () => {
-    backendWin.webContents.send('setParams', { socketId })
-  })
-}
-
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
       execArgv: ['-r', './.derealize/scripts/BabelRegister'],
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
   } else if (isProd) {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
-      stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // subprocess could use process.send() debug
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
   } else {
-    createBackendWindow()
-  }
+    // nodegit 还未支持non-context-aware, 希望未来支持
+    // https://github.com/electron/electron/issues/18397#issuecomment-583221969
+    // 这种特殊的调试模式好像也和RendererProcessReuse不兼容
+    app.allowRendererProcessReuse = false
 
-  if (backendProcess) {
-    backendProcess.on('message', (data: { message: string; error?: Error }) => {
-      if (data.error) {
-        // todo: replace by sentry
-        log.error(`backend: ${data.message}`, data.error)
-      } else {
-        log.info(`backend: ${data.message}`)
-      }
+    const backendWin = new BrowserWindow({
+      x: 400,
+      y: 400,
+      width: 1000,
+      height: 800,
+      show: true,
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false,
+      },
     })
-    backendProcess.on('error', (err) => {
-      log.error('backend', err)
+    backendWin.loadURL(`file://${__dirname}/backend/backend.html`)
+    backendWin.webContents.openDevTools()
+
+    backendWin.webContents.on('did-finish-load', () => {
+      backendWin.webContents.send('setParams', { socketId })
     })
   }
 }
-
-app
-  .whenReady()
-  .then(async () => {
-    console.log(`name:${app.getName()};studio:${STUDIO};userData:${app.getPath('userData')}`)
-    // console.log(`process.versions`, JSON.stringify(process.versions))
-
-    socketId = await findOpenSocket()
-    createBackendProcess()
-    createWindow()
-
-    checkForUpdates(true)
-    return null
-  })
-  .catch(log.error)
 
 ipcMain.on(MainIpcChannel.GetStore, (event, key: string) => {
   const value = store.get(key)
@@ -545,12 +513,21 @@ ipcMain.on(MainIpcChannel.DisableLink, (event, projectId: string, isDisable: boo
   }
 })
 
-// ipcMain.on(MainIpcChannel.TextTab, (event, payload: boolean) => {
-//   if (!mainWindow) return
-//   mainWindow.webContents.send(MainIpcChannel.TextTab, payload)
-// })
-
 ipcMain.on(MainIpcChannel.Dropped, (event, payload: ElementPayload) => {
   if (!mainWindow) return
   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
 })
+
+// ipcMain.on(MainIpcChannel.TextTab, (event, payload: boolean) => {
+//   if (!mainWindow) return
+//   mainWindow.webContents.send(MainIpcChannel.TextTab, payload)
+// })
+;(async () => {
+  await app.whenReady()
+  console.log(`${app.getName()};isStudio:${STUDIO};userData:${app.getPath('userData')}`)
+  socketId = await findOpenSocket()
+  createBackendProcess()
+  createWindow()
+  checkForUpdates(true)
+  // throw new Error('main error test 377')
+})()

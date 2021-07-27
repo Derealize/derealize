@@ -6,7 +6,6 @@ import type { NodePath } from 'ast-types/lib/node-path'
 import type { namedTypes as TnamedTypes } from 'ast-types/gen/namedTypes'
 import * as parser from 'recast/parsers/babel'
 import { ElementPayload, InsertMode, InsertElementPayload, ElementTag } from '../../interface'
-import log from '../log'
 
 const { builders, namedTypes } = types
 
@@ -59,7 +58,7 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
               attr.value.value = className
             } else if (namedTypes.JSXExpressionContainer.check(attr.value)) {
               // todo: 使用babel实现依赖状态表达式的 className
-              log(`${filePath} Cannot predictibly change JSX expression, skipping`)
+              console.log(`${filePath} Cannot predictibly change JSX expression, skipping`)
             } else if (!attr.value) {
               attr.value = builders.stringLiteral(className)
             }

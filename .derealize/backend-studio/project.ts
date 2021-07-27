@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
+import * as Sentry from '@sentry/node'
 import type { Repository } from '@derealize/nodegit'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
@@ -17,7 +18,6 @@ import { ProjectStatus } from './backend.interface'
 import { npmInstall, npmStart } from './npm'
 import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
 import emit from './emit'
-import log from './log'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
 
@@ -84,7 +84,8 @@ class Project {
         return { result: false, error: 'project not imported tailwindcss' }
       }
     } catch (err) {
-      log('assignConfig error', err)
+      console.error('assignConfig error', err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -102,7 +103,8 @@ class Project {
       this.tailwindConfig = resolveConfig(config)
       return { result: true }
     } catch (err) {
-      log(`ResolveTailwindConfig fail:${this.path}`, err)
+      console.error(`ResolveTailwindConfig fail:${this.path}`, err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
   }
@@ -113,7 +115,8 @@ class Project {
     try {
       await checkBranch(this.repo, this.branch)
     } catch (err) {
-      log('git branch error', err)
+      console.error('git branch error', err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -126,7 +129,8 @@ class Project {
         }
       })
     } catch (err) {
-      log('git status error', err)
+      console.error('git status error', err)
+      Sentry.captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -156,11 +160,13 @@ class Project {
         try {
           this.repo = await gitOpen(this.path)
         } catch (openErr) {
-          log('git open error', openErr)
+          console.error('git open error', openErr)
+          Sentry.captureException(openErr)
           return { result: false, error: openErr.message }
         }
       } else {
-        log('git clone error', err)
+        console.error('git clone error', err)
+        Sentry.captureException(err)
         return { result: false, error: err.message }
       }
     }
@@ -192,13 +198,14 @@ class Project {
     this.installProcess.on('error', (error) => {
       hasError = true
       emit(Broadcast.Installing, { projectId: this.projectId, error: error.message, exit: 0 } as ProcessPayload)
-      log('installing error', error)
+      console.error('installing error', error)
+      Sentry.captureException(error)
     })
 
     this.installProcess.on('exit', (exit) => {
       emit(Broadcast.Installing, { projectId: this.projectId, exit } as ProcessPayload)
       if (!hasError) {
-        log('status = ProjectStatus.Ready')
+        console.log('status = ProjectStatus.Ready')
         this.status = ProjectStatus.Ready
         this.EmitStatus()
       }
@@ -238,7 +245,8 @@ class Project {
     })
 
     this.runningProcess.on('error', (error) => {
-      log('starting error', error)
+      console.error('starting error', error)
+      Sentry.captureException(error)
       emit(Broadcast.Starting, { projectId: this.projectId, error: error.message } as ProcessPayload)
       this.status = ProjectStatus.Ready
       this.EmitStatus()
@@ -286,7 +294,8 @@ class Project {
       if (error.message.includes('is the current HEAD of the repository')) {
         return { result: true }
       }
-      log('gitPull error', error)
+      console.error('gitPull error', error)
+      Sentry.captureException(error)
       return { result: false, error: error.message }
     }
   }
@@ -315,7 +324,8 @@ class Project {
 
       return { result: true }
     } catch (error) {
-      log('gitPush error', error)
+      console.error('gitPush error', error)
+      Sentry.captureException(error)
       return { result: false, error: error.message }
     }
   }

@@ -1,7 +1,9 @@
 import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron'
+import * as Sentry from '@sentry/electron'
 import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './client-ipc'
 
+Sentry.init({ dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0' })
 let ISMAXIMIZED = false
 
 contextBridge.exposeInMainWorld('env', {
