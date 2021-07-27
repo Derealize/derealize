@@ -63,7 +63,6 @@ src/preload-inject.js
 src/style.css
 
 src/package.json
-src/backend/backend.ts
 src/backend/handlers.ts
 src/backend/project.ts
 src/backend/git.ts

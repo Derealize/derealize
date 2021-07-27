@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
+import * as Sentry from '@sentry/node'
 import Project from './project'
-import log from './log'
 import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayloadStd } from '../interface'
 import {
@@ -95,7 +95,7 @@ export const DisposeAll = async () => {
     promises.push(project.Dispose())
   }
   await Promise.all(promises)
-  log('DisposeAll')
+  console.log('DisposeAll')
 }
 
 export const ApplyElements = async (payloads: Array<ElementPayload>) => {
@@ -139,7 +139,8 @@ export const ThemeSetImage = async ({
   try {
     fs.copyFile(path, filePath)
   } catch (err) {
-    log('ThemeSetImage', err)
+    console.error('ThemeSetImage', err)
+    Sentry.captureException(err)
   }
 
   const cssUrl = `url(${sysPath.posix.join(assetsUrl, fileName)})`
@@ -161,7 +162,8 @@ export const ThemeRemoveImage = async ({
   try {
     fs.unlink(filePath)
   } catch (err) {
-    log('ThemeRemoveImage', err)
+    console.error('ThemeRemoveImage', err)
+    Sentry.captureException(err)
   }
 
   const { result, error } = await RemoveImage(project.path, key)
