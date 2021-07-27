@@ -17,7 +17,7 @@ import {
   Button,
 } from '@chakra-ui/react'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import type { ProjectWithRuntime } from '../models/project.interface'
+import type { ProjectStd } from '../models/project.interface'
 
 type Inputs = {
   displayname: string
@@ -32,9 +32,9 @@ const EditProject = (): JSX.Element => {
     formState: { errors },
   } = useForm<Inputs>()
 
-  const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.editingProject)
-  const setEditingProject = useStoreActions((actions) => actions.projectWithRuntime.setEditingProject)
-  const editProject = useStoreActions((actions) => actions.projectWithRuntime.editProject)
+  const project = useStoreState<ProjectStd | undefined>((state) => state.projectStd.editingProject)
+  const setEditingProject = useStoreActions((actions) => actions.projectStd.setEditingProject)
+  const editProject = useStoreActions((actions) => actions.projectStd.editProject)
 
   const submit = useCallback(
     (data) => {

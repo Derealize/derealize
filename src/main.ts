@@ -19,7 +19,7 @@ import { version } from './package.json'
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
-const withRuntime = process.env.WITH_RUNTIME === 'true'
+const STUDIO = process.env.STUDIO === 'true'
 let socketId: string
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
@@ -78,9 +78,9 @@ const checkForUpdates = async (silent = false) => {
   })
   if (resp.ok) {
     const matrix = await resp.json()
-    let latest = withRuntime ? matrix.win_runtime : matrix.win
+    let latest = STUDIO ? matrix.win_studio : matrix.win
     if (isDarwin) {
-      latest = withRuntime ? matrix.mac_runtime : matrix.mac
+      latest = STUDIO ? matrix.mac_studio : matrix.mac
     }
     if (semver.gt(latest, version)) {
       const { response } = await dialog.showMessageBox({
@@ -89,7 +89,7 @@ const checkForUpdates = async (silent = false) => {
       })
       if (response === 0) {
         await shell.openExternal(
-          `https://cdn.socode.pro/Derealize${withRuntime ? '-with-runtime' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
+          `https://cdn.socode.pro/Derealize${STUDIO ? '-studio' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
         )
       }
     } else if (!silent) {
@@ -253,7 +253,7 @@ const createWindow = async () => {
     show: false,
     width: 1280,
     height: 800,
-    icon: withRuntime ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
+    icon: STUDIO ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
     frame: false,
     // autoHideMenuBar: true,
     webPreferences: {
@@ -359,7 +359,7 @@ let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
-      execArgv: ['-r', './.erb/scripts/BabelRegister'],
+      execArgv: ['-r', './.derealize/scripts/BabelRegister'],
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     })
   } else if (isProd) {
@@ -389,7 +389,7 @@ const createBackendProcess = () => {
 app
   .whenReady()
   .then(async () => {
-    console.log(`name:${app.getName()};withRuntime:${withRuntime};userData:${app.getPath('userData')}`)
+    console.log(`name:${app.getName()};studio:${STUDIO};userData:${app.getPath('userData')}`)
     // console.log(`process.versions`, JSON.stringify(process.versions))
 
     socketId = await findOpenSocket()

@@ -36,7 +36,7 @@ export interface ProjectConfig {
   isWeapp: boolean
 }
 
-export interface ProjectConfigWithRuntime extends ProjectConfig {
+export interface ProjectConfigStd extends ProjectConfig {
   runScript: string
   port: number
 }
@@ -72,8 +72,8 @@ export interface StatusPayload {
   tailwindConfig?: TailwindConfig
 }
 
-export interface StatusPayloadWithRuntime extends Omit<StatusPayload, 'config'> {
-  config: ProjectConfigWithRuntime
+export interface StatusPayloadStd extends Omit<StatusPayload, 'config'> {
+  config: ProjectConfigStd
   changes: Array<GitFileChanges>
   status: ProjectStatus
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import cs from 'classnames'
 import { VscThreeBars } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from '../reduxStore'
-import { Project, ProjectWithRuntime } from '../models/project.interface'
+import { Project, ProjectStd } from '../models/project.interface'
 import ChromeTabs from '../utils/chrome-tabs'
 import css from './TabBar.module.scss'
 import { ReactComponent as BackgroundSvg } from '../styles/chrome-tabs/background.svg'
@@ -12,21 +12,21 @@ import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
 const { sendMainIpc } = window.derealize
-const { withRuntime } = window.env
+const { isStudio } = window.env
 
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
-  const openedProjects = useStoreState<Array<Project> | Array<ProjectWithRuntime>>((state) =>
-    withRuntime ? state.projectWithRuntime.openedProjects : state.project.openedProjects,
+  const openedProjects = useStoreState<Array<Project> | Array<ProjectStd>>((state) =>
+    isStudio ? state.projectStd.openedProjects : state.project.openedProjects,
   )
-  const frontProject = useStoreState<Project | ProjectWithRuntime | undefined>((state) =>
-    withRuntime ? state.projectWithRuntime.frontProject : state.project.frontProject,
+  const frontProject = useStoreState<Project | ProjectStd | undefined>((state) =>
+    isStudio ? state.projectStd.frontProject : state.project.frontProject,
   )
   const setFrontProject = useStoreActions((actions) =>
-    withRuntime ? actions.projectWithRuntime.setFrontProject : actions.project.setFrontProject,
+    isStudio ? actions.projectStd.setFrontProject : actions.project.setFrontProject,
   )
   const closeProject = useStoreActions((actions) =>
-    withRuntime ? actions.projectWithRuntime.closeProjectThunk : actions.project.closeProjectThunk,
+    isStudio ? actions.projectStd.closeProjectThunk : actions.project.closeProjectThunk,
   )
 
   useEffect(() => {

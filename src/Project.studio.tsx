@@ -4,11 +4,11 @@ import { Text, Button, List, ListItem, ListIcon, useToast, Box, CloseButton } fr
 import { PuffLoader } from 'react-spinners'
 import { VscRepoPush, VscRepoPull } from 'react-icons/vsc'
 import { useStoreActions, useStoreState } from './reduxStore'
-import { ProjectWithRuntime, ProjectViewWithRuntime } from './models/project.interface'
+import { ProjectStd, ProjectViewStd } from './models/project.interface'
 import type { ElementState } from './models/element'
 import type { CommitLog, BoolReply } from './backend/backend.interface'
 import { Handler } from './backend/backend.interface'
-import TopBar from './components/TopBar.runtime'
+import TopBar from './components/TopBar.studio'
 import Controllers from './components/controllers/Controllers'
 import Elements from './Historys'
 import ImagesModal from './components/ImagesModal'
@@ -22,13 +22,13 @@ declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpc } = window.derealize
 
 const ProjectPage: React.FC = (): JSX.Element => {
-  const project = useStoreState<ProjectWithRuntime | undefined>((state) => state.projectWithRuntime.frontProject)
+  const project = useStoreState<ProjectStd | undefined>((state) => state.projectStd.frontProject)
   const element = useStoreState<ElementState | undefined>((state) => state.element.selectedElement)
   const barWidth = useStoreState<number>((state) => state.workspace.barWidth)
 
   const toast = useToast()
-  const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.projectWithRuntime.gitHistorys)
-  const setProjectView = useStoreActions((actions) => actions.projectWithRuntime.setProjectView)
+  const gitHistorys = useStoreState<Array<CommitLog>>((state) => state.projectStd.gitHistorys)
+  const setProjectView = useStoreActions((actions) => actions.projectStd.setProjectView)
 
   const callPush = useCallback(async () => {
     if (!project) return null
@@ -56,7 +56,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
       <ImagesModal />
       <ColorsModal />
       <div className={style.main}>
-        {project.view === ProjectViewWithRuntime.BrowserView && (
+        {project.view === ProjectViewStd.BrowserView && (
           <div className={style.controllers} style={{ flexBasis: barWidth }}>
             {!project.viewHistory && !!element && <Controllers />}
             {project.viewHistory && <Elements />}
@@ -70,19 +70,19 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </Box>
           )}
 
-          {project.view !== ProjectViewWithRuntime.BrowserView && (
+          {project.view !== ProjectViewStd.BrowserView && (
             <CloseButton
               size="lg"
               colorScheme="gray"
               className={style.closebtn}
               onClick={() => {
-                setProjectView({ projectId: project.id, view: ProjectViewWithRuntime.BrowserView })
+                setProjectView({ projectId: project.id, view: ProjectViewStd.BrowserView })
               }}
             />
           )}
 
-          {project.view === ProjectViewWithRuntime.Loading && <PuffLoader color="#4FD1C5" />}
-          {project.view === ProjectViewWithRuntime.LoadFail && (
+          {project.view === ProjectViewStd.Loading && <PuffLoader color="#4FD1C5" />}
+          {project.view === ProjectViewStd.LoadFail && (
             <>
               <LoadFailSvg className={style.loadFailSvg} />
               <Text mt={4} fontSize="2xl" className={style.loadFailText}>
@@ -102,7 +102,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </>
           )}
 
-          {project.view === ProjectViewWithRuntime.Debugging && (
+          {project.view === ProjectViewStd.Debugging && (
             <div className={style.output}>
               {project.runningOutput?.map((o, i) => (
                 // eslint-disable-next-line react/no-array-index-key
@@ -113,7 +113,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
             </div>
           )}
 
-          {project.view === ProjectViewWithRuntime.FileStatus && (
+          {project.view === ProjectViewStd.FileStatus && (
             <>
               {project.changes?.length !== 0 && (
                 <Text mb={10}>

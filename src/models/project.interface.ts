@@ -1,5 +1,5 @@
 import type { TailwindConfig, TailwindColorConfig, TailwindColorGroup } from 'tailwindcss/tailwind-config'
-import type { ProjectConfig, ProjectConfigWithRuntime, GitFileChanges } from '../backend/backend.interface'
+import type { ProjectConfig, ProjectConfigStd, GitFileChanges } from '../backend/backend.interface'
 import { ProjectStatus } from '../backend/backend.interface'
 
 export enum ProjectView {
@@ -8,7 +8,7 @@ export enum ProjectView {
   LoadFail,
 }
 
-export enum ProjectViewWithRuntime {
+export enum ProjectViewStd {
   BrowserView,
   Loading,
   LoadFail,
@@ -33,12 +33,12 @@ export interface Project {
   favicon?: string
 }
 
-export interface ProjectWithRuntime extends Omit<Project, 'view'> {
+export interface ProjectStd extends Omit<Project, 'view'> {
   url: string
   branch: string
   status?: ProjectStatus
-  config?: ProjectConfigWithRuntime
-  view?: ProjectViewWithRuntime
+  config?: ProjectConfigStd
+  view?: ProjectViewStd
   changes?: Array<GitFileChanges>
   startloading?: boolean
   runningOutput?: Array<string>

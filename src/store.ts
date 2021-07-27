@@ -1,7 +1,7 @@
 import Store from 'electron-store'
 import { JSONSchema } from 'json-schema-typed'
 
-const withRuntime = process.env.WITH_RUNTIME === 'true'
+const isStudio = process.env.STUDIO === 'true'
 
 // https://json-schema.org/learn/getting-started-step-by-step.html
 // https://json-schema.org/understanding-json-schema/reference/string.html#id7
@@ -28,7 +28,7 @@ const projectItems: JSONSchema = {
   },
 }
 
-const projectItemsWithRuntime: JSONSchema = {
+const projectItemsStd: JSONSchema = {
   type: 'object',
   required: ['id', 'url', 'path', 'name', 'editedTime'],
   properties: {
@@ -63,7 +63,7 @@ const projectItemsWithRuntime: JSONSchema = {
 }
 
 const store = new Store({
-  name: withRuntime ? 'store-runtime' : 'store',
+  name: isStudio ? 'store-studio' : 'store',
   schema: {
     settings: {
       type: 'object',
@@ -83,7 +83,7 @@ const store = new Store({
     projects: {
       type: 'array',
       uniqueItems: true,
-      items: withRuntime ? projectItemsWithRuntime : projectItems,
+      items: isStudio ? projectItemsStd : projectItems,
     },
   },
 })

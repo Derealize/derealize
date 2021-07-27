@@ -25,7 +25,7 @@ import dayjs from 'dayjs'
 import { FiPlusCircle } from 'react-icons/fi'
 import { FaBars } from 'react-icons/fa'
 import { useStoreActions, useStoreState } from './reduxStore'
-import type { ProjectWithRuntime } from './models/project.interface'
+import type { ProjectStd } from './models/project.interface'
 import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
@@ -35,12 +35,12 @@ import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpc } = window.derealize
 
-const HomeWithRuntime = (): JSX.Element => {
-  const projects = useStoreState<Array<ProjectWithRuntime>>((state) => state.projectWithRuntime.projects)
-  const toggleImportModal = useStoreActions((actions) => actions.projectWithRuntime.toggleImportModal)
-  const setEditingProject = useStoreActions((actions) => actions.projectWithRuntime.setEditingProject)
-  const openProject = useStoreActions((actions) => actions.projectWithRuntime.openProject)
-  const removeProject = useStoreActions((actions) => actions.projectWithRuntime.removeProjectThunk)
+const Home = (): JSX.Element => {
+  const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
+  const toggleImportModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
+  const setEditingProject = useStoreActions((actions) => actions.projectStd.setEditingProject)
+  const openProject = useStoreActions((actions) => actions.projectStd.openProject)
+  const removeProject = useStoreActions((actions) => actions.projectStd.removeProjectThunk)
 
   // useEffect(() => {
   //   toggleImportModal(!projects.length)
@@ -206,4 +206,4 @@ const HomeWithRuntime = (): JSX.Element => {
   )
 }
 
-export default HomeWithRuntime
+export default Home
