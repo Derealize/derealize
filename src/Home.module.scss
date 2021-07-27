@@ -5,6 +5,14 @@
   padding: 20px;
 }
 
+.welcome {
+  font-size: 16px;
+  .undraw {
+    width: 400px;
+    height: 400px;
+  }
+}
+
 .projects {
   display: flex;
   flex-wrap: wrap;
