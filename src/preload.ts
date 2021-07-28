@@ -1,9 +1,12 @@
 import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron'
-import * as Sentry from '@sentry/electron'
+import * as Sentry from '@sentry/electron/dist/renderer'
 import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './client-ipc'
 
-Sentry.init({ dsn: 'https://examplePublicKey@o0.ingest.sentry.io/0' })
+// https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
+// 无法捕获 react 组件异常,还需要 react sdk
+Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***' })
+
 let ISMAXIMIZED = false
 
 contextBridge.exposeInMainWorld('env', {

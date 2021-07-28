@@ -2134,6 +2134,16 @@
     prop-types "^15.7.2"
     tslib "^2.1.0"
 
+"@sentry/browser@6.10.0":
+  version "6.10.0"
+  resolved "https://registry.nlark.com/@sentry/browser/download/@sentry/browser-6.10.0.tgz?cache=0&sync_timestamp=1626942501467&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40sentry%2Fbrowser%2Fdownload%2F%40sentry%2Fbrowser-6.10.0.tgz#92e72edca584d940fba80cf6477d4a54c6dea573"
+  integrity sha1-kucu3KWE2UD7qAz2R31KVMbepXM=
+  dependencies:
+    "@sentry/core" "6.10.0"
+    "@sentry/types" "6.10.0"
+    "@sentry/utils" "6.10.0"
+    tslib "^1.9.3"
+
 "@sentry/browser@6.7.1":
   version "6.7.1"
   resolved "https://registry.nlark.com/@sentry/browser/download/@sentry/browser-6.7.1.tgz?cache=0&sync_timestamp=1626942501467&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40sentry%2Fbrowser%2Fdownload%2F%40sentry%2Fbrowser-6.7.1.tgz#e01144a08984a486ecc91d7922cc457e9c9bd6b7"
@@ -2243,6 +2253,18 @@
     cookie "^0.4.1"
     https-proxy-agent "^5.0.0"
     lru_map "^0.3.3"
+    tslib "^1.9.3"
+
+"@sentry/react@^6.10.0":
+  version "6.10.0"
+  resolved "https://registry.nlark.com/@sentry/react/download/@sentry/react-6.10.0.tgz#4c2199f6e6565be42dc5d19d38d836c5f7da62e2"
+  integrity sha1-TCGZ9uZWW+QtxdGdONg2xffaYuI=
+  dependencies:
+    "@sentry/browser" "6.10.0"
+    "@sentry/minimal" "6.10.0"
+    "@sentry/types" "6.10.0"
+    "@sentry/utils" "6.10.0"
+    hoist-non-react-statics "^3.3.2"
     tslib "^1.9.3"
 
 "@sentry/tracing@6.10.0", "@sentry/tracing@^6.10.0":
@@ -7206,7 +7228,7 @@ history@^5.0.0:
   dependencies:
     "@babel/runtime" "^7.7.6"
 
-hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.1:
+hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.1, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npm.taobao.org/hoist-non-react-statics/download/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
   integrity sha1-7OCsr3HWLClpwuxZ/v9CpLGoW0U=
