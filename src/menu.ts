@@ -206,7 +206,7 @@ export default class MenuBuilder {
         {
           label: 'Documentation',
           click: () => {
-            shell.openExternal('http://derealize.com/')
+            shell.openExternal('https://derealize.com/docs/intro/')
           },
         },
         {
@@ -364,7 +364,7 @@ export default class MenuBuilder {
         {
           label: 'Documentation',
           click: () => {
-            shell.openExternal('http://derealize.com/')
+            shell.openExternal('https://derealize.com/docs/intro/')
           },
         },
         {
