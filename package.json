@@ -199,6 +199,7 @@
     "@emotion/styled": "^11.0.0",
     "@sentry/electron": "^2.5.1",
     "@sentry/node": "^6.10.0",
+    "@sentry/react": "^6.10.0",
     "@sentry/tracing": "^6.10.0",
     "@shopify/draggable": "^1.0.0-beta.12",
     "@tailwindcss/forms": "^0.3.2",

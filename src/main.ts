@@ -5,7 +5,7 @@ import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 import { fork, ChildProcess } from 'child_process'
 import path from 'path'
-import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu, crashReporter } from 'electron'
+import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import log from 'electron-log'
 import * as Sentry from '@sentry/electron'
 import semver from 'semver'
@@ -17,7 +17,7 @@ import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { version } from './package.json'
 
-Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***' })
+Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***', enableNative: true })
 
 // crashReporter.start({
 //   companyName: 'YourCompany',
@@ -529,5 +529,5 @@ ipcMain.on(MainIpcChannel.Dropped, (event, payload: ElementPayload) => {
   createBackendProcess()
   createWindow()
   checkForUpdates(true)
-  // throw new Error('main error test 377')
+  // throw new Error('main error test 532')
 })()
