@@ -200,7 +200,7 @@ const TopBar: React.FC = (): JSX.Element => {
             size="sm"
             aria-label="Disable Link"
             icon={<GrUnlink />}
-            colorScheme={isDisableLink ? 'teal' : 'gray'}
+            colorScheme={isDisableLink ? 'pink' : 'gray'}
             onClick={() => {
               sendMainIpc(MainIpcChannel.DisableLink, project.id, !isDisableLink)
               setIsDisableLink(!isDisableLink)
