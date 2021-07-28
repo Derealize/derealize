@@ -113,6 +113,7 @@ export enum MainIpcChannel {
   DisableLink = 'DisableLink',
   Favicon = 'Favicon',
   Toast = 'Toast',
+  ElectronLog = 'ElectronLog',
 }
 
 export const ControllerShortcut = [
