@@ -96,11 +96,18 @@ class Project {
     try {
       const configPath = sysPath.resolve(this.path, './tailwind.config.js')
 
-      // https://cnodejs.org/topic/52aa6e78a9526bff2232aaa9
-      delete __non_webpack_require__.cache[configPath]
-      // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
-      const config = __non_webpack_require__(configPath)
-      this.tailwindConfig = resolveConfig(config)
+      if (typeof __non_webpack_require__ !== 'undefined') {
+        // https://cnodejs.org/topic/52aa6e78a9526bff2232aaa9
+        delete __non_webpack_require__.cache[configPath]
+        // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
+        const config = __non_webpack_require__(configPath)
+        this.tailwindConfig = resolveConfig(config)
+      } else {
+        delete require.cache[configPath]
+        const config = require(configPath)
+        this.tailwindConfig = resolveConfig(config)
+      }
+
       return { result: true }
     } catch (err) {
       console.error(`ResolveTailwindConfig fail:${this.path}`, err)
