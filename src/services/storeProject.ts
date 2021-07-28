@@ -23,6 +23,7 @@ export const OmitStoreProp = [
   'tailwindConfig',
   'elements',
   'view',
+  'viewHistory',
   'startloading',
   'jitClassName',
 ]
