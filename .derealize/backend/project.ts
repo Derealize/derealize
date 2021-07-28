@@ -1,3 +1,4 @@
+import log from 'electron-log'
 import fs from 'fs/promises'
 import sysPath from 'path'
 import * as Sentry from '@sentry/node'
@@ -5,6 +6,8 @@ import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import type { ProjectConfig, StatusPayload, BoolReply } from './backend.interface'
 import emit from './emit'
+
+const projectLog = log.scope('project')
 
 export enum Broadcast {
   Status = 'Status',
@@ -78,12 +81,13 @@ class Project {
   }
 
   async Flush(): Promise<BoolReply> {
+    projectLog.debug('Flush assignConfig')
     const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
-
+    projectLog.debug('Flush ResolveTailwindConfig')
     const tailwindConfigReply = this.ResolveTailwindConfig()
     if (!tailwindConfigReply.result) return tailwindConfigReply
-
+    projectLog.debug('Flush EmitStatus')
     this.EmitStatus()
     return { result: true }
   }

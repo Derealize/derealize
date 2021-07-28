@@ -21,6 +21,7 @@ export const OmitStoreProp = [
   'installOutput',
   'config',
   'tailwindConfig',
+  'tailwindVersion',
   'elements',
   'view',
   'viewHistory',

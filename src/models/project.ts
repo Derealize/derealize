@@ -243,6 +243,7 @@ const projectModel: ProjectModel = {
         const { id: projectId, path } = project
 
         const payload: ImportPayload = { projectId, path }
+        sendMainIpc(MainIpcChannel.ElectronLog, `Handler.Import:${payload.projectId}`)
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (!result) {
           toast({
@@ -258,16 +259,17 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === payload.projectId)
     if (!project) return
 
+    sendMainIpc(MainIpcChannel.ElectronLog, 'project.config = payload.config')
     project.config = payload.config
     project.tailwindVersion = payload.tailwindVersion
     project.tailwindConfig = payload.tailwindConfig
-    storeProject(state.projects)
   }),
 
   listen: thunk(async (actions, none, { getState, getStoreActions }) => {
     actions.unlisten()
 
     listenBackIpc(Broadcast.Status, (payload: StatusPayload | PayloadError) => {
+      sendMainIpc(MainIpcChannel.ElectronLog, `Broadcast.Status:${payload.projectId}`)
       if ((payload as PayloadError).error) {
         toast({
           title: `Status error:${(payload as PayloadError).error}`,
