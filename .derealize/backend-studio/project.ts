@@ -184,6 +184,11 @@ class Project {
 
     this.runningProcess?.kill()
 
+    const transaction = Sentry.startTransaction({
+      op: 'transaction',
+      name: 'npm install',
+    })
+
     this.installProcess = npmInstall(this.path)
     let hasError = false
 
@@ -209,6 +214,7 @@ class Project {
         this.status = ProjectStatus.Ready
         this.EmitStatus()
       }
+      transaction.finish()
     })
 
     return { result: true }

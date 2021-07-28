@@ -17,15 +17,6 @@ import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { version } from './package.json'
 
-Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sentry.io/5880650', enableNative: true })
-
-// crashReporter.start({
-//   companyName: 'YourCompany',
-//   productName: 'YourApp',
-//   ignoreSystemCrashHandler: true,
-//   submitURL: 'https://o931741.ingest.sentry.io/api/5880650/minidump/?sentry_key=372da8ad869643a094b8c6de605093f7',
-// })
-
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
@@ -35,6 +26,13 @@ let socketId: string
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
+
+Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sentry.io/5880650', enableNative: true })
+
+Sentry.setContext('character', {
+  runtime: 'main',
+  studio: STUDIO,
+})
 
 process.on('uncaughtException', (err) => {
   // log.error('Main UncaughtException', err)

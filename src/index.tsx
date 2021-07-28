@@ -33,6 +33,11 @@ Sentry.init({
   tracesSampleRate: 1.0,
 })
 
+Sentry.setContext('character', {
+  runtime: 'react',
+  studio: isStudio,
+})
+
 ReactDOM.render(
   <React.StrictMode>
     <StoreProvider store={store}>
