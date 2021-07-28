@@ -18,6 +18,11 @@ import { SetImage, RemoveImage } from './shift/image'
 import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
 
+Sentry.setContext('character', {
+  runtime: 'backend',
+  studio: true,
+})
+
 const projectsMap = new Map<string, Project>()
 
 const getProject = (id: string): Project => {

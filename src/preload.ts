@@ -6,6 +6,10 @@ import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './cl
 // https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
 // 无法捕获 react 组件异常,还需要 react sdk
 Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***' })
+Sentry.setContext('character', {
+  runtime: 'renderer',
+  studio: process.env.STUDIO === 'true',
+})
 
 let ISMAXIMIZED = false
 
