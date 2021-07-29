@@ -41,7 +41,7 @@ directories:
   output: release-studio
 extraResources:
   - ./assets/**
-# publish:
-#   provider: github
-#   owner: zicjin
-#   repo: ddrealize
+publish:
+  provider: github
+  owner: zicjin
+  repo: drealize
