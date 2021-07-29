@@ -64,7 +64,7 @@ const TabBar = (): JSX.Element => {
             </div>
             <div className="chrome-tab-content">
               <div className="chrome-tab-favicon" />
-              <div className="chrome-tab-title">Derealize</div>
+              <div className="chrome-tab-title">{isStudio ? 'Derealize Studio' : 'Derealize'}</div>
               <div className="chrome-tab-drag-handle" />
               {!window.env.isMac && (
                 <VscThreeBars

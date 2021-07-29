@@ -39,8 +39,6 @@ directories:
   app: src
   buildResources: assets
   output: release
-extraResources:
-  - ./assets/!(node-win|node-mac)/**
 publish:
   provider: github
   owner: zicjin
