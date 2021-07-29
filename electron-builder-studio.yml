@@ -1,4 +1,4 @@
-productName: Derealize
+productName: Derealize Studio
 appId: com.derealize.app-studio
 artifactName: Derealize-studio-${version}.${ext}
 files:
@@ -40,7 +40,7 @@ directories:
   buildResources: assets
   output: release-studio
 extraResources:
-  - ./assets/**
+  - ./assets/**/*
 publish:
   provider: github
   owner: zicjin
