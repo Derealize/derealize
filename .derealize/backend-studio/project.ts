@@ -6,6 +6,7 @@ import type { Repository } from '@derealize/nodegit'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
 import killPort from 'kill-port'
+import log, { captureException } from './log'
 import type {
   ProjectConfigStd,
   GitFileChanges,
@@ -84,8 +85,7 @@ class Project {
         return { result: false, error: 'project not imported tailwindcss' }
       }
     } catch (err) {
-      console.error('assignConfig error', err)
-      Sentry.captureException(err)
+      captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -96,22 +96,21 @@ class Project {
     try {
       const configPath = sysPath.resolve(this.path, './tailwind.config.js')
 
-      if (typeof __non_webpack_require__ !== 'undefined') {
+      if (process.env.BACKEND_SUBPROCESS === 'true') {
+        delete require.cache[configPath]
+        const config = require(configPath)
+        this.tailwindConfig = resolveConfig(config)
+      } else {
         // https://cnodejs.org/topic/52aa6e78a9526bff2232aaa9
         delete __non_webpack_require__.cache[configPath]
         // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
         const config = __non_webpack_require__(configPath)
         this.tailwindConfig = resolveConfig(config)
-      } else {
-        delete require.cache[configPath]
-        const config = require(configPath)
-        this.tailwindConfig = resolveConfig(config)
       }
 
       return { result: true }
     } catch (err) {
-      console.error(`ResolveTailwindConfig fail:${this.path}`, err)
-      Sentry.captureException(err)
+      captureException(err, { path: this.path })
       return { result: false, error: err.message }
     }
   }
@@ -122,8 +121,7 @@ class Project {
     try {
       await checkBranch(this.repo, this.branch)
     } catch (err) {
-      console.error('git branch error', err)
-      Sentry.captureException(err)
+      captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -136,8 +134,7 @@ class Project {
         }
       })
     } catch (err) {
-      console.error('git status error', err)
-      Sentry.captureException(err)
+      captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -167,13 +164,11 @@ class Project {
         try {
           this.repo = await gitOpen(this.path)
         } catch (openErr) {
-          console.error('git open error', openErr)
-          Sentry.captureException(openErr)
+          captureException(openErr)
           return { result: false, error: openErr.message }
         }
       } else {
-        console.error('git clone error', err)
-        Sentry.captureException(err)
+        captureException(err)
         return { result: false, error: err.message }
       }
     }
@@ -210,14 +205,13 @@ class Project {
     this.installProcess.on('error', (error) => {
       hasError = true
       emit(Broadcast.Installing, { projectId: this.projectId, error: error.message, exit: 0 } as ProcessPayload)
-      console.error('installing error', error)
-      Sentry.captureException(error)
+      captureException(error)
     })
 
     this.installProcess.on('exit', (exit) => {
       emit(Broadcast.Installing, { projectId: this.projectId, exit } as ProcessPayload)
       if (!hasError) {
-        console.log('status = ProjectStatus.Ready')
+        log('status = ProjectStatus.Ready')
         this.status = ProjectStatus.Ready
         this.EmitStatus()
       }
@@ -258,8 +252,7 @@ class Project {
     })
 
     this.runningProcess.on('error', (error) => {
-      console.error('starting error', error)
-      Sentry.captureException(error)
+      captureException(error, { process: 'npm start' })
       emit(Broadcast.Starting, { projectId: this.projectId, error: error.message } as ProcessPayload)
       this.status = ProjectStatus.Ready
       this.EmitStatus()
@@ -307,8 +300,7 @@ class Project {
       if (error.message.includes('is the current HEAD of the repository')) {
         return { result: true }
       }
-      console.error('gitPull error', error)
-      Sentry.captureException(error)
+      captureException(error)
       return { result: false, error: error.message }
     }
   }
@@ -337,8 +329,7 @@ class Project {
 
       return { result: true }
     } catch (error) {
-      console.error('gitPush error', error)
-      Sentry.captureException(error)
+      captureException(error)
       return { result: false, error: error.message }
     }
   }

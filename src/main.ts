@@ -3,8 +3,9 @@
 
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
-import { fork, ChildProcess } from 'child_process'
+import { fork, ChildProcess, Serializable } from 'child_process'
 import path from 'path'
+import fs from 'fs'
 import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
 import log from 'electron-log'
 import * as Sentry from '@sentry/electron'
@@ -19,8 +20,9 @@ import { version } from './package.json'
 
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
-const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
-const STUDIO = process.env.STUDIO === 'true'
+const isDebugProd = process.env.DEBUG_PROD === 'true'
+const isDebug = !isProd && !isDebugProd
+const isStudio = process.env.STUDIO === 'true'
 let socketId: string
 const mainLog = log.scope('main')
 
@@ -32,7 +34,7 @@ Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sent
 
 Sentry.setContext('character', {
   runtime: 'main',
-  studio: STUDIO,
+  isStudio,
 })
 
 process.on('uncaughtException', (err) => {
@@ -63,7 +65,7 @@ const installExtensions = async () => {
       extensions.map((name) => installer[name]),
       forceDownload,
     )
-    .catch(log.error)
+    .catch(mainLog.error)
 }
 
 let menuBuilder: MenuBuilder | null = null
@@ -80,9 +82,9 @@ const checkForUpdates = async (silent = false) => {
   })
   if (resp.ok) {
     const matrix = await resp.json()
-    let latest = STUDIO ? matrix.win_studio : matrix.win
+    let latest = isStudio ? matrix.win_studio : matrix.win
     if (isDarwin) {
-      latest = STUDIO ? matrix.mac_studio : matrix.mac
+      latest = isStudio ? matrix.mac_studio : matrix.mac
     }
     if (semver.gt(latest, version)) {
       const { response } = await dialog.showMessageBox({
@@ -91,7 +93,7 @@ const checkForUpdates = async (silent = false) => {
       })
       if (response === 0) {
         await shell.openExternal(
-          `https://cdn.socode.pro/Derealize${STUDIO ? '-studio' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
+          `https://cdn.socode.pro/Derealize${isStudio ? '-studio' : ''}-${latest}.${isDarwin ? 'dmg' : 'exe'}`,
         )
       }
     } else if (!silent) {
@@ -255,7 +257,7 @@ const createWindow = async () => {
     show: false,
     width: 1280,
     height: 800,
-    icon: STUDIO ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
+    icon: isStudio ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
     frame: false,
     // autoHideMenuBar: true,
     webPreferences: {
@@ -331,15 +333,16 @@ app.on('activate', async () => {
   if (mainWindow === null) createWindow()
 })
 
+let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    const backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
+    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
       execArgv: ['-r', './.derealize/scripts/BabelRegister'],
     })
     mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else if (isProd) {
-    const backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
-      // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
+    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
+      stdio: isDebugProd ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
     })
     mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else {
@@ -367,6 +370,17 @@ const createBackendProcess = () => {
       backendWin.webContents.send('setParams', { socketId })
     })
   }
+
+  if (backendProcess) {
+    backendProcess
+      .on('message', (message: Serializable) => {
+        mainLog.info('backend ipc', message)
+      })
+      .on('error', (err) => {
+        mainLog.error('backend ipc err', err)
+        if (isProd) Sentry.captureException(err)
+      })
+  }
 }
 
 ipcMain.on(MainIpcChannel.GetStore, (event, key: string) => {
@@ -392,7 +406,8 @@ ipcMain.on(MainIpcChannel.Controls, (event, payload: string) => {
       mainWindow.unmaximize()
       break
     case 'close':
-      mainWindow.close()
+      // mainWindow.close()
+      app.quit()
       break
     default:
       break
@@ -530,7 +545,7 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 app
   .whenReady()
   .then(async () => {
-    console.log(`${app.getName()};isStudio:${STUDIO};userData:${app.getPath('userData')}`)
+    console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
     socketId = await findOpenSocket()
     createBackendProcess()
     createWindow()
