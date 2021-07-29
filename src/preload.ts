@@ -2,6 +2,7 @@ import { ipcRenderer, contextBridge, IpcRendererEvent } from 'electron'
 import * as Sentry from '@sentry/electron/dist/renderer'
 import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './client-ipc'
+import { version } from './package.json'
 
 // https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
 // 无法捕获 react 组件异常,还需要 react sdk
@@ -9,6 +10,7 @@ Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***
 Sentry.setContext('character', {
   runtime: 'renderer',
   isStudio: process.env.STUDIO === 'true',
+  version,
 })
 
 let ISMAXIMIZED = false
@@ -20,6 +22,7 @@ contextBridge.exposeInMainWorld('env', {
   port: process.env.PORT || 1212,
   isStudio: process.env.STUDIO === 'true',
   isMaximized: () => ISMAXIMIZED,
+  version,
 })
 
 ipcRenderer.on('isMaximized', (event: Event, isMaximized: boolean) => {
@@ -60,6 +63,7 @@ export interface PreloadWindow extends Window {
     isDev: boolean
     isMac: boolean
     isStudio: boolean
+    version: string
     port: boolean
     isMaximized: () => boolean
   }
