@@ -3,7 +3,8 @@ const qiniu = require('qiniu')
 const console = require('console')
 const { mac, formUploader, putExtra } = require('./base')
 
-const fileName = 'latest.json'
+const fileName = 'derealize-versions.json'
+const fileNameOld = 'latest.json'
 const putPolicy = new qiniu.rs.PutPolicy({ scope: `derealize:${fileName}` })
 
 formUploader.putFile(
