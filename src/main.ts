@@ -22,6 +22,7 @@ const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
 const STUDIO = process.env.STUDIO === 'true'
 let socketId: string
+const mainLog = log.scope('main')
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
@@ -330,16 +331,17 @@ app.on('activate', async () => {
   if (mainWindow === null) createWindow()
 })
 
-let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
+    const backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
       execArgv: ['-r', './.derealize/scripts/BabelRegister'],
     })
+    mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else if (isProd) {
-    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
+    const backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
       // stdio: ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'],
     })
+    mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else {
     // nodegit 还未支持non-context-aware, 希望未来支持
     // https://github.com/electron/electron/issues/18397#issuecomment-583221969
@@ -511,21 +513,29 @@ ipcMain.on(MainIpcChannel.DisableLink, (event, projectId: string, isDisable: boo
   }
 })
 
-ipcMain.on(MainIpcChannel.Dropped, (event, payload: ElementPayload) => {
-  if (!mainWindow) return
-  mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
+ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
+  log.debug(message)
 })
+
+// ipcMain.on(MainIpcChannel.Dropped, (event, payload: ElementPayload) => {
+//   if (!mainWindow) return
+//   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
+// })
 
 // ipcMain.on(MainIpcChannel.TextTab, (event, payload: boolean) => {
 //   if (!mainWindow) return
 //   mainWindow.webContents.send(MainIpcChannel.TextTab, payload)
 // })
-;(async () => {
-  await app.whenReady()
-  console.log(`${app.getName()};isStudio:${STUDIO};userData:${app.getPath('userData')}`)
-  socketId = await findOpenSocket()
-  createBackendProcess()
-  createWindow()
-  checkForUpdates(true)
-  // throw new Error('main error test 532')
-})()
+
+app
+  .whenReady()
+  .then(async () => {
+    console.log(`${app.getName()};isStudio:${STUDIO};userData:${app.getPath('userData')}`)
+    socketId = await findOpenSocket()
+    createBackendProcess()
+    createWindow()
+    checkForUpdates(true)
+    // throw new Error('main error test')
+    return null
+  })
+  .catch(Sentry.captureException)
