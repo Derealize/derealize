@@ -76,7 +76,7 @@ let mainMenu: Menu | null = null
 let pagesMenu: Menu | undefined
 
 const checkForUpdates = async (silent = false) => {
-  const resp = await fetch('https://cdn.socode.pro/latest.json', {
+  const resp = await fetch('https://cdn.socode.pro/derealize-versions.json', {
     headers: {
       'content-type': 'application/json',
     },
