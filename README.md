@@ -91,8 +91,6 @@ return "#" + id.replaceAll(':', '\\:');
 withoutNthChild: false,
 ```
 
-electron-log **绝对**不能在 backend 进程加载!! 问题非常隐蔽，只在打包安装后才会暴露问题(electronApi 失效)
-
 ## backend-process
 
 - [关于阻塞 UI 线程](https://github.com/electron/electron/issues/12098)
@@ -104,3 +102,9 @@ electron-log **绝对**不能在 backend 进程加载!! 问题非常隐蔽，只
 - agent 要升级到最新版。(自动安装)[https://dev.azure.com/derealize/_settings/agentpools?poolId=12&view=agents]很慢，不如 ./config.cmd remove 后重新安装
 - yarn 必须在 pipeline.yml 里 npm i -g yarn 安装。azure 的 host 无需安装。
 - cache 模块需要 tar 命令，azure 的 host 无需安装（不知到是如何实现的）。可以手动安装 tar 程序后设置 path 环境变量。不要使用 GunWin32 的 (tar)[http://gnuwin32.sourceforge.net/packages/gtar.htm]，版本太旧，出现莫名问题。(新版本)[https://ftp.wayne.edu/gnu/tar/]又没有 release for win，只有源码。可以使用这个(libarchive)[https://github.com/libarchive/libarchive/releases]代替。
+
+## package debug
+
+production 环境使用 DEBUG_PROD 可以打开 backend 进程的 ipc 通道在 main 进程打印 electron-log. 并且 ipc 打开之前的错误可以输出到 ./err.log
+**绝对**不能在 backend 进程加载 electron-log!! 问题非常隐蔽，只在打包安装后才会暴露(electronApi 失效)
+BACKEND_SUBPROCESS 不要使用 ipc 通道，即不可行也没有价值。dev 环境下默认的 pipe 会直接输出到 main 进程控制台
