@@ -4,6 +4,8 @@ import { MainIpcChannel, ControllerShortcut } from './interface'
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
+const isStudio = process.env.STUDIO === 'true'
+
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string
   submenu?: DarwinMenuItemConstructorOptions[] | Menu
@@ -18,16 +20,20 @@ export default class MenuBuilder {
 
   checkForUpdates: () => Promise<void>
 
+  about: () => void
+
   constructor(
     mainWindow: BrowserWindow,
     frontMainView: () => void,
     loadURL: (projectId: string, url: string) => void,
     checkForUpdates: () => Promise<void>,
+    about: () => void,
   ) {
     this.mainWindow = mainWindow
     this.frontMainView = frontMainView
     this.loadURL = loadURL
     this.checkForUpdates = checkForUpdates
+    this.about = about
   }
 
   buildMenu(): Menu {
@@ -227,6 +233,10 @@ export default class MenuBuilder {
             this.checkForUpdates()
           },
         },
+        {
+          label: 'About',
+          click: this.about,
+        },
       ],
     })
 
@@ -384,6 +394,10 @@ export default class MenuBuilder {
           click: () => {
             this.checkForUpdates()
           },
+        },
+        {
+          label: 'About',
+          click: this.about,
         },
       ],
     })
