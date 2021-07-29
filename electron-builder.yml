@@ -37,8 +37,10 @@ linux:
   category: Development
 directories:
   app: src
-  buildResources: assets
+  buildResources: resources
   output: release
+extraResources:
+  - ./assets/!(node-*)/**
 publish:
   provider: github
   owner: zicjin

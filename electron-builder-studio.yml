@@ -37,10 +37,10 @@ linux:
   category: Development
 directories:
   app: src
-  buildResources: assets
+  buildResources: resources-studio
   output: release-studio
 extraResources:
-  - ./assets/**/*
+  - ./assets/**
 publish:
   provider: github
   owner: zicjin
