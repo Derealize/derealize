@@ -371,20 +371,20 @@ const elementModel: ElementModel = {
       }
     })
 
-    listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
-      const { frontProject } = getStoreState().project
-      if (!frontProject) return
+    // listenMainIpc(MainIpcChannel.Dropped, (event: IpcRendererEvent, payload: ElementPayload) => {
+    //   const { frontProject } = getStoreState().project
+    //   if (!frontProject) return
 
-      if (getState().states[frontProject.id]?.elements.filter((el) => el.pending).length) {
-        toast({
-          title: 'Please save the existing modified element before dropped the element',
-          status: 'warning',
-        })
-        return
-      }
+    //   if (getState().states[frontProject.id]?.elements.filter((el) => el.pending).length) {
+    //     toast({
+    //       title: 'Please save the existing modified element before dropped the element',
+    //       status: 'warning',
+    //     })
+    //     return
+    //   }
 
-      actions.droppedSelectedElement(payload)
-    })
+    //   actions.droppedSelectedElement(payload)
+    // })
   }),
 
   unlisten: action(() => {
@@ -393,7 +393,7 @@ const elementModel: ElementModel = {
     unlistenMainIpc(MainIpcChannel.BlurElement)
     unlistenMainIpc(MainIpcChannel.ElementShortcut)
     unlistenMainIpc(MainIpcChannel.CloseFrontProject)
-    unlistenMainIpc(MainIpcChannel.Dropped)
+    // unlistenMainIpc(MainIpcChannel.Dropped)
   }),
 
   revokeHistory: action((state, projectId) => {
