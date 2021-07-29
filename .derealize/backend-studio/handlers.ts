@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 import fs from 'fs/promises'
 import sysPath from 'path'
-import * as Sentry from '@sentry/node'
+import log, { captureException } from './log'
 import Project from './project'
 import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayloadStd } from '../interface'
@@ -17,11 +17,6 @@ import { Apply, Insert, Delete } from './shift/react'
 import { SetImage, RemoveImage } from './shift/image'
 import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
-
-Sentry.setContext('character', {
-  runtime: 'backend',
-  studio: true,
-})
 
 const projectsMap = new Map<string, Project>()
 
@@ -100,7 +95,7 @@ export const DisposeAll = async () => {
     promises.push(project.Dispose())
   }
   await Promise.all(promises)
-  console.log('DisposeAll')
+  log('DisposeAll')
 }
 
 export const ApplyElements = async (payloads: Array<ElementPayload>) => {
@@ -144,8 +139,7 @@ export const ThemeSetImage = async ({
   try {
     fs.copyFile(path, filePath)
   } catch (err) {
-    console.error('ThemeSetImage', err)
-    Sentry.captureException(err)
+    captureException(err)
   }
 
   const cssUrl = `url(${sysPath.posix.join(assetsUrl, fileName)})`
@@ -167,8 +161,7 @@ export const ThemeRemoveImage = async ({
   try {
     fs.unlink(filePath)
   } catch (err) {
-    console.error('ThemeRemoveImage', err)
-    Sentry.captureException(err)
+    captureException(err)
   }
 
   const { result, error } = await RemoveImage(project.path, key)

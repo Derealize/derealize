@@ -8,7 +8,7 @@ import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './cl
 Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***' })
 Sentry.setContext('character', {
   runtime: 'renderer',
-  studio: process.env.STUDIO === 'true',
+  isStudio: process.env.STUDIO === 'true',
 })
 
 let ISMAXIMIZED = false

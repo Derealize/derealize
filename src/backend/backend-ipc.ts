@@ -1,5 +1,5 @@
-import * as Sentry from '@sentry/node'
 import ipc from 'node-ipc'
+import log, { captureException } from './log'
 
 const handlers: any = require('./handlers')
 
@@ -9,12 +9,12 @@ export default (socketId: string) => {
 
   ipc.serve(() => {
     ipc.server.on('message', (data: string, socket) => {
-      // console.log.debug(data)
+      // log(data)
       const msg = JSON.parse(data)
       const { id, name, payload } = msg
 
       if (handlers[name]) {
-        // console.log(name + JSON.stringify(payload))
+        // log(name + JSON.stringify(payload))
         handlers[name](payload)
           .then((result: any) => {
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result }))
@@ -23,12 +23,10 @@ export default (socketId: string) => {
           .catch((error: Error) => {
             // Up to you how to handle errors, if you want to forward them, etc
             ipc.server.emit(socket, 'message', JSON.stringify({ type: 'error', id }))
-            console.error(`handlers ${name}`, error)
-            Sentry.captureException(error)
+            captureException(error, { ipc: `handler ${name}` })
           })
       } else {
-        console.error(`Unknown method: ${name}`)
-        Sentry.captureException(new Error(`Unknown method: ${name}`))
+        captureException(new Error(`handler unknown method: ${name}`))
         ipc.server.emit(socket, 'message', JSON.stringify({ type: 'reply', id, result: null }))
       }
     })
