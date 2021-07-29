@@ -1,7 +1,7 @@
 ## Scripts
 
 ```js
-yarn standby
+yarn apply
 yarn
 yarn postinstall_dll
 yarn start
@@ -64,7 +64,7 @@ erb 文档有不少错误，./app 应该是 ./src
 
 可以用 electron-builder build --dir 仅编译出 unpacked 文件，没有安装程序
 
-解压 app.asat:
+解压 app.asar:
 
 ```js
 npm install -g asar
@@ -90,6 +90,8 @@ return "#" + id.replaceAll(':', '\\:');
 // L569 withoutNthChild: true,
 withoutNthChild: false,
 ```
+
+electron-log **绝对**不能在 backend 进程加载!! 问题非常隐蔽，只在打包安装后才会暴露问题(electronApi 失效)
 
 ## backend-process
 

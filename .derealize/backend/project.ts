@@ -1,13 +1,10 @@
-import log from 'electron-log'
 import fs from 'fs/promises'
 import sysPath from 'path'
-import * as Sentry from '@sentry/node'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
 import resolveConfig from 'tailwindcss/resolveConfig'
+import log, { captureException } from './log'
 import type { ProjectConfig, StatusPayload, BoolReply } from './backend.interface'
 import emit from './emit'
-
-const projectLog = log.scope('project')
 
 export enum Broadcast {
   Status = 'Status',
@@ -48,8 +45,7 @@ class Project {
         return { result: false, error: 'project not imported tailwindcss' }
       }
     } catch (err) {
-      console.error('assignConfig error', err)
-      Sentry.captureException(err)
+      captureException(err)
       return { result: false, error: err.message }
     }
 
@@ -60,34 +56,32 @@ class Project {
     try {
       const configPath = sysPath.resolve(this.path, './tailwind.config.js')
 
-      if (typeof __non_webpack_require__ !== 'undefined') {
+      if (process.env.BACKEND_SUBPROCESS === 'true') {
+        delete require.cache[configPath]
+        const config = require(configPath)
+        this.tailwindConfig = resolveConfig(config)
+      } else {
         // https://cnodejs.org/topic/52aa6e78a9526bff2232aaa9
         delete __non_webpack_require__.cache[configPath]
         // https://github.com/webpack/webpack/issues/4175#issuecomment-277232067
         const config = __non_webpack_require__(configPath)
         this.tailwindConfig = resolveConfig(config)
-      } else {
-        delete require.cache[configPath]
-        const config = require(configPath)
-        this.tailwindConfig = resolveConfig(config)
       }
 
       return { result: true }
     } catch (err) {
-      console.error(`ResolveTailwindConfig fail:${this.path}`, err)
-      Sentry.captureException(err)
+      captureException(err, { path: this.path })
       return { result: false, error: err.message }
     }
   }
 
   async Flush(): Promise<BoolReply> {
-    projectLog.debug('Flush assignConfig')
     const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
-    projectLog.debug('Flush ResolveTailwindConfig')
+
     const tailwindConfigReply = this.ResolveTailwindConfig()
     if (!tailwindConfigReply.result) return tailwindConfigReply
-    projectLog.debug('Flush EmitStatus')
+
     this.EmitStatus()
     return { result: true }
   }
