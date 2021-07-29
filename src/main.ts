@@ -257,7 +257,7 @@ const createWindow = async () => {
     show: false,
     width: 1280,
     height: 800,
-    icon: isStudio ? getAssetPath('icon-dark.png') : getAssetPath('icon.png'),
+    icon: isStudio ? getAssetPath('icon.studio.png') : getAssetPath('icon.png'),
     frame: false,
     // autoHideMenuBar: true,
     webPreferences: {

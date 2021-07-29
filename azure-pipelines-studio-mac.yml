@@ -48,8 +48,8 @@ steps:
     env:
       NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org'
       USE_HARD_LINKS: false
-      CSC_LINK: 'https://cdn.socode.pro/derealize.p12'
-      CSC_KEY_PASSWORD: 'z565656z#'
+      # CSC_LINK: 'https://cdn.socode.pro/derealize.p12'
+      # CSC_KEY_PASSWORD: 'z565656z#'
   - script: yarn run publish:qiniu
     displayName: yarn publish
     workingDirectory: ./src
