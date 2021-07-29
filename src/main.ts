@@ -35,6 +35,7 @@ Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sent
 Sentry.setContext('character', {
   runtime: 'main',
   isStudio,
+  version,
 })
 
 process.on('uncaughtException', (err) => {
@@ -106,6 +107,15 @@ const checkForUpdates = async (silent = false) => {
       'warning' as AlertStatus,
     )
   }
+}
+
+const about = async () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'About',
+    message: `Derealize${isStudio ? ' Studio' : ''}`,
+    detail: `version: ${version}`,
+  })
 }
 
 const topbarHeight = 42
@@ -294,7 +304,7 @@ const createWindow = async () => {
     mainWindow = null
   })
 
-  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL, checkForUpdates)
+  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL, checkForUpdates, about)
   mainMenu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
@@ -336,11 +346,15 @@ app.on('activate', async () => {
 let backendProcess: ChildProcess
 const createBackendProcess = () => {
   if (process.env.BACKEND_SUBPROCESS === 'true') {
-    backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
-      execArgv: ['-r', './.derealize/scripts/BabelRegister'],
-    })
+    backendProcess = fork(
+      path.join(__dirname, 'backend/backend.ts'),
+      ['--subprocess', socketId, '--version', version],
+      {
+        execArgv: ['-r', './.derealize/scripts/BabelRegister'],
+      },
+    )
   } else if (isProd) {
-    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
+    backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId, '--version', version], {
       stdio: isDebugProd ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
     })
   } else {

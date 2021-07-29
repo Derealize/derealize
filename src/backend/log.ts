@@ -36,3 +36,5 @@ export default (message: string) => {
     console.log(message)
   }
 }
+
+export const { setExtra } = Sentry

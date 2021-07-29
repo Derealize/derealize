@@ -20,7 +20,7 @@ import PrivateRoute from './utils/PrivateRoute'
 import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
-const { isStudio } = window.env
+const { isStudio, version } = window.env
 
 dayjs.extend(utc)
 // dayjs.locale('zh-cn')
@@ -35,7 +35,8 @@ Sentry.init({
 
 Sentry.setContext('character', {
   runtime: 'react',
-  studio: isStudio,
+  isStudio,
+  version,
 })
 
 ReactDOM.render(
