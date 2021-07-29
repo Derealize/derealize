@@ -41,7 +41,7 @@ directories:
   output: release
 extraResources:
   - ./assets/!(node-win|node-mac)/**
-# publish:
-#   provider: github
-#   owner: zicjin
-#   repo: ddrealize
+publish:
+  provider: github
+  owner: zicjin
+  repo: drealize
