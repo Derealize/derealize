@@ -36,6 +36,12 @@ export default merge(baseConfig, {
   },
 
   plugins: [
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'production',
+      DEBUG_PROD: isDebug,
+      STUDIO: process.env.STUDIO === 'true',
+    }),
+
     new CleanWebpackPlugin({
       // 即使是BeforeBuild，也需要编译成功才生效
       cleanOnceBeforeBuildPatterns: ['preload.prod.js', 'preload-inject.prod.js'],
