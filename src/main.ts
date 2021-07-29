@@ -21,7 +21,7 @@ import { version } from './package.json'
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebugProd = process.env.DEBUG_PROD === 'true'
-const isDebug = !isProd && !isDebugProd
+const isDev = !isProd && !isDebugProd
 const isStudio = process.env.STUDIO === 'true'
 let socketId: string
 const mainLog = log.scope('main')
@@ -48,7 +48,7 @@ process.on('uncaughtException', (err) => {
   })
 })
 
-if (isDebug) {
+if (isDev) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 
@@ -163,7 +163,7 @@ ipcMain.on(
       projects.set(projectId, { view, baseUrl, pages, isWeapp })
       mainWindow.setBrowserView(view)
       setBrowserViewBounds(mainWindow)
-      if (isDebug) {
+      if (isDev) {
         view.webContents.openDevTools()
       }
 
@@ -243,7 +243,7 @@ const sendIsMaximized = () => {
 }
 
 const createWindow = async () => {
-  // if (isDebug) {
+  // if (isDev) {
   //   await installExtensions()
   // }
 
@@ -268,7 +268,7 @@ const createWindow = async () => {
     },
   })
 
-  if (isDebug) {
+  if (isDev) {
     mainWindow.webContents.openDevTools()
   }
 
@@ -339,12 +339,10 @@ const createBackendProcess = () => {
     backendProcess = fork(path.join(__dirname, 'backend/backend.ts'), ['--subprocess', socketId], {
       execArgv: ['-r', './.derealize/scripts/BabelRegister'],
     })
-    mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else if (isProd) {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId], {
       stdio: isDebugProd ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
     })
-    mainLog.debug(`backendProcess.pid:${backendProcess.pid}`)
   } else {
     // nodegit 还未支持non-context-aware, 希望未来支持
     // https://github.com/electron/electron/issues/18397#issuecomment-583221969
@@ -550,7 +548,6 @@ app
     createBackendProcess()
     createWindow()
     checkForUpdates(true)
-    // throw new Error('main error test')
     return null
   })
   .catch(Sentry.captureException)
