@@ -19,14 +19,14 @@ formUploader.putFile(uploadToken, fileName, filePath, putExtra, (respErr, respBo
   console.log(`putFile ${fileName} done.`, respBody)
 })
 
-const fileNameStatic = `Derealize-studio.${isDarwin ? 'dmg' : 'exe'}`
-const putPolicyStatic = new qiniu.rs.PutPolicy({ scope: `derealize:${fileNameStatic}` })
-const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
+// const fileNameStatic = `Derealize-studio.${isDarwin ? 'dmg' : 'exe'}`
+// const putPolicyStatic = new qiniu.rs.PutPolicy({ scope: `derealize:${fileNameStatic}` })
+// const uploadTokenStatic = putPolicyStatic.uploadToken(mac)
 
-formUploader.putFile(uploadTokenStatic, fileNameStatic, filePath, putExtra, (respErr2, respBody2) => {
-  if (respErr2) {
-    console.error(`putFile ${fileNameStatic} error`, respErr2)
-    return
-  }
-  console.log(`putFile ${fileNameStatic} done.`, respBody2)
-})
+// formUploader.putFile(uploadTokenStatic, fileNameStatic, filePath, putExtra, (respErr2, respBody2) => {
+//   if (respErr2) {
+//     console.error(`putFile ${fileNameStatic} error`, respErr2)
+//     return
+//   }
+//   console.log(`putFile ${fileNameStatic} done.`, respBody2)
+// })
