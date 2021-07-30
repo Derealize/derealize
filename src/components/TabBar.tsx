@@ -12,7 +12,7 @@ import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
 const { sendMainIpc } = window.derealize
-const { isStudio } = window.env
+const { isStudio, isMac } = window.env
 
 const TabBar = (): JSX.Element => {
   const chromeTabs = useRef<any>()
@@ -113,6 +113,19 @@ const TabBar = (): JSX.Element => {
       </div>
 
       <div className={cs(css.controls, { [css.macPlatform]: window.env.isMac })}>
+        {isMac && (
+          <div
+            className={cs(css.button, css.closeButton)}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.Controls, 'close')
+            }}
+            role="button"
+            aria-hidden="true"
+          >
+            <div className={css.macCloseIcon} draggable="false" />
+          </div>
+        )}
+
         <div
           className={cs(css.button, css.minButton, { [css.winPlatform]: !window.env.isMac })}
           onClick={() => {
@@ -133,14 +146,14 @@ const TabBar = (): JSX.Element => {
         </div>
 
         <div
-          className={cs(css.button, css.maxButton, { [css.winPlatform]: !window.env.isMac })}
+          className={cs(css.button, css.maxButton, { [css.winPlatform]: !isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'maximize')
           }}
           role="button"
           aria-hidden="true"
         >
-          {window.env.isMac ? (
+          {isMac ? (
             <div className={css.macMaximizeIcon} draggable="false" />
           ) : (
             <img
@@ -152,14 +165,14 @@ const TabBar = (): JSX.Element => {
         </div>
 
         <div
-          className={cs(css.button, css.restoreButton, { [css.winPlatform]: !window.env.isMac })}
+          className={cs(css.button, css.restoreButton, { [css.winPlatform]: !isMac })}
           onClick={() => {
             sendMainIpc(MainIpcChannel.Controls, 'unmaximize')
           }}
           role="button"
           aria-hidden="true"
         >
-          {window.env.isMac ? (
+          {isMac ? (
             <div className={css.macMaximizeIcon} draggable="false" />
           ) : (
             <img
@@ -170,24 +183,22 @@ const TabBar = (): JSX.Element => {
           )}
         </div>
 
-        <div
-          className={cs(css.button, css.closeButton, { [css.winPlatform]: !window.env.isMac })}
-          onClick={() => {
-            sendMainIpc(MainIpcChannel.Controls, 'close')
-          }}
-          role="button"
-          aria-hidden="true"
-        >
-          {window.env.isMac ? (
-            <div className={css.macCloseIcon} draggable="false" />
-          ) : (
+        {!isMac && (
+          <div
+            className={cs(css.button, css.closeButton, css.winPlatform)}
+            onClick={() => {
+              sendMainIpc(MainIpcChannel.Controls, 'close')
+            }}
+            role="button"
+            aria-hidden="true"
+          >
             <img
               srcSet="styles/icons/close-k-10.png 1x, styles/icons/close-k-12.png 1.25x, styles/icons/close-k-15.png 1.5x, styles/icons/close-k-15.png 1.75x, styles/icons/close-k-20.png 2x, styles/icons/close-k-20.png 2.25x, styles/icons/close-k-24.png 2.5x, styles/icons/close-k-30.png 3x, styles/icons/close-k-30.png 3.5x"
               draggable="false"
               alt="icon"
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </header>
   )
