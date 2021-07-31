@@ -98,7 +98,11 @@ const checkForUpdates = async (silent = false) => {
         )
       }
     } else if (!silent) {
-      mainWindow?.webContents.send(MainIpcChannel.Toast, 'Already the latest version', 'success' as AlertStatus)
+      mainWindow?.webContents.send(
+        MainIpcChannel.Toast,
+        'There are currently no updates available.',
+        'success' as AlertStatus,
+      )
     }
   } else if (!silent) {
     mainWindow?.webContents.send(
