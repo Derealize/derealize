@@ -234,6 +234,12 @@ export default class MenuBuilder {
           },
         },
         {
+          label: 'Contact Us',
+          click: () => {
+            shell.openExternal('mailto:elliotreborn@gmail.com')
+          },
+        },
+        {
           label: 'About',
           click: this.about,
         },
@@ -393,6 +399,12 @@ export default class MenuBuilder {
           label: 'Check For Update',
           click: () => {
             this.checkForUpdates()
+          },
+        },
+        {
+          label: 'Contact Us',
+          click: () => {
+            shell.openExternal('mailto:elliotreborn@gmail.com')
           },
         },
         {

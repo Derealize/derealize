@@ -136,11 +136,10 @@ const ImportProject = (): JSX.Element => {
           <ModalBody>
             <FormControl id="path" mt={4} isInvalid={!!errors.path}>
               <FormHelperText className="prose">
-                Before importing your project, please follow{' '}
+                Before importing your project, please configure the project according to{' '}
                 <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                   our documentation
-                </a>{' '}
-                to complete the project configuration.
+                </a>
               </FormHelperText>
 
               <FormLabel>Local Path</FormLabel>
