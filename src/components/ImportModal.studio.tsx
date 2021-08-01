@@ -242,11 +242,10 @@ const ImportProjectWithRuntim = (): JSX.Element => {
 
                   {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
                   <FormHelperText className="prose">
-                    Before importing your project, please follow{' '}
-                    <a href="https://derealize.com/docs/intro" target="_blank" rel="noreferrer">
+                    Before importing your project, please configure the project according to{' '}
+                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                       our documentation
-                    </a>{' '}
-                    to complete the project configuration.
+                    </a>
                   </FormHelperText>
                   {/* {!watchUrl && (
                     <FormHelperText>
