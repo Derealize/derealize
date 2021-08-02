@@ -92,7 +92,7 @@ const ProjectPage: React.FC = (): JSX.Element => {
                 Unable to request the baseUrl:
                 <a href={project.config?.baseUrl}>{project.config?.baseUrl}</a> of your project, please follow{' '}
                 <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                  our documentation
+                  the documentation
                 </a>{' '}
                 to make sure the project is started correctly.
               </Text>

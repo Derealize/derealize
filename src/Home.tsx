@@ -86,7 +86,7 @@ const Home = (): JSX.Element => {
                   Deralize play with the development running front-end project.
                   <br /> Before importing your project, please configure the project according to{' '}
                   <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                    our documentation
+                    the documentation
                   </a>
                 </div>
               </VStack>
