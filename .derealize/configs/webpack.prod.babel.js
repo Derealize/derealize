@@ -6,6 +6,7 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
+import Dotenv from 'dotenv-webpack'
 import baseConfig from './webpack.base'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 
@@ -17,9 +18,6 @@ export default merge(baseConfig, {
   mode: 'production',
   target: 'web',
 
-  // development renderer在dll文件中通过package.json/dependencies引入了regenerator-runtime。且高版本chrome不需要core-js
-  // main.ts 因为是单文件，自己import即可
-  // backend 是node进程，不需要runtime或core-js
   entry: ['core-js', 'regenerator-runtime/runtime', path.join(__dirname, '../../src/index.tsx')],
 
   experiments: {
@@ -186,10 +184,10 @@ export default merge(baseConfig, {
 
   plugins: [
     new webpack.EnvironmentPlugin({
-      // 字符串值会当作代码片段!
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
       STUDIO: process.env.STUDIO === 'true',
+      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new MiniCssExtractPlugin({
@@ -202,7 +200,6 @@ export default merge(baseConfig, {
     }),
 
     new CleanWebpackPlugin({
-      // 即使是BeforeBuild，也需要编译成功才生效
       cleanOnceBeforeBuildPatterns: ['renderer.prod.js', 'preload.prod.js'],
     }),
   ],

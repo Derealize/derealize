@@ -11,10 +11,9 @@
   },
   "scripts": {
     "electron-rebuild": "node -e \"console.log('src rebuild start: %s', Date())\" && node -r ../.derealize/scripts/BabelRegister.js ../.derealize/scripts/ElectronRebuild.js && node -e \"console.log('src rebuild end: %s', Date())\"",
-    "postinstall": "yarn electron-rebuild",
-    "publish:qiniu": "node ../.derealize/publish-qiniu/studio.js"
+    "postinstall": "yarn electron-rebuild"
   },
-  "license": "private",
+  "license": "MIT",
   "dependencies": {
     "@derealize/nodegit": "0.28.0-alpha.9.2"
   }

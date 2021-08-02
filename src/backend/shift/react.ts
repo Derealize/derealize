@@ -57,7 +57,7 @@ export const Apply = async (projectPath: string, payloads: Array<ElementPayload>
             if (namedTypes.StringLiteral.check(attr.value)) {
               attr.value.value = className
             } else if (namedTypes.JSXExpressionContainer.check(attr.value)) {
-              // todo: 使用babel实现依赖状态表达式的 className
+              // todo: Use babel to implement className that depends on state expressions
               console.log(`${filePath} Cannot predictibly change JSX expression, skipping`)
             } else if (!attr.value) {
               attr.value = builders.stringLiteral(className)

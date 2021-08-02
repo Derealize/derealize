@@ -14,14 +14,8 @@ const isDebug = process.env.DEBUG_PROD === 'true'
 export default merge(baseConfig, {
   devtool: isDebug ? 'source-map' : false,
 
-  // https://www.webpackjs.com/concepts/mode/
-  // production 包含的 UglifyJsPlugin 有 bug，或其它配置引起的诡异问题。
-  // 不配置 node会 failback 'production'
-  // mode: 'production',
   mode: 'none',
 
-  // 如果使用'node'，则main进程 ipcMain 不可用。
-  // new BrowserWindow实际没有spawn/fork 一个node进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: {
@@ -60,11 +54,10 @@ export default merge(baseConfig, {
       DEBUG_PROD: false,
       STUDIO: process.env.STUDIO === 'true',
       START_MINIMIZED: false,
+      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new CleanWebpackPlugin({
-      // 坑！**/*.node 会把 node_modules 里的 *.node 文件删除
-      // 即使是BeforeBuild，也需要编译成功才生效
       cleanOnceBeforeBuildPatterns: ['main.prod.js', 'backend.prod.js'],
     }),
   ],

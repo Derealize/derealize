@@ -5,8 +5,8 @@ import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './cl
 import { version } from './package.json'
 
 // https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
-// 无法捕获 react 组件异常,还需要 react sdk
-Sentry.init({ dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***' })
+// Cannot catch the exception of react component, also need react sdk
+Sentry.init({ dsn: process.env.SENTRYDNS })
 Sentry.setContext('character', {
   runtime: 'renderer',
   isStudio: process.env.STUDIO === 'true',
@@ -19,10 +19,11 @@ contextBridge.exposeInMainWorld('env', {
   isMac: process.platform === 'darwin',
   // isMac: true,
   isDev: process.env.NODE_ENV === 'development',
-  port: process.env.PORT || 1212,
   isStudio: process.env.STUDIO === 'true',
-  isMaximized: () => ISMAXIMIZED,
   version,
+  port: process.env.PORT || 1212,
+  sentryDns: process.env.SENTRYDNS,
+  isMaximized: () => ISMAXIMIZED,
 })
 
 ipcRenderer.on('isMaximized', (event: Event, isMaximized: boolean) => {
@@ -65,6 +66,7 @@ export interface PreloadWindow extends Window {
     isStudio: boolean
     version: string
     port: boolean
+    sentryDns: string
     isMaximized: () => boolean
   }
   derealize: {
