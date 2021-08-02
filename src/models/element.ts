@@ -22,8 +22,6 @@ const toast = createStandaloneToast({
   },
 })
 
-// 这些variant类型切分后各自单选，只是遵循设计经验。两个variant必须同时达成相应条件才能激活样式，hover与focus是不太可能同时存在的
-// 本质上所有variant都可以多选应用在同一个属性上
 export const StateVariants = [
   'hover',
   'focus',
@@ -31,7 +29,7 @@ export const StateVariants = [
   'disabled',
   'visited',
   'checked',
-  'group-hover', // 需要父元素设置 'group' class
+  'group-hover', // Need to set the'group' class of the parent element
   'group-focus',
   'focus-within',
   'focus-visible',

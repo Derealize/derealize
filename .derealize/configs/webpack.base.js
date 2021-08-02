@@ -1,5 +1,6 @@
 import path from 'path'
 import webpack from 'webpack'
+import Dotenv from 'dotenv-webpack'
 import { dependencies as externals } from '../../src/package.json'
 
 export default {
@@ -31,4 +32,6 @@ export default {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     modules: [path.join(__dirname, '../../src'), 'node_modules'],
   },
+
+  plugins: [new Dotenv({ path: '../../.env' })],
 }

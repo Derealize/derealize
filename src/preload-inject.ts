@@ -63,8 +63,8 @@ const respElementActualStatus = (): ElementActualStatus | null => {
 
   const { tagName, className } = activeElement
   // https://stackoverflow.com/a/11495671
-  // getComputedStyle() 不支持伪类查询，任何伪类style都会被检索。目前只能使用tailwindcss classname
-  // 但parentDeclaration还无法被tailwindcss classname取代
+  // getComputedStyle() does not support pseudo-class query。Currently only tailwindcss classname can be used.
+  // but parentDeclaration cannot be replaced by tailwindcss classname.
   const declaration = getComputedStyle(activeElement)
   const payload: ElementActualStatus = {
     projectId: PROJECTID,
@@ -205,7 +205,7 @@ const inspectActiveElement = (targetOrSelector: string | HTMLElement): void => {
 
 const derealizeListener = (e: Event) => {
   if (!e.currentTarget || !PROJECTID) return
-  e.stopPropagation() // todo:用防反跳函数代替 stopPropagation()
+  e.stopPropagation() // todo:anti-bounce function instead of stopPropagation()
 
   if (e.type === 'click') {
     const href = (e.currentTarget as HTMLElement).getAttribute('href')
@@ -220,7 +220,7 @@ ipcRenderer.on(
     if (activeElement && sel === selector) {
       activeElement.className = className
       if (needRespStatus) {
-        respElementActualStatus() // 性能不好
+        respElementActualStatus() // performance considerations
       }
     } else {
       const element = document.querySelector(sel) as HTMLElement
@@ -283,7 +283,7 @@ const listenElement = () => {
     el.addEventListener('click', derealizeListener)
     el.removeEventListener('contextmenu', derealizeListener)
     el.addEventListener('contextmenu', derealizeListener)
-    // 重复执行 inspectActiveElement 导致 droppable 不流畅
+    // Repeat execution inspectActiveElement()
     // el.removeEventListener('focus', derealizeListener)
     // el.addEventListener('focus', derealizeListener)
   })

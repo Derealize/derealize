@@ -7,6 +7,7 @@ import { fork, ChildProcess, Serializable } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import { app, BrowserWindow, BrowserView, shell, ipcMain, dialog, Menu } from 'electron'
+import dotenv from 'dotenv'
 import log from 'electron-log'
 import * as Sentry from '@sentry/electron'
 import semver from 'semver'
@@ -18,19 +19,20 @@ import store from './store'
 import { ElementPayload, ElementActualStatus, BreadcrumbPayload, MainIpcChannel, ElementTag } from './interface'
 import { version } from './package.json'
 
+dotenv.config()
+const mainLog = log.scope('main')
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
 const isDebugProd = process.env.DEBUG_PROD === 'true'
 const isDev = !isProd && !isDebugProd
 const isStudio = process.env.STUDIO === 'true'
 let socketId: string
-const mainLog = log.scope('main')
 
 // https://stackoverflow.com/questions/44658269/electron-how-to-allow-insecure-https#comment94540289_50419166
 app.commandLine.appendSwitch('ignore-certificate-errors', 'true')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
 
-Sentry.init({ dsn: 'https://372da8ad869643a094b8c6de605093f7@o931741.ingest.sentry.io/5880650', enableNative: true })
+Sentry.init({ dsn: process.env.SENTRYDNS, enableNative: true })
 
 Sentry.setContext('character', {
   runtime: 'main',
@@ -181,7 +183,6 @@ ipcMain.on(
         view.webContents.openDevTools()
       }
 
-      // view.webContents.loadURL(baseUrl)
       view.webContents
         .on('did-start-loading', () => {
           const pj = projects.get(projectId)
@@ -257,9 +258,9 @@ const sendIsMaximized = () => {
 }
 
 const createWindow = async () => {
-  // if (isDev) {
-  //   await installExtensions()
-  // }
+  if (isDev) {
+    await installExtensions()
+  }
 
   const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../assets')
 
@@ -362,9 +363,8 @@ const createBackendProcess = () => {
       stdio: isDebugProd ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
     })
   } else {
-    // nodegit 还未支持non-context-aware, 希望未来支持
+    // nodegit does not yet support non-context-aware
     // https://github.com/electron/electron/issues/18397#issuecomment-583221969
-    // 这种特殊的调试模式好像也和RendererProcessReuse不兼容
     app.allowRendererProcessReuse = false
 
     const backendWin = new BrowserWindow({
@@ -551,11 +551,6 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 // ipcMain.on(MainIpcChannel.Dropped, (event, payload: ElementPayload) => {
 //   if (!mainWindow) return
 //   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
-// })
-
-// ipcMain.on(MainIpcChannel.TextTab, (event, payload: boolean) => {
-//   if (!mainWindow) return
-//   mainWindow.webContents.send(MainIpcChannel.TextTab, payload)
 // })
 
 app

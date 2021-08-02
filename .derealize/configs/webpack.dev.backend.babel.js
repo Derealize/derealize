@@ -8,8 +8,6 @@ export default merge(baseConfig, {
   devtool: 'inline-source-map',
   mode: 'development',
 
-  // 如果使用'node'，则main进程ipcMain不可用。
-  // 因为main进程new BrowserWindow没有spawn/fork进程，而是把当前进程attach到了browser
   target: 'electron-main',
 
   entry: {
@@ -24,14 +22,7 @@ export default merge(baseConfig, {
     },
   },
 
-  // 任何 externals 都与 nodegit 不兼容，会让nodegit打包失效
-  // externals: /.*\\tailwind\.config$/i,
-
-  plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
-    }),
-  ],
+  plugins: [new webpack.EnvironmentPlugin(['NODE_ENV', 'STUDIO', 'SENTRYDNS'])],
 
   node: {
     __dirname: false,
