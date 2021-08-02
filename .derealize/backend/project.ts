@@ -45,9 +45,9 @@ class Project {
         this.tailwindVersion = pacakge.devDependencies.tailwindcss
       } else {
         this.tailwindVersion = undefined
-        // todo:parse and check min supported version
-        return { result: false, error: 'project not imported tailwindcss' }
+        return { result: false, error: 'project does not reference tailwindcss' }
       }
+      // todo:parse and check min supported version
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
