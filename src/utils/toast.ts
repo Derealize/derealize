@@ -11,7 +11,7 @@ export const errorHander = (data: string | Error, caller?: ToastCaller, _status:
   if (data instanceof Error) {
     title = data.message
     if ((data as HTTPError).response?.status === 401) {
-      // title = "认证失败"
+      // title = "auth fail"
       window.location.href = '/login'
       return
     }
@@ -38,7 +38,7 @@ export const botErrorHander = (data: string | Error, caller?: ToastCaller, _stat
   if (data instanceof Error) {
     title = data.message
     if ((data as HTTPError).response?.status === 401) {
-      // title = "认证失败"
+      // title = "auth fail"
       window.location.href = '/loginbot'
       return
     }

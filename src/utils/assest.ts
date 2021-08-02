@@ -32,7 +32,7 @@ export const getCrossCtrl = (): string => {
 export const BlockDisplays = ['flex', 'block', 'table', 'grid', 'list-item'] // use include()
 export const InlineDisplays = ['inline', 'none', 'contents']
 
-// https://developer.mozilla.org/zh-CN/docs/Web/CSS/Replaced_element
+// https://developer.mozilla.org/en-US/docs/Web/CSS/Replaced_element
 export const ReplacedElementTagName = [
   'IMG',
   'IFRAME',

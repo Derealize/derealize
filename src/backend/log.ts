@@ -6,7 +6,7 @@ const isDebugProd = process.env.DEBUG_PROD === 'true'
 const isStudio = process.env.STUDIO === 'true'
 
 Sentry.init({
-  dsn: 'https://***REMOVED***@o931741.ingest.sentry.io/***REMOVED***',
+  dsn: process.env.SENTRYDNS,
   // recommend adjusting this in production, or using tracesSampler for finer control
   tracesSampleRate: 1.0,
 })

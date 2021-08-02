@@ -5529,10 +5529,34 @@ dot-prop@^6.0.1:
   dependencies:
     is-obj "^2.0.0"
 
+dotenv-defaults@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.nlark.com/dotenv-defaults/download/dotenv-defaults-2.0.2.tgz?cache=0&sync_timestamp=1622697504472&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fdotenv-defaults%2Fdownload%2Fdotenv-defaults-2.0.2.tgz#6b3ec2e4319aafb70940abda72d3856770ee77ac"
+  integrity sha1-az7C5DGar7cJQKvactOFZ3Dud6w=
+  dependencies:
+    dotenv "^8.2.0"
+
 dotenv-expand@^5.1.0:
   version "5.1.0"
   resolved "https://registry.npm.taobao.org/dotenv-expand/download/dotenv-expand-5.1.0.tgz#3fbaf020bfd794884072ea26b1e9791d45a629f0"
   integrity sha1-P7rwIL/XlIhAcuomsel5HUWmKfA=
+
+dotenv-webpack@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.nlark.com/dotenv-webpack/download/dotenv-webpack-7.0.3.tgz?cache=0&sync_timestamp=1622697504782&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fdotenv-webpack%2Fdownload%2Fdotenv-webpack-7.0.3.tgz#f50ec3c7083a69ec6076e110566720003b7b107b"
+  integrity sha1-9Q7Dxwg6aexgduEQVmcgADt7EHs=
+  dependencies:
+    dotenv-defaults "^2.0.2"
+
+dotenv@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.nlark.com/dotenv/download/dotenv-10.0.0.tgz?cache=0&sync_timestamp=1621633079842&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fdotenv%2Fdownload%2Fdotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
+  integrity sha1-PUInuPuV+BCWzdK2ZlP7LHCFuoE=
+
+dotenv@^8.2.0:
+  version "8.6.0"
+  resolved "https://registry.nlark.com/dotenv/download/dotenv-8.6.0.tgz?cache=0&sync_timestamp=1621633079842&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fdotenv%2Fdownload%2Fdotenv-8.6.0.tgz#061af664d19f7f4d8fc6e4ff9b584ce237adcb8b"
+  integrity sha1-Bhr2ZNGff02PxuT/m1hM4jety4s=
 
 dotenv@^9.0.2:
   version "9.0.2"

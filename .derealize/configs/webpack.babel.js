@@ -7,7 +7,6 @@ import { spawn, execSync } from 'child_process'
 import baseConfig from './webpack.base'
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
-// config文件无后缀默认为 'development'
 const isProd = process.env.NODE_ENV === 'production'
 
 const sleep = (ms) => {
@@ -209,8 +208,8 @@ export default merge(baseConfig, {
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.EnvironmentPlugin({
       NODE_ENV: isProd ? 'production' : 'development',
-      PORT: port,
       STUDIO: process.env.STUDIO === 'true',
+      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new ReactRefreshWebpackPlugin(),
@@ -266,7 +265,6 @@ export default merge(baseConfig, {
 
       console.log('start:main...')
       spawn('yarn', ['run', 'start:main'], {
-        // spawn('yarn', ['run', 'start:main:ext'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

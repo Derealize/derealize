@@ -43,5 +43,5 @@ extraResources:
   - ./assets/**
 publish:
   provider: github
-  owner: zicjin
+  owner: Drealize
   repo: drealize

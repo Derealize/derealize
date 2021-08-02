@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState, useCallback } from 'react'
-// import clone from 'lodash.clone' // 巨坑：不是100%的clone，导致 liveHoverClassName 更新了state对象
+// import clone from 'lodash.clone' // not a 100% clone, causing liveHoverClassName to update the state object
 import clone from 'lodash.clonedeep'
 import { Icon } from '@chakra-ui/react'
 import Select, {
