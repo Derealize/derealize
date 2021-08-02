@@ -244,7 +244,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   <FormHelperText className="prose">
                     Before importing your project, please configure the project according to{' '}
                     <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      our documentation
+                      the documentation
                     </a>
                   </FormHelperText>
                   {/* {!watchUrl && (
@@ -264,7 +264,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   {/* <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
                     <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      our documentation
+                      the documentation
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
                   </FormHelperText> */}
