@@ -1,0 +1,5 @@
+src/
+.derealize/
+.erb/
+(?i).*\.(json|md|config.js|y(a)?ml)$
+(.*/)?id_[rd]sa$
