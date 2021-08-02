@@ -79,7 +79,13 @@ class Project {
       Object.assign(this.config, pacakge.derealize)
 
       this.productName = pacakge.productName || pacakge.name
-      this.tailwindVersion = pacakge.dependencies.tailwindcss || pacakge.devDependencies.tailwindcss
+      if (pacakge.dependencies && pacakge.dependencies.tailwindcss) {
+        this.tailwindVersion = pacakge.dependencies.tailwindcss
+      } else if (pacakge.devDependencies && pacakge.devDependencies.tailwindcss) {
+        this.tailwindVersion = pacakge.devDependencies.tailwindcss
+      } else {
+        this.tailwindVersion = undefined
+      }
       if (!this.tailwindVersion) {
         // todo:parse and check min supported version
         return { result: false, error: 'project not imported tailwindcss' }
