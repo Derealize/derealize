@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  publish:
+  build:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -54,4 +54,4 @@ jobs:
         #   # This is used for uploading release assets to github
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn package --$(buildPlatform)
+          yarn package --$(matrix.buildPlatform)
