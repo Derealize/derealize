@@ -11,8 +11,6 @@
 [feature voting](https://derealize-fider.herokuapp.com/) ·
 [keep touch (Discord)](https://discord.gg/2sqy5QeZXK)
 
-  <!-- <a href="https://chrome.google.com/webstore/detail/socode-search/hlkgijncpebndijijbcakkcefmpniacd">browser extension</a>· -->
-
 <!-- ![Test](https://github.com/Derealize/derealize/workflows/Test/badge.svg?branch=main) -->
 
 ![Build](https://github.com/Derealize/derealize/workflows/Build/badge.svg?branch=main)
@@ -22,9 +20,15 @@
 
 </div>
 
+![video](https://assets-derealize-com.onrender.com/hero.mp4)
+
 ## Why create this project?
 
-Traditional tailwindcss editors (e.g. [windicss.org/play](https://windicss.org/play.html)) is editing a separate html component separated from the front-end project. After each edit, you need to manually synchronize the html component to your front-end project. The modular nesting of front-end projects may be very complicated and uncertain. Until I saw [ui-devtools](https://www.ui-devtools.com) (thanks for the inspiration it gave). Unfortunately, its mode of work limits UI design to the hands of front-end engineers (can't avoid some professional command line knowledge). So I thought that if I can integrate the node/git environment in the electron application, we can allow people who are not familiar with any code knowledge to edit the UI of the real front-end project with the help of tailwindcss and access the CI/CD pipeline! It seems that this goal is a bit whimsical, I hope we can approach it.
+Traditional tailwindcss editors (e.g. [windicss.org/play](https://windicss.org/play.html)) edits an html component that is separate from the front-end project. After each edit, you need to manually synchronize the html component to your front-end project. The modular nesting of a front-end project may be very complicated and uncertain. Until I saw [ui-devtools](https://www.ui-devtools.com) (thanks for the inspiration it gave). It play with the front-end project rather than html components. Unfortunately, its working model limits UI design to the hands of front-end engineers (can't avoid some professional command line knowledge). So I thought that if I could integrate the node/git environment in an electron application, people not familiar with any code knowledge could also edit the UI of real front-end projects with the help of tailwindcss and get into the CI/CD pipeline! It seems that this goal is a bit whimsical, I hope we can approach it.
+
+## About Editor and Studio modes
+
+Integrating node/git is costly, adding about 30M+ to the installer size and 110M+ to the application size. It is also not necessary for front-end engineers. So we built the editor version without node/git integration and recommend it to all front-end engineers who want to try to edit tailwindcss styles easily.
 
 ## Getting Started
 
@@ -58,5 +62,8 @@ yarn cross-env DEBUG_PROD=true yarn dir
 
 ## Reference
 
+- [Chakra UI](https://chakra-ui.com/)
+- [react-select](https://react-select.com/)
+- [recast](https://github.com/benjamn/recast)
 - [electron-react-boilerplate](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
 - [electron-with-server-example](https://github.com/jlongster/electron-with-server-example)
