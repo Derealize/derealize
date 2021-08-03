@@ -45,13 +45,13 @@ jobs:
         run: |
           yarn install
       - name: Package releases
-        env:
-          # These values are used for auto updates signing
-          # APPLE_ID: ${{ secrets.APPLE_ID }}
-          # APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          # CSC_LINK: ${{ secrets.CSC_LINK }}
-          # CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          # This is used for uploading release assets to github
-          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # env:
+        #   # These values are used for auto updates signing
+        #   APPLE_ID: ${{ secrets.APPLE_ID }}
+        #   APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+        #   CSC_LINK: ${{ secrets.CSC_LINK }}
+        #   CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        #   # This is used for uploading release assets to github
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn package --$(buildPlatform)
