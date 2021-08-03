@@ -1,4 +1,0 @@
-yarn.lock
-src/yarn.lock
-build/
-static/
