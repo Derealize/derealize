@@ -11,7 +11,6 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-10.15, windows-2016]
         include:
           - os: macos-10.15
             buildPlatform: 'mac'
@@ -54,4 +53,4 @@ jobs:
         #   # This is used for uploading release assets to github
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn package --$(matrix.buildPlatform)
+          yarn package --${{ matrix.buildPlatform }}
