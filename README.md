@@ -20,7 +20,7 @@
 
 </div>
 
-![video](https://assets-derealize-com.onrender.com/hero.mp4)
+[video](https://user-images.githubusercontent.com/199482/127977377-8a21e3b8-dec7-4382-b67e-4f483b92a9a3.mp4)
 
 ## Why create this project?
 
