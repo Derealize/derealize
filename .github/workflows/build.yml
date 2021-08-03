@@ -43,13 +43,9 @@ jobs:
       - name: Install dependencies
         run: |
           yarn install
-      - name: copy .env.example
-        uses: canastro/copy-file-action@master
-        with:
-          source: '.env.example'
-          target: '.env'
       - name: Package releases
-        # env:
+        env: |
+          SENTRYDNS=https://examplePublicKey@o0.ingest.sentry.io/0
         #   # These values are used for auto updates signing
         #   APPLE_ID: ${{ secrets.APPLE_ID }}
         #   APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
