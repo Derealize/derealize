@@ -37,7 +37,7 @@ linux:
   category: Development
 directories:
   app: src
-  buildResources: resources
+  buildResources: assets
   output: release
 extraResources:
   - ./assets/!(node-*)/**
