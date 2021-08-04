@@ -62,7 +62,7 @@ yarn cross-env DEBUG_PROD=true yarn dir
 
 ## Reference
 
-- [Chakra UI](https://chakra-ui.com/)
+- [chakra-ui](https://chakra-ui.com/)
 - [react-select](https://react-select.com/)
 - [recast](https://github.com/benjamn/recast)
 - [electron-react-boilerplate](https://github.com/electron-react-boilerplate/electron-react-boilerplate)
