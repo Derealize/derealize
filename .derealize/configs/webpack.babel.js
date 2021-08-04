@@ -209,7 +209,6 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: isProd ? 'production' : 'development',
       STUDIO: process.env.STUDIO === 'true',
-      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new ReactRefreshWebpackPlugin(),

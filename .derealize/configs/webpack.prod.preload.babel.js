@@ -1,9 +1,9 @@
 import path from 'path'
 import webpack from 'webpack'
 import { merge } from 'webpack-merge'
-import baseConfig from './webpack.base'
 import TerserPlugin from 'terser-webpack-plugin'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import baseConfig from './webpack.base'
 
 const isDebug = process.env.DEBUG_PROD === 'true'
 
@@ -40,7 +40,6 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
       STUDIO: process.env.STUDIO === 'true',
-      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new CleanWebpackPlugin({

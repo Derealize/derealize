@@ -6,7 +6,6 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import { merge } from 'webpack-merge'
 import TerserPlugin from 'terser-webpack-plugin'
-import Dotenv from 'dotenv-webpack'
 import baseConfig from './webpack.base'
 import DeleteSourceMaps from '../scripts/DeleteSourceMaps'
 
@@ -186,8 +185,6 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
-      STUDIO: process.env.STUDIO === 'true',
-      SENTRYDNS: process.env.SENTRYDNS,
     }),
 
     new MiniCssExtractPlugin({
