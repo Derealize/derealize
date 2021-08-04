@@ -33,5 +33,5 @@ export default {
     modules: [path.join(__dirname, '../../src'), 'node_modules'],
   },
 
-  plugins: [new Dotenv({ path: '../../.env' })],
+  plugins: [new Dotenv({ path: './.env' })],
 }

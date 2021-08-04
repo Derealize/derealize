@@ -22,7 +22,12 @@ export default merge(baseConfig, {
     },
   },
 
-  plugins: [new webpack.EnvironmentPlugin(['NODE_ENV', 'STUDIO', 'SENTRYDNS'])],
+  plugins: [
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: 'development',
+      STUDIO: process.env.STUDIO === 'true',
+    }),
+  ],
 
   node: {
     __dirname: false,
