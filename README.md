@@ -42,6 +42,8 @@ yarn postinstall_dll
 cp .env.example .env
 
 yarn start
+// or start studio
+yarn start:studio
 // or: Execute backend.ts without compiling. backend process does not have hotload, devtools:
 yarn cross-env BACKEND_SUBPROCESS=true yarn start
 
