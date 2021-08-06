@@ -55,6 +55,7 @@ export default merge(baseConfig, {
       DEBUG_PROD: false,
       STUDIO: process.env.STUDIO === 'true',
       START_MINIMIZED: false,
+      SENTRYDNS: null,
     }),
 
     new CleanWebpackPlugin({

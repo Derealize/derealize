@@ -23,8 +23,8 @@ dotenv.config()
 const mainLog = log.scope('main')
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
-const isDebugProd = process.env.DEBUG_PROD === 'true'
-const isDev = !isProd && !isDebugProd
+const isProdDebug = process.env.DEBUG_PROD === 'true'
+const isDebug = !isProd || isProdDebug
 const isStudio = process.env.STUDIO === 'true'
 let socketId: string
 
@@ -51,7 +51,7 @@ process.on('uncaughtException', (err) => {
   })
 })
 
-if (isDev) {
+if (isDebug) {
   const sourceMapSupport = require('source-map-support')
   sourceMapSupport.install()
 
@@ -179,7 +179,7 @@ ipcMain.on(
       projects.set(projectId, { view, baseUrl, pages, isWeapp })
       mainWindow.setBrowserView(view)
       setBrowserViewBounds(mainWindow)
-      if (isDev) {
+      if (isDebug) {
         view.webContents.openDevTools()
       }
 
@@ -258,7 +258,7 @@ const sendIsMaximized = () => {
 }
 
 const createWindow = async () => {
-  if (isDev) {
+  if (isDebug) {
     await installExtensions()
   }
 
@@ -283,7 +283,7 @@ const createWindow = async () => {
     },
   })
 
-  if (isDev) {
+  if (isDebug) {
     mainWindow.webContents.openDevTools()
   }
 
@@ -360,7 +360,7 @@ const createBackendProcess = () => {
     )
   } else if (isProd) {
     backendProcess = fork(path.join(__dirname, 'backend.prod.js'), ['--subprocess', socketId, '--version', version], {
-      stdio: isDebugProd ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
+      stdio: isProdDebug ? ['ignore', fs.openSync('./out.log', 'a'), fs.openSync('./err.log', 'a'), 'ipc'] : 'pipe',
     })
   } else {
     // nodegit does not yet support non-context-aware

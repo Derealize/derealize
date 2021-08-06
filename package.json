@@ -21,7 +21,7 @@
     "package": "shx rm -rf src/dist && yarn build && electron-builder build --publish never",
     "package:studio": "shx rm -rf src/dist && yarn build:studio && cross-env STUDIO=true electron-builder build --publish never --config electron-builder-studio.yml",
     "dir": "shx rm -rf src/dist && yarn build && electron-builder build --dir",
-    "dir:studio": "cross-env STUDIO=true shx rm -rf src/dist && yarn build:studio && electron-builder build --dir",
+    "dir:studio": "shx rm -rf src/dist && yarn build:studio && cross-env STUDIO=true electron-builder build --dir",
     "test": "jest",
     "rebuild": "node -e \"console.log('rebuild start: %s', Date())\" && electron-rebuild --parallel --types prod,dev,optional --module-dir src && node -e \"console.log('rebuild end: %s', Date())\"",
     "postinstall": "yarn-deduplicate yarn.lock && shx cp .derealize/scripts/recast_fix.js node_modules/recast/parsers/babel.js && shx cp .derealize/scripts/selector_fix.js node_modules/selector-generator/selector-generator.js",

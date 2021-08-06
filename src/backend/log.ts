@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/node'
 // import * as Tracing from '@sentry/tracing'
 
 const isProd = process.env.NODE_ENV === 'production'
-const isDebugProd = process.env.DEBUG_PROD === 'true'
+const isProdDebug = process.env.DEBUG_PROD === 'true'
 const isStudio = process.env.STUDIO === 'true'
 
 Sentry.init({
@@ -18,7 +18,7 @@ Sentry.setContext('character', {
 
 export const captureException = (error: Error, extra?: Record<string, unknown>) => {
   if (isProd) {
-    if (isDebugProd && process.send) {
+    if (isProdDebug && process.send) {
       process.send(error + JSON.stringify(extra))
     } else {
       Sentry.captureException(error, { extra })
@@ -29,7 +29,7 @@ export const captureException = (error: Error, extra?: Record<string, unknown>) 
 }
 
 export default (message: string) => {
-  if (isDebugProd && process.send) {
+  if (isProdDebug && process.send) {
     // fork option stdio: ['pipe', 'pipe', 'pipe', 'ipc']
     process.send(message)
   } else {

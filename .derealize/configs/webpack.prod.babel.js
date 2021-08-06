@@ -185,6 +185,8 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
+      // https://webpack.js.org/plugins/environment-plugin/#usage-with-default-values
+      SENTRYDNS: null,
     }),
 
     new MiniCssExtractPlugin({
