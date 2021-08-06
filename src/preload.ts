@@ -4,6 +4,7 @@ import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './client-ipc'
 import { version } from './package.json'
 
+console.log('process.env.SENTRYDNS', process.env.SENTRYDNS)
 // https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
 // Cannot catch the exception of react component, also need react sdk
 Sentry.init({ dsn: process.env.SENTRYDNS })

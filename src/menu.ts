@@ -3,7 +3,7 @@ import { MainIpcChannel, ControllerShortcut } from './interface'
 
 const isDarwin = process.platform === 'darwin'
 const isProd = process.env.NODE_ENV === 'production'
-const isDebug = !isProd && process.env.DEBUG_PROD !== 'true'
+const isDebug = !isProd || process.env.DEBUG_PROD === 'true'
 const isStudio = process.env.STUDIO === 'true'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {

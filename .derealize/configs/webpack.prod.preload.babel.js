@@ -40,6 +40,7 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: isDebug,
       STUDIO: process.env.STUDIO === 'true',
+      SENTRYDNS: null,
     }),
 
     new CleanWebpackPlugin({
