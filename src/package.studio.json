@@ -15,6 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@derealize/nodegit": "0.28.0-alpha.9.2"
+    "@derealize/nodegit": "0.28.0-alpha.9.3"
   }
 }
