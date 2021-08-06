@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@derealize/nodegit@0.28.0-alpha.9.2":
-  version "0.28.0-alpha.9.2"
-  resolved "https://registry.yarnpkg.com/@derealize/nodegit/-/nodegit-0.28.0-alpha.9.2.tgz#fb29f255208520a3930aa747a92e45742de48d53"
-  integrity sha512-qEVi4BBIeFuqbmBWz+wsr/1J+arC5tj1Ukx6dl8BzSC0/9Wdzz61ozunc+YQUszeKcs9LCZkKHwhE32ku0vx4A==
+"@derealize/nodegit@0.28.0-alpha.9.3":
+  version "0.28.0-alpha.9.3"
+  resolved "https://registry.yarnpkg.com/@derealize/nodegit/-/nodegit-0.28.0-alpha.9.3.tgz#47d80cb09dddb99964460452f4ecbafe457e6497"
+  integrity sha512-JCuFlslxiLv28PoBkJdGvWUgzyUeuaHvOHu6QqNsa4zCEBXPxFhyFUoL0C/vUqPM1vsXBQDhXGjGUlote8K/zQ==
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0.5"
     fs-extra "^7.0.0"
