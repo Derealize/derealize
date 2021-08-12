@@ -73,10 +73,18 @@ const Home = (): JSX.Element => {
               <Button
                 onClick={() => toggleImportModal(true)}
                 leftIcon={<FiPlusCircle />}
+                colorScheme="teal"
+                variant="solid"
+              >
+                Import existing project
+              </Button>
+              <Button
+                onClick={() => toggleImportModal(true)}
+                leftIcon={<FiPlusCircle />}
                 colorScheme="pink"
                 variant="solid"
               >
-                Import
+                Import from template
               </Button>
             </HStack>
 

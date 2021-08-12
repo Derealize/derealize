@@ -48,7 +48,7 @@ type Inputs = {
   displayname: string
 }
 
-const ImportProject = (): JSX.Element => {
+const ImportModal = (): JSX.Element => {
   const toast = useToast()
   const existsAlertCancelRef = useRef<any>()
   const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
@@ -221,4 +221,4 @@ const ImportProject = (): JSX.Element => {
   )
 }
 
-export default ImportProject
+export default ImportModal

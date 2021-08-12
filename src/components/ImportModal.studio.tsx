@@ -59,7 +59,7 @@ type Inputs = {
   branch: string
 }
 
-const ImportProjectWithRuntim = (): JSX.Element => {
+const ImportModal = (): JSX.Element => {
   const toast = useToast()
   const existsAlertCancelRef = useRef<any>()
   const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
@@ -82,6 +82,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
 
+  const [integrateGit, setIntegrateGit] = useState(true)
   const watchUrl = watch('url')
   const watchPath = watch('path')
   const [showPassword, setShowPassword] = useState(false)
@@ -212,7 +213,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
       <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader textAlign="center">Import Project</ModalHeader>
+          <ModalHeader textAlign="center">Import Local Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Grid templateColumns="30% 70%" gap={6}>
@@ -253,7 +254,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                 </FormControl>
 
                 <FormControl id="url" mt={4} isInvalid={!!errors.url}>
-                  <FormLabel htmlFor="url">URL</FormLabel>
+                  <FormLabel htmlFor="url">Git URL</FormLabel>
                   <Input
                     type="text"
                     {...register('url', { required: true, pattern: gitUrlPattern })}
@@ -304,12 +305,6 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
 
-                <FormControl id="displayname" mt={4}>
-                  <FormLabel>Display Name</FormLabel>
-                  <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
-                  {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
                   <FormLabel>Git Branch</FormLabel>
                   <Input
@@ -321,6 +316,12 @@ const ImportProjectWithRuntim = (): JSX.Element => {
                   />
                   <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
                   {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
+                </FormControl>
+
+                <FormControl id="displayname" mt={4}>
+                  <FormLabel>Display Name</FormLabel>
+                  <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
+                  {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
               </Box>
               <Box>
@@ -390,4 +391,4 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   )
 }
 
-export default ImportProjectWithRuntim
+export default ImportModal
