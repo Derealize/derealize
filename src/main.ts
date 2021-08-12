@@ -36,6 +36,8 @@ Sentry.init({ dsn: process.env.SENTRYDNS, enableNative: true })
 
 Sentry.setContext('character', {
   runtime: 'main',
+  isDebug,
+  isDarwin,
   isStudio,
   version,
 })

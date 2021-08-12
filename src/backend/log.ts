@@ -1,9 +1,12 @@
 import * as Sentry from '@sentry/node'
 // import * as Tracing from '@sentry/tracing'
+import { version } from '../package.json'
 
 const isProd = process.env.NODE_ENV === 'production'
 const isProdDebug = process.env.DEBUG_PROD === 'true'
+const isDebug = !isProd || isProdDebug
 const isStudio = process.env.STUDIO === 'true'
+const isDarwin = process.platform === 'darwin'
 
 Sentry.init({
   dsn: process.env.SENTRYDNS,
@@ -12,8 +15,11 @@ Sentry.init({
 })
 
 Sentry.setContext('character', {
-  isStudio,
   runtime: 'backend',
+  isDebug,
+  isDarwin,
+  isStudio,
+  version,
 })
 
 export const captureException = (error: Error, extra?: Record<string, unknown>) => {

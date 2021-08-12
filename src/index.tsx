@@ -19,7 +19,7 @@ import mytheme from './theme'
 import type { PreloadWindow } from './preload'
 
 declare const window: PreloadWindow
-const { isStudio, version, sentryDns } = window.env
+const { isProd, isDarwin, isStudio, version, sentryDns } = window.env
 
 dayjs.extend(utc)
 dayjs.extend(relativeTime)
@@ -33,6 +33,8 @@ Sentry.init({
 
 Sentry.setContext('character', {
   runtime: 'react',
+  isProd,
+  isDarwin,
   isStudio,
   version,
 })

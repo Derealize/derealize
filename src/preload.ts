@@ -4,23 +4,27 @@ import { Handler, Broadcast } from './backend/backend.interface'
 import { connectSocket, sendBackIpc, listenBackIpc, unlistenBackIpc } from './client-ipc'
 import { version } from './package.json'
 
-console.log('process.env.SENTRYDNS', process.env.SENTRYDNS)
+const isProd = process.env.NODE_ENV === 'production'
+const isStudio = process.env.STUDIO === 'true'
+const isDarwin = process.platform === 'darwin'
+
 // https://docs.sentry.io/platforms/javascript/guides/electron/#browser-integration
 // Cannot catch the exception of react component, also need react sdk
 Sentry.init({ dsn: process.env.SENTRYDNS })
 Sentry.setContext('character', {
   runtime: 'renderer',
-  isStudio: process.env.STUDIO === 'true',
+  isProd,
+  isDarwin,
+  isStudio,
   version,
 })
 
 let ISMAXIMIZED = false
 
 contextBridge.exposeInMainWorld('env', {
-  isMac: process.platform === 'darwin',
-  // isMac: true,
-  isDev: process.env.NODE_ENV === 'development',
-  isStudio: process.env.STUDIO === 'true',
+  isProd,
+  isDarwin,
+  isStudio,
   version,
   port: process.env.PORT || 1212,
   sentryDns: process.env.SENTRYDNS,
@@ -62,8 +66,8 @@ ipcRenderer.on('setParams', (event: Event, socketId) => {
 // https://stackoverflow.com/a/45352250
 export interface PreloadWindow extends Window {
   env: {
-    isDev: boolean
-    isMac: boolean
+    isProd: boolean
+    isDarwin: boolean
     isStudio: boolean
     version: string
     port: boolean
