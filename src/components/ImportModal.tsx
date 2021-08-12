@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import dayjs from 'dayjs'
-import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import {
   useToast,
@@ -61,17 +60,15 @@ const ImportProject = (): JSX.Element => {
     formState: { errors },
   } = useForm<Inputs>()
 
-  const modalDisclosure = useStoreState<boolean>((state) => state.project.importModalDisclosure)
+  const projectId = useStoreState<string | undefined>((state) => state.project.importModalProjectId)
   const toggleModal = useStoreActions((actions) => actions.project.toggleImportModal)
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
-  const removeProject = useStoreActions((actions) => actions.project.removeProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
-  const [isReady, setIsReady] = useState<boolean>(false)
+  const isReady = useMemo(() => projects.some((p) => p.id === projectId), [projects, projectId])
 
   const watchPath = watch('path')
-  const [projectId, setProjectId] = useState('')
 
   useEffect(() => {
     listenMainIpc(MainIpcChannel.OpenImport, () => {
@@ -85,38 +82,32 @@ const ImportProject = (): JSX.Element => {
 
   const submit = useCallback(
     async (data) => {
+      if (!projectId) return
+
       const { path, displayname: name } = data
       if (projects.map((p) => p.path).includes(path)) {
         onOpenExistsAlert()
         return
       }
 
-      const id = nanoid()
-      setProjectId(id)
-
-      const newProject: Project = {
-        id,
-        path,
-        name,
-        editedTime: dayjs().toString(),
-      }
-      addProject(newProject)
-
-      const payload: ImportPayload = { projectId: id, path }
-      console.log('Handler.Import', payload)
+      const payload: ImportPayload = { projectId, path }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-      console.log('setIsReady', result)
-      setIsReady(result)
-
       if (!result) {
-        removeProject(id)
         toast({
           title: `Import error:${error}`,
           status: 'error',
         })
+        return
       }
+
+      addProject({
+        id: projectId,
+        path,
+        name,
+        editedTime: dayjs().toString(),
+      })
     },
-    [projects, addProject, onOpenExistsAlert, removeProject, toast],
+    [projectId, projects, addProject, onOpenExistsAlert, toast],
   )
 
   const open = useCallback(() => {
@@ -128,7 +119,7 @@ const ImportProject = (): JSX.Element => {
 
   return (
     <>
-      <Modal isOpen={modalDisclosure} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
+      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign="center">Import Project</ModalHeader>
