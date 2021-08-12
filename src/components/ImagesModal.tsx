@@ -26,7 +26,6 @@ import {
 
 import { useForm } from 'react-hook-form'
 import { IoImageOutline } from 'react-icons/io5'
-
 import FileUpload from './FileUpload'
 import { Handler, TailwindConfigReply } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
