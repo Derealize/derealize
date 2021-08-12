@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import {
   useToast,
+  Stack,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -32,6 +33,10 @@ import {
   Grid,
   Box,
   Tooltip,
+  Collapse,
+  Checkbox,
+  Radio,
+  RadioGroup,
 } from '@chakra-ui/react'
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
@@ -42,7 +47,7 @@ import { useStoreActions, useStoreState } from '../reduxStore'
 import type { ProjectStd } from '../models/project.interface'
 import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
-import { MainIpcChannel } from '../interface'
+import { MainIpcChannel, TEMPLATES } from '../interface'
 
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc } =
@@ -82,7 +87,9 @@ const ImportModal = (): JSX.Element => {
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
 
-  const [integrateGit, setIntegrateGit] = useState(true)
+  const [useTemplate, setUseTemplate] = useState<string | undefined>()
+  const [useGit, setUseGit] = useState(true)
+
   const watchUrl = watch('url')
   const watchPath = watch('path')
   const [showPassword, setShowPassword] = useState(false)
@@ -143,7 +150,7 @@ const ImportModal = (): JSX.Element => {
     async (data) => {
       if (!projectId) return
 
-      const { url, path, displayname: name, branch } = data
+      const { url, path, displayname, branch } = data
       if (projects.map((p) => p.url).includes(url)) {
         onOpenExistsAlert()
         return
@@ -155,7 +162,7 @@ const ImportModal = (): JSX.Element => {
         id: projectId,
         url,
         path,
-        name,
+        name: displayname,
         branch,
         editedTime: dayjs().toString(),
         status: ProjectStatus.Initialized,
@@ -210,14 +217,27 @@ const ImportModal = (): JSX.Element => {
 
   return (
     <>
-      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
+      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="6xl">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader textAlign="center">Import Local Project</ModalHeader>
+          <ModalHeader textAlign="center">Import Project</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Grid templateColumns="30% 70%" gap={6}>
+            <Grid templateColumns="40% 60%" gap={6}>
               <Box>
+                <Checkbox isChecked={!!useTemplate}>Use Template</Checkbox>
+                <Collapse in={!!useTemplate} animateOpacity>
+                  <RadioGroup onChange={setUseTemplate}>
+                    <Stack>
+                      {TEMPLATES.map(({ name, url }) => (
+                        <Radio key={name} value={url} isChecked={useTemplate === url}>
+                          {name}
+                        </Radio>
+                      ))}
+                    </Stack>
+                  </RadioGroup>
+                </Collapse>
+
                 <FormControl id="path" mt={4} isInvalid={!!errors.path}>
                   <FormLabel>Local Path</FormLabel>
                   <Button
@@ -240,12 +260,19 @@ const ImportModal = (): JSX.Element => {
                   </Tooltip>
 
                   {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  <FormHelperText className="prose">
-                    Before importing your project, please configure the project according to{' '}
-                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      the documentation
-                    </a>
-                  </FormHelperText>
+                  {!!useTemplate && (
+                    <FormHelperText className="prose">
+                      Please select a empty folder to initialize the template project
+                    </FormHelperText>
+                  )}
+                  {!useTemplate && (
+                    <FormHelperText className="prose">
+                      Before importing your project, please configure the project according to{' '}
+                      <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                        the documentation
+                      </a>
+                    </FormHelperText>
+                  )}
                   {/* {!watchUrl && (
                     <FormHelperText>
                       If the derealize project already exists on the local disk, you can import it directly.
@@ -253,70 +280,73 @@ const ImportModal = (): JSX.Element => {
                   )} */}
                 </FormControl>
 
-                <FormControl id="url" mt={4} isInvalid={!!errors.url}>
-                  <FormLabel htmlFor="url">Git URL</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('url', { required: true, pattern: gitUrlPattern })}
-                    disabled={importloading}
-                  />
-                  {/* <FormHelperText className="prose">
+                <Checkbox isChecked={useGit}>Use Git</Checkbox>
+                <Collapse in={!!useGit} animateOpacity>
+                  <FormControl id="url" mt={4} isInvalid={!!errors.url}>
+                    <FormLabel htmlFor="url">Git URL</FormLabel>
+                    <Input
+                      type="text"
+                      {...register('url', { required: true, pattern: gitUrlPattern })}
+                      disabled={importloading}
+                    />
+                    {/* <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
                     <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                       the documentation
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
                   </FormHelperText> */}
-                  {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
-                </FormControl>
+                    {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
+                  </FormControl>
 
-                <FormControl id="username" mt={4} isInvalid={!!errors.username}>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('username', { required: true })}
-                    disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      // setValue('username', e.target.value)
-                      updateUrl({ _username: e.target.value })
-                    }}
-                  />
-                  {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
-
-                <FormControl id="password" mt={4} isInvalid={!!errors.password}>
-                  <FormLabel>Password</FormLabel>
-
-                  <InputGroup size="md">
+                  <FormControl id="username" mt={4} isInvalid={!!errors.username}>
+                    <FormLabel>Username</FormLabel>
                     <Input
-                      type={showPassword ? 'text' : 'password'}
-                      {...register('password', { required: true })}
+                      type="text"
+                      {...register('username', { required: true })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        // setValue('password', e.target.value)
-                        updateUrl({ _password: e.target.value })
+                        // setValue('username', e.target.value)
+                        updateUrl({ _username: e.target.value })
                       }}
                     />
-                    <InputRightElement width={12} className={style.pwdright}>
-                      {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
-                      {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
+                    {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
+                  </FormControl>
 
-                <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
-                  <FormLabel>Git Branch</FormLabel>
-                  <Input
-                    {...register('branch', { required: true })}
-                    type="text"
-                    disabled={importloading}
-                    defaultValue="derealize"
-                    colorScheme="gray"
-                  />
-                  <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
-                  {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
+                  <FormControl id="password" mt={4} isInvalid={!!errors.password}>
+                    <FormLabel>Password</FormLabel>
+
+                    <InputGroup size="md">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        {...register('password', { required: true })}
+                        disabled={importloading}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          // setValue('password', e.target.value)
+                          updateUrl({ _password: e.target.value })
+                        }}
+                      />
+                      <InputRightElement width={12} className={style.pwdright}>
+                        {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
+                        {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
+                      </InputRightElement>
+                    </InputGroup>
+                    {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
+                  </FormControl>
+
+                  <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
+                    <FormLabel>Git Branch</FormLabel>
+                    <Input
+                      {...register('branch', { required: true })}
+                      type="text"
+                      disabled={importloading}
+                      defaultValue="derealize"
+                      colorScheme="gray"
+                    />
+                    <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
+                    {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
+                  </FormControl>
+                </Collapse>
 
                 <FormControl id="displayname" mt={4}>
                   <FormLabel>Display Name</FormLabel>
