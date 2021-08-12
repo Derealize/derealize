@@ -3,6 +3,7 @@ import type { IpcRendererEvent } from 'electron'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast, AlertStatus } from '@chakra-ui/react'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import { nanoid } from 'nanoid'
 import type { StoreModel } from './index'
 import type { StatusPayload, PayloadError, BoolReply } from '../backend/backend.interface'
 import { Broadcast, Handler } from '../backend/backend.interface'
@@ -23,7 +24,7 @@ const toast = createStandaloneToast({
   },
 })
 
-const judgeFrontView = (project?: Project) => {
+const decideProjectView = (project?: Project) => {
   if (!project) {
     sendMainIpc(MainIpcChannel.FrontView)
     return
@@ -75,7 +76,7 @@ export interface ProjectModel {
   listen: Thunk<ProjectModel, void, void, StoreModel>
   unlisten: Action<ProjectModel>
 
-  importModalDisclosure: boolean
+  importModalProjectId: string | undefined
   toggleImportModal: Action<ProjectModel, boolean | undefined>
 
   imagesModalDisclosure: boolean
@@ -110,9 +111,9 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isEditing = true
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
     } else {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
     }
   }),
   editProject: action((state, { displayname }) => {
@@ -151,7 +152,7 @@ const projectModel: ProjectModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.view = view
-    judgeFrontView(project)
+    decideProjectView(project)
   }),
   setProjectViewHistory: action((state, { projectId, isView }) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -159,7 +160,7 @@ const projectModel: ProjectModel = {
     project.viewHistory = isView
     if (isView) {
       project.view = ProjectView.BrowserView
-      judgeFrontView(project)
+      decideProjectView(project)
     }
   }),
   setTailwindConfig: action((state, { projectId, config }) => {
@@ -191,7 +192,7 @@ const projectModel: ProjectModel = {
       sendBackIpc(Handler.Flush, { projectId: project.id })
       sendMainIpc(MainIpcChannel.DisableLink, project.id, state.isDisableLink)
     }
-    judgeFrontView(project)
+    decideProjectView(project)
   }),
 
   openProject: thunk(async (actions, projectId, { getState }) => {
@@ -332,24 +333,24 @@ const projectModel: ProjectModel = {
     unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
-  importModalDisclosure: false,
+  importModalProjectId: undefined,
   toggleImportModal: action((state, open) => {
-    if (open === false || state.importModalDisclosure) {
-      judgeFrontView(state.frontProject)
-      state.importModalDisclosure = false
+    if (open === false || state.importModalProjectId) {
+      state.importModalProjectId = undefined
+      decideProjectView(state.frontProject)
     } else {
-      judgeFrontView(undefined)
-      state.importModalDisclosure = true
+      state.importModalProjectId = nanoid()
+      decideProjectView(undefined)
     }
   }),
 
   imagesModalDisclosure: false,
   toggleImagesModal: action((state, open) => {
     if (open === false || state.imagesModalDisclosure) {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
       state.imagesModalDisclosure = false
     } else {
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
       state.imagesModalDisclosure = true
     }
   }),
@@ -372,13 +373,13 @@ const projectModel: ProjectModel = {
   colorsModalData: undefined,
   colorsModalToggle: action((state, { show, colors, theme }) => {
     if (show) {
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
       state.colorsModalShow = true
       if (colors && theme) {
         state.colorsModalData = { colors, theme }
       }
     } else {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
       state.colorsModalShow = false
       state.colorsModalData = undefined
     }

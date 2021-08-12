@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState, useCallback, useRef, ChangeEvent } from 'react'
 import dayjs from 'dayjs'
-import { nanoid } from 'nanoid'
 import { useForm } from 'react-hook-form'
 import {
   useToast,
@@ -75,7 +74,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
-  const modalDisclosure = useStoreState<boolean>((state) => state.projectStd.importModalDisclosure)
+  const projectId = useStoreState<string | undefined>((state) => state.projectStd.importModalProjectId)
   const toggleModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
 
   const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
@@ -90,8 +89,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
   const [importloading, setImportloading] = useState(false)
   const [installOutput, setInstallOutput] = useState<Array<string>>([])
 
-  const [projectId, setProjectId] = useState('')
-  const isReady = useStoreState<boolean | undefined>((state) => state.projectStd.isReady(projectId))
+  const isReady = useStoreState<boolean | undefined>((state) => !!projectId && state.projectStd.isReady(projectId))
 
   useEffect(() => {
     listenMainIpc(MainIpcChannel.OpenImport, () => {
@@ -142,6 +140,8 @@ const ImportProjectWithRuntim = (): JSX.Element => {
 
   const submit = useCallback(
     async (data) => {
+      if (!projectId) return
+
       const { url, path, displayname: name, branch } = data
       if (projects.map((p) => p.url).includes(url)) {
         onOpenExistsAlert()
@@ -149,11 +149,9 @@ const ImportProjectWithRuntim = (): JSX.Element => {
       }
 
       setImportloading(true)
-      const id = nanoid()
-      setProjectId(id)
 
       const newProject: ProjectStd = {
-        id,
+        id: projectId,
         url,
         path,
         name,
@@ -163,19 +161,19 @@ const ImportProjectWithRuntim = (): JSX.Element => {
       }
       addProject(newProject)
 
-      const payload: ImportPayloadStd = { projectId: id, url, path, branch }
+      const payload: ImportPayloadStd = { projectId, url, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
       if (result) {
-        await sendBackIpc(Handler.Install, { projectId: id })
+        await sendBackIpc(Handler.Install, { projectId })
       } else {
         setImportloading(false)
         installOutput.push(`import error: ${error}`)
         setInstallOutput(installOutput)
-        removeProject(id)
+        removeProject(projectId)
       }
     },
-    [projects, addProject, onOpenExistsAlert, installOutput, removeProject],
+    [projectId, projects, addProject, onOpenExistsAlert, installOutput, removeProject],
   )
 
   const open = useCallback(() => {
@@ -211,7 +209,7 @@ const ImportProjectWithRuntim = (): JSX.Element => {
 
   return (
     <>
-      <Modal isOpen={modalDisclosure} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
+      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign="center">Import Project</ModalHeader>

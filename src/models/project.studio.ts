@@ -3,6 +3,7 @@ import type { IpcRendererEvent } from 'electron'
 import { Action, action, Thunk, thunk, Computed, computed } from 'easy-peasy'
 import { createStandaloneToast, AlertStatus } from '@chakra-ui/react'
 import type { TailwindConfig } from 'tailwindcss/tailwind-config'
+import { nanoid } from 'nanoid'
 import type { StoreModel } from './index'
 import type {
   ProcessPayload,
@@ -30,7 +31,7 @@ const toast = createStandaloneToast({
   },
 })
 
-const judgeFrontView = (project?: ProjectStd) => {
+const decideProjectView = (project?: ProjectStd) => {
   if (!project) {
     sendMainIpc(MainIpcChannel.FrontView)
     return
@@ -89,7 +90,7 @@ export interface ProjectStdModel {
   listen: Thunk<ProjectStdModel, void, void, StoreModel>
   unlisten: Action<ProjectStdModel>
 
-  importModalDisclosure: boolean
+  importModalProjectId: string | undefined
   toggleImportModal: Action<ProjectStdModel, boolean | undefined>
 
   imagesModalDisclosure: boolean
@@ -125,9 +126,9 @@ const projectModel: ProjectStdModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (project) {
       project.isEditing = true
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
     } else {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
     }
   }),
   editProject: action((state, { displayname, branch }) => {
@@ -171,7 +172,7 @@ const projectModel: ProjectStdModel = {
     const project = state.projects.find((p) => p.id === projectId)
     if (!project) return
     project.view = view
-    judgeFrontView(project)
+    decideProjectView(project)
   }),
   setProjectViewHistory: action((state, { projectId, isView }) => {
     const project = state.projects.find((p) => p.id === projectId)
@@ -179,7 +180,7 @@ const projectModel: ProjectStdModel = {
     project.viewHistory = isView
     if (isView) {
       project.view = ProjectViewStd.BrowserView
-      judgeFrontView(project)
+      decideProjectView(project)
     }
   }),
   setTailwindConfig: action((state, { projectId, config }) => {
@@ -231,7 +232,7 @@ const projectModel: ProjectStdModel = {
       project.isOpened = true
       sendBackIpc(Handler.Flush, { projectId: project.id })
     }
-    judgeFrontView(project)
+    decideProjectView(project)
   }),
 
   startProject: thunk(async (actions, projectId, { getState }) => {
@@ -327,7 +328,7 @@ const projectModel: ProjectStdModel = {
     if (payload.status === ProjectStatus.Running && project.status !== ProjectStatus.Running) {
       project.startloading = false
       project.view = ProjectViewStd.BrowserView
-      judgeFrontView(project)
+      decideProjectView(project)
       sendMainIpc(MainIpcChannel.LoadURL, project.id, '')
     }
 
@@ -437,24 +438,24 @@ const projectModel: ProjectStdModel = {
     unlistenMainIpc(MainIpcChannel.Toast)
   }),
 
-  importModalDisclosure: false,
+  importModalProjectId: undefined,
   toggleImportModal: action((state, open) => {
-    if (open === false || state.importModalDisclosure) {
-      judgeFrontView(state.frontProject)
-      state.importModalDisclosure = false
+    if (open === false || state.importModalProjectId) {
+      state.importModalProjectId = undefined
+      decideProjectView(state.frontProject)
     } else {
-      judgeFrontView(undefined)
-      state.importModalDisclosure = true
+      state.importModalProjectId = nanoid()
+      decideProjectView(undefined)
     }
   }),
 
   imagesModalDisclosure: false,
   toggleImagesModal: action((state, open) => {
     if (open === false || state.imagesModalDisclosure) {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
       state.imagesModalDisclosure = false
     } else {
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
       state.imagesModalDisclosure = true
     }
   }),
@@ -477,13 +478,13 @@ const projectModel: ProjectStdModel = {
   colorsModalData: undefined,
   colorsModalToggle: action((state, { show, colors, theme }) => {
     if (show) {
-      judgeFrontView(undefined)
+      decideProjectView(undefined)
       state.colorsModalShow = true
       if (colors && theme) {
         state.colorsModalData = { colors, theme }
       }
     } else {
-      judgeFrontView(state.frontProject)
+      decideProjectView(state.frontProject)
       state.colorsModalShow = false
       state.colorsModalData = undefined
     }

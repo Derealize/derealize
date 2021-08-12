@@ -7,9 +7,9 @@
 &#x270D; tailwindcss editor play with the development running front-end project  
  [**Explore Release »**](https://derealize.com)
 
-[report bug](https://github.com/Derealize/derealize/issues) ·
+[discussions](https://github.com/Derealize/derealize/discussions) ·
 [feature voting](https://derealize-fider.herokuapp.com/) ·
-[keep touch (Discord)](https://discord.gg/2sqy5QeZXK)
+[documents](https://derealize.com/docs/guides/configuration)
 
 <!-- ![Test](https://github.com/Derealize/derealize/workflows/Test/badge.svg?branch=main) -->
 
@@ -17,6 +17,8 @@
 ![Dependencies](https://img.shields.io/david/Derealize/derealize)
 ![Dev Dependencies](https://img.shields.io/david/dev/Derealize/derealize)
 ![License](https://img.shields.io/github/license/Derealize/derealize)
+[![Discord](https://img.shields.io/discord/854286027686150176)](https://discord.gg/2sqy5QeZXK)
+[![WeChat](https://aleen42.github.io/badges/src/wechat.svg)](https://cdn.socode.pro/inviter.png)
 
 </div>
 
