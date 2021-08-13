@@ -71,8 +71,6 @@ const ImportModal = (): JSX.Element => {
 
   const projectId = useStoreState<string | undefined>((state) => state.projectStd.importModalProjectId)
   const toggleModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
-  const setUseTemplate = useStoreActions((actions) => actions.projectStd.setUseTemplate)
-  const setUseGit = useStoreActions((actions) => actions.projectStd.setUseGit)
 
   const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
   const addProject = useStoreActions((actions) => actions.projectStd.addProject)
@@ -80,7 +78,9 @@ const ImportModal = (): JSX.Element => {
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
 
   const useTemplate = useStoreState<string | undefined>((state) => state.projectStd.useTemplate)
+  const setUseTemplate = useStoreActions((actions) => actions.projectStd.setUseTemplate)
   const useGit = useStoreState<boolean>((state) => state.projectStd.useGit)
+  const setUseGit = useStoreActions((actions) => actions.projectStd.setUseGit)
 
   const watchGitUrl = watch('giturl')
   const watchPath = watch('path')
@@ -181,8 +181,8 @@ const ImportModal = (): JSX.Element => {
       }
 
       if (!reply.result) {
-        removeProject(projectId)
         setImportloading(false)
+        removeProject(projectId)
         installOutput.push(`import error: ${reply.error}`)
         setInstallOutput(installOutput)
         return
@@ -225,185 +225,190 @@ const ImportModal = (): JSX.Element => {
   }, [installOutput, toast])
 
   return (
-    <>
-      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="6xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader textAlign="center">Import Project</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Grid templateColumns="40% 60%" gap={6}>
-              <Box>
-                <Checkbox isChecked={!!useTemplate}>Use Template</Checkbox>
-                <Collapse in={!!useTemplate} animateOpacity>
-                  <RadioGroup onChange={setUseTemplate}>
-                    <Stack>
-                      {TEMPLATES.map(({ name, url }) => (
-                        <Radio key={name} value={url} isChecked={useTemplate === url}>
-                          {name}
-                        </Radio>
-                      ))}
-                    </Stack>
-                  </RadioGroup>
-                </Collapse>
+    <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="6xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader textAlign="center">Import Project</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Grid templateColumns="40% 60%" gap={6}>
+            <Box>
+              <Checkbox
+                isChecked={!!useTemplate}
+                onChange={(e) => setUseTemplate(e.target.checked ? TEMPLATES[0].url : undefined)}
+              >
+                Use Template
+              </Checkbox>
+              <Collapse in={!!useTemplate} animateOpacity>
+                <RadioGroup onChange={setUseTemplate}>
+                  <Stack>
+                    {TEMPLATES.map(({ name, url }) => (
+                      <Radio key={name} value={url} isChecked={useTemplate === url}>
+                        {name}
+                      </Radio>
+                    ))}
+                  </Stack>
+                </RadioGroup>
+              </Collapse>
 
-                <FormControl id="path" mt={4} isInvalid={!!errors.path}>
-                  <FormLabel>Local Path</FormLabel>
-                  <Button
-                    leftIcon={<FaRegFolderOpen />}
-                    colorScheme="gray"
-                    disabled={importloading}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
-                      setValue('path', filePaths[0])
-                    }}
-                  >
-                    Select Folder
-                  </Button>
-                  <Input type="hidden" {...register('path', { required: true })} />
-                  <Tooltip label={watchPath} aria-label="path">
-                    <Text color="gray.500" isTruncated>
-                      {watchPath}
-                    </Text>
-                  </Tooltip>
+              <FormControl id="path" mt={4} isInvalid={!!errors.path}>
+                <FormLabel>Local Path</FormLabel>
+                <Button
+                  leftIcon={<FaRegFolderOpen />}
+                  colorScheme="gray"
+                  disabled={importloading}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
+                    setValue('path', filePaths[0])
+                  }}
+                >
+                  Select Folder
+                </Button>
+                <Input type="hidden" {...register('path', { required: true })} />
+                <Tooltip label={watchPath} aria-label="path">
+                  <Text color="gray.500" isTruncated>
+                    {watchPath}
+                  </Text>
+                </Tooltip>
 
-                  {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  {!!useTemplate && (
-                    <FormHelperText className="prose">
-                      Please select a empty folder to initialize the template project
-                    </FormHelperText>
-                  )}
-                  {!useTemplate && (
-                    <FormHelperText className="prose">
-                      Before importing your project, please configure the project according to{' '}
-                      <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                        the documentation
-                      </a>
-                    </FormHelperText>
-                  )}
-                  {/* {!watchUrl && (
+                {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
+                {!!useTemplate && (
+                  <FormHelperText className="prose">
+                    Please select a empty folder to initialize the template project
+                  </FormHelperText>
+                )}
+                {!useTemplate && (
+                  <FormHelperText className="prose">
+                    Before importing your project, please configure the project according to{' '}
+                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                      the documentation
+                    </a>
+                  </FormHelperText>
+                )}
+                {/* {!watchUrl && (
                     <FormHelperText>
                       If the derealize project already exists on the local disk, you can import it directly.
                     </FormHelperText>
                   )} */}
-                </FormControl>
+              </FormControl>
 
-                <Checkbox isChecked={useGit}>Use Git</Checkbox>
-                <Collapse in={!!useGit} animateOpacity>
-                  <FormControl id="giturl" mt={4} isInvalid={!!errors.giturl}>
-                    <FormLabel htmlFor="giturl">Git URL</FormLabel>
-                    <Input
-                      type="text"
-                      {...register('giturl', { required: true, pattern: gitUrlPattern })}
-                      disabled={importloading}
-                    />
-                    {/* <FormHelperText className="prose">
+              <Checkbox isChecked={useGit} onChange={(e) => setUseGit(e.target.checked)}>
+                Use Git
+              </Checkbox>
+              <Collapse in={!!useGit} animateOpacity>
+                <FormControl id="giturl" mt={4} isInvalid={!!errors.giturl}>
+                  <FormLabel htmlFor="giturl">Git URL</FormLabel>
+                  <Input
+                    type="text"
+                    {...register('giturl', { required: true, pattern: gitUrlPattern })}
+                    disabled={importloading}
+                  />
+                  {/* <FormHelperText className="prose">
                     If you don&apos;t know what this is, you can read{' '}
                     <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                       the documentation
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
                   </FormHelperText> */}
-                    {errors.giturl && <FormErrorMessage>This field format is not match</FormErrorMessage>}
-                  </FormControl>
+                  {errors.giturl && <FormErrorMessage>This field format is not match</FormErrorMessage>}
+                </FormControl>
 
-                  <FormControl id="username" mt={4} isInvalid={!!errors.username}>
-                    <FormLabel>Username</FormLabel>
+                <FormControl id="username" mt={4} isInvalid={!!errors.username}>
+                  <FormLabel>Username</FormLabel>
+                  <Input
+                    type="text"
+                    {...register('username', { required: true })}
+                    disabled={importloading}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      // setValue('username', e.target.value)
+                      updateUrl({ _username: e.target.value })
+                    }}
+                  />
+                  {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
+                </FormControl>
+
+                <FormControl id="password" mt={4} isInvalid={!!errors.password}>
+                  <FormLabel>Password</FormLabel>
+
+                  <InputGroup size="md">
                     <Input
-                      type="text"
-                      {...register('username', { required: true })}
+                      type={showPassword ? 'text' : 'password'}
+                      {...register('password', { required: true })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        // setValue('username', e.target.value)
-                        updateUrl({ _username: e.target.value })
+                        // setValue('password', e.target.value)
+                        updateUrl({ _password: e.target.value })
                       }}
                     />
-                    {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  </FormControl>
-
-                  <FormControl id="password" mt={4} isInvalid={!!errors.password}>
-                    <FormLabel>Password</FormLabel>
-
-                    <InputGroup size="md">
-                      <Input
-                        type={showPassword ? 'text' : 'password'}
-                        {...register('password', { required: true })}
-                        disabled={importloading}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                          // setValue('password', e.target.value)
-                          updateUrl({ _password: e.target.value })
-                        }}
-                      />
-                      <InputRightElement width={12} className={style.pwdright}>
-                        {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
-                        {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
-                      </InputRightElement>
-                    </InputGroup>
-                    {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  </FormControl>
-
-                  <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
-                    <FormLabel>Git Branch</FormLabel>
-                    <Input
-                      {...register('branch', { required: true })}
-                      type="text"
-                      disabled={importloading}
-                      defaultValue="derealize"
-                      colorScheme="gray"
-                    />
-                    <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
-                    {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
-                  </FormControl>
-                </Collapse>
-
-                <FormControl id="displayname" mt={4}>
-                  <FormLabel>Display Name</FormLabel>
-                  <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
-                  {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
+                    <InputRightElement width={12} className={style.pwdright}>
+                      {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
+                      {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
+                    </InputRightElement>
+                  </InputGroup>
+                  {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
-              </Box>
-              <Box>
-                <p className={style.output}>{installOutput.join('\n')}</p>
-                {importloading && (
-                  <p className={style.spinner}>
-                    <BarLoader height={4} width={100} color="gray" />
-                  </p>
-                )}
-              </Box>
-            </Grid>
-            {isReady && (
-              <Text color="teal.500" align="center">
-                Congratulations, it looks like the project is ready to work.
-              </Text>
-            )}
-          </ModalBody>
-          <ModalFooter justifyContent="center">
-            {isReady && (
-              <ButtonGroup variant="outline" size="lg" spacing={6}>
-                <Button colorScheme="gray" onClick={() => toggleModal(false)}>
-                  Close Dialog
-                </Button>
-                <Button colorScheme="teal" onClick={open}>
-                  Open &amp; Start Project
-                </Button>
-              </ButtonGroup>
-            )}
-            <Button
-              colorScheme="teal"
-              size="lg"
-              variant={isReady ? 'outline' : 'solid'}
-              isLoading={importloading}
-              spinner={<BeatLoader size={8} color="teal" />}
-              onClick={handleSubmit(submit)}
-              ml={6}
-            >
-              Import {isReady && 'Again'}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+
+                <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
+                  <FormLabel>Git Branch</FormLabel>
+                  <Input
+                    {...register('branch', { required: true })}
+                    type="text"
+                    disabled={importloading}
+                    defaultValue="derealize"
+                    colorScheme="gray"
+                  />
+                  <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
+                  {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
+                </FormControl>
+              </Collapse>
+
+              <FormControl id="displayname" mt={4}>
+                <FormLabel>Display Name</FormLabel>
+                <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
+                {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
+              </FormControl>
+            </Box>
+            <Box>
+              <p className={style.output}>{installOutput.join('\n')}</p>
+              {importloading && (
+                <p className={style.spinner}>
+                  <BarLoader height={4} width={100} color="gray" />
+                </p>
+              )}
+            </Box>
+          </Grid>
+          {isReady && (
+            <Text color="teal.500" align="center">
+              Congratulations, it looks like the project is ready to work.
+            </Text>
+          )}
+        </ModalBody>
+        <ModalFooter justifyContent="center">
+          {isReady && (
+            <ButtonGroup variant="outline" size="lg" spacing={6}>
+              <Button colorScheme="gray" onClick={() => toggleModal(false)}>
+                Close Dialog
+              </Button>
+              <Button colorScheme="teal" onClick={open}>
+                Open &amp; Start Project
+              </Button>
+            </ButtonGroup>
+          )}
+          <Button
+            colorScheme="teal"
+            size="lg"
+            variant={isReady ? 'outline' : 'solid'}
+            isLoading={importloading}
+            spinner={<BeatLoader size={8} color="teal" />}
+            onClick={handleSubmit(submit)}
+            ml={6}
+          >
+            Import {isReady && 'Again'}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   )
 }
 

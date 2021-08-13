@@ -95,7 +95,7 @@ const Home = (): JSX.Element => {
               <Button
                 onClick={() => {
                   toggleImportModal(true)
-                  setUseTemplate(TEMPLATES[0].name)
+                  setUseTemplate(TEMPLATES[0].url)
                 }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="pink"

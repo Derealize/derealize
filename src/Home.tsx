@@ -28,7 +28,7 @@ import { useStoreActions, useStoreState } from './reduxStore'
 import type { Project } from './models/project.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
-import { MainIpcChannel } from './interface'
+import { MainIpcChannel, TEMPLATES } from './interface'
 import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_design_eq3j.svg'
 
 declare const window: PreloadWindow
@@ -37,6 +37,7 @@ const { sendMainIpc } = window.derealize
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const toggleImportModal = useStoreActions((actions) => actions.project.toggleImportModal)
+  const setUseTemplate = useStoreActions((actions) => actions.projectStd.setUseTemplate)
   const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
@@ -66,21 +67,21 @@ const Home = (): JSX.Element => {
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} my={6} justifyContent="center">
               <Button
-                onClick={() => toggleImportModal(true)}
+                onClick={() => {
+                  toggleImportModal(true)
+                  setUseTemplate(undefined)
+                }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="teal"
                 variant="solid"
               >
-                Import Local project
+                Open Local project
               </Button>
-              <Button
-                onClick={() => toggleImportModal(true)}
-                leftIcon={<FiPlusCircle />}
-                colorScheme="pink"
-                variant="solid"
-              >
-                Import from template
-              </Button>
+              <a href="https://derealize.com/docs/templates" target="_blank" rel="noreferrer">
+                <Button leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
+                  View templates
+                </Button>
+              </a>
             </HStack>
 
             {!projects.length && (
