@@ -143,38 +143,37 @@ const ImportModal = (): JSX.Element => {
     async (data) => {
       if (!projectId) return
 
-      const { url, path, displayname: name, branch } = data
-      if (projects.map((p) => p.url).includes(url)) {
+      const { path, displayname, url, branch } = data
+      if (projects.some((p) => p.path === path || p.url === url)) {
         onOpenExistsAlert()
         return
       }
 
-      setImportloading(true)
-
-      const newProject: ProjectStd = {
+      addProject({
         id: projectId,
         url,
         path,
-        name,
+        name: displayname,
         branch,
         editedTime: dayjs().toString(),
         status: ProjectStatus.Initialized,
-      }
-      addProject(newProject)
+      })
 
+      setImportloading(true)
       const payload: ImportPayloadStd = { projectId, url, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
-      if (result) {
-        await sendBackIpc(Handler.Install, { projectId })
-      } else {
+      if (!result) {
+        removeProject(projectId)
         setImportloading(false)
         installOutput.push(`import error: ${error}`)
         setInstallOutput(installOutput)
-        removeProject(projectId)
+        return
       }
+
+      await sendBackIpc(Handler.Install, { projectId })
     },
-    [projectId, projects, addProject, onOpenExistsAlert, installOutput, removeProject],
+    [projectId, projects, addProject, onOpenExistsAlert, removeProject, installOutput],
   )
 
   const open = useCallback(() => {

@@ -9,6 +9,8 @@ export enum Handler {
   Stop = 'Stop',
   Pull = 'Pull',
   Push = 'Push',
+  UpdateGitBranch = 'UpdateGitBranch',
+  MigrateGitOrigin = 'MigrateGitOrigin',
   History = 'History',
   ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',

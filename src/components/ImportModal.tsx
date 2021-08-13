@@ -65,6 +65,7 @@ const ImportModal = (): JSX.Element => {
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
+  const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const isReady = useMemo(() => projects.some((p) => p.id === projectId), [projects, projectId])
 
@@ -84,30 +85,30 @@ const ImportModal = (): JSX.Element => {
     async (data) => {
       if (!projectId) return
 
-      const { path, displayname: name } = data
-      if (projects.map((p) => p.path).includes(path)) {
+      const { path, displayname } = data
+      if (projects.some((p) => p.path === path)) {
         onOpenExistsAlert()
-        return
-      }
-
-      const payload: ImportPayload = { projectId, path }
-      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-      if (!result) {
-        toast({
-          title: `Import error:${error}`,
-          status: 'error',
-        })
         return
       }
 
       addProject({
         id: projectId,
         path,
-        name,
+        name: displayname,
         editedTime: dayjs().toString(),
       })
+
+      const payload: ImportPayload = { projectId, path }
+      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+      if (!result) {
+        removeProject(projectId)
+        toast({
+          title: `Import error:${error}`,
+          status: 'error',
+        })
+      }
     },
-    [projectId, projects, addProject, onOpenExistsAlert, toast],
+    [projectId, projects, addProject, onOpenExistsAlert, removeProject, toast],
   )
 
   const open = useCallback(() => {
