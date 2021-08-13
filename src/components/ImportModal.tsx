@@ -50,8 +50,6 @@ type Inputs = {
 
 const ImportModal = (): JSX.Element => {
   const toast = useToast()
-  const existsAlertCancelRef = useRef<any>()
-  const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
   const {
     register,
     handleSubmit,
@@ -87,7 +85,10 @@ const ImportModal = (): JSX.Element => {
 
       const { path, displayname } = data
       if (projects.some((p) => p.path === path)) {
-        onOpenExistsAlert()
+        toast({
+          title: `The path already exists in your project list.`,
+          status: 'error',
+        })
         return
       }
 
@@ -195,29 +196,6 @@ const ImportModal = (): JSX.Element => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <AlertDialog
-        motionPreset="slideInBottom"
-        leastDestructiveRef={existsAlertCancelRef}
-        onClose={onCloseExistsAlert}
-        isOpen={openExistsAlert}
-        isCentered
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Project already exists</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
-              No
-            </Button>
-            <Button colorScheme="red" ml={3} onClick={open}>
-              Yes
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   )
 }

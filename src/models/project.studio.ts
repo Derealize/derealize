@@ -303,9 +303,9 @@ const projectModel: ProjectStdModel = {
     actions.setProjects(projects)
     await Promise.all(
       projects.map(async (project) => {
-        const { id: projectId, url, path, branch } = project
+        const { id: projectId, giturl, path, branch } = project
 
-        const payload: ImportPayloadStd = { projectId, url, path, branch }
+        const payload: ImportPayloadStd = { projectId, giturl, path, branch }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })

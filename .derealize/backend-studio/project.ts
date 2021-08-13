@@ -17,7 +17,7 @@ import type {
 } from './backend.interface'
 import { ProjectStatus } from './backend.interface'
 import { npmInstall, npmStart } from './npm'
-import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
+import * as git from './git'
 import emit from './emit'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
@@ -58,7 +58,12 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly projectId: string, readonly url: string, readonly path: string, readonly branch = 'derealize') {}
+  constructor(
+    readonly projectId: string,
+    readonly path: string,
+    private giturl?: string,
+    private branch = 'derealize',
+  ) {}
 
   EmitStatus(): void {
     emit(Broadcast.Status, {
@@ -123,7 +128,7 @@ class Project {
     if (!this.repo) return { result: false, error: 'repo null' }
 
     try {
-      await checkBranch(this.repo, this.branch)
+      await git.checkoutBranch(this.repo, this.branch)
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
@@ -134,7 +139,7 @@ class Project {
       this.changes = statuses.map((item) => {
         return {
           file: item.path(),
-          status: fileStatusToText(item),
+          status: git.fileStatusToText(item),
         }
       })
     } catch (err) {
@@ -161,12 +166,13 @@ class Project {
   }
 
   async Import(): Promise<BoolReply> {
+    if (!this.giturl) throw new Error('giturl null')
     try {
-      this.repo = await gitClone(this.url, this.path, this.branch)
+      this.repo = await git.clone(this.giturl, this.path, this.branch)
     } catch (err) {
       if (err.message.includes('exists and is not an empty directory')) {
         try {
-          this.repo = await gitOpen(this.path)
+          this.repo = await git.open(this.path)
         } catch (openErr) {
           captureException(openErr)
           return { result: false, error: openErr.message }
@@ -180,6 +186,32 @@ class Project {
     const reply = await this.Flush()
     if (!reply.result) return reply
 
+    return { result: true }
+  }
+
+  async UpdateGitBranch(branch: string): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
+    try {
+      await git.checkoutBranch(this.repo, branch)
+      this.branch = branch
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
+
+    return { result: true }
+  }
+
+  async MigrateGitOrigin(giturl: string, branch = 'derealize'): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
+    try {
+      git.migrateOrigin(this.repo, giturl, branch)
+      this.giturl = giturl
+      this.branch = branch
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
     return { result: true }
   }
 
@@ -296,7 +328,7 @@ class Project {
     }
 
     try {
-      await gitPull(this.repo)
+      await git.pull(this.repo, this.branch)
       this.Install()
 
       return { result: true }
@@ -317,10 +349,10 @@ class Project {
 
     try {
       if (this.changes.length) {
-        await gitCommit(this.repo, msg || 'derealize commit')
+        await git.commit(this.repo, msg || 'derealize commit')
       }
 
-      await gitPull(this.repo)
+      await git.pull(this.repo, this.branch)
 
       const reply2 = await this.FlushGit()
       if (!reply2.result) return reply2
@@ -329,7 +361,7 @@ class Project {
         return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
 
-      await gitPush(this.repo)
+      await git.push(this.repo, this.branch)
 
       return { result: true }
     } catch (error) {
@@ -342,7 +374,7 @@ class Project {
     if (!this.repo) throw new Error('repo null')
 
     try {
-      const commits = await gitHistory(this.repo)
+      const commits = await git.history(this.repo)
       return { result: commits }
     } catch (err) {
       return { result: [], error: err.message }

@@ -51,7 +51,7 @@ const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMain
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
 type Inputs = {
-  url: string
+  giturl: string
   path: string
   username: string
   password: string
@@ -61,8 +61,6 @@ type Inputs = {
 
 const ImportModal = (): JSX.Element => {
   const toast = useToast()
-  const existsAlertCancelRef = useRef<any>()
-  const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
   const {
     register,
     handleSubmit,
@@ -82,8 +80,10 @@ const ImportModal = (): JSX.Element => {
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
 
-  const [integrateGit, setIntegrateGit] = useState(true)
-  const watchUrl = watch('url')
+  const [useTemplate, setUseTemplate] = useState<string | undefined>()
+  const [useGit, setUseGit] = useState(true)
+
+  const watchGitUrl = watch('giturl')
   const watchPath = watch('path')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -103,11 +103,11 @@ const ImportModal = (): JSX.Element => {
   }, [toggleModal])
 
   useEffect(() => {
-    if (!watchUrl) return
+    if (!watchGitUrl) return
     setInstallOutput([])
 
     try {
-      const parseURL = new URL(watchUrl)
+      const parseURL = new URL(watchGitUrl)
       setValue('username', parseURL.username)
       setValue('password', parseURL.password)
 
@@ -119,13 +119,13 @@ const ImportModal = (): JSX.Element => {
         status: 'error',
       })
     }
-  }, [setInstallOutput, setValue, toast, watchUrl])
+  }, [setInstallOutput, setValue, toast, watchGitUrl])
 
   const updateUrl = useCallback(
     ({ _username, _password }) => {
-      if (!watchUrl) return
+      if (!watchGitUrl) return
       try {
-        const parseURL = new URL(watchUrl)
+        const parseURL = new URL(watchGitUrl)
         if (_username) parseURL.username = _username
         if (_password) parseURL.password = _password
         setValue('url', parseURL.href)
@@ -136,22 +136,25 @@ const ImportModal = (): JSX.Element => {
         })
       }
     },
-    [setValue, toast, watchUrl],
+    [setValue, toast, watchGitUrl],
   )
 
   const submit = useCallback(
     async (data) => {
       if (!projectId) return
 
-      const { path, displayname, url, branch } = data
-      if (projects.some((p) => p.path === path || p.url === url)) {
-        onOpenExistsAlert()
+      const { path, displayname, giturl, branch } = data
+      if (projects.some((p) => p.path === path || p.giturl === giturl)) {
+        toast({
+          title: `The path or git-url already exists in your project list.`,
+          status: 'error',
+        })
         return
       }
 
       addProject({
         id: projectId,
-        url,
+        giturl,
         path,
         name: displayname,
         branch,
@@ -160,7 +163,7 @@ const ImportModal = (): JSX.Element => {
       })
 
       setImportloading(true)
-      const payload: ImportPayloadStd = { projectId, url, path, branch }
+      const payload: ImportPayloadStd = { projectId, giturl, path, branch }
       const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
       if (!result) {
@@ -173,7 +176,7 @@ const ImportModal = (): JSX.Element => {
 
       await sendBackIpc(Handler.Install, { projectId })
     },
-    [projectId, projects, addProject, onOpenExistsAlert, removeProject, installOutput],
+    [projectId, projects, addProject, toast, removeProject, installOutput],
   )
 
   const open = useCallback(() => {
@@ -252,11 +255,11 @@ const ImportModal = (): JSX.Element => {
                   )} */}
                 </FormControl>
 
-                <FormControl id="url" mt={4} isInvalid={!!errors.url}>
-                  <FormLabel htmlFor="url">Git URL</FormLabel>
+                <FormControl id="giturl" mt={4} isInvalid={!!errors.giturl}>
+                  <FormLabel htmlFor="giturl">Git URL</FormLabel>
                   <Input
                     type="text"
-                    {...register('url', { required: true, pattern: gitUrlPattern })}
+                    {...register('giturl', { required: true, pattern: gitUrlPattern })}
                     disabled={importloading}
                   />
                   {/* <FormHelperText className="prose">
@@ -266,7 +269,7 @@ const ImportModal = (): JSX.Element => {
                     </a>{' '}
                     or ask the front-end engineer of the team for help.
                   </FormHelperText> */}
-                  {errors.url && <FormErrorMessage>This field format is not match</FormErrorMessage>}
+                  {errors.giturl && <FormErrorMessage>This field format is not match</FormErrorMessage>}
                 </FormControl>
 
                 <FormControl id="username" mt={4} isInvalid={!!errors.username}>
@@ -363,29 +366,6 @@ const ImportModal = (): JSX.Element => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      <AlertDialog
-        motionPreset="slideInBottom"
-        leastDestructiveRef={existsAlertCancelRef}
-        onClose={onCloseExistsAlert}
-        isOpen={openExistsAlert}
-        isCentered
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Project already exists</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
-              No
-            </Button>
-            <Button colorScheme="red" ml={3} onClick={open}>
-              Yes
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   )
 }

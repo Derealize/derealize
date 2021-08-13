@@ -26,10 +26,10 @@ const getProject = (id: string): Project => {
   return project
 }
 
-export const Import = async ({ projectId, url, path, branch }: ImportPayloadStd): Promise<BoolReply> => {
+export const Import = async ({ projectId, path, giturl, branch }: ImportPayloadStd): Promise<BoolReply> => {
   let project = projectsMap.get(projectId)
   if (!project) {
-    project = new Project(projectId, url, path, branch)
+    project = new Project(projectId, path, giturl, branch)
     projectsMap.set(projectId, project)
   }
 
@@ -73,6 +73,25 @@ export const Pull = async ({ projectId }: ProjectIdParam): Promise<BoolReply> =>
 export const Push = async ({ projectId, msg }: ProjectIdParam & { msg: string }): Promise<BoolReply> => {
   const project = getProject(projectId)
   const reply = await project.Push(msg)
+  return reply
+}
+
+export const UpdateGitBranch = async ({
+  projectId,
+  branch,
+}: ProjectIdParam & { branch: string }): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.UpdateGitBranch(branch)
+  return reply
+}
+
+export const MigrateGitOrigin = async ({
+  projectId,
+  url,
+  branch,
+}: ProjectIdParam & { url: string; branch: string }): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.MigrateGitOrigin(url, branch)
   return reply
 }
 

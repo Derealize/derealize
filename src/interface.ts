@@ -7,8 +7,8 @@ export interface ImportPayload extends ProjectIdParam {
 }
 
 export interface ImportPayloadStd extends ImportPayload {
-  url: string
-  branch: string
+  giturl?: string
+  branch?: string
 }
 
 export enum ElementTag {

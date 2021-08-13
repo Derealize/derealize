@@ -76,7 +76,15 @@ const Home = (): JSX.Element => {
                 colorScheme="teal"
                 variant="solid"
               >
-                Import existing project
+                Open Local project
+              </Button>
+              <Button
+                onClick={() => toggleImportModal(true)}
+                leftIcon={<FiPlusCircle />}
+                colorScheme="teal"
+                variant="solid"
+              >
+                Import from GitUrl
               </Button>
               <Button
                 onClick={() => toggleImportModal(true)}
@@ -84,7 +92,7 @@ const Home = (): JSX.Element => {
                 colorScheme="pink"
                 variant="solid"
               >
-                Import from template
+                Import from templates
               </Button>
             </HStack>
 
