@@ -366,7 +366,7 @@ const ImportModal = (): JSX.Element => {
                 </FormControl>
               </Collapse>
 
-              <FormControl id="displayname" mt={4}>
+              <FormControl id="displayname" mt={4} isInvalid={!!errors.displayname}>
                 <FormLabel>Display Name</FormLabel>
                 <Input type="text" {...register('displayname', { required: true })} disabled={importloading} />
                 {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}

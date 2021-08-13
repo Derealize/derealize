@@ -140,7 +140,7 @@ const ImportModal = (): JSX.Element => {
             {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
           </FormControl>
 
-          <FormControl id="displayname" mt={4}>
+          <FormControl id="displayname" mt={4} isInvalid={!!errors.displayname}>
             <FormLabel>Display Name</FormLabel>
             <Input type="text" {...register('displayname', { required: true })} />
             {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
