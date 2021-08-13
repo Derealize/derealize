@@ -61,7 +61,7 @@ class Project {
   constructor(
     readonly projectId: string,
     readonly path: string,
-    private giturl?: string,
+    public giturl?: string,
     private branch = 'derealize',
   ) {}
 
@@ -125,7 +125,7 @@ class Project {
   }
 
   async FlushGit(): Promise<BoolReply> {
-    if (!this.repo) return { result: false, error: 'repo null' }
+    if (!this.repo) throw new Error('repo null')
 
     try {
       await git.checkoutBranch(this.repo, this.branch)
@@ -136,7 +136,7 @@ class Project {
 
     try {
       const statuses = await this.repo.getStatus()
-      this.changes = statuses.map((item) => {
+      this.changes = statuses.map((item: { path: () => any }) => {
         return {
           file: item.path(),
           status: git.fileStatusToText(item),
@@ -152,8 +152,10 @@ class Project {
   }
 
   async Flush(): Promise<BoolReply> {
-    const reply = await this.FlushGit()
-    if (!reply.result) return reply
+    if (this.giturl) {
+      const reply = await this.FlushGit()
+      if (!reply.result) return reply
+    }
 
     const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
@@ -165,7 +167,7 @@ class Project {
     return { result: true }
   }
 
-  async Import(): Promise<BoolReply> {
+  async GitClone(): Promise<BoolReply> {
     if (!this.giturl) throw new Error('giturl null')
     try {
       this.repo = await git.clone(this.giturl, this.path, this.branch)
@@ -183,8 +185,16 @@ class Project {
       }
     }
 
-    const reply = await this.Flush()
-    if (!reply.result) return reply
+    return { result: true }
+  }
+
+  async GitOpen(): Promise<BoolReply> {
+    try {
+      this.repo = await git.open(this.path)
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
 
     return { result: true }
   }

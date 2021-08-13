@@ -33,8 +33,16 @@ export const Import = async ({ projectId, path, giturl, branch }: ImportPayloadS
     projectsMap.set(projectId, project)
   }
 
-  const result = await project.Import()
-  return result
+  let reply: BoolReply
+  if (project.giturl) {
+    reply = await project.GitClone()
+    if (!reply.result) return reply
+  } else {
+    reply = await project.GitOpen()
+    if (!reply.result) return reply
+  }
+  reply = await project.Flush()
+  return reply
 }
 
 export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
@@ -99,6 +107,11 @@ export const History = async ({ projectId }: ProjectIdParam): Promise<HistoryRep
   const project = getProject(projectId)
   const logs = await project.History()
   return logs
+}
+
+export const CheckDirectoryEmpty = async ({ path }: { path: string }): Promise<BoolReply> => {
+  const files = await fs.readdir(path)
+  return { result: files.length === 0 }
 }
 
 // export const Dispose = async ({ projectId }: ProjectIdParam) => {

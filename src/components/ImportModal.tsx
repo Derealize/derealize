@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import {
@@ -18,14 +18,6 @@ import {
   Input,
   Button,
   ButtonGroup,
-  useDisclosure,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  AlertDialogCloseButton,
   Text,
   Tooltip,
 } from '@chakra-ui/react'
@@ -109,7 +101,7 @@ const ImportModal = (): JSX.Element => {
         })
       }
     },
-    [projectId, projects, addProject, onOpenExistsAlert, removeProject, toast],
+    [projectId, projects, addProject, removeProject, toast],
   )
 
   const open = useCallback(() => {

@@ -78,6 +78,18 @@ export interface ThemeColorPayload extends ProjectIdParam {
   value: string
 }
 
+export interface Template {
+  name: string
+  url: string
+}
+
+export const TEMPLATES: Template[] = [
+  { name: 'Next.js', url: 'https://github.com/Derealize/nextjs-template' },
+  { name: 'Create React App', url: 'https://github.com/Derealize/cra-template' },
+  { name: 'Gatsby', url: 'https://github.com/Derealize/gatsby-template' },
+  // { name: 'WeApp', url: 'https://github.com/Derealize/weapp-template' },
+]
+
 export enum MainIpcChannel {
   Shortcut = 'Shortcut',
   ElementShortcut = 'ElementShortcut',

@@ -78,6 +78,8 @@ export interface ProjectModel {
 
   importModalProjectId: string | undefined
   toggleImportModal: Action<ProjectModel, boolean | undefined>
+  useTamplate: string | undefined
+  useGit: boolean
 
   imagesModalDisclosure: boolean
   toggleImagesModal: Action<ProjectModel, boolean | undefined>
@@ -343,6 +345,8 @@ const projectModel: ProjectModel = {
       decideProjectView(undefined)
     }
   }),
+  useTamplate: undefined,
+  useGit: true,
 
   imagesModalDisclosure: false,
   toggleImagesModal: action((state, open) => {

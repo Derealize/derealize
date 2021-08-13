@@ -12,6 +12,7 @@ export enum Handler {
   UpdateGitBranch = 'UpdateGitBranch',
   MigrateGitOrigin = 'MigrateGitOrigin',
   History = 'History',
+  CheckDirectoryEmpty = 'CheckDirectoryEmpty',
   ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',

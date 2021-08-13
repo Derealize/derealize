@@ -41,10 +41,6 @@ const Home = (): JSX.Element => {
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
 
-  // useEffect(() => {
-  //   toggleImportModal(!projects.length)
-  // }, [projects.length, toggleImportModal])
-
   return (
     <div className={style.home}>
       <Tabs variant="soft-rounded" colorScheme="teal">
@@ -75,7 +71,7 @@ const Home = (): JSX.Element => {
                 colorScheme="teal"
                 variant="solid"
               >
-                Import existing project
+                Import Local project
               </Button>
               <Button
                 onClick={() => toggleImportModal(true)}

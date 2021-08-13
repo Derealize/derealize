@@ -15,7 +15,7 @@ import type {
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ProjectViewStd, ProjectStd, BackgroundImage, Colors } from './project.interface'
-import { MainIpcChannel, ImportPayloadStd } from '../interface'
+import { MainIpcChannel, ImportPayloadStd, TEMPLATES } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
@@ -91,7 +91,11 @@ export interface ProjectStdModel {
   unlisten: Action<ProjectStdModel>
 
   importModalProjectId: string | undefined
-  toggleImportModal: Action<ProjectStdModel, boolean | undefined>
+  toggleImportModal: Action<ProjectStdModel, boolean>
+  useTemplate: string | undefined
+  setUseTemplate: Action<ProjectStdModel, string | undefined>
+  useGit: boolean
+  setUseGit: Action<ProjectStdModel, boolean>
 
   imagesModalDisclosure: boolean
   toggleImagesModal: Action<ProjectStdModel, boolean | undefined>
@@ -440,13 +444,21 @@ const projectModel: ProjectStdModel = {
 
   importModalProjectId: undefined,
   toggleImportModal: action((state, open) => {
-    if (open === false || state.importModalProjectId) {
-      state.importModalProjectId = undefined
-      decideProjectView(state.frontProject)
-    } else {
+    if (open) {
       state.importModalProjectId = nanoid()
       decideProjectView(undefined)
+    } else {
+      state.importModalProjectId = undefined
+      decideProjectView(state.frontProject)
     }
+  }),
+  useTemplate: undefined,
+  setUseTemplate: action((state, payload) => {
+    state.useTemplate = payload
+  }),
+  useGit: true,
+  setUseGit: action((state, payload) => {
+    state.useGit = payload
   }),
 
   imagesModalDisclosure: false,

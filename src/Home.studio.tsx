@@ -29,7 +29,7 @@ import type { ProjectStd } from './models/project.interface'
 import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
-import { MainIpcChannel } from './interface'
+import { MainIpcChannel, TEMPLATES } from './interface'
 import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_design_eq3j.svg'
 
 declare const window: PreloadWindow
@@ -38,13 +38,11 @@ const { sendBackIpc, sendMainIpc } = window.derealize
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
   const toggleImportModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
+  const setUseTemplate = useStoreActions((actions) => actions.projectStd.setUseTemplate)
+  const setUseGit = useStoreActions((actions) => actions.projectStd.setUseGit)
   const setEditingProject = useStoreActions((actions) => actions.projectStd.setEditingProject)
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProjectThunk)
-
-  // useEffect(() => {
-  //   toggleImportModal(!projects.length)
-  // }, [projects.length, toggleImportModal])
 
   return (
     <div className={style.home}>
@@ -71,7 +69,11 @@ const Home = (): JSX.Element => {
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} my={6} justifyContent="center">
               <Button
-                onClick={() => toggleImportModal(true)}
+                onClick={() => {
+                  toggleImportModal(true)
+                  setUseTemplate(undefined)
+                  setUseGit(false)
+                }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="teal"
                 variant="solid"
@@ -79,7 +81,11 @@ const Home = (): JSX.Element => {
                 Open Local project
               </Button>
               <Button
-                onClick={() => toggleImportModal(true)}
+                onClick={() => {
+                  toggleImportModal(true)
+                  setUseTemplate(undefined)
+                  setUseGit(true)
+                }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="teal"
                 variant="solid"
@@ -87,7 +93,10 @@ const Home = (): JSX.Element => {
                 Import from GitUrl
               </Button>
               <Button
-                onClick={() => toggleImportModal(true)}
+                onClick={() => {
+                  toggleImportModal(true)
+                  setUseTemplate(TEMPLATES[0].name)
+                }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="pink"
                 variant="solid"
