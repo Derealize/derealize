@@ -172,17 +172,8 @@ class Project {
     try {
       this.repo = await git.clone(this.giturl, this.path, this.branch)
     } catch (err) {
-      if (err.message.includes('exists and is not an empty directory')) {
-        try {
-          this.repo = await git.open(this.path)
-        } catch (openErr) {
-          captureException(openErr)
-          return { result: false, error: openErr.message }
-        }
-      } else {
-        captureException(err)
-        return { result: false, error: err.message }
-      }
+      captureException(err)
+      return { result: false, error: err.message }
     }
 
     return { result: true }

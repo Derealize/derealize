@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import {
   useToast,
   Stack,
+  VStack,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -40,6 +41,7 @@ import type { ProjectStd } from '../models/project.interface'
 import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
 import { MainIpcChannel, TEMPLATES } from '../interface'
+import { ReactComponent as GoodSvg } from '../styles/images/undraw_coolness_dtmq.svg'
 
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc } =
@@ -164,7 +166,7 @@ const ImportModal = (): JSX.Element => {
       setImportloading(true)
       let reply: BoolReply
       if (useTemplate) {
-        const payload: ImportPayloadStd = { projectId, path, giturl: useTemplate }
+        const payload: ImportPayloadStd = { projectId, path, giturl: useTemplate, branch: 'main' }
         reply = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
         if (reply.result && useGit) {
@@ -235,15 +237,16 @@ const ImportModal = (): JSX.Element => {
             <Box>
               <Checkbox
                 isChecked={!!useTemplate}
+                mb={2}
                 onChange={(e) => setUseTemplate(e.target.checked ? TEMPLATES[0].url : undefined)}
               >
                 Use Template
               </Checkbox>
               <Collapse in={!!useTemplate} animateOpacity>
-                <RadioGroup onChange={setUseTemplate}>
-                  <Stack>
+                <RadioGroup onChange={setUseTemplate} value={useTemplate}>
+                  <Stack pl={6}>
                     {TEMPLATES.map(({ name, url }) => (
-                      <Radio key={name} value={url} isChecked={useTemplate === url}>
+                      <Radio key={name} value={url}>
                         {name}
                       </Radio>
                     ))}
@@ -271,29 +274,24 @@ const ImportModal = (): JSX.Element => {
                     {watchPath}
                   </Text>
                 </Tooltip>
-
                 {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                {!!useTemplate && (
+                {(!!useTemplate || useGit) && (
                   <FormHelperText className="prose">
-                    Please select a empty folder to initialize the template project
+                    Please select a empty folder to initialize the project.
                   </FormHelperText>
                 )}
-                {!useTemplate && (
+                {!useTemplate && !useGit && (
                   <FormHelperText className="prose">
-                    Before importing your project, please configure the project according to{' '}
+                    Before select your local project, please configure the project according to{' '}
                     <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
                       the documentation
                     </a>
+                    .
                   </FormHelperText>
                 )}
-                {/* {!watchUrl && (
-                    <FormHelperText>
-                      If the derealize project already exists on the local disk, you can import it directly.
-                    </FormHelperText>
-                  )} */}
               </FormControl>
 
-              <Checkbox isChecked={useGit} onChange={(e) => setUseGit(e.target.checked)}>
+              <Checkbox mt={4} isChecked={useGit} onChange={(e) => setUseGit(e.target.checked)}>
                 Use Git
               </Checkbox>
               <Collapse in={!!useGit} animateOpacity>
@@ -301,16 +299,21 @@ const ImportModal = (): JSX.Element => {
                   <FormLabel htmlFor="giturl">Git URL</FormLabel>
                   <Input
                     type="text"
-                    {...register('giturl', { required: true, pattern: gitUrlPattern })}
+                    {...register('giturl', { required: useGit, pattern: gitUrlPattern })}
                     disabled={importloading}
                   />
-                  {/* <FormHelperText className="prose">
-                    If you don&apos;t know what this is, you can read{' '}
-                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      the documentation
-                    </a>{' '}
-                    or ask the front-end engineer of the team for help.
-                  </FormHelperText> */}
+                  {!useTemplate && (
+                    <FormHelperText className="prose">
+                      Before importing your git project, please configure the project according to{' '}
+                      <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                        the documentation
+                      </a>
+                      .
+                    </FormHelperText>
+                  )}
+                  {!!useTemplate && (
+                    <FormHelperText className="prose">Please use the url of a new empty git repository.</FormHelperText>
+                  )}
                   {errors.giturl && <FormErrorMessage>This field format is not match</FormErrorMessage>}
                 </FormControl>
 
@@ -318,7 +321,7 @@ const ImportModal = (): JSX.Element => {
                   <FormLabel>Username</FormLabel>
                   <Input
                     type="text"
-                    {...register('username', { required: true })}
+                    {...register('username', { required: useGit })}
                     disabled={importloading}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
                       // setValue('username', e.target.value)
@@ -334,7 +337,7 @@ const ImportModal = (): JSX.Element => {
                   <InputGroup size="md">
                     <Input
                       type={showPassword ? 'text' : 'password'}
-                      {...register('password', { required: true })}
+                      {...register('password', { required: useGit })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
                         // setValue('password', e.target.value)
@@ -352,13 +355,13 @@ const ImportModal = (): JSX.Element => {
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
                   <FormLabel>Git Branch</FormLabel>
                   <Input
-                    {...register('branch', { required: true })}
+                    {...register('branch', { required: useGit })}
                     type="text"
                     disabled={importloading}
                     defaultValue="derealize"
                     colorScheme="gray"
                   />
-                  <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText>
+                  {/* <FormHelperText>If you don&apos;t know what this means please don&apos;t change</FormHelperText> */}
                   {errors.branch && <FormErrorMessage>This field is required</FormErrorMessage>}
                 </FormControl>
               </Collapse>
@@ -370,6 +373,11 @@ const ImportModal = (): JSX.Element => {
               </FormControl>
             </Box>
             <Box>
+              {!installOutput.length && (
+                <VStack justifyContent="center">
+                  <GoodSvg className={style.undraw} />
+                </VStack>
+              )}
               <p className={style.output}>{installOutput.join('\n')}</p>
               {importloading && (
                 <p className={style.spinner}>
