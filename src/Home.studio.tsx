@@ -95,7 +95,7 @@ const Home = (): JSX.Element => {
               <Button
                 onClick={() => {
                   toggleImportModal(true)
-                  setUseTemplate(TEMPLATES[0].url)
+                  setUseTemplate('nextjs')
                 }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="pink"

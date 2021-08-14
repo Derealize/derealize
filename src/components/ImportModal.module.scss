@@ -25,3 +25,10 @@
   width: 400px;
   height: 400px;
 }
+
+.templates {
+  a {
+    color: $gray-400;
+    @include linelink();
+  }
+}

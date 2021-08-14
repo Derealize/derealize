@@ -71,6 +71,7 @@ const ImportModal = (): JSX.Element => {
   // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
   // const [, forceUpdate] = useReducer((x) => x + 1, 0)
 
+  const insideFirewall = useStoreState<boolean>((state) => state.profile.insideFirewall)
   const projectId = useStoreState<string | undefined>((state) => state.projectStd.importModalProjectId)
   const toggleModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
 
@@ -166,7 +167,8 @@ const ImportModal = (): JSX.Element => {
       setImportloading(true)
       let reply: BoolReply
       if (useTemplate) {
-        const payload: ImportPayloadStd = { projectId, path, giturl: useTemplate, branch: 'main' }
+        const templateGitUrl = insideFirewall ? TEMPLATES[useTemplate].url_firewall : TEMPLATES[useTemplate].url
+        const payload: ImportPayloadStd = { projectId, path, giturl: templateGitUrl, branch: 'main' }
         reply = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
 
         if (reply.result && useGit) {
@@ -204,6 +206,7 @@ const ImportModal = (): JSX.Element => {
 
   useEffect(() => {
     listenBackIpc(Broadcast.Installing, (payload: ProcessPayload) => {
+      if (projectId !== payload.projectId) return
       if (payload.error) {
         setImportloading(false)
         toast({
@@ -224,7 +227,7 @@ const ImportModal = (): JSX.Element => {
       setInstallOutput([...installOutput])
     })
     return () => unlistenBackIpc(Broadcast.Installing)
-  }, [installOutput, toast])
+  }, [installOutput, projectId, toast])
 
   return (
     <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="6xl">
@@ -238,16 +241,20 @@ const ImportModal = (): JSX.Element => {
               <Checkbox
                 isChecked={!!useTemplate}
                 mb={2}
-                onChange={(e) => setUseTemplate(e.target.checked ? TEMPLATES[0].url : undefined)}
+                disabled={importloading}
+                onChange={(e) => setUseTemplate(e.target.checked ? 'nextjs' : undefined)}
               >
                 Use Template
               </Checkbox>
               <Collapse in={!!useTemplate} animateOpacity>
-                <RadioGroup onChange={setUseTemplate} value={useTemplate}>
-                  <Stack pl={6}>
-                    {TEMPLATES.map(({ name, url }) => (
-                      <Radio key={name} value={url}>
-                        {name}
+                <RadioGroup onChange={setUseTemplate} value={useTemplate} disabled={importloading}>
+                  <Stack pl={6} className={style.templates}>
+                    {Object.entries(TEMPLATES).map(([key, value]) => (
+                      <Radio key={key} value={key}>
+                        {value.name}{' '}
+                        <a href={value.url} target="_blank" rel="noreferrer">
+                          via
+                        </a>
                       </Radio>
                     ))}
                   </Stack>
@@ -256,6 +263,20 @@ const ImportModal = (): JSX.Element => {
 
               <FormControl id="path" mt={4} isInvalid={!!errors.path}>
                 <FormLabel>Local Path</FormLabel>
+                {(!!useTemplate || useGit) && (
+                  <FormHelperText className="prose">
+                    Please select a empty folder to initialize the project.
+                  </FormHelperText>
+                )}
+                {!useTemplate && !useGit && (
+                  <FormHelperText className="prose">
+                    Before select your local project, please configure the project according to{' '}
+                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                      the documentation
+                    </a>
+                    .
+                  </FormHelperText>
+                )}
                 <Button
                   leftIcon={<FaRegFolderOpen />}
                   colorScheme="gray"
@@ -275,23 +296,14 @@ const ImportModal = (): JSX.Element => {
                   </Text>
                 </Tooltip>
                 {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-                {(!!useTemplate || useGit) && (
-                  <FormHelperText className="prose">
-                    Please select a empty folder to initialize the project.
-                  </FormHelperText>
-                )}
-                {!useTemplate && !useGit && (
-                  <FormHelperText className="prose">
-                    Before select your local project, please configure the project according to{' '}
-                    <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                      the documentation
-                    </a>
-                    .
-                  </FormHelperText>
-                )}
               </FormControl>
 
-              <Checkbox mt={4} isChecked={useGit} onChange={(e) => setUseGit(e.target.checked)}>
+              <Checkbox
+                mt={4}
+                isChecked={useGit}
+                disabled={importloading}
+                onChange={(e) => setUseGit(e.target.checked)}
+              >
                 Use Git
               </Checkbox>
               <Collapse in={!!useGit} animateOpacity>
@@ -399,7 +411,7 @@ const ImportModal = (): JSX.Element => {
                 Close Dialog
               </Button>
               <Button colorScheme="teal" onClick={open}>
-                Open &amp; Start Project
+                Start Project
               </Button>
             </ButtonGroup>
           )}

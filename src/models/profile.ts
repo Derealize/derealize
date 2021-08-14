@@ -40,6 +40,10 @@ export interface ProfileModel {
 
   loadStore: Thunk<ProfileModel>
   logout: Thunk<ProfileModel>
+
+  insideFirewall: boolean
+  setInsideFirewall: Action<ProfileModel, boolean>
+  checkFirewall: Thunk<ProfileModel>
 }
 
 const profileModel: ProfileModel = {
@@ -115,6 +119,21 @@ const profileModel: ProfileModel = {
   logout: thunk(async (actions) => {
     actions.setProfile({ profile: null })
     actions.setJwt({ jwt: null })
+  }),
+
+  insideFirewall: false,
+  setInsideFirewall: action((state, payload) => {
+    state.insideFirewall = payload
+  }),
+  checkFirewall: thunk(async (actions) => {
+    try {
+      await ky('//ajax.googleapis.com/ajax/libs/scriptaculous/1.9.0/scriptaculous.js', {
+        timeout: 3000,
+      })
+      actions.setInsideFirewall(false)
+    } catch (err) {
+      actions.setInsideFirewall(true)
+    }
   }),
 }
 

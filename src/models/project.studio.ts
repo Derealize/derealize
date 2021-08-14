@@ -359,6 +359,12 @@ const projectModel: ProjectStdModel = {
     })
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === payload.projectId)
+      if (!project) return
+
+      const { id: projectId } = project
+
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
         toast({
@@ -367,12 +373,6 @@ const projectModel: ProjectStdModel = {
         })
         return
       }
-
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === payload.projectId)
-      if (!project) return
-
-      const { id: projectId } = project
 
       if (payload.stdout) {
         actions.pushRunningOutput({ projectId, output: `stdout: ${payload.stdout}` })
