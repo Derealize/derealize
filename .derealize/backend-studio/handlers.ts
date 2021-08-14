@@ -95,11 +95,11 @@ export const UpdateGitBranch = async ({
 
 export const MigrateGitOrigin = async ({
   projectId,
-  url,
+  giturl,
   branch,
-}: ProjectIdParam & { url: string; branch: string }): Promise<BoolReply> => {
+}: ProjectIdParam & { giturl: string; branch: string }): Promise<BoolReply> => {
   const project = getProject(projectId)
-  const reply = await project.MigrateGitOrigin(url, branch)
+  const reply = await project.MigrateGitOrigin(giturl, branch)
   return reply
 }
 

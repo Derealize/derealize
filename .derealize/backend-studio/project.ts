@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
@@ -30,7 +31,7 @@ export enum Broadcast {
 }
 
 class Project {
-  status: ProjectStatus = ProjectStatus.None
+  status: ProjectStatus = ProjectStatus.Initialized
 
   repo: Repository | undefined
 
@@ -107,6 +108,7 @@ class Project {
 
       if (process.env.BACKEND_SUBPROCESS === 'true') {
         delete require.cache[configPath]
+        // eslint-disable-next-line import/no-dynamic-require
         const config = require(configPath)
         this.tailwindConfig = resolveConfig(config)
       } else {
@@ -160,8 +162,10 @@ class Project {
     const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
 
-    const tailwindConfigReply = this.ResolveTailwindConfig()
-    if (!tailwindConfigReply.result) return tailwindConfigReply
+    if (this.status !== ProjectStatus.Initialized) {
+      const tailwindConfigReply = this.ResolveTailwindConfig()
+      if (!tailwindConfigReply.result) return tailwindConfigReply
+    }
 
     this.EmitStatus()
     return { result: true }
@@ -206,7 +210,9 @@ class Project {
   async MigrateGitOrigin(giturl: string, branch = 'derealize'): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
     try {
-      git.migrateOrigin(this.repo, giturl, branch)
+      await git.switchOrigin(this.repo, giturl)
+      await git.checkoutBranch(this.repo, branch)
+      await git.push(this.repo, branch)
       this.giturl = giturl
       this.branch = branch
     } catch (err) {

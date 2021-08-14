@@ -81,10 +81,9 @@ export const push = async (repo: Repository, branch: string) => {
   })
 }
 
-export const migrateOrigin = async (repo: Repository, url: string, branch: string) => {
+export const switchOrigin = async (repo: Repository, url: string) => {
   await Remote.delete(repo, 'origin')
   await Remote.create(repo, 'origin', url)
-  await push(repo, branch)
 }
 
 // recommend engineers use 'rebase' instead 'merge' when merging code into the work branch

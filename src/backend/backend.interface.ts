@@ -45,7 +45,6 @@ export interface ProjectConfigStd extends ProjectConfig {
 }
 
 export enum ProjectStatus {
-  None = 'None',
   Initialized = 'Initialized',
   Ready = 'Ready', // npm installed
   Starting = 'Starting',
