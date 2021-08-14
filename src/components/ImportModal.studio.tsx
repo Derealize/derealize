@@ -106,7 +106,6 @@ const ImportModal = (): JSX.Element => {
 
   useEffect(() => {
     if (!watchGitUrl) return
-    setInstallOutput([])
 
     try {
       const parseURL = new URL(watchGitUrl)
@@ -184,17 +183,25 @@ const ImportModal = (): JSX.Element => {
         reply = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
       }
 
+      // https://stackoverflow.com/a/1234337
+      installOutput.length = 0
+
       if (!reply.result) {
         setImportloading(false)
         removeProject(projectId)
-        installOutput.push(`import error: ${reply.error}`)
-        setInstallOutput(installOutput)
+        installOutput.push(`error: import - ${reply.error}`)
+        setInstallOutput([...installOutput])
+        toast({
+          title: `Import error`,
+          description: reply.error,
+          status: 'error',
+        })
         return
       }
 
       await sendBackIpc(Handler.Install, { projectId })
     },
-    [projectId, projects, addProject, useGit, useTemplate, toast, removeProject, installOutput],
+    [projectId, projects, addProject, useGit, useTemplate, toast, insideFirewall, removeProject, installOutput],
   )
 
   const open = useCallback(() => {
@@ -390,7 +397,14 @@ const ImportModal = (): JSX.Element => {
                   <GoodSvg className={style.undraw} />
                 </VStack>
               )}
-              <p className={style.output}>{installOutput.join('\n')}</p>
+              <p className={style.output}>
+                {installOutput.map((o, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Text key={i} color={o.startsWith('error') || o.startsWith('stderr') ? 'red.500' : 'gray.500'}>
+                    {o}
+                  </Text>
+                ))}
+              </p>
               {importloading && (
                 <p className={style.spinner}>
                   <BarLoader height={4} width={100} color="gray" />
