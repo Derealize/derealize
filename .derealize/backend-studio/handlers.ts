@@ -52,7 +52,7 @@ export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> 
 
 export const Install = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const project = getProject(projectId)
-  const result = project.Install()
+  const result = await project.Install()
   return result
 }
 

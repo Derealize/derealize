@@ -130,7 +130,7 @@ class Project {
     if (!this.repo) throw new Error('repo null')
 
     try {
-      await git.checkoutBranch(this.repo, this.branch)
+      await git.checkoutOriginBranch(this.repo, this.branch)
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
@@ -197,7 +197,7 @@ class Project {
   async UpdateGitBranch(branch: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
     try {
-      await git.checkoutBranch(this.repo, branch)
+      await git.checkoutOriginBranch(this.repo, branch)
       this.branch = branch
     } catch (err) {
       captureException(err)
@@ -211,7 +211,7 @@ class Project {
     if (!this.repo) throw new Error('repo null')
     try {
       await git.switchOrigin(this.repo, giturl)
-      await git.checkoutBranch(this.repo, branch)
+      await git.forkBranch(this.repo, branch)
       await git.push(this.repo, branch)
       this.giturl = giturl
       this.branch = branch
@@ -222,7 +222,7 @@ class Project {
     return { result: true }
   }
 
-  Install(): BoolReply {
+  async Install(): Promise<BoolReply> {
     if (this.status === ProjectStatus.Starting || this.status === ProjectStatus.Running) {
       return { result: false, error: 'Starting or Running' }
     }
@@ -234,7 +234,7 @@ class Project {
       name: 'npm install',
     })
 
-    this.installProcess = npmInstall(this.path)
+    this.installProcess = await npmInstall(this.path)
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {

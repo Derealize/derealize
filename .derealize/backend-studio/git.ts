@@ -16,7 +16,7 @@ const proxyOpts = {}
 // const proxyOpts = new ProxyOptions()
 // proxyOpts.url = 'socks5://127.0.0.1:10808'
 
-export const checkoutBranch = async (repo: Repository, branch: string): Promise<void> => {
+export const checkoutOriginBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
   if (ref.name() !== `refs/heads/${branch}`) {
     // https://github.com/nodegit/nodegit/issues/1261#issuecomment-431831338
@@ -24,6 +24,15 @@ export const checkoutBranch = async (repo: Repository, branch: string): Promise<
     ref = await repo.createBranch(branch, commit, true)
     await repo.checkoutBranch(ref)
     await Branch.setUpstream(ref, `origin/${branch}`)
+  }
+}
+
+export const forkBranch = async (repo: Repository, branch: string): Promise<void> => {
+  let ref = await repo.getCurrentBranch()
+  if (ref.name() !== `refs/heads/${branch}`) {
+    const commit = await repo.getHeadCommit()
+    ref = await repo.createBranch(branch, commit, true)
+    await repo.checkoutBranch(ref)
   }
 }
 
