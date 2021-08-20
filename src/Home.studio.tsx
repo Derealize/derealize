@@ -29,11 +29,11 @@ import type { ProjectStd } from './models/project.interface'
 import { Handler } from './backend/backend.interface'
 import style from './Home.module.scss'
 import type { PreloadWindow } from './preload'
-import { MainIpcChannel, TEMPLATES } from './interface'
+import { MainIpcChannel } from './interface'
 import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_design_eq3j.svg'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpc } = window.derealize
+const { sendBackIpc, sendMainIpc, listenMainIpc, unlistenMainIpc } = window.derealize
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<ProjectStd>>((state) => state.projectStd.projects)
@@ -43,6 +43,16 @@ const Home = (): JSX.Element => {
   const setEditingProject = useStoreActions((actions) => actions.projectStd.setEditingProject)
   const openProject = useStoreActions((actions) => actions.projectStd.openProject)
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProjectThunk)
+
+  useEffect(() => {
+    listenMainIpc(MainIpcChannel.OpenImport, () => {
+      toggleImportModal(true)
+    })
+
+    return () => {
+      unlistenMainIpc(MainIpcChannel.OpenImport)
+    }
+  }, [toggleImportModal])
 
   return (
     <div className={style.home}>

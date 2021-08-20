@@ -111,7 +111,7 @@ export interface TailwindConfigReply {
   error?: string
 }
 
-export interface SSHKey {
+export interface SshKey {
   privateKeyPath: string
   publicKeyPath: string
   selected: boolean

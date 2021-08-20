@@ -1,10 +1,11 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import fs from 'fs/promises'
+import * as fs from 'fs/promises'
+import { constants } from 'fs'
 import sysPath from 'path'
 import log, { captureException } from './log'
 import Project from './project'
-import SSHKey from './sshkey'
-import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
+import type { HistoryReply, BoolReply, TailwindConfigReply, SshKey } from './backend.interface'
 import type { ProjectIdParam, ImportPayloadStd } from '../interface'
 import {
   ElementPayload,
@@ -18,9 +19,9 @@ import { Apply, Insert, Delete } from './shift/react'
 import { SetImage, RemoveImage } from './shift/image'
 import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
+import { getSSHKeysPath } from './assetspath'
 
 const projectsMap = new Map<string, Project>()
-const sshKeysMap = new Map<string, SSHKey[]>()
 
 const getProject = (id: string): Project => {
   const project = projectsMap.get(id)
@@ -236,10 +237,35 @@ export const ThemeRemoveColor = async ({ projectId, theme, key }: ThemeColorPayl
   return { error }
 }
 
-export const ExploreSSHKeys = async ({ projectId }: ProjectIdParam): Promise<SSHKey[]> => {
-  const project = getProject(projectId)
+const ExploreDirectory = async (directory: string): Promise<SshKey[]> => {
+  try {
+    await fs.access(directory, constants.R_OK)
+    const keys: Array<SshKey> = []
+    const files = await fs.readdir(directory)
+    for (const file of files) {
+      const filename = sysPath.join(directory, file)
+      const stat = await fs.stat(filename)
+      if (!stat.isDirectory() && sysPath.extname(filename) === '.pub') {
+        const privateKeyName = sysPath.basename(filename)
+        await fs.access(privateKeyName, constants.R_OK)
+        const key: SshKey = {
+          privateKeyPath: sysPath.resolve(directory, privateKeyName),
+          publicKeyPath: sysPath.resolve(directory, filename),
+          selected: false,
+        }
+        keys.push(key)
+      }
+    }
+    return keys
+  } catch (err) {
+    captureException(err)
+  }
+  return []
+}
 
-  const keys = await SSHKey.ExploreDirectory('~/.ssh')
+export const ExploreSSHKeys = async (): Promise<SshKey[]> => {
+  const globalKeys = await ExploreDirectory('~/.ssh')
+  const localKeys = await ExploreDirectory(getSSHKeysPath())
 
-  sshKeysMap.set(projectId, keys)
+  return globalKeys.concat(localKeys)
 }

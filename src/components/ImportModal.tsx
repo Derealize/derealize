@@ -29,7 +29,7 @@ import { useStoreActions, useStoreState } from '../reduxStore'
 import type { Project } from '../models/project.interface'
 import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
-import { MainIpcChannel, TEMPLATES } from '../interface'
+import { MainIpcChannel } from '../interface'
 
 declare const window: PreloadWindow
 const { sendBackIpc, sendMainIpcSync, listenMainIpc, unlistenMainIpc } = window.derealize

@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, ChangeEvent } from 'react'
+import React, { useEffect, useState, useCallback, ChangeEvent, useMemo } from 'react'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import {
@@ -30,13 +30,16 @@ import {
   Checkbox,
   Radio,
   RadioGroup,
+  Select,
 } from '@chakra-ui/react'
 import { BeatLoader, BarLoader } from 'react-spinners'
 import { FaRegFolderOpen, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
+import { FiKey } from 'react-icons/fi'
 import type { BoolReply } from '../backend/backend.interface'
 import type { ImportPayloadStd } from '../interface'
-import { Handler, ProjectStatus, Broadcast, ProcessPayload } from '../backend/backend.interface'
+import { Handler, ProjectStatus, Broadcast, ProcessPayload, SshKey } from '../backend/backend.interface'
 import { useStoreActions, useStoreState } from '../reduxStore'
+import { useDebounce } from '../utils/hooks'
 import type { ProjectStd } from '../models/project.interface'
 import style from './ImportModal.module.scss'
 import type { PreloadWindow } from '../preload'
@@ -44,14 +47,14 @@ import { MainIpcChannel, TEMPLATES } from '../interface'
 import { ReactComponent as GoodSvg } from '../styles/images/undraw_coolness_dtmq.svg'
 
 declare const window: PreloadWindow
-const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc, listenMainIpc, unlistenMainIpc } =
-  window.derealize
+const { sendBackIpc, sendMainIpcSync, listenBackIpc, unlistenBackIpc } = window.derealize
 
 const gitUrlPattern = /((git|ssh|http(s)?)|(git@[\w.]+))(:(\/\/)?)([\S]+:[\S]+@)?([\w.@:/\-~]+)(\.git)(\/)?/i
 
 type Inputs = {
-  giturl: string
   path: string
+  giturl: string
+  sshkey: string
   username: string
   password: string
   displayname: string
@@ -68,9 +71,6 @@ const ImportModal = (): JSX.Element => {
     formState: { errors },
   } = useForm<Inputs>()
 
-  // https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
-  // const [, forceUpdate] = useReducer((x) => x + 1, 0)
-
   const insideFirewall = useStoreState<boolean>((state) => state.profile.insideFirewall)
   const projectId = useStoreState<string | undefined>((state) => state.projectStd.importModalProjectId)
   const toggleModal = useStoreActions((actions) => actions.projectStd.toggleImportModal)
@@ -86,6 +86,11 @@ const ImportModal = (): JSX.Element => {
   const setUseGit = useStoreActions((actions) => actions.projectStd.setUseGit)
 
   const watchGitUrl = watch('giturl')
+  const isHttpGitUrl = useMemo<boolean | undefined>(() => {
+    return watchGitUrl?.startsWith('http')
+  }, [watchGitUrl])
+  const [sshkeys, setSshKeys] = useState<Array<SshKey>>([])
+
   const watchPath = watch('path')
   const [showPassword, setShowPassword] = useState(false)
 
@@ -94,41 +99,13 @@ const ImportModal = (): JSX.Element => {
 
   const isReady = useStoreState<boolean | undefined>((state) => !!projectId && state.projectStd.isReady(projectId))
 
-  useEffect(() => {
-    listenMainIpc(MainIpcChannel.OpenImport, () => {
-      toggleModal(true)
-    })
-
-    return () => {
-      unlistenMainIpc(MainIpcChannel.OpenImport)
-    }
-  }, [toggleModal])
-
-  useEffect(() => {
-    if (!watchGitUrl) return
-
-    try {
-      const parseURL = new URL(watchGitUrl)
-      setValue('username', parseURL.username)
-      setValue('password', parseURL.password)
-
-      const projectName = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
-      setValue('displayname', projectName)
-    } catch (err) {
-      toast({
-        title: err.message,
-        status: 'error',
-      })
-    }
-  }, [setInstallOutput, setValue, toast, watchGitUrl])
-
-  const updateUrl = useCallback(
-    ({ _username, _password }) => {
+  const onChangeNamePassword = useCallback(
+    ({ username, password }) => {
       if (!watchGitUrl) return
       try {
         const parseURL = new URL(watchGitUrl)
-        if (_username) parseURL.username = _username
-        if (_password) parseURL.password = _password
+        if (username) parseURL.username = username
+        if (password) parseURL.password = password
         setValue('giturl', parseURL.href)
       } catch (err) {
         toast({
@@ -140,11 +117,38 @@ const ImportModal = (): JSX.Element => {
     [setValue, toast, watchGitUrl],
   )
 
+  const onChangeGitUrl = useDebounce(
+    async (giturl: string) => {
+      if (!giturl) return
+
+      try {
+        const parseURL = new URL(giturl)
+        setValue('username', parseURL.username)
+        setValue('password', parseURL.password)
+
+        const projectName = parseURL.pathname.substring(1).replace('.git', '').replaceAll('/', '-')
+        setValue('displayname', projectName)
+
+        if (!giturl.startsWith('http')) {
+          const keys = await sendBackIpc(Handler.ExploreSSHKeys, {})
+          setSshKeys(keys as SshKey[])
+        }
+      } catch (err) {
+        toast({
+          title: err.message,
+          status: 'error',
+        })
+      }
+    },
+    500,
+    [setValue, toast],
+  )
+
   const submit = useCallback(
     async (data) => {
       if (!projectId) return
 
-      const { path, displayname, giturl, branch } = data
+      const { path, displayname, giturl, sshkey, branch } = data
       if (projects.some((p) => p.path === path || p.giturl === giturl)) {
         toast({
           title: `The path or git-url already exists in your project list.`,
@@ -159,6 +163,7 @@ const ImportModal = (): JSX.Element => {
         name: displayname,
         giturl: useGit ? giturl : undefined,
         branch: useGit ? branch : undefined,
+        sshkey,
         editedTime: dayjs().toString(),
         status: ProjectStatus.Initialized,
       })
@@ -320,6 +325,9 @@ const ImportModal = (): JSX.Element => {
                     type="text"
                     {...register('giturl', { required: useGit, pattern: gitUrlPattern })}
                     disabled={importloading}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                      onChangeGitUrl(e.target.value)
+                    }}
                   />
                   {!useTemplate && (
                     <FormHelperText className="prose">
@@ -336,40 +344,61 @@ const ImportModal = (): JSX.Element => {
                   {errors.giturl && <FormErrorMessage>This field format is not match</FormErrorMessage>}
                 </FormControl>
 
-                <FormControl id="username" mt={4} isInvalid={!!errors.username}>
-                  <FormLabel>Username</FormLabel>
-                  <Input
-                    type="text"
-                    {...register('username', { required: useGit })}
-                    disabled={importloading}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      // setValue('username', e.target.value)
-                      updateUrl({ _username: e.target.value })
-                    }}
-                  />
-                  {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
+                {!isHttpGitUrl && (
+                  <FormControl id="sshkey" mt={4} isInvalid={!!errors.sshkey}>
+                    <Select
+                      size="sm"
+                      variant="flushed"
+                      icon={<FiKey />}
+                      placeholder="Select SSHKey"
+                      disabled={importloading}
+                      {...register('sshkey', { required: useGit && !isHttpGitUrl })}
+                    >
+                      {sshkeys.map((key) => (
+                        <option key={key.privateKeyPath} value={key.privateKeyPath}>
+                          {key.privateKeyPath}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
-                <FormControl id="password" mt={4} isInvalid={!!errors.password}>
-                  <FormLabel>Password</FormLabel>
-
-                  <InputGroup size="md">
+                {isHttpGitUrl && (
+                  <FormControl id="username" mt={4} isInvalid={!!errors.username}>
+                    <FormLabel>Username</FormLabel>
                     <Input
-                      type={showPassword ? 'text' : 'password'}
-                      {...register('password', { required: useGit })}
+                      type="text"
+                      {...register('username', { required: useGit })}
                       disabled={importloading}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        // setValue('password', e.target.value)
-                        updateUrl({ _password: e.target.value })
+                        onChangeNamePassword({ username: e.target.value })
                       }}
                     />
-                    <InputRightElement width={12} className={style.pwdright}>
-                      {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
-                      {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
-                </FormControl>
+                    {errors.username && <FormErrorMessage>This field is required</FormErrorMessage>}
+                  </FormControl>
+                )}
+
+                {isHttpGitUrl && (
+                  <FormControl id="password" mt={4} isInvalid={!!errors.password}>
+                    <FormLabel>Password</FormLabel>
+
+                    <InputGroup size="md">
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        {...register('password', { required: useGit })}
+                        disabled={importloading}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          onChangeNamePassword({ password: e.target.value })
+                        }}
+                      />
+                      <InputRightElement width={12} className={style.pwdright}>
+                        {!showPassword && <FaRegEye onClick={() => setShowPassword(true)} />}
+                        {showPassword && <FaRegEyeSlash onClick={() => setShowPassword(false)} />}
+                      </InputRightElement>
+                    </InputGroup>
+                    {errors.password && <FormErrorMessage>This field is required</FormErrorMessage>}
+                  </FormControl>
+                )}
 
                 <FormControl id="branch" mt={4} isInvalid={!!errors.branch}>
                   <FormLabel>Git Branch</FormLabel>

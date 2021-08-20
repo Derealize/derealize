@@ -2716,6 +2716,13 @@
   dependencies:
     "@types/lodash" "*"
 
+"@types/lodash.debounce@^4.0.6":
+  version "4.0.6"
+  resolved "https://registry.nlark.com/@types/lodash.debounce/download/@types/lodash.debounce-4.0.6.tgz?cache=0&sync_timestamp=1621241756625&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Flodash.debounce%2Fdownload%2F%40types%2Flodash.debounce-4.0.6.tgz#c5a2326cd3efc46566c47e4c0aa248dc0ee57d60"
+  integrity sha1-xaIybNPvxGVmxH5MCqJI3A7lfWA=
+  dependencies:
+    "@types/lodash" "*"
+
 "@types/lodash.flatten@^4.4.6":
   version "4.4.6"
   resolved "https://registry.nlark.com/@types/lodash.flatten/download/@types/lodash.flatten-4.4.6.tgz#b74c3267c87e44e603137d4621e8a9396b6551f5"
@@ -2741,6 +2748,13 @@
   version "4.5.6"
   resolved "https://registry.nlark.com/@types/lodash.omit/download/@types/lodash.omit-4.5.6.tgz?cache=0&sync_timestamp=1621241923126&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Flodash.omit%2Fdownload%2F%40types%2Flodash.omit-4.5.6.tgz#f2a9518259e481a48ff7ec423420fa8fd58933e2"
   integrity sha1-8qlRglnkgaSP9+xCNCD6j9WJM+I=
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.throttle@^4.1.6":
+  version "4.1.6"
+  resolved "https://registry.nlark.com/@types/lodash.throttle/download/@types/lodash.throttle-4.1.6.tgz?cache=0&sync_timestamp=1621242016800&other_urls=https%3A%2F%2Fregistry.nlark.com%2F%40types%2Flodash.throttle%2Fdownload%2F%40types%2Flodash.throttle-4.1.6.tgz#f5ba2c22244ee42ff6c2c49e614401a870c1009c"
+  integrity sha1-9bosIiRO5C/2wsSeYUQBqHDBAJw=
   dependencies:
     "@types/lodash" "*"
 
@@ -8933,7 +8947,7 @@ lodash.clonedeep@^4.5.0:
 
 lodash.debounce@^4.0.8:
   version "4.0.8"
-  resolved "https://registry.npm.taobao.org/lodash.debounce/download/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  resolved "https://registry.nlark.com/lodash.debounce/download/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
 lodash.escape@^4.0.1:
@@ -8980,6 +8994,11 @@ lodash.omit@^4.5.0:
   version "4.5.0"
   resolved "https://registry.npm.taobao.org/lodash.omit/download/lodash.omit-4.5.0.tgz#6eb19ae5a1ee1dd9df0b969e66ce0b7fa30b5e60"
   integrity sha1-brGa5aHuHdnfC5aeZs4Lf6MLXmA=
+
+lodash.throttle@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.nlark.com/lodash.throttle/download/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
+  integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
 
 lodash.toarray@^4.4.0:
   version "4.4.0"
