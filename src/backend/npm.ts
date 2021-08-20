@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import { execSync, spawn, ChildProcessWithoutNullStreams } from 'child_process'
 // import shelljs from 'shelljs'
-import { getNpmBin } from './nodepath'
+import { getNpmBin } from './assetspath'
 
 const checkFirewall = async () => {
   try {

@@ -21,6 +21,7 @@ export enum Handler {
   ThemeRemoveImage = 'ThemeRemoveImage',
   ThemeSetColor = 'ThemeSetColor',
   ThemeRemoveColor = 'ThemeRemoveColor',
+  ExploreSSHKeys = 'ExploreSSHKeys',
 }
 
 export enum Broadcast {
@@ -108,4 +109,10 @@ export interface BoolReply {
 export interface TailwindConfigReply {
   result?: TailwindConfig
   error?: string
+}
+
+export interface SSHKey {
+  privateKeyPath: string
+  publicKeyPath: string
+  selected: boolean
 }
