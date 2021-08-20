@@ -3,6 +3,7 @@ import fs from 'fs/promises'
 import sysPath from 'path'
 import log, { captureException } from './log'
 import Project from './project'
+import SSHKey from './sshkey'
 import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
 import type { ProjectIdParam, ImportPayloadStd } from '../interface'
 import {
@@ -19,6 +20,7 @@ import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
 
 const projectsMap = new Map<string, Project>()
+const sshKeysMap = new Map<string, SSHKey[]>()
 
 const getProject = (id: string): Project => {
   const project = projectsMap.get(id)
@@ -232,4 +234,12 @@ export const ThemeRemoveColor = async ({ projectId, theme, key }: ThemeColorPayl
     return { result: project.tailwindConfig }
   }
   return { error }
+}
+
+export const ExploreSSHKeys = async ({ projectId }: ProjectIdParam): Promise<SSHKey[]> => {
+  const project = getProject(projectId)
+
+  const keys = await SSHKey.ExploreDirectory('~/.ssh')
+
+  sshKeysMap.set(projectId, keys)
 }
