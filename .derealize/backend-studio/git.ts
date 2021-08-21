@@ -8,6 +8,8 @@ import {
   Branch,
   StatusFile,
   ProxyOptions,
+  Credential,
+  FetchOption,
 } from '@derealize/nodegit'
 import type { CommitLog } from './backend.interface'
 
@@ -15,6 +17,19 @@ const proxyOpts = {}
 // https://github.com/nodegit/nodegit/blob/master/CHANGELOG.md#changes-or-improvements
 // const proxyOpts = new ProxyOptions()
 // proxyOpts.url = 'socks5://127.0.0.1:10808'
+
+const getFetchOpts = (sshkey?: string): FetchOption => ({
+  proxyOpts,
+  callbacks: {
+    certificateCheck: () => 0,
+    credentials(_url: string, userName: string) {
+      if (sshkey) {
+        return Credential.sshKeyNew(userName, `${sshkey}.pub`, sshkey, '')
+      }
+      return Credential.defaultNew()
+    },
+  },
+})
 
 export const checkoutOriginBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
@@ -41,12 +56,10 @@ export const open = async (path: string): Promise<Repository> => {
   return repo
 }
 
-export const clone = async (url: string, path: string, branch: string): Promise<Repository> => {
+export const clone = async (url: string, path: string, branch: string, sshkey?: string): Promise<Repository> => {
   const repo = await Clone.clone(url, path, {
     checkoutBranch: branch,
-    fetchOpts: {
-      proxyOpts,
-    },
+    fetchOpts: getFetchOpts(sshkey),
   })
   return repo
 }
@@ -63,31 +76,17 @@ export const commit = async (repo: Repository, msg: string) => {
   await repo.createCommit('HEAD', committer, committer, msg, oid, [parent])
 }
 
-export const pull = async (repo: Repository, branch: string) => {
-  await repo.fetch('origin', {
-    proxyOpts,
-    callbacks: {
-      credentials(_url: any, userName: string) {
-        return Cred.sshKeyFromAgent(userName)
-      },
-    },
-  })
+export const pull = async (repo: Repository, branch: string, sshkey?: string) => {
+  await repo.fetch('origin', getFetchOpts(sshkey))
 
   // https://github.com/nodegit/nodegit/blob/master/examples/pull.js
   await repo.mergeBranches(branch, `origin/${branch}`)
 }
 
-export const push = async (repo: Repository, branch: string) => {
+export const push = async (repo: Repository, branch: string, sshkey?: string) => {
   // https://github.com/nodegit/nodegit/blob/master/examples/push.js
   const remote = await repo.getRemote('origin')
-  const pushId = await remote.push([`refs/heads/${branch}:refs/heads/${branch}`], {
-    proxyOpts,
-    callbacks: {
-      credentials(_url: any, userName: string) {
-        return Cred.sshKeyFromAgent(userName)
-      },
-    },
-  })
+  const pushId = await remote.push([`refs/heads/${branch}:refs/heads/${branch}`], getFetchOpts(sshkey))
 }
 
 export const switchOrigin = async (repo: Repository, url: string) => {

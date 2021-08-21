@@ -8,6 +8,13 @@ export interface ImportPayload extends ProjectIdParam {
 
 export interface ImportPayloadStd extends ImportPayload {
   giturl?: string
+  sshkey?: string
+  branch?: string
+}
+
+export interface MigrateGitOriginPayload extends ProjectIdParam {
+  giturl: string
+  sshkey?: string
   branch?: string
 }
 

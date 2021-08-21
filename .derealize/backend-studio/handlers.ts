@@ -1,12 +1,13 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import * as fs from 'fs/promises'
+import os from 'os'
 import { constants } from 'fs'
 import sysPath from 'path'
 import log, { captureException } from './log'
 import Project from './project'
 import type { HistoryReply, BoolReply, TailwindConfigReply, SshKey } from './backend.interface'
-import type { ProjectIdParam, ImportPayloadStd } from '../interface'
+import type { ProjectIdParam, ImportPayloadStd, MigrateGitOriginPayload } from '../interface'
 import {
   ElementPayload,
   InsertElementPayload,
@@ -29,10 +30,10 @@ const getProject = (id: string): Project => {
   return project
 }
 
-export const Import = async ({ projectId, path, giturl, branch }: ImportPayloadStd): Promise<BoolReply> => {
+export const Import = async ({ projectId, path, giturl, sshkey, branch }: ImportPayloadStd): Promise<BoolReply> => {
   let project = projectsMap.get(projectId)
   if (!project) {
-    project = new Project(projectId, path, giturl, branch)
+    project = new Project(projectId, path, giturl, sshkey, branch)
     projectsMap.set(projectId, project)
   }
 
@@ -99,10 +100,11 @@ export const UpdateGitBranch = async ({
 export const MigrateGitOrigin = async ({
   projectId,
   giturl,
+  sshkey,
   branch,
-}: ProjectIdParam & { giturl: string; branch: string }): Promise<BoolReply> => {
+}: MigrateGitOriginPayload): Promise<BoolReply> => {
   const project = getProject(projectId)
-  const reply = await project.MigrateGitOrigin(giturl, branch)
+  const reply = await project.MigrateGitOrigin(giturl, branch, sshkey)
   return reply
 }
 
@@ -237,23 +239,22 @@ export const ThemeRemoveColor = async ({ projectId, theme, key }: ThemeColorPayl
   return { error }
 }
 
-const ExploreDirectory = async (directory: string): Promise<SshKey[]> => {
+const ExploreDirectory = async (dict: string): Promise<SshKey[]> => {
   try {
-    await fs.access(directory, constants.R_OK)
+    await fs.access(dict, constants.R_OK)
     const keys: Array<SshKey> = []
-    const files = await fs.readdir(directory)
-    for (const file of files) {
-      const filename = sysPath.join(directory, file)
-      const stat = await fs.stat(filename)
-      if (!stat.isDirectory() && sysPath.extname(filename) === '.pub') {
-        const privateKeyName = sysPath.basename(filename)
-        await fs.access(privateKeyName, constants.R_OK)
-        const key: SshKey = {
-          privateKeyPath: sysPath.resolve(directory, privateKeyName),
-          publicKeyPath: sysPath.resolve(directory, filename),
-          selected: false,
-        }
-        keys.push(key)
+    const files = await fs.readdir(dict)
+    for (const filename of files) {
+      const filePath = sysPath.resolve(dict, filename)
+      const stat = await fs.stat(filePath)
+      if (stat.isFile() && sysPath.extname(filename) === '.pub') {
+        await fs.access(filePath, constants.R_OK)
+        const privateKeyPath = sysPath.resolve(dict, sysPath.parse(filename).name)
+        await fs.access(privateKeyPath, constants.R_OK)
+        keys.push({
+          privateKeyPath,
+          publicKeyPath: filePath,
+        })
       }
     }
     return keys
@@ -264,8 +265,7 @@ const ExploreDirectory = async (directory: string): Promise<SshKey[]> => {
 }
 
 export const ExploreSSHKeys = async (): Promise<SshKey[]> => {
-  const globalKeys = await ExploreDirectory('~/.ssh')
+  const globalKeys = await ExploreDirectory(`${os.homedir()}/.ssh`)
   const localKeys = await ExploreDirectory(getSSHKeysPath())
-
   return globalKeys.concat(localKeys)
 }

@@ -63,6 +63,7 @@ class Project {
     readonly projectId: string,
     readonly path: string,
     public giturl?: string,
+    public sshkey?: string,
     private branch = 'derealize',
   ) {}
 
@@ -173,8 +174,9 @@ class Project {
 
   async GitClone(): Promise<BoolReply> {
     if (!this.giturl) throw new Error('giturl null')
+
     try {
-      this.repo = await git.clone(this.giturl, this.path, this.branch)
+      this.repo = await git.clone(this.giturl, this.path, this.branch, this.sshkey)
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
@@ -207,14 +209,15 @@ class Project {
     return { result: true }
   }
 
-  async MigrateGitOrigin(giturl: string, branch = 'derealize'): Promise<BoolReply> {
+  async MigrateGitOrigin(giturl: string, branch = 'derealize', sshkey?: string): Promise<BoolReply> {
     if (!this.repo) throw new Error('repo null')
     try {
       await git.switchOrigin(this.repo, giturl)
       await git.forkBranch(this.repo, branch)
-      await git.push(this.repo, branch)
+      await git.push(this.repo, branch, sshkey)
       this.giturl = giturl
       this.branch = branch
+      this.sshkey = sshkey
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
@@ -335,7 +338,7 @@ class Project {
     }
 
     try {
-      await git.pull(this.repo, this.branch)
+      await git.pull(this.repo, this.branch, this.sshkey)
       this.Install()
 
       return { result: true }
@@ -359,7 +362,7 @@ class Project {
         await git.commit(this.repo, msg || 'derealize commit')
       }
 
-      await git.pull(this.repo, this.branch)
+      await git.pull(this.repo, this.branch, this.sshkey)
 
       const reply2 = await this.FlushGit()
       if (!reply2.result) return reply2
@@ -368,7 +371,7 @@ class Project {
         return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
 
-      await git.push(this.repo, this.branch)
+      await git.push(this.repo, this.branch, this.sshkey)
 
       return { result: true }
     } catch (error) {

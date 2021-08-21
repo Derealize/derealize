@@ -110,8 +110,18 @@ code {
 //   }
 // }
 
-.prose a {
-  @include linelink();
+.prose {
+  a,
+  button {
+    @include linelink();
+  }
+  &.warn {
+    color: $blue-600;
+    a,
+    button {
+      @include linelink($blue-600);
+    }
+  }
 }
 
 html {
