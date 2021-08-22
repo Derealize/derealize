@@ -389,29 +389,29 @@ const ImportModal = (): JSX.Element => {
                         </option>
                       ))}
                     </Select>
-                    {/* {!sshkeys.length && ( */}
-                    <FormHelperText className="prose">
-                      SSH key is required. You can save the sshkey file in the{' '}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          sendMainIpc(MainIpcChannel.OpenPath, '.ssh', undefined, true)
-                        }}
-                        value="derealize folder"
-                      >
-                        derealize folder
-                      </button>
-                      , or refer to the{' '}
-                      <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href="https://github.blog/changelog/2021-08-12-git-password-authentication-is-shutting-down/"
-                      >
-                        document (via github)
-                      </a>{' '}
-                      to configure your ssh key.
-                    </FormHelperText>
-                    {/* )} */}
+                    {!sshkeys.length && (
+                      <FormHelperText className="prose">
+                        SSH key is required. You can save the SSH key files in the{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            sendMainIpc(MainIpcChannel.OpenPath, '.ssh', undefined, true)
+                          }}
+                          className="link-button"
+                        >
+                          derealize folder
+                        </button>
+                        , or refer to the{' '}
+                        <a
+                          target="_blank"
+                          rel="noreferrer"
+                          href="https://github.blog/changelog/2021-08-12-git-password-authentication-is-shutting-down/"
+                        >
+                          document (via github)
+                        </a>{' '}
+                        to configure your SSH key.
+                      </FormHelperText>
+                    )}
                   </FormControl>
                 )}
 

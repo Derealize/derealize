@@ -458,10 +458,13 @@ ipcMain.on(MainIpcChannel.SelectDirs, async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on(MainIpcChannel.OpenPath, (e, folderPath: string, filePath: string, preAppDir = false) => {
+ipcMain.on(MainIpcChannel.OpenPath, (event, folderPath: string, filePath: string, preAppDir = false) => {
   let folder = folderPath
   if (preAppDir) {
     folder = path.resolve(__dirname, '..', folderPath)
+  }
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder)
   }
   if (filePath) {
     const opath = path.resolve(folder, filePath)
