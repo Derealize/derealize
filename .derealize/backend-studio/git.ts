@@ -1,4 +1,16 @@
-import { Clone, Repository, Reference, Signature, Cred, Branch, StatusFile, ProxyOptions } from '@derealize/nodegit'
+import {
+  Clone,
+  Repository,
+  Remote,
+  Reference,
+  Signature,
+  Cred,
+  Branch,
+  StatusFile,
+  ProxyOptions,
+  Credential,
+  FetchOption,
+} from '@derealize/nodegit'
 import type { CommitLog } from './backend.interface'
 
 const proxyOpts = {}
@@ -6,7 +18,20 @@ const proxyOpts = {}
 // const proxyOpts = new ProxyOptions()
 // proxyOpts.url = 'socks5://127.0.0.1:10808'
 
-export const checkBranch = async (repo: Repository, branch: string): Promise<void> => {
+const getFetchOpts = (sshkey?: string): FetchOption => ({
+  proxyOpts,
+  callbacks: {
+    certificateCheck: () => 0,
+    credentials(_url: string, userName: string) {
+      if (sshkey) {
+        return Credential.sshKeyNew(userName, `${sshkey}.pub`, sshkey, '')
+      }
+      return Credential.defaultNew()
+    },
+  },
+})
+
+export const checkoutOriginBranch = async (repo: Repository, branch: string): Promise<void> => {
   let ref = await repo.getCurrentBranch()
   if (ref.name() !== `refs/heads/${branch}`) {
     // https://github.com/nodegit/nodegit/issues/1261#issuecomment-431831338
@@ -17,22 +42,29 @@ export const checkBranch = async (repo: Repository, branch: string): Promise<voi
   }
 }
 
-export const gitOpen = async (path: string): Promise<Repository> => {
+export const forkBranch = async (repo: Repository, branch: string): Promise<void> => {
+  let ref = await repo.getCurrentBranch()
+  if (ref.name() !== `refs/heads/${branch}`) {
+    const commit = await repo.getHeadCommit()
+    ref = await repo.createBranch(branch, commit, true)
+    await repo.checkoutBranch(ref)
+  }
+}
+
+export const open = async (path: string): Promise<Repository> => {
   const repo = await Repository.open(path)
   return repo
 }
 
-export const gitClone = async (url: string, path: string, branch: string): Promise<Repository> => {
+export const clone = async (url: string, path: string, branch: string, sshkey?: string): Promise<Repository> => {
   const repo = await Clone.clone(url, path, {
     checkoutBranch: branch,
-    fetchOpts: {
-      proxyOpts,
-    },
+    fetchOpts: getFetchOpts(sshkey),
   })
   return repo
 }
 
-export const gitCommit = async (repo: Repository, msg: string) => {
+export const commit = async (repo: Repository, msg: string) => {
   // https://github.com/nodegit/nodegit/blob/master/examples/add-and-commit.js
   const index = await repo.refreshIndex()
   await index.addAll()
@@ -44,35 +76,26 @@ export const gitCommit = async (repo: Repository, msg: string) => {
   await repo.createCommit('HEAD', committer, committer, msg, oid, [parent])
 }
 
-export const gitPull = async (repo: Repository) => {
-  await repo.fetch('origin', {
-    proxyOpts,
-    callbacks: {
-      credentials(_url: any, userName: string) {
-        return Cred.sshKeyFromAgent(userName)
-      },
-    },
-  })
+export const pull = async (repo: Repository, branch: string, sshkey?: string) => {
+  await repo.fetch('origin', getFetchOpts(sshkey))
 
   // https://github.com/nodegit/nodegit/blob/master/examples/pull.js
-  await repo.mergeBranches('derealize', 'origin/derealize')
+  await repo.mergeBranches(branch, `origin/${branch}`)
 }
 
-export const gitPush = async (repo: Repository) => {
+export const push = async (repo: Repository, branch: string, sshkey?: string) => {
   // https://github.com/nodegit/nodegit/blob/master/examples/push.js
-  const remote = await repo.getRemote('derealize')
-  const pushId = await remote.push(['refs/heads/derealize:refs/heads/derealize'], {
-    proxyOpts,
-    callbacks: {
-      credentials(_url: any, userName: string) {
-        return Cred.sshKeyFromAgent(userName)
-      },
-    },
-  })
+  const remote = await repo.getRemote('origin')
+  const pushId = await remote.push([`refs/heads/${branch}:refs/heads/${branch}`], getFetchOpts(sshkey))
 }
 
-// recommend engineers use 'rebase' instead 'merge' when merging code into the derealize branch
-export const gitHistory = (repo: Repository): Promise<Array<CommitLog>> => {
+export const switchOrigin = async (repo: Repository, url: string) => {
+  await Remote.delete(repo, 'origin')
+  await Remote.create(repo, 'origin', url)
+}
+
+// recommend engineers use 'rebase' instead 'merge' when merging code into the work branch
+export const history = (repo: Repository): Promise<Array<CommitLog>> => {
   // https://github.com/nodegit/nodegit/blob/master/examples/walk-history.js
   return new Promise((resolve, reject) => {
     repo

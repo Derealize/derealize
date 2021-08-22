@@ -311,7 +311,6 @@ ipcRenderer.on(MainIpcChannel.LoadFinish, (event: Event, socketId, projectId, is
 })
 
 contextBridge.exposeInMainWorld('derealize', {
-  isMac: process.platform === 'darwin',
-  isDev: process.env.NODE_ENV === 'development',
+  isDarwin: process.platform === 'darwin',
   listenElement,
 })

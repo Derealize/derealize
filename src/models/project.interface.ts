@@ -34,8 +34,9 @@ export interface Project {
 }
 
 export interface ProjectStd extends Omit<Project, 'view'> {
-  url: string
-  branch: string
+  giturl?: string
+  sshkey?: string
+  branch?: string
   status?: ProjectStatus
   config?: ProjectConfigStd
   view?: ProjectViewStd

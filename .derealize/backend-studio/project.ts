@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 import fs from 'fs/promises'
 import sysPath from 'path'
 import { ChildProcessWithoutNullStreams } from 'child_process'
@@ -17,7 +18,7 @@ import type {
 } from './backend.interface'
 import { ProjectStatus } from './backend.interface'
 import { npmInstall, npmStart } from './npm'
-import { gitClone, checkBranch, gitOpen, gitPull, gitPush, gitCommit, gitHistory, fileStatusToText } from './git'
+import * as git from './git'
 import emit from './emit'
 
 const compiledMessage = ['Compiled', 'compiled', 'successfully']
@@ -30,7 +31,7 @@ export enum Broadcast {
 }
 
 class Project {
-  status: ProjectStatus = ProjectStatus.None
+  status: ProjectStatus = ProjectStatus.Initialized
 
   repo: Repository | undefined
 
@@ -58,7 +59,13 @@ class Project {
 
   runningProcess: ChildProcessWithoutNullStreams | undefined
 
-  constructor(readonly projectId: string, readonly url: string, readonly path: string, readonly branch = 'derealize') {}
+  constructor(
+    readonly projectId: string,
+    readonly path: string,
+    public giturl?: string,
+    public sshkey?: string,
+    private branch = 'derealize',
+  ) {}
 
   EmitStatus(): void {
     emit(Broadcast.Status, {
@@ -102,6 +109,7 @@ class Project {
 
       if (process.env.BACKEND_SUBPROCESS === 'true') {
         delete require.cache[configPath]
+        // eslint-disable-next-line import/no-dynamic-require
         const config = require(configPath)
         this.tailwindConfig = resolveConfig(config)
       } else {
@@ -120,10 +128,10 @@ class Project {
   }
 
   async FlushGit(): Promise<BoolReply> {
-    if (!this.repo) return { result: false, error: 'repo null' }
+    if (!this.repo) throw new Error('repo null')
 
     try {
-      await checkBranch(this.repo, this.branch)
+      await git.checkoutOriginBranch(this.repo, this.branch)
     } catch (err) {
       captureException(err)
       return { result: false, error: err.message }
@@ -131,10 +139,10 @@ class Project {
 
     try {
       const statuses = await this.repo.getStatus()
-      this.changes = statuses.map((item) => {
+      this.changes = statuses.map((item: { path: () => any }) => {
         return {
           file: item.path(),
-          status: fileStatusToText(item),
+          status: git.fileStatusToText(item),
         }
       })
     } catch (err) {
@@ -147,43 +155,77 @@ class Project {
   }
 
   async Flush(): Promise<BoolReply> {
-    const reply = await this.FlushGit()
-    if (!reply.result) return reply
+    if (this.giturl) {
+      const reply = await this.FlushGit()
+      if (!reply.result) return reply
+    }
 
     const configReply = await this.assignConfig()
     if (!configReply.result) return configReply
 
-    const tailwindConfigReply = this.ResolveTailwindConfig()
-    if (!tailwindConfigReply.result) return tailwindConfigReply
+    if (this.status !== ProjectStatus.Initialized) {
+      const tailwindConfigReply = this.ResolveTailwindConfig()
+      if (!tailwindConfigReply.result) return tailwindConfigReply
+    }
 
     this.EmitStatus()
     return { result: true }
   }
 
-  async Import(): Promise<BoolReply> {
-    try {
-      this.repo = await gitClone(this.url, this.path, this.branch)
-    } catch (err) {
-      if (err.message.includes('exists and is not an empty directory')) {
-        try {
-          this.repo = await gitOpen(this.path)
-        } catch (openErr) {
-          captureException(openErr)
-          return { result: false, error: openErr.message }
-        }
-      } else {
-        captureException(err)
-        return { result: false, error: err.message }
-      }
-    }
+  async GitClone(): Promise<BoolReply> {
+    if (!this.giturl) throw new Error('giturl null')
 
-    const reply = await this.Flush()
-    if (!reply.result) return reply
+    try {
+      this.repo = await git.clone(this.giturl, this.path, this.branch, this.sshkey)
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
 
     return { result: true }
   }
 
-  Install(): BoolReply {
+  async GitOpen(): Promise<BoolReply> {
+    try {
+      this.repo = await git.open(this.path)
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
+
+    return { result: true }
+  }
+
+  async UpdateGitBranch(branch: string): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
+    try {
+      await git.checkoutOriginBranch(this.repo, branch)
+      this.branch = branch
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
+
+    return { result: true }
+  }
+
+  async MigrateGitOrigin(giturl: string, branch = 'derealize', sshkey?: string): Promise<BoolReply> {
+    if (!this.repo) throw new Error('repo null')
+    try {
+      await git.switchOrigin(this.repo, giturl)
+      await git.forkBranch(this.repo, branch)
+      await git.push(this.repo, branch, sshkey)
+      this.giturl = giturl
+      this.branch = branch
+      this.sshkey = sshkey
+    } catch (err) {
+      captureException(err)
+      return { result: false, error: err.message }
+    }
+    return { result: true }
+  }
+
+  async Install(): Promise<BoolReply> {
     if (this.status === ProjectStatus.Starting || this.status === ProjectStatus.Running) {
       return { result: false, error: 'Starting or Running' }
     }
@@ -195,7 +237,7 @@ class Project {
       name: 'npm install',
     })
 
-    this.installProcess = npmInstall(this.path)
+    this.installProcess = await npmInstall(this.path)
     let hasError = false
 
     this.installProcess.stdout.on('data', (stdout) => {
@@ -296,7 +338,7 @@ class Project {
     }
 
     try {
-      await gitPull(this.repo)
+      await git.pull(this.repo, this.branch, this.sshkey)
       this.Install()
 
       return { result: true }
@@ -317,10 +359,10 @@ class Project {
 
     try {
       if (this.changes.length) {
-        await gitCommit(this.repo, msg || 'derealize commit')
+        await git.commit(this.repo, msg || 'derealize commit')
       }
 
-      await gitPull(this.repo)
+      await git.pull(this.repo, this.branch, this.sshkey)
 
       const reply2 = await this.FlushGit()
       if (!reply2.result) return reply2
@@ -329,7 +371,7 @@ class Project {
         return { result: false, error: 'has conflicted. Please contact the engineer for help.' }
       }
 
-      await gitPush(this.repo)
+      await git.push(this.repo, this.branch, this.sshkey)
 
       return { result: true }
     } catch (error) {
@@ -342,7 +384,7 @@ class Project {
     if (!this.repo) throw new Error('repo null')
 
     try {
-      const commits = await gitHistory(this.repo)
+      const commits = await git.history(this.repo)
       return { result: commits }
     } catch (err) {
       return { result: [], error: err.message }

@@ -20,6 +20,7 @@ const App = (): JSX.Element => {
   const elementListen = useStoreActions((actions) => actions.element.listen)
   const elementUnListen = useStoreActions((actions) => actions.element.unlisten)
 
+  const checkFirewall = useStoreActions((actions) => actions.profile.checkFirewall)
   const frontProject = useStoreState<ProjectStd | undefined>((state) => state.projectStd.frontProject)
 
   useEffect(() => {
@@ -27,6 +28,7 @@ const App = (): JSX.Element => {
     projectLoadStore()
     workspaceLoadStore()
     libraryLoadStore()
+    checkFirewall()
 
     projectListen()
     elementListen()
@@ -43,6 +45,7 @@ const App = (): JSX.Element => {
     projectUnListen,
     elementListen,
     elementUnListen,
+    checkFirewall,
   ])
 
   return (

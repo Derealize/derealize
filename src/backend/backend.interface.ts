@@ -9,7 +9,10 @@ export enum Handler {
   Stop = 'Stop',
   Pull = 'Pull',
   Push = 'Push',
+  UpdateGitBranch = 'UpdateGitBranch',
+  MigrateGitOrigin = 'MigrateGitOrigin',
   History = 'History',
+  CheckDirectoryEmpty = 'CheckDirectoryEmpty',
   ApplyElements = 'ApplyElements',
   InsertElement = 'InsertElement',
   DeleteElement = 'DeleteElement',
@@ -18,6 +21,7 @@ export enum Handler {
   ThemeRemoveImage = 'ThemeRemoveImage',
   ThemeSetColor = 'ThemeSetColor',
   ThemeRemoveColor = 'ThemeRemoveColor',
+  ExploreSSHKeys = 'ExploreSSHKeys',
 }
 
 export enum Broadcast {
@@ -42,7 +46,6 @@ export interface ProjectConfigStd extends ProjectConfig {
 }
 
 export enum ProjectStatus {
-  None = 'None',
   Initialized = 'Initialized',
   Ready = 'Ready', // npm installed
   Starting = 'Starting',
@@ -106,4 +109,9 @@ export interface BoolReply {
 export interface TailwindConfigReply {
   result?: TailwindConfig
   error?: string
+}
+
+export interface SshKey {
+  privateKeyPath: string
+  publicKeyPath: string
 }

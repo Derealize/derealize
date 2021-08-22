@@ -36,6 +36,8 @@ Sentry.init({ dsn: process.env.SENTRYDNS, enableNative: true })
 
 Sentry.setContext('character', {
   runtime: 'main',
+  isDebug,
+  isDarwin,
   isStudio,
   version,
 })
@@ -456,12 +458,19 @@ ipcMain.on(MainIpcChannel.SelectDirs, async (event, arg) => {
   event.returnValue = result.filePaths
 })
 
-ipcMain.on(MainIpcChannel.OpenPath, (event, folderPath: string, filePath: string) => {
+ipcMain.on(MainIpcChannel.OpenPath, (event, folderPath: string, filePath: string, preAppDir = false) => {
+  let folder = folderPath
+  if (preAppDir) {
+    folder = path.resolve(__dirname, '..', folderPath)
+  }
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder)
+  }
   if (filePath) {
-    const opath = path.resolve(folderPath, filePath)
+    const opath = path.resolve(folder, filePath)
     shell.openPath(opath)
   } else {
-    shell.openPath(folderPath)
+    shell.openPath(folder)
   }
 })
 

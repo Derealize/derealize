@@ -32,18 +32,25 @@ import { MainIpcChannel } from './interface'
 import { ReactComponent as WelcomeSvg } from './styles/images/undraw_experience_design_eq3j.svg'
 
 declare const window: PreloadWindow
-const { sendMainIpc } = window.derealize
+const { sendMainIpc, listenMainIpc, unlistenMainIpc } = window.derealize
 
 const Home = (): JSX.Element => {
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const toggleImportModal = useStoreActions((actions) => actions.project.toggleImportModal)
+  const setUseTemplate = useStoreActions((actions) => actions.projectStd.setUseTemplate)
   const setEditingProject = useStoreActions((actions) => actions.project.setEditingProject)
   const openProject = useStoreActions((actions) => actions.project.openProject)
   const removeProject = useStoreActions((actions) => actions.project.removeProjectThunk)
 
-  // useEffect(() => {
-  //   toggleImportModal(!projects.length)
-  // }, [projects.length, toggleImportModal])
+  useEffect(() => {
+    listenMainIpc(MainIpcChannel.OpenImport, () => {
+      toggleImportModal(true)
+    })
+
+    return () => {
+      unlistenMainIpc(MainIpcChannel.OpenImport)
+    }
+  }, [toggleImportModal])
 
   return (
     <div className={style.home}>
@@ -70,13 +77,21 @@ const Home = (): JSX.Element => {
           <TabPanel className={style.projects} flexDirection="column">
             <HStack spacing={4} my={6} justifyContent="center">
               <Button
-                onClick={() => toggleImportModal(true)}
+                onClick={() => {
+                  toggleImportModal(true)
+                  setUseTemplate(undefined)
+                }}
                 leftIcon={<FiPlusCircle />}
-                colorScheme="pink"
+                colorScheme="teal"
                 variant="solid"
               >
-                Import
+                Open Local project
               </Button>
+              <a href="https://derealize.com/docs/templates" target="_blank" rel="noreferrer">
+                <Button leftIcon={<FiPlusCircle />} colorScheme="pink" variant="solid">
+                  View templates
+                </Button>
+              </a>
             </HStack>
 
             {!projects.length && (

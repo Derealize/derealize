@@ -7,8 +7,15 @@ export interface ImportPayload extends ProjectIdParam {
 }
 
 export interface ImportPayloadStd extends ImportPayload {
-  url: string
-  branch: string
+  giturl?: string
+  sshkey?: string
+  branch?: string
+}
+
+export interface MigrateGitOriginPayload extends ProjectIdParam {
+  giturl: string
+  sshkey?: string
+  branch?: string
 }
 
 export enum ElementTag {
@@ -76,6 +83,35 @@ export interface ThemeColorPayload extends ProjectIdParam {
   theme: string
   key: string
   value: string
+}
+
+export interface Template {
+  name: string
+  url: string
+  url_firewall: string
+}
+
+export const TEMPLATES: { [key: string]: Template } = {
+  nextjs: {
+    name: 'Next.js',
+    url: 'https://github.com/Derealize/nextjs-template.git',
+    url_firewall: 'https://gitee.com/derealize/nextjs-template.git',
+  },
+  cra: {
+    name: 'Create React App',
+    url: 'https://github.com/Derealize/cra-template.git',
+    url_firewall: 'https://gitee.com/derealize/cra-template.git',
+  },
+  gatsby: {
+    name: 'Gatsby',
+    url: 'https://github.com/Derealize/gatsby-template.git',
+    url_firewall: 'https://gitee.com/derealize/gatsby-template.git',
+  },
+  weapp: {
+    name: 'WeApp',
+    url: 'https://github.com/Derealize/weapp-template.git',
+    url_firewall: 'https://gitee.com/derealize/weapp-template.git',
+  },
 }
 
 export enum MainIpcChannel {

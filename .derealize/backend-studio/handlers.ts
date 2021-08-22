@@ -1,10 +1,13 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
-import fs from 'fs/promises'
+import * as fs from 'fs/promises'
+import os from 'os'
+import { constants } from 'fs'
 import sysPath from 'path'
 import log, { captureException } from './log'
 import Project from './project'
-import type { HistoryReply, BoolReply, TailwindConfigReply } from './backend.interface'
-import type { ProjectIdParam, ImportPayloadStd } from '../interface'
+import type { HistoryReply, BoolReply, TailwindConfigReply, SshKey } from './backend.interface'
+import type { ProjectIdParam, ImportPayloadStd, MigrateGitOriginPayload } from '../interface'
 import {
   ElementPayload,
   InsertElementPayload,
@@ -17,6 +20,7 @@ import { Apply, Insert, Delete } from './shift/react'
 import { SetImage, RemoveImage } from './shift/image'
 import { SetColor, RemoveColor } from './shift/colors'
 import { npmStart } from './npm'
+import { getSSHKeysPath } from './assetspath'
 
 const projectsMap = new Map<string, Project>()
 
@@ -26,15 +30,23 @@ const getProject = (id: string): Project => {
   return project
 }
 
-export const Import = async ({ projectId, url, path, branch }: ImportPayloadStd): Promise<BoolReply> => {
+export const Import = async ({ projectId, path, giturl, sshkey, branch }: ImportPayloadStd): Promise<BoolReply> => {
   let project = projectsMap.get(projectId)
   if (!project) {
-    project = new Project(projectId, url, path, branch)
+    project = new Project(projectId, path, giturl, sshkey, branch)
     projectsMap.set(projectId, project)
   }
 
-  const result = await project.Import()
-  return result
+  let reply: BoolReply
+  if (project.giturl) {
+    reply = await project.GitClone()
+    if (!reply.result) return reply
+  } else {
+    reply = await project.GitOpen()
+    if (!reply.result) return reply
+  }
+  reply = await project.Flush()
+  return reply
 }
 
 export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
@@ -44,7 +56,7 @@ export const Remove = async ({ projectId }: ProjectIdParam): Promise<BoolReply> 
 
 export const Install = async ({ projectId }: ProjectIdParam): Promise<BoolReply> => {
   const project = getProject(projectId)
-  const result = project.Install()
+  const result = await project.Install()
   return result
 }
 
@@ -76,10 +88,35 @@ export const Push = async ({ projectId, msg }: ProjectIdParam & { msg: string })
   return reply
 }
 
+export const UpdateGitBranch = async ({
+  projectId,
+  branch,
+}: ProjectIdParam & { branch: string }): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.UpdateGitBranch(branch)
+  return reply
+}
+
+export const MigrateGitOrigin = async ({
+  projectId,
+  giturl,
+  sshkey,
+  branch,
+}: MigrateGitOriginPayload): Promise<BoolReply> => {
+  const project = getProject(projectId)
+  const reply = await project.MigrateGitOrigin(giturl, branch, sshkey)
+  return reply
+}
+
 export const History = async ({ projectId }: ProjectIdParam): Promise<HistoryReply> => {
   const project = getProject(projectId)
   const logs = await project.History()
   return logs
+}
+
+export const CheckDirectoryEmpty = async ({ path }: { path: string }): Promise<BoolReply> => {
+  const files = await fs.readdir(path)
+  return { result: files.length === 0 }
 }
 
 // export const Dispose = async ({ projectId }: ProjectIdParam) => {
@@ -200,4 +237,35 @@ export const ThemeRemoveColor = async ({ projectId, theme, key }: ThemeColorPayl
     return { result: project.tailwindConfig }
   }
   return { error }
+}
+
+const ExploreDirectory = async (dict: string): Promise<SshKey[]> => {
+  try {
+    await fs.access(dict, constants.R_OK)
+    const keys: Array<SshKey> = []
+    const files = await fs.readdir(dict)
+    for (const filename of files) {
+      const filePath = sysPath.resolve(dict, filename)
+      const stat = await fs.stat(filePath)
+      if (stat.isFile() && sysPath.extname(filename) === '.pub') {
+        await fs.access(filePath, constants.R_OK)
+        const privateKeyPath = sysPath.resolve(dict, sysPath.parse(filename).name)
+        await fs.access(privateKeyPath, constants.R_OK)
+        keys.push({
+          privateKeyPath,
+          publicKeyPath: filePath,
+        })
+      }
+    }
+    return keys
+  } catch (err) {
+    captureException(err)
+  }
+  return []
+}
+
+export const ExploreSSHKeys = async (): Promise<SshKey[]> => {
+  const globalKeys = await ExploreDirectory(`${os.homedir()}/.ssh`)
+  const localKeys = await ExploreDirectory(getSSHKeysPath())
+  return globalKeys.concat(localKeys)
 }

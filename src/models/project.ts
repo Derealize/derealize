@@ -77,7 +77,7 @@ export interface ProjectModel {
   unlisten: Action<ProjectModel>
 
   importModalProjectId: string | undefined
-  toggleImportModal: Action<ProjectModel, boolean | undefined>
+  toggleImportModal: Action<ProjectModel, boolean>
 
   imagesModalDisclosure: boolean
   toggleImagesModal: Action<ProjectModel, boolean | undefined>
@@ -335,12 +335,12 @@ const projectModel: ProjectModel = {
 
   importModalProjectId: undefined,
   toggleImportModal: action((state, open) => {
-    if (open === false || state.importModalProjectId) {
-      state.importModalProjectId = undefined
-      decideProjectView(state.frontProject)
-    } else {
+    if (open) {
       state.importModalProjectId = nanoid()
       decideProjectView(undefined)
+    } else {
+      state.importModalProjectId = undefined
+      decideProjectView(state.frontProject)
     }
   }),
 

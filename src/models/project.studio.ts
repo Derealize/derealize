@@ -15,7 +15,7 @@ import type {
 } from '../backend/backend.interface'
 import { Broadcast, Handler, ProjectStatus } from '../backend/backend.interface'
 import { ProjectViewStd, ProjectStd, BackgroundImage, Colors } from './project.interface'
-import { MainIpcChannel, ImportPayloadStd } from '../interface'
+import { MainIpcChannel, ImportPayloadStd, TEMPLATES } from '../interface'
 import storeProject from '../services/storeProject'
 import { CssUrlReg } from '../utils/assest'
 import type { PreloadWindow } from '../preload'
@@ -91,7 +91,11 @@ export interface ProjectStdModel {
   unlisten: Action<ProjectStdModel>
 
   importModalProjectId: string | undefined
-  toggleImportModal: Action<ProjectStdModel, boolean | undefined>
+  toggleImportModal: Action<ProjectStdModel, boolean>
+  useTemplate: string | undefined
+  setUseTemplate: Action<ProjectStdModel, string | undefined>
+  useGit: boolean
+  setUseGit: Action<ProjectStdModel, boolean>
 
   imagesModalDisclosure: boolean
   toggleImagesModal: Action<ProjectStdModel, boolean | undefined>
@@ -303,9 +307,9 @@ const projectModel: ProjectStdModel = {
     actions.setProjects(projects)
     await Promise.all(
       projects.map(async (project) => {
-        const { id: projectId, url, path, branch } = project
+        const { id: projectId, giturl, path, branch, sshkey } = project
 
-        const payload: ImportPayloadStd = { projectId, url, path, branch }
+        const payload: ImportPayloadStd = { projectId, giturl, path, branch, sshkey }
         const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
         if (result) {
           sendBackIpc(Handler.Install, { projectId })
@@ -355,6 +359,12 @@ const projectModel: ProjectStdModel = {
     })
 
     listenBackIpc(Broadcast.Starting, (payload: ProcessPayload) => {
+      const { projects } = getState()
+      const project = projects.find((p) => p.id === payload.projectId)
+      if (!project) return
+
+      const { id: projectId } = project
+
       if (payload.error) {
         actions.setStartLoading({ projectId: payload.projectId, loading: false })
         toast({
@@ -363,12 +373,6 @@ const projectModel: ProjectStdModel = {
         })
         return
       }
-
-      const { projects } = getState()
-      const project = projects.find((p) => p.id === payload.projectId)
-      if (!project) return
-
-      const { id: projectId } = project
 
       if (payload.stdout) {
         actions.pushRunningOutput({ projectId, output: `stdout: ${payload.stdout}` })
@@ -440,13 +444,21 @@ const projectModel: ProjectStdModel = {
 
   importModalProjectId: undefined,
   toggleImportModal: action((state, open) => {
-    if (open === false || state.importModalProjectId) {
-      state.importModalProjectId = undefined
-      decideProjectView(state.frontProject)
-    } else {
+    if (open) {
       state.importModalProjectId = nanoid()
       decideProjectView(undefined)
+    } else {
+      state.importModalProjectId = undefined
+      decideProjectView(state.frontProject)
     }
+  }),
+  useTemplate: undefined,
+  setUseTemplate: action((state, payload) => {
+    state.useTemplate = payload
+  }),
+  useGit: true,
+  setUseGit: action((state, payload) => {
+    state.useGit = payload
   }),
 
   imagesModalDisclosure: false,

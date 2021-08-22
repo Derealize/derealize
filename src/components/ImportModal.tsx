@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import dayjs from 'dayjs'
 import { useForm } from 'react-hook-form'
 import {
@@ -17,15 +17,6 @@ import {
   FormLabel,
   Input,
   Button,
-  ButtonGroup,
-  useDisclosure,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  AlertDialogCloseButton,
   Text,
   Tooltip,
 } from '@chakra-ui/react'
@@ -48,10 +39,8 @@ type Inputs = {
   displayname: string
 }
 
-const ImportProject = (): JSX.Element => {
+const ImportModal = (): JSX.Element => {
   const toast = useToast()
-  const existsAlertCancelRef = useRef<any>()
-  const { isOpen: openExistsAlert, onOpen: onOpenExistsAlert, onClose: onCloseExistsAlert } = useDisclosure()
   const {
     register,
     handleSubmit,
@@ -65,8 +54,7 @@ const ImportProject = (): JSX.Element => {
 
   const projects = useStoreState<Array<Project>>((state) => state.project.projects)
   const addProject = useStoreActions((actions) => actions.project.addProject)
-  const openProject = useStoreActions((actions) => actions.project.openProject)
-  const isReady = useMemo(() => projects.some((p) => p.id === projectId), [projects, projectId])
+  const removeProject = useStoreActions((actions) => actions.projectStd.removeProject)
 
   const watchPath = watch('path')
 
@@ -84,17 +72,10 @@ const ImportProject = (): JSX.Element => {
     async (data) => {
       if (!projectId) return
 
-      const { path, displayname: name } = data
-      if (projects.map((p) => p.path).includes(path)) {
-        onOpenExistsAlert()
-        return
-      }
-
-      const payload: ImportPayload = { projectId, path }
-      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
-      if (!result) {
+      const { path, displayname } = data
+      if (projects.some((p) => p.path === path)) {
         toast({
-          title: `Import error:${error}`,
+          title: `The path already exists in your project list.`,
           status: 'error',
         })
         return
@@ -103,122 +84,83 @@ const ImportProject = (): JSX.Element => {
       addProject({
         id: projectId,
         path,
-        name,
+        name: displayname,
         editedTime: dayjs().toString(),
       })
+
+      const payload: ImportPayload = { projectId, path }
+      const { result, error } = (await sendBackIpc(Handler.Import, payload as any)) as BoolReply
+
+      if (!result) {
+        removeProject(projectId)
+        toast({
+          title: `Import error:${error}`,
+          status: 'error',
+        })
+      }
     },
-    [projectId, projects, addProject, onOpenExistsAlert, toast],
+    [projectId, projects, addProject, toast, removeProject],
   )
 
-  const open = useCallback(() => {
-    if (isReady && projectId) {
-      toggleModal(false)
-      openProject(projectId)
-    }
-  }, [openProject, projectId, isReady, toggleModal])
-
   return (
-    <>
-      <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader textAlign="center">Import Project</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl id="path" mt={4} isInvalid={!!errors.path}>
-              <FormHelperText className="prose">
-                Before importing your project, please configure the project according to{' '}
-                <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
-                  the documentation
-                </a>
-              </FormHelperText>
+    <Modal isOpen={!!projectId} onClose={() => toggleModal(false)} scrollBehavior="outside" size="5xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader textAlign="center">Import Project</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <FormControl id="path" mt={4} isInvalid={!!errors.path}>
+            <FormHelperText className="prose">
+              Before importing your git project, please configure the project according to{' '}
+              <a href="https://derealize.com/docs/guides/configuration" target="_blank" rel="noreferrer">
+                the documentation
+              </a>
+              .
+            </FormHelperText>
 
-              <FormLabel>Local Path</FormLabel>
-              <Button
-                leftIcon={<FaRegFolderOpen />}
-                colorScheme="gray"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
-                  setValue('path', filePaths[0])
-                }}
-              >
-                Select Folder
-              </Button>
-              <Input type="hidden" {...register('path', { required: true })} />
-              <Tooltip label={watchPath} aria-label="path">
-                <Text color="gray.500" isTruncated>
-                  {watchPath}
-                </Text>
-              </Tooltip>
-
-              {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
-            </FormControl>
-
-            <FormControl id="displayname" mt={4}>
-              <FormLabel>Display Name</FormLabel>
-              <Input type="text" {...register('displayname', { required: true })} />
-              {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
-            </FormControl>
-
-            {isReady && (
-              <Text color="teal.500" align="center" mt={4} px={20}>
-                Congratulations, it looks like the project is ready to work. Before opening the project in Derealize,
-                please run the development mode of the project yourself (e.g. &apos;yarn dev&apos;).
+            <FormLabel>Local Path</FormLabel>
+            <Button
+              leftIcon={<FaRegFolderOpen />}
+              colorScheme="gray"
+              onClick={(e) => {
+                e.stopPropagation()
+                const filePaths = sendMainIpcSync(MainIpcChannel.SelectDirs)
+                setValue('path', filePaths[0])
+              }}
+            >
+              Select Folder
+            </Button>
+            <Input type="hidden" {...register('path', { required: true })} />
+            <Tooltip label={watchPath} aria-label="path">
+              <Text color="gray.500" isTruncated>
+                {watchPath}
               </Text>
-            )}
-          </ModalBody>
-          <ModalFooter justifyContent="center">
-            {isReady && (
-              <ButtonGroup variant="outline" size="lg" spacing={6}>
-                <Button colorScheme="gray" onClick={() => toggleModal(false)}>
-                  Close Dialog
-                </Button>
-                <Button colorScheme="teal" onClick={open}>
-                  Open Project
-                </Button>
-              </ButtonGroup>
-            )}
-            {!isReady && (
-              <Button
-                colorScheme="teal"
-                size="lg"
-                variant={isReady ? 'outline' : 'solid'}
-                spinner={<BeatLoader size={8} color="teal" />}
-                onClick={handleSubmit(submit)}
-                ml={6}
-              >
-                Import
-              </Button>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </Tooltip>
 
-      <AlertDialog
-        motionPreset="slideInBottom"
-        leastDestructiveRef={existsAlertCancelRef}
-        onClose={onCloseExistsAlert}
-        isOpen={openExistsAlert}
-        isCentered
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Project already exists</AlertDialogHeader>
-          <AlertDialogCloseButton />
-          <AlertDialogBody>Do you want to open this project now?</AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={existsAlertCancelRef} onClick={onCloseExistsAlert}>
-              No
-            </Button>
-            <Button colorScheme="red" ml={3} onClick={open}>
-              Yes
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+            {errors.path && <FormErrorMessage>This field is required</FormErrorMessage>}
+          </FormControl>
+
+          <FormControl id="displayname" mt={4} isInvalid={!!errors.displayname}>
+            <FormLabel>Display Name</FormLabel>
+            <Input type="text" {...register('displayname', { required: true })} />
+            {errors.displayname && <FormErrorMessage>This field is required</FormErrorMessage>}
+          </FormControl>
+        </ModalBody>
+        <ModalFooter justifyContent="center">
+          <Button
+            colorScheme="teal"
+            size="lg"
+            variant="solid"
+            spinner={<BeatLoader size={8} color="teal" />}
+            onClick={handleSubmit(submit)}
+            ml={6}
+          >
+            Import
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   )
 }
 
-export default ImportProject
+export default ImportModal
