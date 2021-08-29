@@ -22,6 +22,7 @@ import { version } from './package.json'
 dotenv.config()
 const mainLog = log.scope('main')
 const isDarwin = process.platform === 'darwin'
+const isLinux = process.platform === 'linux'
 const isProd = process.env.NODE_ENV === 'production'
 const isProdDebug = process.env.DEBUG_PROD === 'true'
 const isDebug = !isProd || isProdDebug
@@ -562,14 +563,44 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 //   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
 // })
 
-app
-  .whenReady()
-  .then(async () => {
-    console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
-    socketId = await findOpenSocket()
-    createBackendProcess()
-    createWindow()
-    checkForUpdates(true)
-    return null
+const whenReady = async () => {
+  // console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+  socketId = await findOpenSocket()
+  createBackendProcess()
+  createWindow()
+  checkForUpdates(true)
+  return null
+}
+
+// handling the protocol. In this case, we choose to show an Error Box.
+app.on('open-url', (event, url) => {
+  dialog.showMessageBox({
+    title: 'Welcome Back',
+    message: `You arrived from: ${url}`,
   })
-  .catch(Sentry.captureException)
+})
+
+// https://www.electronjs.org/docs/tutorial/launch-app-from-url-in-another-app
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('derealize', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('derealize')
+}
+
+if (isDarwin || isLinux) {
+  // Create mainWindow, load the rest of the app, etc...
+  app.whenReady().then(whenReady).catch(Sentry.captureException)
+} else if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+  app.whenReady().then(whenReady).catch(Sentry.captureException)
+}
