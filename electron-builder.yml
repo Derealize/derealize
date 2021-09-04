@@ -45,3 +45,7 @@ publish:
   provider: github
   owner: Drealize
   repo: drealize
+protocols:
+  - name: drealize
+    schemes:
+      - drealize

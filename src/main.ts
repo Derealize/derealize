@@ -23,6 +23,7 @@ dotenv.config()
 const mainLog = log.scope('main')
 const isDarwin = process.platform === 'darwin'
 const isLinux = process.platform === 'linux'
+const isWin = process.platform === 'win32'
 const isProd = process.env.NODE_ENV === 'production'
 const isProdDebug = process.env.DEBUG_PROD === 'true'
 const isDebug = !isProd || isProdDebug
@@ -336,7 +337,7 @@ const createWindow = async () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (isDarwin) {
+  if (!isDarwin) {
     app.quit()
   }
 })
@@ -565,6 +566,7 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 
 const whenReady = async () => {
   // console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+  mainLog.info(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
   socketId = await findOpenSocket()
   createBackendProcess()
   createWindow()
@@ -572,35 +574,54 @@ const whenReady = async () => {
   return null
 }
 
-// handling the protocol. In this case, we choose to show an Error Box.
-app.on('open-url', (event, url) => {
-  dialog.showMessageBox({
-    title: 'Welcome Back',
-    message: `You arrived from: ${url}`,
-  })
-})
-
-// https://www.electronjs.org/docs/tutorial/launch-app-from-url-in-another-app
-if (process.defaultApp) {
-  if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient('derealize', process.execPath, [path.resolve(process.argv[1])])
-  }
+// https://shipshape.io/blog/launch-electron-app-from-browser-custom-protocol
+if (!isProd && isWin) {
+  // Set the path of electron.exe and your app.
+  // These two additional parameters are only available on windows.
+  // Setting this is required to get this working in dev mode.
+  app.setAsDefaultProtocolClient('derealize', process.execPath, [path.resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('derealize')
 }
 
-if (isDarwin || isLinux) {
-  // Create mainWindow, load the rest of the app, etc...
-  app.whenReady().then(whenReady).catch(Sentry.captureException)
-} else if (!app.requestSingleInstanceLock()) {
-  app.quit()
+app.on('open-url', (event, url) => {
+  event.preventDefault()
+  mainLog.info('open-url', url)
+})
+
+if (isWin) {
+  // Force single application instance
+  if (!app.requestSingleInstanceLock()) {
+    app.quit()
+  } else {
+    app.on('second-instance', (e, argv) => {
+      // Find the arg that is our custom protocol url and store it
+      const deeplinkingUrl = argv.find((arg) => arg.startsWith('derealize://'))
+      mainLog.info('open-url', deeplinkingUrl)
+
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
+      }
+    })
+  }
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-  })
   app.whenReady().then(whenReady).catch(Sentry.captureException)
 }
+
+// if (isDarwin || isLinux) {
+//   // Create mainWindow, load the rest of the app, etc...
+//   app.whenReady().then(whenReady).catch(Sentry.captureException)
+// } else if (!app.requestSingleInstanceLock()) {
+//   app.quit()
+// } else {
+//   app.on('second-instance', (event, commandLine: string[]) => {
+//     // Someone tried to run a second instance, we should focus our window.
+//     if (mainWindow) {
+//       if (mainWindow.isMinimized()) mainWindow.restore()
+//       mainWindow.focus()
+//       mainLog.info('second-instance', commandLine)
+//     }
+//   })
+//   app.whenReady().then(whenReady).catch(Sentry.captureException)
+// }
