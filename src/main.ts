@@ -564,21 +564,9 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 //   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
 // })
 
-const whenReady = async () => {
-  // console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
-  mainLog.info(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
-  socketId = await findOpenSocket()
-  createBackendProcess()
-  createWindow()
-  checkForUpdates(true)
-  return null
-}
-
 // https://shipshape.io/blog/launch-electron-app-from-browser-custom-protocol
+// https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app/
 if (!isProd && isWin) {
-  // Set the path of electron.exe and your app.
-  // These two additional parameters are only available on windows.
-  // Setting this is required to get this working in dev mode.
   app.setAsDefaultProtocolClient('derealize', process.execPath, [path.resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('derealize')
@@ -591,37 +579,31 @@ app.on('open-url', (event, url) => {
 
 if (isWin) {
   // Force single application instance
-  if (!app.requestSingleInstanceLock()) {
-    app.quit()
-  } else {
+  if (app.requestSingleInstanceLock()) {
     app.on('second-instance', (e, argv) => {
       // Find the arg that is our custom protocol url and store it
       const deeplinkingUrl = argv.find((arg) => arg.startsWith('derealize://'))
-      mainLog.info('open-url', deeplinkingUrl)
+      mainLog.info('second-instance', deeplinkingUrl)
 
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore()
         mainWindow.focus()
       }
     })
+  } else {
+    app.quit()
   }
-} else {
-  app.whenReady().then(whenReady).catch(Sentry.captureException)
 }
 
-// if (isDarwin || isLinux) {
-//   // Create mainWindow, load the rest of the app, etc...
-//   app.whenReady().then(whenReady).catch(Sentry.captureException)
-// } else if (!app.requestSingleInstanceLock()) {
-//   app.quit()
-// } else {
-//   app.on('second-instance', (event, commandLine: string[]) => {
-//     // Someone tried to run a second instance, we should focus our window.
-//     if (mainWindow) {
-//       if (mainWindow.isMinimized()) mainWindow.restore()
-//       mainWindow.focus()
-//       mainLog.info('second-instance', commandLine)
-//     }
-//   })
-//   app.whenReady().then(whenReady).catch(Sentry.captureException)
-// }
+app
+  .whenReady()
+  .then(async () => {
+    // console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+    mainLog.info(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+    socketId = await findOpenSocket()
+    createBackendProcess()
+    createWindow()
+    checkForUpdates(true)
+    return null
+  })
+  .catch(Sentry.captureException)
