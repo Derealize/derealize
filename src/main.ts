@@ -22,6 +22,8 @@ import { version } from './package.json'
 dotenv.config()
 const mainLog = log.scope('main')
 const isDarwin = process.platform === 'darwin'
+const isLinux = process.platform === 'linux'
+const isWin = process.platform === 'win32'
 const isProd = process.env.NODE_ENV === 'production'
 const isProdDebug = process.env.DEBUG_PROD === 'true'
 const isDebug = !isProd || isProdDebug
@@ -335,7 +337,7 @@ const createWindow = async () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  if (isDarwin) {
+  if (!isDarwin) {
     app.quit()
   }
 })
@@ -562,10 +564,53 @@ ipcMain.on(MainIpcChannel.ElectronLog, (event, message: string) => {
 //   mainWindow.webContents.send(MainIpcChannel.Dropped, payload)
 // })
 
+// https://shipshape.io/blog/launch-electron-app-from-browser-custom-protocol
+// https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app/
+if (!isProd && isWin) {
+  app.setAsDefaultProtocolClient('derealize', process.execPath, [path.resolve(process.argv[1])])
+} else {
+  app.setAsDefaultProtocolClient('derealize')
+}
+
+const extractRx = /derealize:\/\/template-(\w+)\//g
+const sendTemplateName = (deeplinkingUrl: string) => {
+  const rxr = extractRx.exec(deeplinkingUrl)
+  if (rxr && rxr.length > 1) {
+    mainLog.info('sendTemplateName rxr[1]', rxr[1])
+    mainWindow?.webContents.send(MainIpcChannel.OpenImport, rxr[1])
+  }
+}
+
+app.on('open-url', (event, deeplinkingUrl) => {
+  event.preventDefault()
+  mainLog.info('open-url', deeplinkingUrl)
+  if (deeplinkingUrl) sendTemplateName(deeplinkingUrl)
+})
+
+if (isWin) {
+  // Force single application instance
+  if (app.requestSingleInstanceLock()) {
+    app.on('second-instance', (e, argv) => {
+      // Find the arg that is our custom protocol url and store it
+      const deeplinkingUrl = argv.find((arg) => arg.startsWith('derealize://'))
+      mainLog.info('second-instance', deeplinkingUrl)
+      if (deeplinkingUrl) sendTemplateName(deeplinkingUrl)
+
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.focus()
+      }
+    })
+  } else {
+    app.quit()
+  }
+}
+
 app
   .whenReady()
   .then(async () => {
-    console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+    // console.log(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
+    mainLog.info(`${app.getName()};isStudio:${isStudio};userData:${app.getPath('userData')}`)
     socketId = await findOpenSocket()
     createBackendProcess()
     createWindow()
