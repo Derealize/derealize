@@ -91,7 +91,7 @@ export interface ProjectStdModel {
   unlisten: Action<ProjectStdModel>
 
   importModalProjectId: string | undefined
-  toggleImportModal: Action<ProjectStdModel, boolean>
+  toggleImportModal: Action<ProjectStdModel, { open: boolean; useTemplate?: string }>
   useTemplate: string | undefined
   setUseTemplate: Action<ProjectStdModel, string | undefined>
   useGit: boolean
@@ -443,9 +443,12 @@ const projectModel: ProjectStdModel = {
   }),
 
   importModalProjectId: undefined,
-  toggleImportModal: action((state, open) => {
+  toggleImportModal: action((state, { open, useTemplate }) => {
     if (open) {
       state.importModalProjectId = nanoid()
+      if (useTemplate) {
+        state.useTemplate = useTemplate
+      }
       decideProjectView(undefined)
     } else {
       state.importModalProjectId = undefined

@@ -45,8 +45,8 @@ const Home = (): JSX.Element => {
   const removeProject = useStoreActions((actions) => actions.projectStd.removeProjectThunk)
 
   useEffect(() => {
-    listenMainIpc(MainIpcChannel.OpenImport, () => {
-      toggleImportModal(true)
+    listenMainIpc(MainIpcChannel.OpenImport, (event, template: string) => {
+      toggleImportModal({ open: true, useTemplate: template })
     })
 
     return () => {
@@ -80,7 +80,7 @@ const Home = (): JSX.Element => {
             <HStack spacing={4} my={6} justifyContent="center">
               <Button
                 onClick={() => {
-                  toggleImportModal(true)
+                  toggleImportModal({ open: true })
                   setUseTemplate(undefined)
                   setUseGit(false)
                 }}
@@ -92,7 +92,7 @@ const Home = (): JSX.Element => {
               </Button>
               <Button
                 onClick={() => {
-                  toggleImportModal(true)
+                  toggleImportModal({ open: true })
                   setUseTemplate(undefined)
                   setUseGit(true)
                 }}
@@ -104,8 +104,7 @@ const Home = (): JSX.Element => {
               </Button>
               <Button
                 onClick={() => {
-                  toggleImportModal(true)
-                  setUseTemplate('nextjs')
+                  toggleImportModal({ open: true, useTemplate: 'nextjs' })
                 }}
                 leftIcon={<FiPlusCircle />}
                 colorScheme="pink"

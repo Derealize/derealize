@@ -572,9 +572,19 @@ if (!isProd && isWin) {
   app.setAsDefaultProtocolClient('derealize')
 }
 
-app.on('open-url', (event, url) => {
+const extractRx = /derealize:\/\/template-(\w+)\//g
+const sendTemplateName = (deeplinkingUrl: string) => {
+  const rxr = extractRx.exec(deeplinkingUrl)
+  if (rxr && rxr.length > 1) {
+    mainLog.info('sendTemplateName rxr[1]', rxr[1])
+    mainWindow?.webContents.send(MainIpcChannel.OpenImport, rxr[1])
+  }
+}
+
+app.on('open-url', (event, deeplinkingUrl) => {
   event.preventDefault()
-  mainLog.info('open-url', url)
+  mainLog.info('open-url', deeplinkingUrl)
+  if (deeplinkingUrl) sendTemplateName(deeplinkingUrl)
 })
 
 if (isWin) {
@@ -584,6 +594,7 @@ if (isWin) {
       // Find the arg that is our custom protocol url and store it
       const deeplinkingUrl = argv.find((arg) => arg.startsWith('derealize://'))
       mainLog.info('second-instance', deeplinkingUrl)
+      if (deeplinkingUrl) sendTemplateName(deeplinkingUrl)
 
       if (mainWindow) {
         if (mainWindow.isMinimized()) mainWindow.restore()

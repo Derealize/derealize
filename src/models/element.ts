@@ -332,7 +332,6 @@ const elementModel: ElementModel = {
     actions.unlisten()
 
     listenMainIpc(MainIpcChannel.FocusElement, (event: IpcRendererEvent, element: ElementPayload) => {
-      console.log('FocusElement', element)
       actions.focusElement(element)
       getStoreActions().project.setProjectViewHistory({ projectId: element.projectId, isView: false })
     })
