@@ -16,24 +16,34 @@ export default class MenuBuilder {
 
   frontMainView: () => void
 
+  sendIsMaximized: () => void
+
   loadURL: (projectId: string, url: string) => void
 
   checkForUpdates: () => Promise<void>
 
   about: () => void
 
+  projectOpened = false
+
   constructor(
     mainWindow: BrowserWindow,
     frontMainView: () => void,
+    sendIsMaximized: () => void,
     loadURL: (projectId: string, url: string) => void,
     checkForUpdates: () => Promise<void>,
     about: () => void,
   ) {
     this.mainWindow = mainWindow
     this.frontMainView = frontMainView
+    this.sendIsMaximized = sendIsMaximized
     this.loadURL = loadURL
     this.checkForUpdates = checkForUpdates
     this.about = about
+  }
+
+  public ChangeProjectOpened(opened: boolean) {
+    this.projectOpened = opened
   }
 
   buildMenu(): Menu {
@@ -87,20 +97,24 @@ export default class MenuBuilder {
               this.mainWindow.webContents.send(MainIpcChannel.OpenImport)
             },
           },
-          {
-            label: '&Flush Tailwindcss Config',
-            accelerator: 'Ctrl+F',
-            click: () => {
-              this.mainWindow.webContents.send(MainIpcChannel.Flush)
-            },
-          },
-          {
-            label: '&Close Project',
-            accelerator: 'Ctrl+W',
-            click: () => {
-              this.mainWindow.webContents.send(MainIpcChannel.CloseFrontProject)
-            },
-          },
+          ...(this.projectOpened
+            ? [
+                {
+                  label: '&Flush Tailwindcss Config',
+                  accelerator: 'Ctrl+F',
+                  click: () => {
+                    this.mainWindow.webContents.send(MainIpcChannel.Flush)
+                  },
+                },
+                {
+                  label: '&Close Project',
+                  accelerator: 'Ctrl+W',
+                  click: () => {
+                    this.mainWindow.webContents.send(MainIpcChannel.CloseFrontProject)
+                  },
+                },
+              ]
+            : []),
           {
             label: '&Quit',
             accelerator: isDarwin ? 'Cmd+Q' : 'Ctrl+Q',
@@ -114,70 +128,69 @@ export default class MenuBuilder {
 
     template.push({ type: 'separator' })
 
-    template.push({
-      label: '&Edit',
-      submenu: [
-        {
-          label: '&Save',
-          accelerator: isDarwin ? 'Cmd+S' : 'Ctrl+S',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.ElementShortcut, 'Save')
+    if (this.projectOpened) {
+      template.push({
+        label: '&Edit',
+        submenu: [
+          {
+            label: '&Save',
+            accelerator: isDarwin ? 'Cmd+S' : 'Ctrl+S',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.ElementShortcut, 'Save')
+            },
           },
-        },
-        {
-          label: '&Undo',
-          accelerator: isDarwin ? 'Cmd+Z' : 'Ctrl+Z',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Undo')
+          {
+            label: '&Undo',
+            accelerator: isDarwin ? 'Cmd+Z' : 'Ctrl+Z',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Undo')
+            },
           },
-        },
-        {
-          label: '&Redo',
-          accelerator: isDarwin ? 'Cmd+Shift+Z' : 'Ctrl+Shift+Z',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Redo')
+          {
+            label: '&Redo',
+            accelerator: isDarwin ? 'Cmd+Shift+Z' : 'Ctrl+Shift+Z',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Redo')
+            },
           },
-        },
-        {
-          label: '&Colors',
-          accelerator: isDarwin ? 'Cmd+Shift+C' : 'Ctrl+Shift+C',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Colors Manager')
+          {
+            label: '&Colors',
+            accelerator: isDarwin ? 'Cmd+Shift+C' : 'Ctrl+Shift+C',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Colors Manager')
+            },
           },
-        },
-      ],
-    })
+          {
+            label: 'History',
+            accelerator: 'Ctrl+H',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
+            },
+          },
+        ],
+      })
 
-    template.push({
-      label: 'Controllers',
-      submenu: ControllerShortcut.map(({ key, label }) => {
-        return {
-          label,
-          accelerator: key,
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.ControllerShortcut, key)
-          },
-        }
-      }),
-    })
+      template.push({
+        label: 'Controllers',
+        submenu: ControllerShortcut.map(({ key, label }) => {
+          return {
+            label,
+            accelerator: key,
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.ControllerShortcut, key)
+            },
+          }
+        }),
+      })
+    }
 
     template.push({ type: 'separator' })
 
     const viewMenus: MenuItemConstructorOptions[] = [
       {
-        label: 'History',
-        accelerator: 'Ctrl+H',
-        click: () => {
-          this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
-        },
-      },
-
-      {
         label: 'Toggle &Full Screen',
         accelerator: 'F11',
-        click: () => {
-          this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
-        },
+        click: this.sendIsMaximized,
       },
       {
         label: '&Reload',
@@ -302,50 +315,88 @@ export default class MenuBuilder {
             this.mainWindow.webContents.send(MainIpcChannel.OpenImport)
           },
         },
-        {
-          label: 'Flush Tailwindcss Config',
-          accelerator: 'Ctrl+F',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.Flush)
-          },
-        },
-        {
-          label: 'Close Project',
-          accelerator: 'Ctrl+W',
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.CloseFrontProject)
-          },
-        },
+        ...(this.projectOpened
+          ? [
+              {
+                label: 'Flush Tailwindcss Config',
+                accelerator: 'Ctrl+F',
+                click: () => {
+                  this.mainWindow.webContents.send(MainIpcChannel.Flush)
+                },
+              },
+              {
+                label: 'Close Project',
+                accelerator: 'Ctrl+W',
+                click: () => {
+                  this.mainWindow.webContents.send(MainIpcChannel.CloseFrontProject)
+                },
+              },
+            ]
+          : []),
       ],
     })
 
-    template.push({
-      label: 'Controllers',
-      submenu: ControllerShortcut.map(({ key, label }) => {
-        return {
-          label,
-          accelerator: key,
-          click: () => {
-            this.mainWindow.webContents.send(MainIpcChannel.ControllerShortcut, key)
+    if (this.projectOpened) {
+      template.push({
+        label: '&Edit',
+        submenu: [
+          {
+            label: '&Save',
+            accelerator: 'Cmd+S',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.ElementShortcut, 'Save')
+            },
           },
-        }
-      }),
-    })
+          {
+            label: '&Undo',
+            accelerator: 'Cmd+Z',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Undo')
+            },
+          },
+          {
+            label: '&Redo',
+            accelerator: 'Cmd+Shift+Z',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Redo')
+            },
+          },
+          {
+            label: '&Colors',
+            accelerator: 'Cmd+Shift+C',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'Colors Manager')
+            },
+          },
+          {
+            label: 'History',
+            accelerator: 'Cmd+H',
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
+            },
+          },
+        ],
+      })
+
+      template.push({
+        label: 'Controllers',
+        submenu: ControllerShortcut.map(({ key, label }) => {
+          return {
+            label,
+            accelerator: key,
+            click: () => {
+              this.mainWindow.webContents.send(MainIpcChannel.ControllerShortcut, key)
+            },
+          }
+        }),
+      })
+    }
 
     const viewMenus: MenuItemConstructorOptions[] = [
       {
-        label: 'History',
-        accelerator: 'Alt+Command+H',
-        click: () => {
-          this.mainWindow.webContents.send(MainIpcChannel.Shortcut, 'History')
-        },
-      },
-      {
         label: 'Toggle Full Screen',
         accelerator: 'Ctrl+Command+F',
-        click: () => {
-          this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen())
-        },
+        click: this.sendIsMaximized,
       },
       {
         label: 'Reload',

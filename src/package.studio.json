@@ -2,7 +2,7 @@
   "name": "derealize",
   "productName": "Derealize",
   "description": "Tailwindcss Studio",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "main": "./main.prod.js",
   "author": {
     "name": "Elliotreborn",

@@ -162,6 +162,10 @@ ipcMain.on(
     if (!mainWindow) return
     if (!projectId) {
       frontMain()
+      if (menuBuilder) {
+        menuBuilder.ChangeProjectOpened(false)
+        mainMenu = menuBuilder.buildMenu()
+      }
       return
     }
 
@@ -211,8 +215,11 @@ ipcMain.on(
         })
     }
 
-    // projectMenu = menuBuilder?.buildProjectMenu(projectId)
     pagesMenu = menuBuilder?.buildPagesMenu(projectId, pages)
+    if (menuBuilder) {
+      menuBuilder.ChangeProjectOpened(true)
+      mainMenu = menuBuilder.buildMenu()
+    }
   },
 )
 
@@ -313,7 +320,7 @@ const createWindow = async () => {
     mainWindow = null
   })
 
-  menuBuilder = new MenuBuilder(mainWindow, frontMain, loadURL, checkForUpdates, about)
+  menuBuilder = new MenuBuilder(mainWindow, frontMain, sendIsMaximized, loadURL, checkForUpdates, about)
   mainMenu = menuBuilder.buildMenu()
 
   // Open urls in the user's browser
